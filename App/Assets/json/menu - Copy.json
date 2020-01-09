@@ -1,0 +1,9 @@
+[
+	{ title: 'Advance Payment', icon: 'cash', bg: '#2d89ef', navigation:'Advance' },
+	{ title: 'Create/View Trip', icon: 'subway', bg: '#ffc40d', navigation:'TripList' },
+	{ title: 'Create/View PJP', icon: 'create', bg: '#00aba9', navigation:'PjpList' },
+	{ title: 'Approve Expense/PJP', icon: 'md-checkbox-outline', bg: '#a852de', navigation:'ApproveExpenses' },
+	{ title: 'Create/View Expenses', icon: 'calculator', bg: '#00a300', navigation:'ExpensesList' },
+	{ title: 'Approve Expense/Trip Non Sales', icon: 'done-all', bg: '#b91d47', navigation:'ApproveNoneSale' },
+	{ title: 'Approve Expense/Trip Sales', icon: 'md-checkmark-circle-outline', bg: '#b91d47', navigation:'ApproveSale' },
+]

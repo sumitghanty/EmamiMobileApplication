@@ -1,0 +1,9 @@
+[
+	{ "id":1, "title": "Advance Payment", "icon": "cash", "navigation":"Advance" },
+	{ "id":2, "title": "Create/View Trip", "icon": "subway", "navigation":"TripList" },
+	{ "id":3, "title": "Create/View PJP", "icon": "create", "navigation":"PjpList" },
+	{ "id":4, "title": "Approve Expense/PJP", "icon": "md-checkbox-outline", "navigation":"ApproveExpenses" },
+	{ "id":5, "title": "Create/View Expenses", "icon": "calculator", "navigation":"ExpensesList" },
+	{ "id":6, "title": "Approve Expense/Trip Non Sales", "icon": "done-all", "navigation":"ApproveNoneSale" },
+	{ "id":7, "title": "Approve Expense/Trip Sales", "icon": "md-checkmark-circle-outline", "navigation":"ApproveSale" },
+]

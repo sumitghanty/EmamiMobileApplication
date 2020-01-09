@@ -1,0 +1,5 @@
+[
+	{ purpose_type_id: 1, purpose_type: 'Training', status: 'A', active_for: 'B',},
+  { purpose_type_id: 2, purpose_type: 'Business Development', status: 'A', active_for: 'B', },
+  { purpose_type_id: 3, purpose_type: 'Sales', status: 'A', active_for: 'S', },
+]
