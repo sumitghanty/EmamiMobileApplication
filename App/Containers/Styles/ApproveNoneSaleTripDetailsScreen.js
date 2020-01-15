@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 
 export default StyleSheet.create({
   container: {
@@ -179,18 +179,82 @@ export default StyleSheet.create({
     color: '#111',
     fontSize: 14
   },
-  cardValueBtn: {
+  cardValueCol: {
     flex: 3,
-    padding: 6,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,.1)',
-    backgroundColor: '#f8f8f8',
-    marginBottom: 6
+    marginRight: 10,
+    marginBottom: 8
   },
-  cardValueBtnText: {
+  atchLink: {
+    backgroundColor: '#f8f8f8',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,.05)',
+    width: 80,
+    height: 52,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  atchImg: {
+    width: '100%',
+    height: '100%',
+  },
+  atchImgIcon: {
+    fontSize: 28,
+  },
+  modaCmntlBody: {
+    paddingBottom: 20
+  },
+  modalHeader: {
+    backgroundColor: '#f4f4f4',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  modalTitle: {
+    fontSize: 16,
     color: '#111',
-    flex: 1,
-    fontSize: 13
+    fontWeight: 'bold'
+  },
+  modalCmntFooter: {
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,.15)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 8
+  },
+  modaCmntlBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 4,
+    margin: 8
+  },
+  modaCmntlBtnText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#fff'
+  },
+  btnDanger: {
+    backgroundColor: 'red'
+  },
+  btnPrimary: {
+    backgroundColor: '#187fe8'
+  },
+  atchMdlImg: {
+    margin: 20,
+    width: Dimensions.get('window').width-40,
+    height: Dimensions.get('window').width-40,
+    alignSelf: 'center'
+  },
+  atchMdlImgName: {
+    color: 'rgba(0,0,0,.65)',
+    marginHorizontal: 20,
+    marginBottom: 20,
+    textAlign: 'center'
+  },
+  atchMdlImgIcon: {
+    color: 'rgba(0,0,0,.35)',
+    fontSize: 48,
+    alignSelf: 'center',
+    margin: 20
   }
 });

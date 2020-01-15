@@ -153,7 +153,8 @@ export default StyleSheet.create({
   },
   cardValueCol: {
     flex: 1,
-    marginHorizontal: 8
+    marginHorizontal: 8,
+    marginRight: 10
   },
   atchLink: {
     backgroundColor: '#f8f8f8',
@@ -243,13 +244,13 @@ export default StyleSheet.create({
     paddingBottom: 20
   },
   modalHeader: {
-    backgroundColor: '#f4f4f4',
+    backgroundColor: '#0066b3',
     paddingHorizontal: 16,
     paddingVertical: 10,
   },
   modalTitle: {
     fontSize: 16,
-    color: '#111',
+    color: '#fff',
     fontWeight: 'bold'
   },
   modalAccordionHeader: {
@@ -257,6 +258,7 @@ export default StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 16,
     marginTop: 16,
+    backgroundColor: '#f9f9f9',
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,.15)'
   },

@@ -17,14 +17,16 @@ export default StyleSheet.create({
     paddingRight: 16,
     paddingTop: 10,
     paddingBottom: 10,
-    backgroundColor: '#f4f4f4',
-    justifyContent: 'space-between'
+    backgroundColor: '#0066b3',
+    justifyContent: 'space-between',
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
   },
   itemHeaderLeft: {
     paddingRight: 10
   },
   headerLabel: {
-    color: 'rgba(0,0,0,.5)',
+    color: 'rgba(255,255,255,.75)',
     fontSize: 12,
     fontWeight: 'bold',
     textTransform: 'uppercase',
@@ -32,7 +34,7 @@ export default StyleSheet.create({
   },
   headerValue: {
     fontSize: 13,
-    color: '#2b3f4e',
+    color: '#fff',
     fontWeight: 'bold',
     flex: 1
   },  

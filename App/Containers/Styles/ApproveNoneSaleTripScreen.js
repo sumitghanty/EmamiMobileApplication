@@ -27,7 +27,7 @@ export default StyleSheet.create({
         borderRadius: 4
     },
     itemHeader: {
-        backgroundColor: '#f4f4f4',
+        backgroundColor: '#0066b3',
         flexDirection: 'row',
         alignItems: 'center',
         borderTopLeftRadius: 4,
@@ -39,7 +39,7 @@ export default StyleSheet.create({
         marginVertical: 8,
         marginRight: 8,
         fontWeight: 'bold',
-        color: 'rgba(0,0,0,.5)',
+        color: 'rgba(255,255,255,.75)',
         fontSize: 13,
         textTransform: 'uppercase',
         flex: 1
@@ -47,7 +47,7 @@ export default StyleSheet.create({
     itemHeaderValue: {
         flex: 4,
         margin: 8,
-        color: '#111',
+        color: '#fff',
         fontSize: 14,
         fontWeight: 'bold'
     },

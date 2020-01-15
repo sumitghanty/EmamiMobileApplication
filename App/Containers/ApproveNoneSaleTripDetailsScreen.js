@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { ScrollView, View, Text, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert, Keyboard,AsyncStorage } from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert, Keyboard,AsyncStorage, Image } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 import Icon from 'react-native-vector-icons/Ionicons'
 import Ficon from 'react-native-vector-icons/FontAwesome5'
@@ -7,13 +7,14 @@ import moment from 'moment'
 import { connect } from 'react-redux'
 import Actions from '../redux/actions'
 import Toast from 'react-native-simple-toast'
+import RNFetchBlob from 'rn-fetch-blob'
 
-import {API_URL} from '../config'
 import Loader from '../Components/Loader'
-import {Purpose, For, ReqType} from '../Components/GetValue'
+import {Purpose, For} from '../Components/GetValue'
 import styles from './Styles/ApproveNoneSaleTripDetailsScreen'
 
 const ASYNC_STORAGE_COMMENTS_KEY = 'ANYTHING_UNIQUE_STRING'
+const STAT_IMG = 'https://qph.fs.quoracdn.net/main-qimg-2fbdde5788e73478a08dc4bf338eee02.webp'
 
 class ApproveNoneSaleTripDetailsScreen extends Component {
   constructor(props) {
@@ -30,6 +31,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
       isError: false,
       hasOOP: false,
       aprvReqList: [],
+      downloadLoading: false,
     };
   }
   componentDidMount(props){
@@ -42,6 +44,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
         }
       }
     });
+    this.props.getReqName(global.USER.designation,global.USER.grade);
   }
 
   state = {
@@ -162,6 +165,44 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
       {cancelable: true},
     )
   };
+
+  downloadAttachment=(file)=> {
+    this.downloadImage (file);
+    this.setState({downloadLoading: true});
+  }
+
+  downloadImage = (file) => {
+    var date = new Date();
+    var image_URL = file;
+    var ext = this.getExtention(image_URL);
+    ext = "." + ext[0];
+    const { config, fs } = RNFetchBlob;
+    let PictureDir = fs.dirs.PictureDir
+    let options = {
+      fileCache: true,
+      addAndroidDownloads: {
+        useDownloadManager: true,
+        notification: true,
+        path: PictureDir + "/Emami/image_" + Math.floor(date.getTime()
+          + date.getSeconds() / 2) + ext,
+        description: 'Image'
+      }
+    }
+    config(options).fetch('GET', image_URL).then((res) => {
+      Alert.alert("File Downloaded Successfully.");      
+      this.attachModalVisible(null);
+      this.setState({downloadLoading: false});
+    });
+  }
+ 
+  getExtention = (filename) => {
+    return (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename) :
+      undefined;
+  }
+  getFilename = (filename) => {
+    return (/[/]/.exec(filename)) ? /[^/]+$/.exec(filename) :
+      undefined;
+  }
 
   rejectConfirmation() {
     if(this.state.rejComment.length<1) {
@@ -351,9 +392,19 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
     });
   }
 
+  setReqName=(value)=>{
+    for(var i=0; i<this.props.reqName.dataSource.length; i++) {
+      if(this.props.reqName.dataSource[i].sub_category_id == value) {
+        return (
+          this.props.reqName.dataSource[i].sub_category
+        );
+      }
+    }
+  }
+
   render(){
     const {params} = this.props.navigation.state;
-    if(this.state.isLoading || this.props.plans.isLoading){
+    if(this.state.isLoading || this.props.plans.isLoading || this.props.reqName.isLoading){
       return(
         <Loader/>
       )
@@ -365,7 +416,6 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
         <Text>URL Error</Text>
       )
     } else {
-      //console.log(this.state.aprvReqList);
     return(
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
@@ -432,17 +482,39 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
 
         <Modal
           animationType="fade"
-          transparent={true}
+          transparent={false}
           visible={this.state.attachData? true : false}
           onRequestClose = {() => {this.attachModalVisible(null)}}>
-          <View style={styles.modalWraper}>
-            <TouchableOpacity style={styles.modalOverlay}
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Attachment</Text>
+          </View>
+          <ScrollView contentContainerStyle={styles.modaCmntlBody}>
+            {this.state.downloadLoading ?
+              <Loader/>
+            :<View>
+            {(this.getExtention(this.state.attachData) == 'webp' ||
+              this.getExtention(this.state.attachData) == 'png' ||
+              this.getExtention(this.state.attachData) == 'jpg' ||
+              this.getExtention(this.state.attachData) == 'jpeg' ||
+              this.getExtention(this.state.attachData) == 'bmp' ||
+              this.getExtention(this.state.attachData) == 'gif'
+            ) ?
+              <Image source={{uri:this.state.attachData}} 
+                style={styles.atchMdlImg} 
+                resizeMode='contain' />
+            :<Icon name="ios-paper" style={styles.atchMdlImgIcon} />}
+            <Text style={styles.atchMdlImgName}>{this.getFilename(this.state.attachData)}</Text>
+            </View>}
+          </ScrollView>
+          <View style={styles.modalCmntFooter}>
+            <TouchableOpacity style={[styles.modaCmntlBtn, styles.btnDanger]}
               onPress={() => {this.attachModalVisible(null)}}>
-              <Text>&nbsp;</Text>
+              <Text style={styles.modaCmntlBtnText}>Cancel</Text>
             </TouchableOpacity>
-            <View style={styles.modalBody}>
-              <Text style={styles.modalTitle}>Attachment-{this.state.attachData}</Text>
-            </View>
+            <TouchableOpacity style={[styles.modaCmntlBtn, styles.btnPrimary]}
+              onPress={() => {this.downloadAttachment(this.state.attachData)}}>
+              <Text style={styles.modaCmntlBtnText}>Download</Text>
+            </TouchableOpacity>
           </View>
         </Modal>
 
@@ -552,7 +624,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
       <Ficon style={styles.cardTileIcon} name="road" />
       : null
       }
-      <Text style={styles.cardTile}><ReqType value={data.req_type} /></Text>
+      <Text style={styles.cardTile}>{this.setReqName(data.req_type)}</Text>
     </View>
     <View style={styles.cardBody}>
       <View style={styles.cardRow}>
@@ -573,15 +645,24 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
         <Text style={styles.cardLabel}>Approx Amount:</Text>
         <Text style={styles.cardValue}>{data.amount}</Text>
       </View>
-      {data.status_id == '3' || data.status_id == '4' ?
+      {/*data.status_id == '3' || data.status_id == '4' ?
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Attachment:</Text>
-        <TouchableOpacity 
-          style={styles.cardValueBtn}            
-          onPress={() => {this.attachModalVisible(data.status);}}>
-          <Text style={styles.cardValueBtnText}>staticfile.png</Text>
-        </TouchableOpacity>
-      </View>:null}
+        <View style={styles.cardValueCol}>
+          <TouchableOpacity style={styles.atchLink}
+            onPress={() => {this.attachModalVisible(STAT_IMG);}}>
+            {(this.getExtention(STAT_IMG) == 'webp' ||
+              this.getExtention(STAT_IMG) == 'png' ||
+              this.getExtention(STAT_IMG) == 'jpg' ||
+              this.getExtention(STAT_IMG) == 'jpeg' ||
+              this.getExtention(STAT_IMG) == 'bmp' ||
+              this.getExtention(STAT_IMG) == 'gif'
+            ) ?
+            <Image source={{uri:STAT_IMG}} style={styles.atchImg} resizeMode='contain' />
+            :<Icon name="ios-paper" style={styles.atchImgIcon} />}            
+          </TouchableOpacity>
+        </View>
+      </View>:null*/}
     </View>    
   </TouchableOpacity>
     };
@@ -590,6 +671,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
 
 const mapStateToProps = state => {
   return {
+    reqName: state.reqName,
     plans: state.plans,
     aprvTripNonReq: state.aprvTripNonReq,
     aprvTripWithReq: state.aprvTripWithReq,
@@ -599,6 +681,7 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = {
+  getReqName: Actions.getReqName,
   getPlans : Actions.getPlans,
   aprvTripNonReq: Actions.aprvTripNonReq,
   postAprvTripWithReq: Actions.postAprvTripWithReq,

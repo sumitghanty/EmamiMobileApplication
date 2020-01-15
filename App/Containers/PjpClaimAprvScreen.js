@@ -198,9 +198,24 @@ class PjpClaimAprvScreen extends Component {
     console.log('Form submit pending');
   }
 
+  componentDidMount(props){
+    this.props.getReqClaimSale(this.props.navigation.state.params.trip_hdr_id)
+  }
+
   render() {
-    var sortList = TEMPLIST;
+  if(this.state.isLoading || this.props.reqClaimListSales.isLoading){
+    return(
+      <Loader/>
+    )
+  } else if ( this.props.reqClaimListSales.errorStatus) {
+    return (
+      <Text>URL Error</Text>
+    )
+  } else {
+    var sortList = this.props.reqClaimListSales.dataSource;
     sortList.sort((a,b) => b.req_hdr_id - a.req_hdr_id);
+    const {params} = this.props.navigation.state;
+    console.log(params);
   return(
   <View style={styles.container}>
     <ScrollView contentContainerStyle={styles.scrollView}>
@@ -212,27 +227,27 @@ class PjpClaimAprvScreen extends Component {
       <View style={{display:this.state.acrdVisible==0?'none':'flex'}}>
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>PJP Year:</Text>
-          <Text style={styles.itemValue}>xxx</Text>
+          <Text style={styles.itemValue}>{params.year}</Text>
         </View>
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>PJP Month:</Text>
-          <Text style={styles.itemValue}>xxx</Text>
+          <Text style={styles.itemValue}>{params.month}</Text>
         </View>
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>Purpose:</Text>
-          <Text style={styles.itemValue}>xxx</Text>
+          <Text style={styles.itemValue}>{params.purpose}</Text>
         </View>
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>Trip For:</Text>
-          <Text style={styles.itemValue}>xxx</Text>
+          <Text style={styles.itemValue}>{params.trip_for}</Text>
         </View>
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>Traveler Name:</Text>
-          <Text style={styles.itemValue}>xxx</Text>
+          <Text style={styles.itemValue}>{params.name}</Text>
         </View>
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>Details:</Text>
-          <Text style={styles.itemValue}>xxx</Text>
+          <Text style={styles.itemValue}>{params.details}</Text>
         </View>
         
         {sortList.length > 0 ?
@@ -252,22 +267,22 @@ class PjpClaimAprvScreen extends Component {
           </View>
           <View style={styles.totalTableRow}>
             <Text style={styles.totalTableLabel}>Requisition Amount:</Text>
-            <Text style={styles.totalTableValue}>0000.00</Text>
+            <Text style={styles.totalTableValue}>{params.estimated_cost}</Text>
           </View>
           <View style={styles.totalTableRow}>
             <Text style={styles.totalTableLabel}>Claim Amount:</Text>
-            <Text style={styles.totalTableValue}>0000.00</Text>
+            <Text style={styles.totalTableValue}>{params.actual_claim_amount}</Text>
           </View>
           <View style={styles.totalTableRow}>
             <Text style={styles.totalTableLabel}>Deduction Amount:</Text>
-            <Text style={styles.totalTableValue}>0000.00</Text>
+            <Text style={styles.totalTableValue}>xxxx</Text>
           </View>
         </View>
         :null}
       </View>
 
       <View style={styles.titleRow}>
-        <Text style={styles.title}>Claim Details</Text>
+        <Text style={styles.title}>Tour Plan</Text>
       </View>
       <View style={styles.itemRow}>
         <Text style={styles.itemLabel}>Estimated Cost:</Text>
@@ -378,7 +393,9 @@ class PjpClaimAprvScreen extends Component {
           <Icon style={styles.modalAcrdIcon} name={this.state.acrdCmntFirstVisible==0?"ios-arrow-dropdown":"ios-arrow-dropup"} />
         </TouchableOpacity>
         <View style={[styles.modalAcrdBody,{display:this.state.acrdCmntFirstVisible==0?'none':'flex'}]}>
-          <Text style={styles.modalAcrdComents}>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</Text>
+          {this.state.cmntData ?
+          <Text style={styles.modalAcrdComents}>{this.state.cmntData.claimEmpcomment}</Text>
+          :null}
         </View>
         <TouchableOpacity style={styles.modalAccordionHeader}
           onPress={()=>{this.setAcrdCmntSecondVisible()}}>
@@ -386,7 +403,9 @@ class PjpClaimAprvScreen extends Component {
           <Icon style={styles.modalAcrdIcon} name={this.state.acrdCmntSecondVisible==0?"ios-arrow-dropdown":"ios-arrow-dropup"} />
         </TouchableOpacity>
         <View style={[styles.modalAcrdBody,{display:this.state.acrdCmntSecondVisible==0?'none':'flex'}]}>
-          <Text style={styles.modalAcrdComents}>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</Text>
+          {this.state.cmntData ?
+          <Text style={styles.modalAcrdComents}>{this.state.cmntData.claimFinancercomment}</Text>
+          :null}
         </View>
         <Text style={styles.modalCmntLabel}>Supervisor comment:</Text>
         <TextInput 
@@ -442,6 +461,7 @@ class PjpClaimAprvScreen extends Component {
   </View>
   );
   }
+  }
 
   renderReq = (data,index) => {
     return <TouchableOpacity 
@@ -451,25 +471,25 @@ class PjpClaimAprvScreen extends Component {
       <View style={styles.cardItemHeader}>
         <View style={styles.cardItemHeaderCol}>
           <Text style={styles.cardHdrLabel}>FROM</Text>
-          <Text style={styles.cardHdrValue}>Kolkata</Text>
+          <Text style={styles.cardHdrValue}>{data.source_city_name}</Text>
         </View>
         <Icon name="ios-arrow-round-forward" style={styles.hdrIcon} />
         <View style={styles.cardItemHeaderCol}>
           <Text style={styles.cardHdrLabel}>TO</Text>
-          <Text style={styles.cardHdrValue}>Hydrebad</Text>
+          <Text style={styles.cardHdrValue}>{data.dest_city_name}</Text>
         </View>
         <TouchableOpacity style={styles.cmntBtn}
-          onPress={() => {this.reqCmntModalVisible(data.req_hdr_id);}}>
+          onPress={() => {this.reqCmntModalVisible(data);}}>
           <Icon name="ios-chatbubbles" style={styles.cmntIcon} />
         </TouchableOpacity>
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Date:</Text>
-        <Text style={styles.cardValue}>xxx</Text>
+        <Text style={styles.cardValue}>{data.pjp_date?moment(data.pjp_date).format(global.DATEFORMAT):null}</Text>
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Distance:</Text>
-        <Text style={styles.cardValue}>xxx</Text>
+        <Text style={styles.cardValue}>{data.distance}</Text>
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Actual Distance:</Text>
@@ -477,41 +497,45 @@ class PjpClaimAprvScreen extends Component {
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Departure Time:</Text>
-        <Text style={styles.cardValue}>xxx</Text>
+        <Text style={styles.cardValue}>{data.claim_depart_time}</Text>
       </View>      
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Arrival Time:</Text>
-        <Text style={styles.cardValue}>xxx</Text>
+        <Text style={styles.cardValue}>{data.claim_arrive_time}</Text>
       </View>      
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Total Time:</Text>
         <Text style={styles.cardValue}>xxx</Text>
+      </View>     
+      <View style={styles.cardRow}>
+        <Text style={styles.cardLabel}>Day:</Text>
+        <Text style={styles.cardValue}>noofdays</Text>
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Requisition Type:</Text>
-        <Text style={styles.cardValue}>xxx</Text>
+        <Text style={styles.cardValue}>{data.mode_name}</Text>
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Requisition Amount:</Text>
-        <Text style={styles.cardValue}>9999.99</Text>
+        <Text style={styles.cardValue}>{data.amount_mode}</Text>
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Claim Amount:</Text>
-        <Text style={styles.cardValue}>9999.99</Text>
+        <Text style={styles.cardValue}>{data.claimamount}</Text>
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Deduction Amount:</Text>
-        <Text style={styles.cardValue}>9999.99</Text>
+        <Text style={styles.cardValue}>xxxx</Text>
       </View>      
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Payable Amount:</Text>
-        <Text style={styles.cardValue}>9999.99</Text>
+        <Text style={styles.cardValue}>{data.claimpaybleamount}</Text>
       </View>      
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Out of Policy:</Text>
-        <Text style={styles.cardValue}>xxx</Text>
+        <Text style={styles.cardValue}>{data.is_outof_policy=="N"?"No":"Yes"}</Text>
       </View>
-      {data.attachment ?
+      {/*data.attachment ?
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Attachment:</Text>
         <View style={styles.cardValueCol}>
@@ -529,10 +553,20 @@ class PjpClaimAprvScreen extends Component {
           </TouchableOpacity>
         </View>
       </View>
-      :null}
+      :null*/}
 
     </TouchableOpacity>
   };
 }
 
-export default PjpClaimAprvScreen;
+const mapStateToProps = state => {
+  return {
+    reqClaimListSales: state.reqClaimListSales,
+  };
+};
+
+const mapDispatchToProps = {
+  getReqClaimSale: Actions.getReqClaimSale,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(PjpClaimAprvScreen);

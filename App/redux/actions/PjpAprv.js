@@ -1,6 +1,6 @@
 export const REQUEST = 'PJP_TRIP_APROVE';
 
-export function pjpAprv(data) {
+export function postPjpAprv(data) {
   return {
     type: REQUEST,
     payload: {

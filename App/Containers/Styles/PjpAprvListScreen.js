@@ -1,8 +1,8 @@
 import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
-  container: {
-    flex: 1
+  content: {
+    zIndex: -3
   },
   title: {
     fontSize: 16,
@@ -18,34 +18,33 @@ export default StyleSheet.create({
   itemHeader: {
     paddingLeft: 16,
     paddingRight: 8,
-    paddingTop: 12,
-    paddingBottom: 12,
+    paddingTop: 10,
+    paddingBottom: 10,
     backgroundColor: '#0066b3',
-    justifyContent: 'space-between',
+    flexDirection: 'row',
+    alignItems: 'center',
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0
   },
   headerLabel: {
     color: 'rgba(255,255,255,.75)',
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: 'bold',
     textTransform: 'uppercase',
     marginRight: 10
   },
   headerValue: {
+    flex: 1,
     fontSize: 14,
     color: '#fff',
-    fontWeight: 'bold',
-    flex: 1
-  },  
+    fontWeight: 'bold'
+  },
+  headerIcon: {
+    fontSize: 28,
+    color: 'rgba(255,255,255,.75)',
+  },
   statusInitiated: {
     color: '#00b3b3'
-  },
-  statusSuccess: {
-    color: '#00a300'
-  },
-  statusAwaiting: {
-    color: '#ff920a'
   },
   itemBody: {
     paddingRight: 0
@@ -69,9 +68,6 @@ export default StyleSheet.create({
     flex: 3,
     color: '#2b3f4e',
     fontSize: 14
-  },
-  itemActions: {
-    paddingRight: 16
   },
   searchBar: {
       backgroundColor: '#f4f4f4',

@@ -1,3 +1,6 @@
+import {getReqName} from './GetReqName'
+import {getReqClaimName} from './GetReqClaimName'
+import {getAttachment} from './GetAttachment'
 import {getStatus} from './GetStatus'
 import {getTrips} from './TripList'
 import {tripCreate} from './TripCreate'
@@ -14,17 +17,22 @@ import {reqCreate} from './ReqCreate'
 import {reqUpdate} from './ReqUpdate'
 import {reqDelete} from './ReqDelete'
 import {getAdvPmnts} from './AdvPmntList'
-import {getExps} from './ExpList'
 import {postAprAdvPmnt} from './AprvAdvPmnt'
 import {getExpPendApr} from './AprExpPend'
 import {postExpAprv} from './ExpAprv'
 import {getCostCentre} from './CostCentre'
 import {getPjp} from './PJPList'
 import {getPjpClaim} from './PjpClaimList'
+import {getPjpAprvList} from './PJPAprvList'
 import {postPjpAprv} from './PjpAprv'
 import {postPjpClaimAprv} from './PjpClaimAprv'
+import {getReqSale} from './ReqListSales'
+import {getReqClaimSale} from './ReqClaimListSales'
 
 export default {
+	getReqName:getReqName,
+	getReqClaimName:getReqClaimName,
+	getAttachment:getAttachment,
 	getStatus:getStatus,
   getTrips:getTrips,
 	tripCreate:tripCreate,
@@ -41,13 +49,15 @@ export default {
 	reqUpdate:reqUpdate,
 	reqDelete:reqDelete,
 	getAdvPmnts:getAdvPmnts,
-	getExps:getExps,
 	postAprAdvPmnt:postAprAdvPmnt,
 	getExpPendApr:getExpPendApr,
 	postExpAprv:postExpAprv,
 	getCostCentre:getCostCentre,
 	getPjp:getPjp,
 	getPjpClaim:getPjpClaim,
+	getPjpAprvList:getPjpAprvList,
 	postPjpAprv:postPjpAprv,
-	postPjpClaimAprv:postPjpClaimAprv
+	postPjpClaimAprv:postPjpClaimAprv,
+	getReqSale:getReqSale,
+	getReqClaimSale:getReqClaimSale
 }

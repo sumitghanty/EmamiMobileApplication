@@ -32,7 +32,9 @@ export default StyleSheet.create({
   titleBlock: {
     backgroundColor: '#fff',
     paddingTop: 16,
-    paddingLeft: 62
+    paddingLeft: 62,
+    paddingBottom: 10,
+    minHeight: 62
   },
   title: {
     fontSize: 22,
@@ -41,7 +43,8 @@ export default StyleSheet.create({
   userBlock: {
     flexDirection: 'row',
     marginBottom: 6,
-    backgroundColor: '#fff'
+    backgroundColor: '#0066b3',
+    marginTop: 6
   },
   userAvatar: {
     width: 80,
@@ -56,15 +59,20 @@ export default StyleSheet.create({
     padding: 20,
     flex: 1
   },
+  userNameHolder: {
+    alignSelf: 'center',
+    marginBottom: 10
+  },
   userName: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 3
+    marginBottom: 3,
+    textAlign: 'center'
   },
-  userId: {
+  designation: {
     fontSize: 14,
-    color: '#7a7a7a',
-    marginBottom: 8
+    color: 'rgba(255,255,255,.75)',
+    textAlign: 'center'
   },
   userRow: {
     flexDirection: 'row',

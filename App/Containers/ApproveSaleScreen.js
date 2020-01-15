@@ -9,8 +9,8 @@ class ApproveSaleScreen extends Component {
     super();
     this.state = {
       links: [
-        {title:'PJP pending for Approval',link:'PjpTripList'},
-        {title:'PJP-Claim pending for Approval',link:'PjpClaimList'}
+        {title:'PJP pending for Approval',link:'PjpAprvList', argument:'tour'},
+        {title:'PJP-Claim pending for Approval',link:'PjpAprvList', argument:'claim'}
       ]
     }
   }
@@ -22,7 +22,7 @@ class ApproveSaleScreen extends Component {
         <TouchableOpacity 
           key={index} 
           style={styles.linkItem} 
-          onPress={() => this.props.navigation.navigate(item.link)}>
+          onPress={() => this.props.navigation.navigate(item.link,item.argument)}>
           <View style={styles.card}>
             <Text style={styles.cardTitle}>{item.title}</Text>
             <Icon name="ios-arrow-forward" style={styles.cardIcon}></Icon>

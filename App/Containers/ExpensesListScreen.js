@@ -21,7 +21,6 @@ class ExpensesListScreen extends Component {
     super();
     this.state ={
       searchTerm: '',
-      dataArray: [],
       curDate: '',
     }
   }; 
@@ -29,12 +28,7 @@ class ExpensesListScreen extends Component {
     this.setState({ searchTerm: term })
   }
   componentDidMount(){
-    {STATUS_ID.map((item, key) => {
-      this.props.getExps(global.USER.userId,item)
-      .then(() => {
-        this.state.dataArray.push(this.props.exps.dataSource)
-      });
-    })}
+    this.props.getAdvPmnts(global.USER.userId,"3",STATUS_ID);
 
     var date = new Date().getDate();
     var month = new Date().getMonth() + 1;
@@ -57,12 +51,12 @@ class ExpensesListScreen extends Component {
   }
    
   render() {
-    if(this.props.exps.isLoading){
+    if(this.props.advPmnts.isLoading){
       return(
           <Loader/>
       )
     } else {
-      const listData = this.state.dataArray;
+      const listData = this.props.advPmnts.dataSource;
       const newData = [];
       for(var i=0; i< listData.length; i++) {
         for(var j=0; j< listData[i].length; j++) {
@@ -171,12 +165,12 @@ class ExpensesListScreen extends Component {
 
 const mapStateToProps = state => {
   return {
-    exps: state.exps
+    advPmnts: state.advPmnts
   };
 };
 
 const mapDispatchToProps = {
-  getExps : Actions.getExps
+  getAdvPmnts : Actions.getAdvPmnts
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ExpensesListScreen);

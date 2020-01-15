@@ -101,12 +101,12 @@ class PjpClaimListScreen extends Component {
 
 const mapStateToProps = state => {
   return {
-    PJP: state.PJP
+    pjpAprvList: state.pjpAprvList
   };
 };
 
 const mapDispatchToProps = {
-  getPjp : Actions.getPjp
+  getPjpAprvList : Actions.getPjpAprvList
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(PjpClaimListScreen);

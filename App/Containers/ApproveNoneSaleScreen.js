@@ -61,10 +61,14 @@ class ApproveNoneSaleScreen extends Component {
             key={index} 
             style={styles.linkItem} 
             onPress={() => this.props.navigation.navigate(item.link)}>
-            <View style={styles.card}>
+            <LinearGradient 
+            start={{x: 0, y: 0}} 
+            end={{x: 1, y: 0}} 
+            colors={['#0066b3', '#3480ea']} 
+            style={styles.card}>
               <Text style={styles.cardTitle}>{item.title}</Text>
               <Icon name="ios-arrow-forward" style={styles.cardIcon}></Icon>
-            </View>
+            </LinearGradient>
           </TouchableOpacity>
           );
         })}        

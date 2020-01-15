@@ -108,10 +108,6 @@ class AdvPmntReqScreen extends Component {
       })
       .then(()=>{
         this.props.navigation.navigate('Advance');
-        this.setState({ 
-          error: false,
-          isLoading: false
-        });
         if(statusId == "14") {
           Toast.show('Advance payment submited successfully', Toast.LONG);
         }

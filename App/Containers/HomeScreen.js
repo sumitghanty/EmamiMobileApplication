@@ -38,7 +38,7 @@ export default class HomeScreen extends Component {
   _renderItem ({item, index}) {
     return (
       <TouchableOpacity style={styles.sliderItem}
-        onPress={() => (item.id==6 || item.id==7)?  
+        onPress={() => (item.id==6)?  
                 this.props.navigation.navigate(item.navigation)
                 : {}
                 }>
@@ -97,7 +97,7 @@ export default class HomeScreen extends Component {
     //BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
     request_storage_runtime_permission()
     if(global.USER) {
-      if(global.USER.Approve_visibility_Sales) {
+      if(global.USER.approve_pjp_visibility) {
         this.state.entries.push({ "id":7, "title": "Approve Expense/PJP", "icon": "md-checkmark-circle-outline", "navigation":"ApproveSale" });
       }
       if(global.USER.Approve_visibility_NonSales) {
@@ -163,21 +163,15 @@ export default class HomeScreen extends Component {
           <View style={styles.userInfo}>
             <LinearTextGradient
               locations={[0, 1]}
-              colors={["#985bff", "#5883f3"]}
+              colors={["#7bf0f9", "#8dfbdf"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
+              style={styles.userNameHolder}
               >
               <Text style={styles.userName}>{global.USER.userName}</Text>
             </LinearTextGradient>
-            <Text style={styles.userId}>{global.USER.personId}</Text>
-            <View style={styles.userRow}>
-              <Text style={styles.label}>Designation:</Text>
-              <Text style={styles.value}>{global.USER.designation}</Text>
-            </View>
-            <View style={styles.userRow}>
-              <Text style={styles.label}>Department:</Text>
-              <Text style={styles.value}>{global.USER.department}</Text>
-            </View>
+            <Text style={styles.designation}>{global.USER.designation}</Text>
+            <Text style={styles.designation}>Department:{global.USER.department}</Text>
           </View>
         </View>
         <View style={styles.userDetails}>

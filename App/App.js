@@ -38,6 +38,7 @@ import AprvExpnsClaimPendInfoScreen from './Containers/AprvExpnsClaimPendInfoScr
 import ApproveSaleScreen from './Containers/ApproveSaleScreen'
 import PjpTripListScreen from './Containers/PjpTripListScreen'
 import PjpTripAprvScreen from './Containers/PjpTripAprvScreen'
+import PjpAprvListScreen from './Containers/PjpAprvListScreen'
 import PjpReqDtlScreen from './Containers/PjpReqDtlScreen'
 import PjpClaimAprvScreen from './Containers/PjpClaimAprvScreen'
 import Drawer from './Components/Drawer'
@@ -282,6 +283,13 @@ const StackNavigator = createStackNavigator({
   },
   PjpTripList: {
     screen:  PjpTripListScreen,
+    drawerLabel: "List of Expense/PJP",
+    navigationOptions: ({ navigation }) => ({
+      title: 'List of Expense/PJP'
+    })
+  },  
+  PjpAprvList: {
+    screen:  PjpAprvListScreen,
     drawerLabel: "PJP pending for approval",
     navigationOptions: ({ navigation }) => ({
       title: 'PJP pending for approval'
@@ -289,9 +297,9 @@ const StackNavigator = createStackNavigator({
   },
   PjpTripAprv: {
     screen:  PjpTripAprvScreen,
-    drawerLabel: "PJP Details",
+    drawerLabel: "Approve Expense/PJP",
     navigationOptions: ({ navigation }) => ({
-      title: 'PJP Details'
+      title: 'Approve Expense/PJP'
     })
   },  
   PjpReqDtl: {

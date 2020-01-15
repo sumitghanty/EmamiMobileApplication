@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { ScrollView, View, Text, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert, Keyboard, Image } from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity, Modal, TextInput, AsyncStorage, Alert, Keyboard, Image } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 import Icon from 'react-native-vector-icons/Ionicons'
 import RNFetchBlob from 'rn-fetch-blob';
@@ -11,14 +11,6 @@ import Toast from 'react-native-simple-toast'
 import Loader from '../Components/Loader'
 import styles from './Styles/PjpTripAprvScreen'
 
-const TEMPLIST =[
-  {"req_hdr_id":"1","attachment":null},
-{"req_hdr_id":"2","attachment":null},
-{"req_hdr_id":"3","attachment":null},
-{"req_hdr_id":"4","attachment":"https://qph.fs.quoracdn.net/main-qimg-2fbdde5788e73478a08dc4bf338eee02.webp"},
-]
-const params = ""
-
 class PjpTripAprvScreen extends Component {
   constructor(props) {
     super(props);
@@ -27,18 +19,21 @@ class PjpTripAprvScreen extends Component {
       modalVisible: false,
       attachData: null,
       cmntData: null,
-      changeStatusDone: false,
       rejComment: null,
-      reqComment: null,
+      updateParams: '',
       isLoading: false,
       acrdCmntFirstVisible: 0,
       acrdCmntSecondVisible: 0,
       cmntError: null,
       reqCmntError: null,
       userComment: '',
-      width: 100,
-      height: 100,
       downloadLoading: false,
+      firstComment: '',
+      secondCommend: '',
+      aprvStatusName: '',
+      aprvSubStatusName: '',
+      rejStatusName: '',
+      rejSubStatusName: ''
     };
   }
 
@@ -118,7 +113,7 @@ class PjpTripAprvScreen extends Component {
         },
         {
           text: 'Yes',
-          onPress: () => this.submitForm("9")
+          onPress: () => this.submitForm("A")
         },
       ],
       {cancelable: true},
@@ -136,7 +131,7 @@ class PjpTripAprvScreen extends Component {
         },
         {
           text: 'Yes', 
-          onPress: () => this.submitForm("10")
+          onPress: () => this.submitForm("R")
         },
       ],
       {cancelable: true},
@@ -151,7 +146,7 @@ class PjpTripAprvScreen extends Component {
   }
   handleUserComment = (text) => {
     this.setState({ 
-      reqComment: text,
+      userComment: text,
       reqCmntError: null
     })
   }
@@ -170,16 +165,21 @@ class PjpTripAprvScreen extends Component {
     }
   }
 
-  reqCmntSubmit=()=> {
-    if(this.state.reqComment) {
-      this.reqCmntPost();      
+  reqCmntSubmit=(value)=> {
+    if(this.state.userComment) {
+      this.reqCmntPost(value);      
     } else {
       this.setState({ reqCmntError: "Please enter comment." })
     }
   }
 
-  reqCmntPost=()=>{
-    console.log('Requisition Comment Submit');
+  reqCmntPost=(value)=>{
+    let curReq = this.state.updateParams
+    for(var i=0; i<curReq.length; i++) {
+      if(curReq[i].req_hdr_id == value) {
+        this.state.updateParams[i].claimSupcomment = this.state.userComment
+      }
+    }
     this.setState({cmntData: null});
   }
 
@@ -188,46 +188,111 @@ class PjpTripAprvScreen extends Component {
     this.setState({downloadLoading: true});
   }
 
-  submitForm=(statusId)=> {
-    this.setState({modalVisible: null});
-    console.log('Form submit pending');
+  submitForm=(value)=> {
+    let newParams = this.props.reqListSales.dataSource;
+    AsyncStorage.getItem('ANYTHING_UNIQUE_STRING')
+    .then(()=>{
+      this.setState({
+        isLoading: true,
+        modalVisible: false
+      });
+      if (value == "A") {
+        for(var i=0; i<newParams.length; i++) {
+          newParams[i].status_id = "9";
+          newParams[i].status = this.state.aprvStatusName;
+          newParams[i].sub_status_id = "9.1";
+          newParams[i].sub_status = this.state.aprvSubStatusName;
+        }
+      } else if (value == "R") {
+        for(var i=0; i<newParams.length; i++) {
+          newParams.status_id = "10";
+          newParams[i].status = this.state.rejStatusName;
+          newParams.sub_status_id = "10.1";
+          newParams.sub_status = this.state.rejSubStatusName;
+          newParams.vendor_comment = this.state.rejComment;
+        }
+      }
+    })
+    .then(()=>{
+      this.props.postPjpAprv(this.state.updateParams)
+      .then(()=>{
+        this.props.getPjpAprvList(global.USER.userEmail,["2","3","4","8"]);
+        this.props.navigation.navigate('PjpAprvList','tour');
+        Toast.show('Tour Approved Successfuly', Toast.LONG);
+        console.log('Approve Done');
+      });
+    });
+  }
+
+  componentDidMount(props){
+    this.props.getReqSale(this.props.navigation.state.params.trip_hdr_id)
+    .then(()=>{
+      this.setState({
+        updateParams:this.props.reqListSales.dataSource
+      });
+    });
+    this.props.getStatus("9","9.1")
+    .then(()=>{
+      this.setState({
+        aprvStatusName: this.props.statusResult.dataSource[0].trip_pjp_status,
+        aprvSubStatusName: this.props.statusResult.dataSource[0].sub_status
+      });
+    });
+    this.props.getStatus("10","10.1")
+    .then(()=>{
+      this.setState({
+        rejStatusName: this.props.statusResult.dataSource[0].trip_pjp_status,
+        rejSubStatusName: this.props.statusResult.dataSource[0].sub_status
+      });
+    });
   }
 
   render() {
-    var sortList = TEMPLIST;
+  if(this.state.isLoading || this.props.reqListSales.isLoading){
+    return(
+      <Loader/>
+    )
+  } else if ( this.props.reqListSales.errorStatus || this.props.pjpAprv.errorStatus) {
+    return (
+      <Text>URL Error</Text>
+    )
+  } else {
+    //console.log(this.state.updateParams)
+    const {params} = this.props.navigation.state;
+    var sortList = this.props.reqListSales.dataSource;
     sortList.sort((a,b) => b.req_hdr_id - a.req_hdr_id);
   return(
   <View style={styles.container}>
     <ScrollView contentContainerStyle={styles.scrollView}>
       <TouchableOpacity style={styles.accordionHeader}
         onPress={()=>{this.setAcrdVisible()}}>
-        <Text style={styles.acrdTitle}>PJP Details</Text>
+        <Text style={styles.acrdTitle}>Tour Plan</Text>
         <Icon style={styles.acrdIcon} name={this.state.acrdVisible==0?"md-add-circle":"md-remove-circle"} />
       </TouchableOpacity>
       <View style={{display:this.state.acrdVisible==0?'none':'flex'}}>
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>PJP Year:</Text>
-          <Text style={styles.itemValue}>xxx</Text>
+          <Text style={styles.itemValue}>{params.year}</Text>
         </View>
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>PJP Month:</Text>
-          <Text style={styles.itemValue}>xxx</Text>
+          <Text style={styles.itemValue}>{params.month}</Text>
         </View>
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>Purpose:</Text>
-          <Text style={styles.itemValue}>xxx</Text>
+          <Text style={styles.itemValue}>{params.purpose}</Text>
         </View>
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>Trip For:</Text>
-          <Text style={styles.itemValue}>xxx</Text>
+          <Text style={styles.itemValue}>{params.trip_for}</Text>
         </View>
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>Traveler Name:</Text>
-          <Text style={styles.itemValue}>xxx</Text>
+          <Text style={styles.itemValue}>{params.name}</Text>
         </View>
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>Details:</Text>
-          <Text style={styles.itemValue}>xxx</Text>
+          <Text style={styles.itemValue}>{params.comment}</Text>
         </View>
       </View>
       {sortList.length > 0 ?
@@ -235,7 +300,7 @@ class PjpTripAprvScreen extends Component {
         <Text style={styles.title}>Requisition Details</Text>
         <View style={styles.titleRight}>
           <Text style={styles.estimatedLabel}>Estimated Amount</Text>
-          <Text style={styles.estimatedValue}>INR 999999.00</Text>
+          <Text style={styles.estimatedValue}>INR {params.estimated_cost}</Text>
         </View>
       </View>: null}
       {sortList.length > 0 ?
@@ -333,15 +398,19 @@ class PjpTripAprvScreen extends Component {
           <Icon style={styles.modalAcrdIcon} name={this.state.acrdCmntFirstVisible==0?"ios-arrow-dropdown":"ios-arrow-dropup"} />
         </TouchableOpacity>
         <View style={[styles.modalAcrdBody,{display:this.state.acrdCmntFirstVisible==0?'none':'flex'}]}>
-          <Text style={styles.modalAcrdComents}>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</Text>
+          {this.state.cmntData ?
+          <Text style={styles.modalAcrdComents}>{this.state.cmntData.claimEmpcomment}</Text>
+          :null}
         </View>
         <TouchableOpacity style={styles.modalAccordionHeader}
           onPress={()=>{this.setAcrdCmntSecondVisible()}}>
-          <Text style={styles.modalAcrdTitle}>Employee comment</Text>
+          <Text style={styles.modalAcrdTitle}>Financer comment</Text>
           <Icon style={styles.modalAcrdIcon} name={this.state.acrdCmntSecondVisible==0?"ios-arrow-dropdown":"ios-arrow-dropup"} />
         </TouchableOpacity>
         <View style={[styles.modalAcrdBody,{display:this.state.acrdCmntSecondVisible==0?'none':'flex'}]}>
-          <Text style={styles.modalAcrdComents}>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</Text>
+          {this.state.cmntData ?
+          <Text style={styles.modalAcrdComents}>{this.state.cmntData.claimFinancercomment}</Text>
+          :null}
         </View>
         <Text style={styles.modalCmntLabel}>Supervisor comment:</Text>
         <TextInput 
@@ -356,16 +425,17 @@ class PjpTripAprvScreen extends Component {
           <Text style={styles.errorMsg}>{this.state.reqCmntError}</Text>
         :null}
       </ScrollView>
+      {this.state.cmntData ?
       <View style={styles.modalCmntFooter}>
         <TouchableOpacity style={[styles.modaCmntlBtn, styles.btnDanger]}
           onPress={() => {this.reqCmntModalVisible(null), this.closeAcrdCmnt(), this.removeCmntError()}}>
           <Text style={styles.modaCmntlBtnText}>Cancel</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.modaCmntlBtn, styles.btnPrimary]}
-          onPress={() => this.reqCmntSubmit()}>
+          onPress={() => this.reqCmntSubmit(this.state.cmntData.req_hdr_id)}>
           <Text style={styles.modaCmntlBtnText}>Submit</Text>
         </TouchableOpacity>
-      </View>
+      </View>:null}
     </Modal>
     
     <View style={styles.footer}>
@@ -388,7 +458,7 @@ class PjpTripAprvScreen extends Component {
         <LinearGradient 
           start={{x: 0, y: 0}} 
           end={{x: 1, y: 0}} 
-          colors={['#5ba11c', '#92d40a']} 
+          colors={['#0066b3', '#2ca2fb']} 
           style={styles.btnBg}>
           <Text style={styles.btnTxt}>Approve</Text>
         </LinearGradient>
@@ -397,42 +467,43 @@ class PjpTripAprvScreen extends Component {
   </View>
   );
   }
+}
 
   renderReq = (data,index) => {
     return <TouchableOpacity 
       key={index} 
       style={styles.cardItem} 
-      onPress={() => this.props.navigation.navigate('PjpReqDtl',data)}>
+      onPress={() => {}/*this.props.navigation.navigate('PjpReqDtl',data)*/}>
       <View style={styles.cardItemHeader}>
         <View style={styles.cardItemHeaderCol}>
           <Text style={styles.cardHdrLabel}>FROM</Text>
-          <Text style={styles.cardHdrValue}>Kolkata</Text>
+          <Text style={styles.cardHdrValue}>{data.source_city_name}</Text>
         </View>
         <Icon name="ios-arrow-round-forward" style={styles.hdrIcon} />
         <View style={styles.cardItemHeaderCol}>
           <Text style={styles.cardHdrLabel}>TO</Text>
-          <Text style={styles.cardHdrValue}>Hydrebad</Text>
+          <Text style={styles.cardHdrValue}>{data.dest_city_name}</Text>
         </View>
         <TouchableOpacity style={styles.cmntBtn}
-          onPress={() => {this.reqCmntModalVisible(data.req_hdr_id);}}>
+          onPress={() => {this.reqCmntModalVisible(data);}}>
           <Icon name="ios-chatbubbles" style={styles.cmntIcon} />
         </TouchableOpacity>
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Date:</Text>
-        <Text style={styles.cardValue}>xxx</Text>
+        <Text style={styles.cardValue}>{data.pjp_date?moment(data.pjp_date).format(global.DATEFORMAT):null}</Text>
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Distance:</Text>
-        <Text style={styles.cardValue}>xxx</Text>
+        <Text style={styles.cardValue}>{data.distance}</Text>
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Requisition Type:</Text>
-        <Text style={styles.cardValue}>xxx</Text>
+        <Text style={styles.cardValue}>{data.mode_name}</Text>
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Requisition Amount:</Text>
-        <Text style={[styles.cardValue, styles.reqAmnt]}>9999.99</Text>
+        <Text style={[styles.cardValue, styles.reqAmnt]}>{data.amount_mode}</Text>
       </View>
       {data.attachment ?
       <View style={styles.cardRow}>
@@ -456,6 +527,23 @@ class PjpTripAprvScreen extends Component {
 
     </TouchableOpacity>
   };
+  
 }
 
-export default PjpTripAprvScreen;
+const mapStateToProps = state => {
+  return {
+    pjpAprv: state.pjpAprv,
+    reqListSales: state.reqListSales,
+    pjpAprvList: state.pjpAprvList,
+    statusResult: state.statusResult
+  };
+};
+
+const mapDispatchToProps = {
+  postPjpAprv : Actions.postPjpAprv,
+  getReqSale: Actions.getReqSale,
+  getPjpAprvList : Actions.getPjpAprvList,
+  getStatus: Actions.getStatus
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(PjpTripAprvScreen);

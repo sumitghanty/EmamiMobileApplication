@@ -1,4 +1,4 @@
-import {REQUEST} from '../actions/ExpList'
+import {REQUEST} from '../actions/GetReqClaimName'
 
 export default (state = { dataSource: {}, isLoading: true, errorStatus:false}, action) => {
   switch(action.type){

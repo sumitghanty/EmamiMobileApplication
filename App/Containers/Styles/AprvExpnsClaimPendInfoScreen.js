@@ -1,15 +1,11 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 
 export default StyleSheet.create({
   container: {
     flex: 1,    
   },
   accordionHeader: {
-    backgroundColor: '#f4f4f4',
-    borderBottomColor: 'rgba(0,0,0,.035)',
-    borderBottomWidth: 1,
-    borderTopColor: 'rgba(0,0,0,.035)',
-    borderTopWidth: 1,
+    backgroundColor: '#0066b3',
     paddingHorizontal: 16,
     paddingVertical: 12,
     flexDirection: 'row',
@@ -19,12 +15,12 @@ export default StyleSheet.create({
   acrdTitle: {
     flex: 1,
     fontSize: 14,
-    color: '#111',
+    color: '#fff',
     fontWeight: 'bold'
   },
   acrdIcon: {
     fontSize: 22,
-    color: 'rgba(0,0,0,.5)',
+    color: 'rgba(255,255,255,.75)',
     marginLeft: 16
   },
   accordionBody: {
@@ -174,26 +170,34 @@ export default StyleSheet.create({
     marginTop: 16,
   },
   cardItemHeader: {
-    backgroundColor: '#fff',
+    backgroundColor: '#03a9f4',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,.05)',
     flexDirection: 'row',
     alignItems: 'center',
-    borderTopRightRadius: 3,
-    paddingVertical: 12
+    borderTopRightRadius: 4,
+    borderTopLeftRadius: 4,
+    paddingVertical: 8
   },
   cardTile: {
     flex: 1,
     marginRight: 16,
-    marginLeft: 6,
+    marginLeft: 16,
     fontSize: 14,
-    color: '#111',
-    fontWeight: 'bold'
+    color: '#fff',
+    fontWeight: 'bold',
+    marginVertical: 4,
   },
   cardTileIcon: {
     fontSize: 16,
-    width: 48,
-    textAlign: 'center'
+    width: 32,
+    textAlign: 'right',
+    color: '#fff'
+  },
+  forwardIcon: {
+    fontSize: 28,
+    marginRight: 16,
+    color: 'rgba(255,255,255,.65)'
   },
   cardBody: {
     backgroundColor: '#fff',
@@ -218,18 +222,82 @@ export default StyleSheet.create({
     color: '#111',
     fontSize: 14
   },
-  cardValueBtn: {
+  cardValueCol: {
     flex: 3,
-    padding: 6,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,.1)',
-    backgroundColor: '#f8f8f8',
-    marginBottom: 6
+    marginRight: 10,
+    marginBottom: 8
   },
-  cardValueBtnText: {
+  atchLink: {
+    backgroundColor: '#f8f8f8',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,.05)',
+    width: 80,
+    height: 52,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  atchImg: {
+    width: '100%',
+    height: '100%',
+  },
+  atchImgIcon: {
+    fontSize: 28,
+  },
+  modaCmntlBody: {
+    paddingBottom: 20
+  },
+  modalHeader: {
+    backgroundColor: '#f4f4f4',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  modalTitle: {
+    fontSize: 16,
     color: '#111',
-    flex: 1,
-    fontSize: 13
+    fontWeight: 'bold'
+  },
+  modalCmntFooter: {
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,.15)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 8
+  },
+  modaCmntlBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 4,
+    margin: 8
+  },
+  modaCmntlBtnText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#fff'
+  },
+  btnDanger: {
+    backgroundColor: 'red'
+  },
+  btnPrimary: {
+    backgroundColor: '#187fe8'
+  },
+  atchMdlImg: {
+    margin: 20,
+    width: Dimensions.get('window').width-40,
+    height: Dimensions.get('window').width-40,
+    alignSelf: 'center'
+  },
+  atchMdlImgName: {
+    color: 'rgba(0,0,0,.65)',
+    marginHorizontal: 20,
+    marginBottom: 20,
+    textAlign: 'center'
+  },
+  atchMdlImgIcon: {
+    color: 'rgba(0,0,0,.35)',
+    fontSize: 48,
+    alignSelf: 'center',
+    margin: 20
   }
 });

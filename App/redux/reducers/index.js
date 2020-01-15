@@ -1,3 +1,6 @@
+import ReqNameReducer from './GetReqName'
+import ReqClaimNameReducer from './GetReqClaimName'
+import AttachmentReducer from './GetAttachment'
 import StatusReducer from './GetStatus'
 import TripListReducer from './TripList'
 import TripCreateReducer from './TripCreate'
@@ -14,17 +17,22 @@ import ReqCreateReducer from './ReqCreate'
 import ReqUpdateReducer from './ReqUpdate'
 import ReqDeleteReducer from './ReqDelete'
 import AdvPmntListReducer from './AdvPmntList'
-import ExpListReducer from './ExpList'
 import AprvAdvPmntReducer from './AprvAdvPmnt'
 import AprExpPendReducer from './AprExpPend'
 import ExpAprvReducer from './ExpAprv'
 import CostCentreReducer from './CostCentre'
 import PjpListReducer from './PJPList'
 import PjpClaimListReducer from './PjpClaimList'
+import PjpAprvListReducer from './PJPAprvList'
 import PjpAprvReducer from './PjpAprv'
 import PjpClaimAprvReducer from './PjpClaimAprv'
+import ReqListSalesReducer from './ReqListSales'
+import ReqClaimListSalesReducer from './ReqClaimListSales'
 
 export default {
+	reqClaimName:ReqClaimNameReducer,
+	reqName:ReqNameReducer,
+	attachment:AttachmentReducer,
 	statusResult:StatusReducer,
   trips:TripListReducer,
 	tripCreate:TripCreateReducer,
@@ -41,13 +49,15 @@ export default {
 	reqUpdate:ReqUpdateReducer,
 	reqDelete:ReqDeleteReducer,
 	advPmnts:AdvPmntListReducer,
-	exps:ExpListReducer,
 	aprAdvPmnt:AprvAdvPmntReducer,
 	aprExpPend:AprExpPendReducer,
 	expAprv:ExpAprvReducer,
 	costCentre:CostCentreReducer,
-	PJP:PjpListReducer,
-	PjpClaims:PjpClaimListReducer,
-	PjpAprv:PjpAprvReducer,
-	PJPClaimAprv:PjpClaimAprvReducer
+	pjp:PjpListReducer,
+	pjpClaims:PjpClaimListReducer,
+	pjpAprvList:PjpAprvListReducer,
+	pjpAprv:PjpAprvReducer,
+	pJPClaimAprv:PjpClaimAprvReducer,
+	reqListSales:ReqListSalesReducer,
+	reqClaimListSales:ReqClaimListSalesReducer
 };

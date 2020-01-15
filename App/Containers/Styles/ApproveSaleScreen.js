@@ -10,7 +10,7 @@ export default StyleSheet.create({
     marginVertical: 15
   },
   card: {
-      backgroundColor: '#fff',
+      backgroundColor: '#0066b3',
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 1 },
       shadowOpacity: 0.8,
@@ -23,12 +23,13 @@ export default StyleSheet.create({
   cardTitle: {
       fontSize: 16,
       padding: 16,
-      flex: 1
+      flex: 1,
+      color: '#fff'
   },
   cardIcon: {
       fontSize: 22,
       paddingVertical: 32,
       paddingRight: 16,
-      color: 'rgba(0,0,0,.5)'
+      color: 'rgba(255,255,255,.5)'
   }
 });
