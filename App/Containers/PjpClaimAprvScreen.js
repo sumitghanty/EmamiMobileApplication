@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { ScrollView, View, Text, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert, Keyboard, Image } from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity, Modal, TextInput, AsyncStorage, Alert, Keyboard, Image } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 import Icon from 'react-native-vector-icons/Ionicons'
 import RNFetchBlob from 'rn-fetch-blob';
@@ -23,6 +23,7 @@ class PjpClaimAprvScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      updateParams: '',
       acrdVisible: 0,
       modalVisible: false,
       attachData: null,
@@ -40,6 +41,10 @@ class PjpClaimAprvScreen extends Component {
       height: 100,
       downloadLoading: false,
       justification: '',
+      aprvStatusName: '',
+      aprvSubStatusName: '',
+      rejStatusName: '',
+      rejSubStatusName: ''
     };
   }
 
@@ -119,7 +124,7 @@ class PjpClaimAprvScreen extends Component {
         },
         {
           text: 'Yes',
-          onPress: () => this.submitForm("9")
+          onPress: () => this.approveForm()
         },
       ],
       {cancelable: true},
@@ -137,7 +142,7 @@ class PjpClaimAprvScreen extends Component {
         },
         {
           text: 'Yes', 
-          onPress: () => this.submitForm("10")
+          onPress: () => this.rejectForm()
         },
       ],
       {cancelable: true},
@@ -175,7 +180,7 @@ class PjpClaimAprvScreen extends Component {
     }
   }
 
-  reqCmntSubmit=()=> {
+  reqCmntSubmit=(value)=> {
     if(this.state.reqComment) {
       this.reqCmntPost();      
     } else {
@@ -183,8 +188,13 @@ class PjpClaimAprvScreen extends Component {
     }
   }
 
-  reqCmntPost=()=>{
-    console.log('Requisition Comment Submit');
+  reqCmntPost=(value)=>{
+    let curReq = this.state.updateParams
+    for(var i=0; i<curReq.length; i++) {
+      if(curReq[i].req_hdr_id == value) {
+        this.state.updateParams[i].claimSupcomment = this.state.userComment
+      }
+    }
     this.setState({cmntData: null});
   }
 
@@ -193,13 +203,107 @@ class PjpClaimAprvScreen extends Component {
     this.setState({downloadLoading: true});
   }
 
-  submitForm=(statusId)=> {
-    this.setState({modalVisible: null});
-    console.log('Form submit pending');
+  approveForm=()=> {
+    let tripParams = this.props.navigation.state.params;
+    let newParams = this.state.updateParams;
+    AsyncStorage.getItem('APPROVE_FORM')
+    .then(()=>{
+      this.setState({
+        isLoading: true,
+        modalVisible: false
+      });
+      for(var i=0; i<newParams.length; i++) {
+        newParams[i].status_id = "22";
+        newParams[i].status = this.state.aprvStatusName;
+        newParams[i].sub_status_id = "";
+        newParams[i].sub_status = this.state.aprvSubStatusName;
+        newParams[i].vendor_comment = "Approved";
+      }
+    })
+    .then(()=>{
+      this.props.postPjpClaimAprv(newParams)
+    })
+    .then(()=>{
+      tripParams.status_id = "22";
+      tripParams.status = this.state.aprvStatusName;
+      tripParams.sub_status_id = "";
+      tripParams.sub_status = this.state.aprvSubStatusName;
+      tripParams.pending_with = global.USER.userId;
+      tripParams.pending_with_email = global.USER.userEmail;
+      tripParams.pending_with_name = global.USER.userName;
+      tripParams.claim_justifiaction = this.state.justification;
+    })
+    .then(()=>{
+      this.props.postPjpClaimTot(tripParams)
+      .then(()=>{
+        this.props.getPjpAprvList(global.USER.userEmail,["21"]);
+        this.props.navigation.navigate('PjpAprvList','claim');
+        Toast.show('Claim Approved Successfuly', Toast.LONG);
+        console.log('Approve Done');
+      });
+    });
+  }
+
+  rejectForm=()=>{
+    let tripParams = this.props.navigation.state.params;
+    let newParams = this.state.updateParams;
+    AsyncStorage.getItem('REJECT_FORM')
+    .then(()=>{
+      this.setState({
+        isLoading: true,
+        modalVisible: false
+      });
+      for(var i=0; i<newParams.length; i++) {
+        newParams[i].status_id = "23";
+        newParams[i].status = this.state.rejStatusName;
+        newParams[i].sub_status_id = "";
+        newParams[i].sub_status = this.state.rejSubStatusName;
+        newParams[i].vendor_comment = "Approved";
+      }
+    })
+    .then(()=>{
+      this.props.postPjpClaimRej(newParams)
+    })
+    .then(()=>{
+      tripParams.status_id = "23";
+      tripParams.status = this.state.aprvStatusName;
+      tripParams.sub_status_id = "";
+      tripParams.sub_status = this.state.rejSubStatusName;
+      tripParams.pending_with = global.USER.userId;
+      tripParams.pending_with_email = global.USER.userEmail;
+      tripParams.pending_with_name = global.USER.userName;
+      tripParams.claim_justifiaction = this.state.justification;
+    })
+    .then(()=>{
+      this.props.postPjpClaimTot(tripParams)
+      .then(()=>{
+        this.props.getPjpAprvList(global.USER.userEmail,["21"]);
+        this.props.navigation.navigate('PjpAprvList','claim');
+        Toast.show('Claim Rejected Successfuly', Toast.LONG);
+        console.log('Reject Done');
+      });
+    });
   }
 
   componentDidMount(props){
     this.props.getReqClaimSale(this.props.navigation.state.params.trip_hdr_id)
+    .then(()=>{
+      this.setState({
+        updateParams:this.props.reqClaimListSales.dataSource
+      });
+    });
+    this.props.getStatus("22","NA")
+    .then(()=>{
+      this.setState({
+        aprvStatusName: this.props.statusResult.dataSource[0].trip_pjp_status
+      });
+    });
+    this.props.getStatus("23","NA")
+    .then(()=>{
+      this.setState({
+        rejStatusName: this.props.statusResult.dataSource[0].trip_pjp_status
+      });
+    });
   }
 
   render() {
@@ -215,7 +319,7 @@ class PjpClaimAprvScreen extends Component {
     var sortList = this.props.reqClaimListSales.dataSource;
     sortList.sort((a,b) => b.req_hdr_id - a.req_hdr_id);
     const {params} = this.props.navigation.state;
-    console.log(params);
+    console.log(this.state.cmntData?this.state.cmntData.claimEmpcomment:""); //Don't remove
   return(
   <View style={styles.container}>
     <ScrollView contentContainerStyle={styles.scrollView}>
@@ -273,10 +377,6 @@ class PjpClaimAprvScreen extends Component {
             <Text style={styles.totalTableLabel}>Claim Amount:</Text>
             <Text style={styles.totalTableValue}>{params.actual_claim_amount}</Text>
           </View>
-          <View style={styles.totalTableRow}>
-            <Text style={styles.totalTableLabel}>Deduction Amount:</Text>
-            <Text style={styles.totalTableValue}>xxxx</Text>
-          </View>
         </View>
         :null}
       </View>
@@ -286,15 +386,15 @@ class PjpClaimAprvScreen extends Component {
       </View>
       <View style={styles.itemRow}>
         <Text style={styles.itemLabel}>Estimated Cost:</Text>
-        <Text style={[styles.itemValue,styles.textRight]}>xxxxx</Text>
+        <Text style={[styles.itemValue,styles.textRight]}>{params.estimated_cost}</Text>
       </View>
       <View style={styles.itemRow}>
         <Text style={styles.itemLabel}>Actual Claim Amount:</Text>
-        <Text style={[styles.itemValue,styles.textRight]}>xxxxx</Text>
+        <Text style={[styles.itemValue,styles.textRight]}>{params.actual_claim_amount}</Text>
       </View>
       <View style={styles.itemRow}>
         <Text style={styles.itemLabel}>Currency:</Text>
-        <Text style={[styles.itemValue,styles.textRight]}>xxxxx</Text>
+        <Text style={[styles.itemValue,styles.textRight]}>{params.currency?params.currency:"INR"}</Text>
       </View>
       <Text style={[styles.itemLabel,styles.selfLabel]}>Justification:</Text>
       <TextInput 
@@ -399,7 +499,7 @@ class PjpClaimAprvScreen extends Component {
         </View>
         <TouchableOpacity style={styles.modalAccordionHeader}
           onPress={()=>{this.setAcrdCmntSecondVisible()}}>
-          <Text style={styles.modalAcrdTitle}>Employee comment</Text>
+          <Text style={styles.modalAcrdTitle}>Financer comment</Text>
           <Icon style={styles.modalAcrdIcon} name={this.state.acrdCmntSecondVisible==0?"ios-arrow-dropdown":"ios-arrow-dropup"} />
         </TouchableOpacity>
         <View style={[styles.modalAcrdBody,{display:this.state.acrdCmntSecondVisible==0?'none':'flex'}]}>
@@ -420,16 +520,17 @@ class PjpClaimAprvScreen extends Component {
           <Text style={styles.errorMsg}>{this.state.reqCmntError}</Text>
         :null}
       </ScrollView>
+      {this.state.cmntData ?
       <View style={styles.modalCmntFooter}>
         <TouchableOpacity style={[styles.modaCmntlBtn, styles.btnDanger]}
           onPress={() => {this.reqCmntModalVisible(null), this.closeAcrdCmnt(), this.removeCmntError()}}>
           <Text style={styles.modaCmntlBtnText}>Cancel</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.modaCmntlBtn, styles.btnPrimary]}
-          onPress={() => this.reqCmntSubmit()}>
+          onPress={() => this.reqCmntSubmit(this.state.cmntData.req_hdr_id)}>
           <Text style={styles.modaCmntlBtnText}>Submit</Text>
         </TouchableOpacity>
-      </View>
+      </View>:null}
     </Modal>
     
     <View style={styles.footer}>
@@ -464,10 +565,11 @@ class PjpClaimAprvScreen extends Component {
   }
 
   renderReq = (data,index) => {
+    const {params} = this.props.navigation.state;
     return <TouchableOpacity 
       key={index} 
       style={styles.cardItem} 
-      onPress={() => this.props.navigation.navigate('PjpReqDtl',data)}>
+      onPress={() => {} /*this.props.navigation.navigate('PjpReqDtl',data)**/}>
       <View style={styles.cardItemHeader}>
         <View style={styles.cardItemHeaderCol}>
           <Text style={styles.cardHdrLabel}>FROM</Text>
@@ -493,23 +595,23 @@ class PjpClaimAprvScreen extends Component {
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Actual Distance:</Text>
-        <Text style={styles.cardValue}>xxx</Text>
+        <Text style={styles.cardValue}>{data.claimactualdistance}</Text>
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Departure Time:</Text>
-        <Text style={styles.cardValue}>{data.claim_depart_time}</Text>
+        <Text style={styles.cardValue}>{data.claimdeparturetime}</Text>
       </View>      
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Arrival Time:</Text>
-        <Text style={styles.cardValue}>{data.claim_arrive_time}</Text>
+        <Text style={styles.cardValue}>{data.claimarrivaltime}</Text>
       </View>      
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Total Time:</Text>
-        <Text style={styles.cardValue}>xxx</Text>
+        <Text style={styles.cardValue}>{data.claimtotaltime}</Text>
       </View>     
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Day:</Text>
-        <Text style={styles.cardValue}>noofdays</Text>
+        <Text style={styles.cardValue}>{data.noofdays}</Text>
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Requisition Type:</Text>
@@ -517,23 +619,28 @@ class PjpClaimAprvScreen extends Component {
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Requisition Amount:</Text>
-        <Text style={styles.cardValue}>{data.amount_mode}</Text>
+        <Text style={styles.cardValue}>{data.amount_mode?data.amount_mode:'0'}</Text>
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Claim Amount:</Text>
-        <Text style={styles.cardValue}>{data.claimamount}</Text>
+        <Text style={styles.cardValue}>{data.claimamount?data.claimamount:'0'}</Text>
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Deduction Amount:</Text>
-        <Text style={styles.cardValue}>xxxx</Text>
+        <Text style={styles.cardValue}>{data.claimdeductionamount?data.claimdeductionamount:"0"}</Text>
       </View>      
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Payable Amount:</Text>
-        <Text style={styles.cardValue}>{data.claimpaybleamount}</Text>
+        <Text style={styles.cardValue}>{data.claimpaybleamount?data.claimpaybleamount:"0"}</Text>
       </View>      
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Out of Policy:</Text>
-        <Text style={styles.cardValue}>{data.is_outof_policy=="N"?"No":"Yes"}</Text>
+        <Text style={styles.cardValue}>
+          {(data.mode=="7")?"No"
+          : (data.amount_mode=="On Actual")?"Yes"
+              :(data.claimamount>params.actual_claim_amount)?"Yes":"No"
+          }
+        </Text>
       </View>
       {/*data.attachment ?
       <View style={styles.cardRow}>
@@ -562,11 +669,21 @@ class PjpClaimAprvScreen extends Component {
 const mapStateToProps = state => {
   return {
     reqClaimListSales: state.reqClaimListSales,
+    pjpClaimAprv: state.pjpClaimAprv,
+    pjpClaimTot: state.pjpClaimTot,
+    pjpClaimRej: state.pjpClaimRej,
+    statusResult: state.statusResult,
+    pjpAprvList: state.pjpAprvList,
   };
 };
 
 const mapDispatchToProps = {
   getReqClaimSale: Actions.getReqClaimSale,
+  postPjpClaimAprv: Actions.postPjpClaimAprv,
+  postPjpClaimTot: Actions.postPjpClaimTot,
+  postPjpClaimRej: Actions.postPjpClaimRej,
+  getStatus: Actions.getStatus,  
+  getPjpAprvList : Actions.getPjpAprvList,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(PjpClaimAprvScreen);

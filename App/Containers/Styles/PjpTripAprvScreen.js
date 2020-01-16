@@ -6,7 +6,7 @@ export default StyleSheet.create({
     flexDirection: 'column'
   },
   accordionHeader: {
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#0066b3',
     borderBottomColor: 'rgba(0,0,0,.1)',
     borderBottomWidth: 1,
     paddingHorizontal: 16,
@@ -18,11 +18,11 @@ export default StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#111'
+    color: '#fff'
   },
   acrdIcon: {
     fontSize: 18,
-    color: 'rgba(0,0,0,.5)',
+    color: 'rgba(255,255,255,.65)',
     marginLeft: 16
   },
   itemRow: {

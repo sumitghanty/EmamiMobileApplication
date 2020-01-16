@@ -24,7 +24,7 @@ class PjpAprvListScreen extends Component {
   }
   componentDidMount(){
     const {params} = this.props.navigation.state;
-    let ID = params == "tour"?["2","3","4","8"]:["21","22"];
+    let ID = params == "tour"?["2","3","4","8"]:["21"];
     console.log(ID);
     this.props.getPjpAprvList(global.USER.userEmail,ID);
   }

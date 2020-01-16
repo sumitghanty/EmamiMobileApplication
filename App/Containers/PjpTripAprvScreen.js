@@ -189,7 +189,7 @@ class PjpTripAprvScreen extends Component {
   }
 
   submitForm=(value)=> {
-    let newParams = this.props.reqListSales.dataSource;
+    let newParams = this.state.updateParams;
     AsyncStorage.getItem('ANYTHING_UNIQUE_STRING')
     .then(()=>{
       this.setState({
@@ -214,12 +214,12 @@ class PjpTripAprvScreen extends Component {
       }
     })
     .then(()=>{
-      this.props.postPjpAprv(this.state.updateParams)
+      this.props.postPjpAprv(newParams)
       .then(()=>{
         this.props.getPjpAprvList(global.USER.userEmail,["2","3","4","8"]);
         this.props.navigation.navigate('PjpAprvList','tour');
-        Toast.show('Tour Approved Successfuly', Toast.LONG);
-        console.log('Approve Done');
+        Toast.show(value == "A"?'Tour Approved Successfuly':'Tour Rejected Successfuly', Toast.LONG);
+        console.log(value == "A"?'Approve Done':'Reject Done');
       });
     });
   }
@@ -256,8 +256,8 @@ class PjpTripAprvScreen extends Component {
     return (
       <Text>URL Error</Text>
     )
-  } else {
-    //console.log(this.state.updateParams)
+  } else {    
+    console.log(this.state.cmntData?this.state.cmntData.claimEmpcomment:""); /*Don't remove*/
     const {params} = this.props.navigation.state;
     var sortList = this.props.reqListSales.dataSource;
     sortList.sort((a,b) => b.req_hdr_id - a.req_hdr_id);

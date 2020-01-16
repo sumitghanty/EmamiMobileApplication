@@ -6,7 +6,7 @@ export default (state = { dataSource: {}, isLoading: true, errorStatus:false}, a
     state = {...state, isLoading:true}
     break;
     case REQUEST+'_SUCCESS':
-    state = {...state, dataSource:action.payload.data, isLoading:false}
+    state = {...state, dataSource:action.payload.data, isLoading:false, errorStatus:false}
     break;
     case REQUEST+'_FAIL':
     state = {...state, error:action.payload, errorStatus:true, isLoading:false}

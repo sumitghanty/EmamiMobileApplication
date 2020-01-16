@@ -38,7 +38,7 @@ export default class HomeScreen extends Component {
   _renderItem ({item, index}) {
     return (
       <TouchableOpacity style={styles.sliderItem}
-        onPress={() => (item.id==6)?  
+        onPress={() => (item.id==6 || item.id==7)?  
                 this.props.navigation.navigate(item.navigation)
                 : {}
                 }>

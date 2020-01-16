@@ -28,6 +28,8 @@ import PjpAprvReducer from './PjpAprv'
 import PjpClaimAprvReducer from './PjpClaimAprv'
 import ReqListSalesReducer from './ReqListSales'
 import ReqClaimListSalesReducer from './ReqClaimListSales'
+import PjpClaimTotReducer from './PjpClaimTot'
+import PjpClaimRejReducer from './PjpClaimRej'
 
 export default {
 	reqClaimName:ReqClaimNameReducer,
@@ -57,7 +59,9 @@ export default {
 	pjpClaims:PjpClaimListReducer,
 	pjpAprvList:PjpAprvListReducer,
 	pjpAprv:PjpAprvReducer,
-	pJPClaimAprv:PjpClaimAprvReducer,
+	pjpClaimAprv:PjpClaimAprvReducer,
 	reqListSales:ReqListSalesReducer,
-	reqClaimListSales:ReqClaimListSalesReducer
+	reqClaimListSales:ReqClaimListSalesReducer,
+	pjpClaimTot:PjpClaimTotReducer,
+	pjpClaimRej:PjpClaimRejReducer
 };

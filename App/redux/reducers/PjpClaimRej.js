@@ -1,4 +1,4 @@
-import {REQUEST} from '../actions/GetReqName'
+import {REQUEST} from '../actions/PjpClaimRej'
 
 export default (state = { dataSource: {}, isLoading: true, errorStatus:false}, action) => {
   switch(action.type){

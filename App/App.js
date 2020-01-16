@@ -297,9 +297,9 @@ const StackNavigator = createStackNavigator({
   },
   PjpTripAprv: {
     screen:  PjpTripAprvScreen,
-    drawerLabel: "Approve Expense/PJP",
+    drawerLabel: "Approve Tour/PJP",
     navigationOptions: ({ navigation }) => ({
-      title: 'Approve Expense/PJP'
+      title: 'Approve Tour/PJP'
     })
   },  
   PjpReqDtl: {
@@ -318,9 +318,9 @@ const StackNavigator = createStackNavigator({
   },
   PjpClaimAprv: {
     screen:  PjpClaimAprvScreen,
-    drawerLabel: "PJP-Claim Details",
+    drawerLabel: "Approve PJP-Claim",
     navigationOptions: ({ navigation }) => ({
-      title: 'PJP-Claim Details'
+      title: 'Approve PJP-Claim'
     })
   },
 });
