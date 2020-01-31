@@ -87,9 +87,7 @@ export default StyleSheet.create({
     fontSize: 14
   },
   accordionHeader: {
-    backgroundColor: '#f8f8f8',
-    borderBottomColor: 'rgba(0,0,0,.1)',
-    borderBottomWidth: 1,
+    backgroundColor: '#0B5FFF',
     paddingHorizontal: 16,
     paddingVertical: 12,
     flexDirection: 'row',
@@ -99,11 +97,11 @@ export default StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#111'
+    color: '#fff'
   },
   acrdIcon: {
     fontSize: 18,
-    color: 'rgba(0,0,0,.5)',
+    color: 'rgba(255,255,255,.75)',
     marginLeft: 16
   },
   datePicker: {

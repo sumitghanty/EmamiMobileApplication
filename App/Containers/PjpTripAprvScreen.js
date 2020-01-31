@@ -104,8 +104,8 @@ class PjpTripAprvScreen extends Component {
 
   approveConfirmation(e) {
     Alert.alert(
-      'Approve Trip',
-      'Are you sure to Approve this Trip?',
+      'Approve',
+      'Do you want to approve the trip?',
       [
         {
           text: 'Cancel',
@@ -218,7 +218,7 @@ class PjpTripAprvScreen extends Component {
       .then(()=>{
         this.props.getPjpAprvList(global.USER.userEmail,["2","3","4","8"]);
         this.props.navigation.navigate('PjpAprvList','tour');
-        Toast.show(value == "A"?'Tour Approved Successfuly':'Tour Rejected Successfuly', Toast.LONG);
+        Toast.show(value == "A"?'Tour Approved Successfully':'Tour Rejected Successfully', Toast.LONG);
         console.log(value == "A"?'Approve Done':'Reject Done');
       });
     });
@@ -317,11 +317,11 @@ class PjpTripAprvScreen extends Component {
         visible={this.state.modalVisible}
         onRequestClose={() => {this.setModalVisible(false)}}>
         <View style={styles.modalBody}>
-          <Text style={styles.modalLabel}>Reject comment:</Text>
+          <Text style={styles.modalLabel}>Rejection reason:</Text>
           <TextInput 
             multiline
             numberOfLines={4}
-            placeholder='Type your text'
+            placeholder='Enter reason'
             style={styles.modalInput}
             underlineColorAndroid="transparent"
             onChangeText={this.handleRejComment}

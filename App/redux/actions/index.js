@@ -1,12 +1,19 @@
+import {getReqLocations} from './GetLocations'
+import {getStates} from './GetState'
 import {getReqName} from './GetReqName'
+import {getTripFor} from './GetTripFor'
+import {getPurpose} from './GetPurpose'
+import {getRetainer} from './GetRetainer'
 import {getReqClaimName} from './GetReqClaimName'
 import {getAttachment} from './GetAttachment'
 import {getStatus} from './GetStatus'
+import {getTravelThrough} from './GetTravelThrough'
+import {getTravelType} from './GetTravelType'
 import {getTrips} from './TripList'
 import {tripCreate} from './TripCreate'
 import {tripUpdate} from './TripUpdate'
 import {getPlans} from './TripPlan'
-import {initiatePlan} from './PlanInitiate'
+import {planUpdate} from './PlanInitiate'
 import {getReqType} from './ReqType'
 import {getApprovedTripPending} from './ApprovedTripPendingList'
 import {getAdvPmntPend} from './AprvPmntPendList'
@@ -32,19 +39,26 @@ import {postPjpClaimTot} from './PjpClaimTot'
 import {postPjpClaimRej} from './PjpClaimRej'
 
 export default {
+	getReqLocations:getReqLocations,
+	getStates:getStates,
 	getReqName:getReqName,
+	getTripFor:getTripFor,
+	getPurpose:getPurpose,
+	getRetainer:getRetainer,
 	getReqClaimName:getReqClaimName,
 	getAttachment:getAttachment,
 	getStatus:getStatus,
-  getTrips:getTrips,
+	getTravelThrough:getTravelThrough,
+	getTravelType:getTravelType,
+	getTrips:getTrips,
 	tripCreate:tripCreate,
 	tripUpdate:tripUpdate,
-  getPlans:getPlans,
-  initiatePlan:initiatePlan,
-  getReqType:getReqType,
-  getApprovedTripPending:getApprovedTripPending,
+	getPlans:getPlans,
+	planUpdate:planUpdate,
+	getReqType:getReqType,
+	getApprovedTripPending:getApprovedTripPending,
 	getAdvPmntPend:getAdvPmntPend,
-  aprvTripNonReq:aprvTripNonReq,
+	aprvTripNonReq:aprvTripNonReq,
 	postAprvTripWithReq:postAprvTripWithReq,
 	advPmnt:advPmnt,
 	reqCreate:reqCreate,

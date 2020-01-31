@@ -115,8 +115,8 @@ class PjpClaimAprvScreen extends Component {
 
   approveConfirmation(e) {
     Alert.alert(
-      'Approve Trip',
-      'Are you sure to Approve this Trip?',
+      'Approve',
+      'Do you want to approve this?',
       [
         {
           text: 'Cancel',
@@ -238,7 +238,7 @@ class PjpClaimAprvScreen extends Component {
       .then(()=>{
         this.props.getPjpAprvList(global.USER.userEmail,["21"]);
         this.props.navigation.navigate('PjpAprvList','claim');
-        Toast.show('Claim Approved Successfuly', Toast.LONG);
+        Toast.show('Claim Approved Successfully', Toast.LONG);
         console.log('Approve Done');
       });
     });
@@ -279,7 +279,7 @@ class PjpClaimAprvScreen extends Component {
       .then(()=>{
         this.props.getPjpAprvList(global.USER.userEmail,["21"]);
         this.props.navigation.navigate('PjpAprvList','claim');
-        Toast.show('Claim Rejected Successfuly', Toast.LONG);
+        Toast.show('Claim Rejected Successfully', Toast.LONG);
         console.log('Reject Done');
       });
     });
@@ -412,11 +412,11 @@ class PjpClaimAprvScreen extends Component {
         visible={this.state.modalVisible}
         onRequestClose={() => {this.setModalVisible(false)}}>
         <View style={styles.modalBody}>
-          <Text style={styles.modalLabel}>Reject comment:</Text>
+          <Text style={styles.modalLabel}>Rejection reason:</Text>
           <TextInput 
             multiline
             numberOfLines={4}
-            placeholder='Type your text'
+            placeholder='Enter reason'
             style={styles.modalInput}
             underlineColorAndroid="transparent"
             onChangeText={this.handleRejComment}

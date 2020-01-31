@@ -1,6 +1,6 @@
-export const REQUEST = 'PLAN_INITIATE';
+export const REQUEST = 'PLAN_UPDATE';
 
-export function planInitiate(data) {
+export function planUpdate(data) {
   return {
     type: REQUEST,
     payload: {

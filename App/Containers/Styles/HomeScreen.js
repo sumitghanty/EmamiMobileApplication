@@ -8,71 +8,23 @@ export default StyleSheet.create({
   scroll: {
     flexGrow: 1,
   },
-  menuBtn: {
-    position: 'absolute',
-    zIndex: 199,
-    left: 10,
-    top: 11,
-    width: 42,
-    height: 42,
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 21,
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,  
-    elevation: 5    
-  },
-  menuBtnIcon: {
-    fontSize: 26
-  },
-  titleBlock: {
-    backgroundColor: '#fff',
-    paddingTop: 16,
-    paddingLeft: 62,
-    paddingBottom: 10,
-    minHeight: 62
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold'
-  },
   userBlock: {
-    flexDirection: 'row',
     marginBottom: 6,
-    backgroundColor: '#0066b3',
-    marginTop: 6
+    marginTop: 6,
+    padding: 16
   },
-  userAvatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginTop: 20,
-    marginBottom: 20,
-    marginLeft: 20,
-    alignSelf: "stretch"
+  appName: {
+    fontSize: 17,
+    marginBottom: 8,
+    color: '#fff'
   },
-  userInfo: {
-    padding: 20,
-    flex: 1
-  },
-  userNameHolder: {
-    alignSelf: 'center',
-    marginBottom: 10
-  },
-  userName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 3,
-    textAlign: 'center'
-  },
-  designation: {
+  userLabel: {
     fontSize: 14,
-    color: 'rgba(255,255,255,.75)',
-    textAlign: 'center'
+    marginBottom: 2,
+    color: 'rgba(255,255,255,.75)'
+  },
+  userId: {
+    fontSize: 13
   },
   userRow: {
     flexDirection: 'row',
@@ -91,21 +43,19 @@ export default StyleSheet.create({
   },
   userDetails: {
     padding: 20,
-    marginBottom: 6,
     backgroundColor: '#fff'
   },
   userTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#aaa',
-    marginBottom: 16
+    fontSize: 16,
+    color: '#000',
+    marginBottom: 10
   },
   infoLable: {
     width: 100,
     flex: 0
   },
   sliderItem: {
-    marginTop: 20, 
+    marginVertical: 20, 
   },
   sliderItemBlock: {
     padding: 20,
@@ -127,6 +77,18 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 1,
     color: '#fff'
+  },
+  carouselWrapper: {
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.5,
+    shadowRadius: 1,
+    backgroundColor: '#f4f4f4',
+    minHeight: 200
+  },
+  topShadow: {
+    minHeight: 6
   },
   copyright: {
     fontSize: 11,

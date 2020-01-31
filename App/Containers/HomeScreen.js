@@ -3,7 +3,6 @@ import { ScrollView, StatusBar, View, Text, Image, Dimensions, TouchableOpacity,
 import { createAppContainer } from 'react-navigation'
 import Carousel from 'react-native-snap-carousel'
 import { Icon } from 'native-base'
-import { LinearTextGradient } from "react-native-text-gradient"
 import LinearGradient from 'react-native-linear-gradient'
 
 import { Loader, NetworkError } from '../Components';
@@ -26,7 +25,7 @@ export async function request_storage_runtime_permission() {
   }
 }
 
-export default class HomeScreen extends Component {
+class HomeScreen extends Component {
 
   constructor(props) {
     super(props);
@@ -38,7 +37,7 @@ export default class HomeScreen extends Component {
   _renderItem ({item, index}) {
     return (
       <TouchableOpacity style={styles.sliderItem}
-        onPress={() => (item.id==6 || item.id==7)?  
+        onPress={() => (item.id==6 || item.id==7 || item.id==2 || item.id==1)?  
                 this.props.navigation.navigate(item.navigation)
                 : {}
                 }>
@@ -103,11 +102,11 @@ export default class HomeScreen extends Component {
       if(global.USER.Approve_visibility_NonSales) {
         this.state.entries.push({ "id":6, "title": "Approve Expense/Trip Non Sales", "icon": "done-all", "navigation":"ApproveNoneSale" });
       }
-      if(global.USER.AdvancePayment_visibility) {
-        this.state.entries.push({ "id":1, "title": "Advance Payment", "icon": "cash", "navigation":"Advance"});
-      }
       if(global.USER.createReqisition_visibility) {
         this.state.entries.push({ "id":2, "title": "Create/View Trip", "icon": "subway", "navigation":"TripList"});
+      }
+      if(global.USER.AdvancePayment_visibility) {
+        this.state.entries.push({ "id":1, "title": "Advance Payment", "icon": "cash", "navigation":"Advance"});
       }
       if(global.USER.create_pjp_visibility) {
         this.state.entries.push({ "id":3, "title": "Create/View PJP", "icon": "create", "navigation":"PjpList"});
@@ -120,60 +119,27 @@ export default class HomeScreen extends Component {
       }
     }
   }
-  
-  componentWillUnmount() {
-    //BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
-  }
+
 
   render() {
     console.log(global.USER);
     return (
     <View style={styles.container}>
 			<NetworkError />
-      <View style={styles.topRow}>
-        <TouchableOpacity style={styles.menuBtn} onPress={() => this.props.navigation.toggleDrawer()}>
-        <LinearTextGradient
-            style={styles.title}
-            locations={[0, 1]}
-            colors={["#833589", "#5f9cfb"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-          >
-            <Icon name="menu" style={styles.menuBtnIcon} />
-          </LinearTextGradient>
-        </TouchableOpacity>
-      </View>
       <ScrollView contentContainerStyle={styles.scroll}>
         <StatusBar backgroundColor="white" barStyle="dark-content" />
-        <View style={styles.titleBlock}>
-          <LinearTextGradient
-            style={styles.title}
-            locations={[0, 1]}
-            colors={["#1579cf", "#0aeacf"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-          >
-            <Text>Travel Management System</Text>
-          </LinearTextGradient>
-        </View>
-        <View style={styles.userBlock}>
-          {/*global.USER.avatar &&
-          <Image style={styles.userAvatar} source={{ uri:global.USER.avatar}} />
-          */}
-          <View style={styles.userInfo}>
-            <LinearTextGradient
-              locations={[0, 1]}
-              colors={["#7bf0f9", "#8dfbdf"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.userNameHolder}
-              >
-              <Text style={styles.userName}>{global.USER.userName}</Text>
-            </LinearTextGradient>
-            <Text style={styles.designation}>{global.USER.designation}</Text>
-            <Text style={styles.designation}>Department:{global.USER.department}</Text>
-          </View>
-        </View>
+        <LinearGradient style={styles.userBlock}
+          start={{x: 0, y: 0}} 
+          end={{x: 0, y: 1}} 
+          colors={['#0066b3', '#5a1be2']}>
+          <Text style={styles.appName}>Travel Management System</Text>
+          <Text style={styles.userLabel}>
+            {global.USER.userName}&nbsp;
+            <Text style={styles.userId}>{'('+global.USER.personId+')'}</Text>
+          </Text>
+          <Text style={styles.userLabel}>Designation: {global.USER.designation}</Text>
+          <Text style={styles.userLabel}>Department: {global.USER.department}</Text>
+        </LinearGradient>
         <View style={styles.userDetails}>
           <Text style={styles.userTitle}>Contact Information</Text>
           <View style={styles.userRow}>
@@ -193,19 +159,27 @@ export default class HomeScreen extends Component {
             <Text style={[styles.value, styles.infoValue]}>{global.USER.supervisorName}</Text>
           </View>
         </View>
+        <LinearGradient style={styles.topShadow}
+          start={{x: 0, y: 0}} 
+          end={{x: 0, y: 1}} 
+          colors={['#fff', 'rgba(0,0,0,.15)']}></LinearGradient>
 
-        <Carousel
-          ref={(c) => { this._carousel = c; }}
-          data={this.state.entries}
-          renderItem={this._renderItem.bind(this)}
-          sliderWidth={Dimensions.get('window').width}
-          itemWidth={220}
-          firstItem={1}
-          inactiveSlideScale={0.65}
-        />
+        <View style={styles.carouselWrapper}>
+          <Carousel
+            ref={(c) => { this._carousel = c; }}
+            data={this.state.entries}
+            renderItem={this._renderItem.bind(this)}
+            sliderWidth={Dimensions.get('window').width}
+            itemWidth={220}
+            firstItem={1}
+            inactiveSlideScale={0.65}
+          />
+        </View>
         <Text style={styles.copyright}>&copy; All rights reserved by Emami</Text>
       </ScrollView>
     </View>
     );
   }
 }
+
+export default (HomeScreen);

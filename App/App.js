@@ -88,9 +88,10 @@ const StackNavigator = createStackNavigator({
   Home: {
     screen: HomeScreen,
     drawerLabel: "Home",
-    navigationOptions: {
-      header: null,
-    }
+    navigationOptions: ({ navigation }) => ({
+      title: 'Home',
+      headerLeft: <MenuBtn navigationProps={navigation} />,
+    })
   },
   TripList: {
     screen: TripListScreen,

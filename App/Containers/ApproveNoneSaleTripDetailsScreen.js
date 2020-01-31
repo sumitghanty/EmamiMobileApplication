@@ -129,7 +129,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
       .then(()=>{
         this.props.getApprovedTripPending(global.USER.userEmail);
         this.props.navigation.navigate('ApproveNoneSaleTrip');
-        Toast.show('Trip Approved Successfuly', Toast.LONG);
+        Toast.show('Trip approved Successfully', Toast.LONG);
         console.log('Approve Done');
       });
     }
@@ -142,7 +142,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
       .then(()=>{
         this.props.getApprovedTripPending(global.USER.userEmail);
         this.props.navigation.navigate('ApproveNoneSaleTrip');
-        Toast.show('Trip Reject Successfuly', Toast.LONG);
+        Toast.show('Trip is rejected successfully', Toast.LONG);
         console.log('Reject Done');
       });
     }
@@ -150,8 +150,8 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
 
   approveConfirmation(e) {
     Alert.alert(
-      'Approve Trip',
-      'Are you sure to Approve this Trip?',
+      'Approve',
+      'Do you want to approve the trip?',
       [
         {
           text: 'Cancel',
@@ -208,7 +208,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
     if(this.state.rejComment.length<1) {
       Alert.alert(
         'Feild Required',
-        'Please enter reject comment.',
+        'Please enter rejection reason.',
         [
           {
             text: 'Cancel',
@@ -219,8 +219,8 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
       )
     } else {
       Alert.alert(
-        'Reject Trip',
-        'Are you sure to Reject this?',
+        'Reject',
+        'Do you want to reject the Trip?',
         [
           {
             text: 'Cancel',
@@ -255,8 +255,8 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
       )
     } else {
       Alert.alert(
-        'Approve Trip',
-        'Are you sure to Approve this Trip?',
+        'Approve',
+        'Do you want to approve the trip?',
         [
           {
             text: 'Cancel',
@@ -318,7 +318,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
       .then(()=> {
         this.props.getApprovedTripPending(global.USER.userEmail);
         this.props.navigation.navigate('ApproveNoneSaleTrip');
-        Toast.show('Requisition Approved Successfuly', Toast.LONG);
+        Toast.show('Requisition Approved Successfully', Toast.LONG);
       });
     })
     .then(()=>{
@@ -382,7 +382,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
       .then(()=> {
         this.props.getApprovedTripPending(global.USER.userEmail);
         this.props.navigation.navigate('ApproveNoneSaleTrip');
-        Toast.show('Requisition Rejected Successfuly', Toast.LONG);
+        Toast.show('Requisition Rejected Successfully', Toast.LONG);
       });
     })
     .then(()=>{
@@ -554,11 +554,11 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
         visible={this.state.modalVisible}
         onRequestClose={() => {this.setModalVisible(false)}}>
         <View style={styles.modalBody}>
-          <Text style={styles.modalLabel}>Reject comment:</Text>
+          <Text style={styles.modalLabel}>Rejection reason:</Text>
           <TextInput 
             multiline
             numberOfLines={4}
-            placeholder='Type your text'
+            placeholder='Enter reason'
             style={styles.modalInput}
             underlineColorAndroid="transparent"
             onChangeText={this.handleRejComment}

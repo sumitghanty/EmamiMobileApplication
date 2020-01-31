@@ -3,6 +3,7 @@ import {View, ScrollView, SafeAreaView, AsyncStorage, Image } from 'react-native
 import { ListItem, Icon, Left, Body, Text } from "native-base"
 
 import styles from './Styles/Drawer'
+import HomeScreen from '../Containers/Styles/HomeScreen';
 
 class Drawer extends React.Component {
   static navigationOptions = {
@@ -79,20 +80,19 @@ class Drawer extends React.Component {
   render() {
     return (
     <View style={styles.drwaer}>
-      <View style={styles.header}>
-        <View style={styles.avatarHolder}>
-          {this.state.uAvatar ?
-          <Image style={styles.userAvatar} source={{ uri:this.state.uAvatar}} />
-          :
-          <Icon name="md-contact" style={styles.userIcon} />
-          }
-        </View>
-        <Text style={styles.userName}>{this.state.userName}</Text>
-        <Text style={styles.userDes}>{this.state.userDesig}</Text>
-        <Text style={styles.userID}>{this.state.personId}</Text>
-      </View>
+    <View style={styles.header}>
+      <Text style={styles.userName}>Travel Management System</Text>
+    </View>
     <ScrollView>
-      <SafeAreaView style={styles.container} forceInset={{ top: 'always', horizontal: 'never' }}>
+      <SafeAreaView style={styles.container} forceInset={{ top: 'always', horizontal: 'never' }}>        
+				<ListItem last icon style={styles.listItem} onPress = {() => this.props.navigation.navigate('Home')}>
+          <Left>
+            <Icon active name="home" style={styles.listIcon} />
+          </Left>
+          <Body style={styles.listLabel}>
+            <Text numberOfLines={1} style={styles.listItemText}>Home</Text>
+          </Body>
+        </ListItem>
         {this.state.entries.map((item, index) => {          
           return (
             <ListItem 

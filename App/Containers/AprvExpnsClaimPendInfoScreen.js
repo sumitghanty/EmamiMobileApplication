@@ -117,7 +117,7 @@ class AprvExpnsClaimPendInfoScreen extends Component {
         this.props.getExpPendApr("21");
         this.props.getCostCentre(global.COSTCENTRE);
         this.props.navigation.navigate('ApproveNoneSaleExpenses');
-        Toast.show('Expense Claim Approved Successfuly', Toast.LONG);
+        Toast.show('Expense Claim Approved Successfully', Toast.LONG);
         console.log('Approve Done');
       });
     }
@@ -131,7 +131,7 @@ class AprvExpnsClaimPendInfoScreen extends Component {
         this.props.getExpPendApr("21");
         this.props.getCostCentre(global.COSTCENTRE);
         this.props.navigation.navigate('ApproveNoneSaleExpenses');
-        Toast.show('Expense Claim Rejected Successfuly', Toast.LONG);
+        Toast.show('Expense Claim Rejected Successfully', Toast.LONG);
         console.log('Reject Done');
       });
     }
@@ -139,8 +139,8 @@ class AprvExpnsClaimPendInfoScreen extends Component {
 
   approveConfirmation(e) {
     Alert.alert(
-      'Approve Trip',
-      'Are you sure to Approve this Advance Payment?',
+      'Approve',
+      'Do you want to approve the expense claim request?',
       [
         {
           text: 'Cancel',
@@ -159,7 +159,7 @@ class AprvExpnsClaimPendInfoScreen extends Component {
     if(this.state.rejComment.length<1) {
       Alert.alert(
         'Feild Required',
-        'Please enter reject comment.',
+        'Please enter rejection reason.',
         [
           {
             text: 'Cancel',
@@ -170,7 +170,7 @@ class AprvExpnsClaimPendInfoScreen extends Component {
       )
     } else {
       Alert.alert(
-        'Reject Trip',
+        'Reject',
         'Are you sure to Reject this Advance Payment?',
         [
           {
@@ -358,7 +358,7 @@ class AprvExpnsClaimPendInfoScreen extends Component {
             <Text style={styles.acrdTitle}>Claim Summary</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Estimatedd Cost:</Text>
+            <Text style={styles.label}>Estimated Cost:</Text>
             <Text style={styles.value}>{params.estimated_cost?params.estimated_cost:0}</Text>
           </View>
           <View style={styles.row}>
@@ -410,7 +410,7 @@ class AprvExpnsClaimPendInfoScreen extends Component {
           visible={this.state.modalVisible}
           onRequestClose={() => {this.setModalVisible(false)}}>
           <View style={styles.modalBody}>
-            <Text style={styles.modalLabel}>Reject comment:</Text>
+            <Text style={styles.modalLabel}>Rejection reason:</Text>
             <TextInput 
               multiline
               numberOfLines={4}

@@ -133,9 +133,9 @@ export default class AirRequisitionScreen extends Component {
         console.log('File Size : ' + res.size);
       }
       if (results.length>1) {
-        alert(results.length + ' fils are uploade successfuly.');
+        alert(results.length + ' fils are uploade successfully.');
       } else {
-        alert(results.length + ' fil is uploade successfuly.');
+        alert(results.length + ' fil is uploade successfully.');
       }
       this.setState({ attachFiles: results });
     } catch (err) {

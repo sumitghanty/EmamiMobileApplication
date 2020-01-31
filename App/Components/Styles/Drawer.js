@@ -7,45 +7,13 @@ export default StyleSheet.create({
   header: {
     alignItems: 'center',
     justifyContent: 'center',
-		backgroundColor: '#1091ff',
+		backgroundColor: '#0066b3',
     padding: 20
-  },
-  avatarHolder: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    borderWidth: 4,
-    borderStyle: 'solid',
-    borderColor: 'rgba(255,255,255,.35)',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  userIcon: {
-    color: '#fff',
-    fontSize: 92
-  },
-  userAvatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
   },
   userName: {
     width: '100%',
-    textAlign: 'center',
     color: '#fff',
-    fontSize: 26,
-    marginTop: 10
-  },
-  userDes: {
-    color: '#fff',
-    fontSize: 16
-  },
-  userID: {
-    fontSize: 13,
-    fontWeight: 'bold',
-    color: 'rgba(255,255,255,.65)',
-    marginTop: 5,
+    fontSize: 22,
   },
   listItem: {
     height: 58

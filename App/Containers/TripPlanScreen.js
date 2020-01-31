@@ -25,6 +25,9 @@ class TripPlanScreen extends Component {
       dataSource: null,
       SelectedDataList: [],
       isLoading: false,
+      modalVisible: 0,
+      attachData: null,
+      editModalData: null,
     };
   }
   searchUpdated(term) {
@@ -36,11 +39,6 @@ class TripPlanScreen extends Component {
     this.setState({dataSource: this.props.plans.dataSource});
   }
   
-	state = {
-    modalVisible: 0,
-    attachData: null,
-    editModalData: null,
-  }
   setModalVisible(visible) {
     this.setState({modalVisible: visible});
   }
@@ -317,7 +315,9 @@ class TripPlanScreen extends Component {
                 <Text style={styles.modalTitle}>Select Requisition Type:</Text>
                 {this.props.reqType.dataSource.map((item, index) => {
                 return (
-                <TouchableOpacity style={[styles.modalItem,this.state.editModalData==item.sub_category_id && styles.modalItemActive]}
+                <TouchableOpacity style={[styles.modalItem,
+                  this.state.editModalData && this.state.editModalData[1]==item.sub_category_id && styles.modalItemActive
+                ]}
                   key= {index}
                   onPress={() =>{this.editModalVisible(null); this.props.navigation.navigate(
                       item.sub_category_id=='1' ? 'AirRequisition'
@@ -328,7 +328,7 @@ class TripPlanScreen extends Component {
                     : item.sub_category_id=='1BM' ? 'HotelReq'
                     : item.sub_category_id=='1BNM' ? 'HotelReq'
                     : null,
-                    {item, params, 'update':true}
+                    {item, params, 'update':this.state.editModalData?this.state.editModalData[0]:false}
                   );
                   }}>
                   <View style={[styles.modalItemIconHolder,{ backgroundColor:
@@ -420,7 +420,6 @@ class TripPlanScreen extends Component {
   }
 
   renderItem = (data,index) => {
-  console.log(data);
   return <TouchableOpacity 
     key={index} 
     style={styles.cardItem} 
@@ -461,7 +460,7 @@ class TripPlanScreen extends Component {
         || data.status_id == "25" 
         ? null :
         <TouchableOpacity 
-          onPress={() => {this.editModalVisible(data.req_type);}}
+          onPress={() => {this.editModalVisible([data,data.req_type]);}}
           style={styles.editlBtn}
           >
           <Icon name="md-create" style={styles.editBtnIcon} />

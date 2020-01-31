@@ -107,9 +107,9 @@ class ExpInfoScreen extends Component {
       for (const res of results) {
       }
       if (results.length>1) {
-        alert(results.length + ' fils are uploade successfuly.');
+        alert(results.length + ' fils are uploade successfully.');
       } else {
-        alert(results.length + ' fil is uploade successfuly.');
+        alert(results.length + ' fil is uploade successfully.');
       }        
       this.setState({uploadError: 0});
       this.setState({ attachFiles: results });

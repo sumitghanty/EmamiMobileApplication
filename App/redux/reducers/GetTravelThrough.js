@@ -1,4 +1,4 @@
-import {REQUEST} from '../actions/ReqCreate'
+import {REQUEST} from '../actions/GetTravelThrough'
 
 export default (state = { dataSource: {}, isLoading: true, errorStatus:false}, action) => {
   switch(action.type){

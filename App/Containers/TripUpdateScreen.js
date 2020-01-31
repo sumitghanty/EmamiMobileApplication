@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { View, TouchableOpacity, Picker, Platform, AsyncStorage, Keyboard } from "react-native"
-import { Container, Content, Icon, Text, Form, Item, Label, Input } from 'native-base'
+import { View, Text, TouchableOpacity, Picker, Platform, Keyboard, TextInput, BackHandler, Alert, AsyncStorage } from "react-native"
+import { Container, Content, Icon, Form, Item, Label, Input } from 'native-base'
 import Ficon from 'react-native-vector-icons/FontAwesome5'
 import LinearGradient from 'react-native-linear-gradient'
 import DateTimePicker from '@react-native-community/datetimepicker'
@@ -9,28 +9,22 @@ import { connect } from 'react-redux'
 import Actions from '../redux/actions'
 import Toast from 'react-native-simple-toast'
 import { NavigationEvents } from 'react-navigation'
+import PickerModal from 'react-native-picker-modal-view'
 
 import {API_URL} from '../config'
 import Loader from '../Components/Loader'
 import styles from './Styles/TripCreateScreen';
 import updateStyles from './Styles/TripUpdateScreen';
 
-const ASYNC_STORAGE_COMMENTS_KEY = 'ANYTHING_UNIQUE_STRING'
-
 class TripUpdateScreen extends Component {
-  UNSAFE_componentWillMount() {
+  constructor(props) {
+    super(props);
     const {params} = this.props.navigation.state;
     var date = new Date().getDate();
     var month = new Date().getMonth() + 1;
     var year = new Date().getFullYear();
-    this.setState({
-      curDate: year+'-'+month+'-'+date,
-    });
-  }
-  constructor(props) {
-    super(props);
-    const {params} = this.props.navigation.state;
     this.state = {
+      curDate: year+'-'+month+'-'+date,
       dateStart: new Date(params.start_date),
       modeStart: 'date',
       showStart: false,
@@ -43,139 +37,139 @@ class TripUpdateScreen extends Component {
       travelsName: null,
       forId: params.trip_for,
       retainer_id: 1,
-      locationList: [],
-      toLocation: [],
-      tripForList: [],
-      purposeList: [],
-      travelersList: [],
-      isLoading: true,
-      tripNo: params.trip_no,
+      serchLocationList: [],
+      isLoading: false,
       details: params.details,
-      tripFrom: params.trip_from,
-      tripTo: params.trip_to,
-      error: false,
+      fromItem: {"Name": params.trip_from, "Value": params.trip_from, "Code": "", "Id":0},
+      toItem: {"Name": params.trip_to, "Value": params.trip_to, "Code": "", "Id":0},
+      saveStatusName: '',
+      saveSubStatusName: '',
+      createStatusName: '',
+      createSubStatusName: '',      
+      tripFromError: '',
+      tripToError: '',
       name: global.USER.userName,
       updateParams: '',
     };
   }
-
-  getTripForResposnse() {
-    const {params} = this.props.navigation.state;
-    AsyncStorage.getItem(ASYNC_STORAGE_COMMENTS_KEY ).then(value => {
-      return fetch(API_URL+'getTripForMasterList')
-      .then((response)=> response.json() )
-      .then((responseJson) => {
-        this.setState({
-          tripForList: responseJson,
-          isLoading: false,  
-        })
-        //tripForList.push( tripForList )
-      })
-      .then(()=> {
-        for(var i=0; i<=this.state.tripForList.length; i++) {
-          if(this.state.tripForList[i].tripFor_type_id == params.trip_for) {
-            this.setState({ 
-              for : this.state.tripForList[i].tripFor_type,
-              isLoading: false,
-            })
-          }
-        }
-      })
-      .catch((Error) => {
-        console.log(Error)
-      });
-    })
-  };  
-  getTripLocationResponse() {
-    const {params} = this.props.navigation.state;
-    AsyncStorage.getItem(ASYNC_STORAGE_COMMENTS_KEY ).then(value => {
-      return fetch(API_URL+'getLocationList')
-      .then((response)=> response.json() )
-      .then((responseJson) => {
-        this.setState({ 
-          locationList: responseJson, 
-          isLoading: false,
-        })
-        //locationList.push( locationList )
-      })
-      .then(()=> {
-        var toLocations = Array.from(this.state.locationList);
-        for( var i = 0; i < toLocations.length; i++){ 
-          if ( toLocations[i].city === params.trip_from) {
-            toLocations.splice(i, 1); 
-          }
-        }
-        this.setState({
-          toLocation: toLocations
-        });
-      })
-      .catch((Error) => {
-        console.log(Error)
-      });  
-    })  
-  };
-  getTripPurposeResponse() { 
-    const {params} = this.props.navigation.state; 
-    AsyncStorage.getItem(ASYNC_STORAGE_COMMENTS_KEY ).then(value => {
-      return fetch(API_URL+'activeForListOfTripForMaster?active_for=B')
-      .then((response)=> response.json() )
-      .then((responseJson) => {
-        this.setState({ 
-          purposeList: responseJson,
-        })
-      })
-      .then(()=> {
-        for(var i=0; i<=this.state.purposeList.length; i++) {
-          if(this.state.purposeList[i].purpose_type_id == params.purpose) {
-            this.setState({ 
-              purpose : this.state.purposeList[i].purpose_type, 
-              isLoading: false,
-            })
-          }
-        }
-      })
-      .catch((Error) => {
-        console.log(Error)
-      });  
-    })
-  };
-  getTravelersResponse() {
-    const {params} = this.props.navigation.state;
-    AsyncStorage.getItem(ASYNC_STORAGE_COMMENTS_KEY ).then(value => {
-      return fetch(API_URL+'getRetainerNameList')
-      .then((response)=> response.json() )
-      .then((responseJson) => {
-        this.setState({ 
-          travelersList: responseJson,
-        })
-      })
-      .then(()=> {
-        if(params.trip_for == "3") {
-          for(var i=0; i<=this.state.travelersList.length; i++) {
-            if(this.state.travelersList[i].retainer_id == parseInt(params.name)) {
-              this.setState({ 
-                travelsName : this.state.travelersList[i].name_of_retainers, 
-                isLoading: false,
-              })
-            }
-          }
-        }
-      })
-      .catch((Error) => {
-        console.log(Error)
-      });  
-    })  
-  };
+  
   componentDidMount() {
-    this.getTripForResposnse();
-    this.getTripLocationResponse();
-    this.getTripPurposeResponse();
-    this.getTravelersResponse();
+    const {params} = this.props.navigation.state;
+
+    this.props.getReqLocations()
+    .then(()=>{
+      let fetchLocationList = this.props.locations.dataSource;
+      for(var i=0; i<fetchLocationList.length; i++) {
+        this.state.serchLocationList.push({
+          "Name": fetchLocationList[i].city,
+          "Value": fetchLocationList[i].city,
+          "Code": fetchLocationList[i].type,
+		      "Id": fetchLocationList[i].id,
+        },)
+        if(fetchLocationList[i].city == params.trip_from) {
+          this.setState({ 
+            fromItem : {
+              "Name": fetchLocationList[i].city, 
+              "Value": fetchLocationList[i].city, 
+              "Code": fetchLocationList[i].type, 
+              "Id": fetchLocationList[i].id
+            },
+          })
+        }        
+        if(fetchLocationList[i].city == params.trip_to) {
+          this.setState({ 
+            toItem : {
+              "Name": fetchLocationList[i].city, 
+              "Value": fetchLocationList[i].city, 
+              "Code": fetchLocationList[i].type, 
+              "Id": fetchLocationList[i].id
+            },
+          })
+        }
+      }
+    });
+
+    this.props.getTripFor()
+    .then(()=> {
+      for(var i=0; i<=this.props.tripFor.dataSource.length; i++) {
+        if(this.props.tripFor.dataSource[i].tripFor_type_id == params.trip_for) {
+          this.setState({ 
+            for : this.props.tripFor.dataSource[i].tripFor_type,
+          })
+        }
+      }
+    });
+    
+    this.props.getPurpose('B')
+    .then(()=> {
+      for(var i=0; i<=this.props.purpose.dataSource.length; i++) {
+        if(this.props.purpose.dataSource[i].purpose_type_id == params.purpose) {
+          this.setState({ 
+            purpose : this.props.purpose.dataSource[i].purpose_type,
+          })
+        }
+      }
+    });
+
+    this.props.getRetainer()
+    .then(()=> {
+      if(params.trip_for == "3") {
+        for(var i=0; i<=this.props.retainer.dataSource.length; i++) {
+          if(this.props.retainer.dataSource[i].retainer_id == parseInt(params.name)) {
+            this.setState({ 
+              travelsName : this.props.retainer.dataSource[i].name_of_retainers,
+            })
+          }
+        }
+      }
+    });
+
+    this.props.getStatus("1","NA")
+    .then(()=>{
+      this.setState({
+        saveStatusName: this.props.statusResult.dataSource[0].trip_pjp_status,
+        saveSubStatusName: this.props.statusResult.dataSource[0].sub_status
+      });
+    });
+    this.props.getStatus("2","NA")
+    .then(()=>{
+      this.setState({
+        createStatusName: this.props.statusResult.dataSource[0].trip_pjp_status,
+        createSubStatusName: this.props.statusResult.dataSource[0].sub_status
+      });
+    });
+
+    BackHandler.addEventListener('hardwareBackPress', this._handleBackPress);
+  }
+
+  componentWillUnmount() {
+    BackHandler.removeEventListener('hardwareBackPress', this._handleBackPress);
+  }
+
+  _handleBackPress() {
+    if (this.props.navigation.isFocused()) {
+      Alert.alert(
+        "Discard changes?",
+        "Are you sure to go back?",
+        [
+          {
+            text: "No",
+            style: 'cancel',
+          },
+          {
+            text: "Yes",
+            onPress: () => this.props.navigation.goBack(),
+          }
+        ],
+        { cancelable: false }
+      );
+      return true;
+    }
   }
 
   onValueChangePurpose = (value) => {
     this.setState({ purpose: value });
-    this.state.purposeList.map((item) => {
+    this.props.purpose.dataSource.map((item) => {
       if (item.purpose_type == value) {
         this.setState({ purposeId: item.purpose_type_id });
       }      
@@ -183,17 +177,15 @@ class TripUpdateScreen extends Component {
   }
   onValueChangeFor = (value) => {
     this.setState({ for: value });
-    this.state.tripForList.map((item) => {
+    this.props.tripFor.dataSource.map((item) => {
       if (item.tripFor_type == value) {
         this.setState({ forId: item.tripFor_type_id });
       }      
     })
   }
   onValueChangeTraveler = (value) => {
-    this.setState({ 
-      travelsName: value,
-    });
-    this.state.travelersList.map((item) => {
+    this.setState({ travelsName: value });
+    this.props.retainer.dataSource.map((item) => {
       if (item.name_of_retainers == value) {
         this.setState({ retainer_id: item.retainer_id });
       }      
@@ -231,57 +223,96 @@ class TripUpdateScreen extends Component {
   datepickerStart = () => {
     this.showStart('dateStart');
   }
-  onValueChangeFrom = (tripFrom) => {
-    this.setState({
-      tripFrom: tripFrom,
-    });
-    var toLocations = Array.from(this.state.locationList);
-    for( var i = 0; i < toLocations.length; i++){ 
-      if ( toLocations[i].city === tripFrom) {
-        toLocations.splice(i, 1); 
-      }
-    }
-    this.setState({toLocation: toLocations});
-  }
-  onValueChangeTo = (tripTo) => {
-    this.setState({
-      tripTo: tripTo,
-    });
-  }
   handleChangeDetails = (text) => {
     this.setState({ details: text })
   }
  
+  confirmation = (statusId) => {
+    if( this.state.fromItem.Name == "Select From Location" || this.state.toItem.Name == "Select To Location" ) {
+      if(this.state.fromItem.Name == "Select From Location") {
+        this.setState({
+          tripFromError: 'Please select Trip From Location',
+          error: true,
+        });
+      }
+      if(this.state.toItem.Name == "Select To Location") {
+        this.setState({
+          tripToError: 'Please select Trip To Location',
+          error: true,
+        });
+      }
+    } else {
+      if (statusId == '1') {
+        Alert.alert(
+          "Update",
+          "Do you want to Update this trip?",
+          [
+            {
+              text: "No",
+              style: 'cancel',
+            },
+            {
+              text: "Yes",
+              onPress: () => this.submitTrip(statusId),
+            }
+          ],
+          { cancelable: true }
+        );
+      } else if(statusId == '2') {
+        Alert.alert(
+          "Submit",
+          "Do you want to Submit this Trip?",
+          [
+            {
+              text: "No",
+              style: 'cancel',
+            },
+            {
+              text: "Yes",
+              onPress: () => this.submitTrip(statusId),
+            }
+          ],
+          { cancelable: true }
+        );
+      } else {
+        console.log('Status ID not matched')
+      }
+    }
+  }
+
   submitTrip = (statusId) => {
     const {params} = this.props.navigation.state;
     let newParams = params;
-
-    newParams.trip_no = this.state.tripNo;
-    newParams.trip_from = this.state.tripFrom;
-    newParams.trip_to = this.state.tripTo;
-    newParams.trip_hdr_id = params.trip_hdr_id;
-    newParams.start_date = moment(this.state.dateStart).format("YYYY-MM-DD");
-    newParams.end_date = moment(this.state.dateEnd).format("YYYY-MM-DD");
-    newParams.trip_for = this.state.forId;
-    newParams.purpose = this.state.purposeId;
-    newParams.trip_creator_name = global.USER.userName;
-    newParams.trip_creator_userid = global.USER.userId;
-    newParams.details = this.state.details;
-    newParams.status_id = statusId;
-    newParams.status = statusId == "1"?"Create Trip/PJP - Saved":statusId == "2"?"Create Trip/PJP - Pending with Supervisor":null;
-    newParams.userid = global.USER.userId;
-    newParams.email = global.USER.userEmail;
-    newParams.delete_status = "false";
-    newParams.pending_with_email = global.USER.supervisorEmail;
-    newParams.pending_with_name = global.USER.supervisorName;
-    newParams.pending_with = global.USER.supervisorId;
-    newParams.name = this.state.forId == "1" ? this.state.name 
-                    : this.state.forId == "3"?this.state.retainer_id
-                    :this.state.forId == "5"?''
-                    :'';
-
-    this.setState({ isLoading: true }, () => {
+    AsyncStorage.getItem("ASYNC_STORAGE_FROM_KEY")
+    .then(()=>{
+      this.setState({ isLoading: true });
+      newParams.trip_from = this.state.fromItem.Name;
+      newParams.trip_to = this.state.toItem.Name;
+      newParams.start_date = moment(this.state.dateStart).format("YYYY-MM-DD");
+      newParams.end_date = moment(this.state.dateEnd).format("YYYY-MM-DD");
+      newParams.trip_for = this.state.forId;
+      newParams.purpose = this.state.purposeId;
+      newParams.trip_creator_name = global.USER.userName;
+      newParams.trip_creator_userid = global.USER.userId;
+      newParams.details = this.state.details;
+      newParams.status_id = statusId;
+      newParams.status = statusId == "1"?this.state.saveStatusName:statusId == "2"?this.state.createStatusName:'';
+      newParams.userid = global.USER.userId;
+      newParams.email = global.USER.userEmail;
+      newParams.delete_status = "false";
+      newParams.pending_with_email = global.USER.supervisorEmail;
+      newParams.pending_with_name = global.USER.supervisorName;
+      newParams.pending_with = global.USER.supervisorId;
+      newParams.name = this.state.forId == "1" ? this.state.name 
+                      : this.state.forId == "3"?this.state.retainer_id
+                      :this.state.forId == "5"?''
+                      :'';
+    })
+    .then(()=>{
       this.props.tripUpdate([newParams])
+      .then(()=>{
+        this.props.getTrips(global.USER.userId)
+      })
       .then(()=>{
         this.props.navigation.navigate('TripList')
         .then(()=>{
@@ -297,24 +328,85 @@ class TripUpdateScreen extends Component {
           }
         })        
       });
-    });
+    })
+    
     Keyboard.dismiss();
   }
 
-  componentWillUnmount() {
-    this.getTripForResposnse();
-    this.getTripLocationResponse();
-    this.getTripPurposeResponse();
-    this.getTravelersResponse();
-    this.props.getTrips(global.USER.userId);
+  renderLocationAlert=()=> {
+    return(
+      Alert.alert(
+        "Warning",
+        "From location and To location can not be same.",
+        [
+          {
+            text: "Cancel",
+            style: 'cancel',
+          },
+        ],
+        { cancelable: false }
+      )
+    )
+  }
+
+  fromSelected(value){
+    AsyncStorage.getItem("ASYNC_STORAGE_FROM_KEY")
+    .then(() => {
+      this.setState({
+        fromItem: value,
+        tripFromError: '',
+      })
+    })
+    .then(()=>{
+      if(this.state.fromItem.Name == this.state.toItem.Name) {
+        this.renderLocationAlert();
+        this.setState({
+          fromItem: {"Name": "Select From Location", "Value": "", "Code": "", "Id":0},
+        })
+      }
+    })
+  }
+  toSelected(value){
+    AsyncStorage.getItem("ASYNC_STORAGE_TO_KEY")
+    .then(() => {
+      this.setState({
+        toItem: value,
+        tripToError: ''
+      })
+    })
+    .then(()=>{
+      if(this.state.fromItem.Name == this.state.toItem.Name) {
+        this.renderLocationAlert();
+        this.setState({
+          toItem: {"Name": "Select To Location", "Value": "", "Code": "", "Id":0},
+        })
+      }
+    })
   }
 
   render() {
-    if(this.state.isLoading || this.props.tripUpdate.isLoading){
+    if(
+      this.state.isLoading || 
+      this.props.tripUpdate.isLoading ||
+      this.props.locations.isLoading ||
+      this.props.tripFor.isLoading ||
+      this.props.purpose.isLoading ||
+      this.props.retainer.isLoading
+      ){
       return(
         <Loader/>
       )
-    }
+    } else if (
+      this.props.tripUpdate.errorStatus ||
+      this.props.locations.errorStatus ||
+      this.props.tripFor.errorStatus ||
+      this.props.purpose.errorStatus ||
+      this.props.retainer.errorStatus
+    ) {
+      return(
+        <Text>URL Error</Text>
+      )
+    } else {
     const {params} = this.props.navigation.state;
     //console.log(this.props.navigation.state.routeName);
     return (
@@ -368,7 +460,7 @@ class TripUpdateScreen extends Component {
                 selectedValue= {this.state.purpose}
                 onValueChange={this.onValueChangePurpose}
                 >
-                {this.state.purposeList.map((item, index) => {
+                {this.props.purpose.dataSource.map((item, index) => {
                   return (
                   <Picker.Item label={item.purpose_type} value={item.purpose_type} key={index} />
                   );
@@ -377,35 +469,64 @@ class TripUpdateScreen extends Component {
             </Item>
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Form:</Label>
-              <Picker
-                placeholder="Select From Location" 
-                selectedValue = {this.state.tripFrom} 
-                onValueChange = {this.onValueChangeFrom}                
-                style={styles.formInput}>
-                {this.state.locationList.map((item, index) => {
-                return (
-                  <Picker.Item label={item.city} value={item.city} key={index} />
-                );
-                })}
-              </Picker>
+              <View style={styles.pickerWraper}>
+                <PickerModal
+                  renderSelectView={(disabled, selected, showModal) =>
+                    <TouchableOpacity style={styles.pickerBtn} onPress={showModal}>
+                      <Text style={styles.pickerBtnText}>{this.state.fromItem.Name}</Text>
+                      <Icon name="arrow-dropdown" style={styles.pickerBtnIcon} />
+                    </TouchableOpacity>
+                  }
+                  onSelected={this.fromSelected.bind(this)}
+                  onClosed={()=>{}}
+                  onBackButtonPressed={()=>{}}
+                  items={this.state.serchLocationList}
+                  //sortingLanguage={'tr'}
+                  showToTopButton={true}
+                  selected={this.state.fromItem}
+                  showAlphabeticalIndex={true}
+                  autoGenerateAlphabeticalIndex={true}
+                  selectPlaceholderText={'Choose one...'}
+                  onEndReached={() => console.log('list ended...')}
+                  searchPlaceholderText={'Search...'}
+                  requireSelection={false}
+                  autoSort={false}
+                />
+              </View>
             </Item>
+            {this.state.tripFromError.length>0 &&
+              <Text style={styles.errorText}>{this.state.tripFromError}</Text>
+            }
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>To:</Label>
-              <Picker
-                placeholder="Select To Location" 
-                selectedValue = {this.state.tripTo} 
-                onValueChange = {this.onValueChangeTo}                
-                style={styles.formInput}>
-                {this.state.toLocation.map((item, index) => {
-                return (
-                  <Picker.Item 
-                    label={item.city} 
-                    value={item.city}
-                    key={index} />
-                );
-                })}
-              </Picker>
+              <View style={styles.pickerWraper}>
+                <PickerModal
+                  renderSelectView={(disabled, selected, showModal) =>
+                    <TouchableOpacity style={styles.pickerBtn} onPress={showModal}>
+                      <Text style={styles.pickerBtnText}>{this.state.toItem.Name}</Text>
+                      <Icon name="arrow-dropdown" style={styles.pickerBtnIcon} />
+                    </TouchableOpacity>
+                  }
+                  onSelected={this.toSelected.bind(this)}
+                  onClosed={()=>{}}
+                  onBackButtonPressed={()=>{}}
+                  items={this.state.serchLocationList}
+                  //sortingLanguage={'tr'}
+                  showToTopButton={true}
+                  selected={this.state.toItem}
+                  showAlphabeticalIndex={true}
+                  autoGenerateAlphabeticalIndex={true}
+                  selectPlaceholderText={'Choose one...'}
+                  onEndReached={() => console.log('list ended...')}
+                  searchPlaceholderText={'Search...'}
+                  requireSelection={false}
+                  autoSort={false}
+                />
+              </View>
             </Item>
+            {this.state.tripToError.length>0 &&
+              <Text style={styles.errorText}>{this.state.tripToError}</Text>
+            }
             <Item picker fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Trip for:</Label>
               <Picker
@@ -418,7 +539,7 @@ class TripUpdateScreen extends Component {
                 selectedValue={this.state.for}
                 onValueChange={this.onValueChangeFor}
                 >
-                {this.state.tripForList.map((item, index) => {
+                {this.props.tripFor.dataSource.map((item, index) => {
                   return (
                   <Picker.Item label={item.tripFor_type} value={item.tripFor_type} key={index} />
                   );
@@ -439,7 +560,7 @@ class TripUpdateScreen extends Component {
                 selectedValue={this.state.travelsName}
                 onValueChange={this.onValueChangeTraveler}
                 >
-                {this.state.travelersList.map((item, index) => {
+                {this.props.retainer.dataSource.map((item, index) => {
                   return (
                   <Picker.Item label={item.name_of_retainers} value={item.name_of_retainers} key={index} />
                   );
@@ -449,22 +570,20 @@ class TripUpdateScreen extends Component {
               <Text>&nbsp;</Text>
               :null}
             </Item>
-            <Item stackedLabel style={[styles.formRow,styles.mb]}>
-              <Label style={styles.formLabel}>Details:</Label>
-              <Input 
-                multiline
-                numberOfLines={2}
-                placeholder='Enter your comments'
-                onChangeText={this.handleChangeDetails}
-                value = {this.state.details}
-                style={styles.formInput}
-                />
-            </Item>
+            <Text style={[styles.formLabel,styles.inputLabel]}>Details:</Text>
+            <TextInput 
+              multiline
+              numberOfLines={4}
+              placeholder='Enter your comments'
+              style={styles.textArea}
+              underlineColorAndroid="transparent"
+              onChangeText={this.handleChangeDetails}
+              value = {this.state.details}
+              />
           </Form>         
         </Content>
-        {(this.state.purpose.length > 0 && this.state.for.length > 0 && this.state.tripFrom.length > 0 && this.state.tripTo.length > 0) ?
         <View style={styles.footer}>
-          <TouchableOpacity onPress={() => this.submitTrip(1)} style={styles.ftrBtn}>
+          <TouchableOpacity onPress={() => this.confirmation(1)} style={styles.ftrBtn}>
             <LinearGradient 
               start={{x: 0, y: 0}} 
               end={{x: 1, y: 0}} 
@@ -474,7 +593,7 @@ class TripUpdateScreen extends Component {
               <Text style={styles.ftrBtnTxt}>Update</Text>
             </LinearGradient>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => this.submitTrip(2)} style={styles.ftrBtn}>
+          <TouchableOpacity onPress={() => this.confirmation(2)} style={styles.ftrBtn}>
             <LinearGradient 
               start={{x: 0, y: 0}}
               end={{x: 1, y: 0}} 
@@ -484,22 +603,33 @@ class TripUpdateScreen extends Component {
               <Text style={styles.ftrBtnTxt}>Submit</Text>
             </LinearGradient>
           </TouchableOpacity>
-        </View>:null}
+        </View>
       </Container>
     );
+  }
   }
 };
 
 const mapStateToProps = state => {
   return {
     tripUpdate: state.tripUpdate,
-    trips: state.trips
+    trips: state.trips,
+    locations: state.locations,
+    tripFor: state.tripFor,
+    purpose: state.purpose,
+    retainer: state.retainer,
+    statusResult: state.statusResult
   };
 };
 
 const mapDispatchToProps = {
   tripUpdate : Actions.tripUpdate,
-  getTrips : Actions.getTrips
+  getTrips : Actions.getTrips,
+  getReqLocations: Actions.getReqLocations,
+  getTripFor: Actions.getTripFor,
+  getPurpose: Actions.getPurpose,
+  getRetainer: Actions.getRetainer,
+  getStatus: Actions.getStatus
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TripUpdateScreen);

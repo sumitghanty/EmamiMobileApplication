@@ -66,9 +66,9 @@ export default class NonActaxiReqScreen extends Component {
         type: [DocumentPicker.types.allFiles],
       });
       if (results.length>1) {
-        alert(results.length + ' fils are uploade successfuly.');
+        alert(results.length + ' fils are uploade successfully.');
       } else {
-        alert(results.length + ' fil is uploade successfuly.');
+        alert(results.length + ' fil is uploade successfully.');
       }
       this.setState({ attachFiles: results });
     } catch (err) {

@@ -1,14 +1,16 @@
 import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
-  title: {
-    fontSize: 16,
-    color: '#111',
+  titleBar:{
+    backgroundColor: '#0066b3',
+    marginBottom: 16,
     paddingHorizontal: 16,
     paddingVertical: 16,
+  },
+  title: {
+    fontSize: 16,
+    color: '#fff',
     fontWeight: 'bold',
-    backgroundColor: '#f4f4f4',
-    marginBottom: 16
   },
   formLabel: {
     flex: 2,
@@ -63,9 +65,6 @@ export default StyleSheet.create({
   datePickerLabel: {
     flex: 1
   },
-  mb: {
-    marginBottom: 30
-  },
   ftrBtnIcon: {
     color: '#fff',
     fontSize: 16,
@@ -75,5 +74,34 @@ export default StyleSheet.create({
     marginHorizontal: 16,
     fontSize: 12,
     color: 'red'
+  },
+  pickerWraper: {
+    flex: 3
+  },
+  pickerBtn: {
+   flexDirection: 'row',
+   alignItems: 'center',
+   paddingVertical: 10,
+   height: 50,
+  },
+  pickerBtnText: {
+    flex: 1
+  },
+  pickerBtnIcon: {
+    marginHorizontal: 12,
+    color: 'rgba(0,0,0,.5)',
+    fontSize: 19
+  },
+  inputLabel: {
+    marginHorizontal: 16
+  },
+  textArea: {
+    backgroundColor: '#f8f8f8',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,.1)',
+    padding: 8,
+    borderRadius: 4,
+    marginHorizontal: 16,
+    marginBottom: 30
   }
 });

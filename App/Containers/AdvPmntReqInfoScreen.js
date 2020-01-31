@@ -77,7 +77,7 @@ class AdvPmntReqInfoScreen extends Component {
       .then(()=>{
         this.props.getAdvPmntPend(global.USER.userId,"14");
         this.props.navigation.navigate('ApproveNoneSaleAdvance');
-        Toast.show('Advance Payment Approved Successfuly', Toast.LONG);
+        Toast.show('Advance Payment Approved Successfully', Toast.LONG);
         console.log('Approve Done');
       });
     }
@@ -90,7 +90,7 @@ class AdvPmntReqInfoScreen extends Component {
       .then(()=>{
         this.props.getAdvPmntPend(global.USER.userId,"14");
         this.props.navigation.navigate('ApproveNoneSaleAdvance');
-        Toast.show('Advance Payment Rejected Successfuly', Toast.LONG);
+        Toast.show('Advance Payment Rejected Successfully', Toast.LONG);
         console.log('Reject Done');
       });
     }
@@ -98,8 +98,8 @@ class AdvPmntReqInfoScreen extends Component {
 
   approveConfirmation(e) {
     Alert.alert(
-      'Approve Trip',
-      'Are you sure to Approve this Advance Payment?',
+      'Approve',
+      'Do you want to approve the advance payment request?',
       [
         {
           text: 'Cancel',
@@ -118,7 +118,7 @@ class AdvPmntReqInfoScreen extends Component {
     if(this.state.rejComment.length<1) {
       Alert.alert(
         'Feild Required',
-        'Please enter reject comment.',
+        'Please enter rejection reason.',
         [
           {
             text: 'Cancel',
@@ -129,7 +129,7 @@ class AdvPmntReqInfoScreen extends Component {
       )
     } else {
       Alert.alert(
-        'Reject Trip',
+        'Reject',
         'Are you sure to Reject this Advance Payment?',
         [
           {
@@ -206,13 +206,17 @@ class AdvPmntReqInfoScreen extends Component {
           </View>
           <Text style={styles.title}>Advance Payment Details</Text>
           <View style={styles.row}>
-            <Text style={styles.label}>Estimatedd Cost:</Text>
-            <Text style={styles.value}>{params.estimated_cost} {params.currency}</Text>
+            <Text style={styles.label}>Estimated Cost:</Text>
+            <Text style={styles.value}>{params.estimated_cost}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Advance Payment:</Text>
             <Text style={styles.value}>{params.payment_amount}</Text>
-          </View>          
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Currency:</Text>
+            <Text style={styles.value}>{params.currency?params.currency:'INR'}</Text>
+          </View> 
           {/*<View style={[styles.row,styles.rowLast]}>
             <Text style={styles.label}>Attachment:</Text>
             <View style={styles.atchFiles}>
@@ -262,7 +266,7 @@ class AdvPmntReqInfoScreen extends Component {
           visible={this.state.modalVisible}
           onRequestClose={() => {this.setModalVisible(false)}}>
           <View style={styles.modalBody}>
-            <Text style={styles.modalLabel}>Reject comment:</Text>
+            <Text style={styles.modalLabel}>Rejection reason:</Text>
             <TextInput 
               multiline
               numberOfLines={4}

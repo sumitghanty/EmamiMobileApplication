@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import { View, KeyboardAvoidingView, ScrollView, Picker, Platform, TouchableOpacity, AsyncStorage, Keyboard, Alert, BackHandler } from "react-native"
-import { Button, Icon, Text, Form, Item, Label, Input } from 'native-base'
+import { View, KeyboardAvoidingView, ScrollView, Picker, Platform, TouchableOpacity, Image,
+  TextInput, AsyncStorage, Keyboard, Alert, BackHandler, Modal, ActivityIndicator } from "react-native"
+import { Button, Icon, Text, Form, Item, Label } from 'native-base'
 import DocumentPicker from 'react-native-document-picker'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import moment from 'moment'
@@ -8,16 +9,11 @@ import LinearGradient from 'react-native-linear-gradient'
 import { connect } from 'react-redux'
 import Actions from '../redux/actions'
 import Toast from 'react-native-simple-toast'
-import { HeaderBackButton } from "react-navigation-stack";
+import { HeaderBackButton } from "react-navigation-stack"
+import PickerModal from 'react-native-picker-modal-view'
 
-import {API_URL} from '../config'
 import Loader from '../Components/Loader'
 import styles from './Styles/HotelReqScreen.js'
-import StateDist from '../Assets/json/stateDist.json'
-
-const LOCATION_KEY = 'LOCATION_STRING'
-const THROUGH_KEY = 'THROUGH_STRING'
-const TYPE_KEY = 'TYPE_STRING'
 
 class HotelReqScreen extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -28,36 +24,19 @@ class HotelReqScreen extends Component {
     };
   };
 
-  UNSAFE_componentWillMount() {
-    var date = new Date().getDate();
-    var month = new Date().getMonth() + 1;
-    var year = new Date().getFullYear();
-    this.setState({
-      curDate: year+'-'+month+'-'+date,
-      date: new Date(year+'-'+month+'-'+date),
-      dateCin: new Date(year+'-'+month+'-'+date),
-      timeCin: new Date('0000'),
-      dateCout: new Date(year+'-'+month+'-'+date),
-      timeCout: new Date('0000'),
-      tState: StateDist.states[0].state,
-      cityList: StateDist.states[0].districts,
-      tcity: StateDist.states[0].districts[0],
-      lineitem: this.props.plans.dataSource.length+1
-    });
-  }
   constructor(props) {
     super(props);
+    const {params} = this.props.navigation.state;
     this.state = {
-      isLoading: true,
-      date: '0000-00-00',
-      dateCin: '0000-00-00',
-      timeCin: '00:00',
-      dateCout: '0000-00-00',
-      timeCout: '00:00',
-      stateList: [],
-      tState: '',
-      cityList: [],
-      tcity: '',
+      curDate: new Date(),
+      date: params.update?params.update.travel_date:params.params.start_date,
+      dateCin: (params.update && params.update.check_in_date) ? params.update.check_in_date : params.params.start_date,
+      timeCin: (params.update && params.update.check_in_time) ?params.update.check_in_time
+                : moment(new Date()).format('HH:mm'),
+      dateCout: (params.update && params.update.check_out_date) ? params.update.check_out_date : params.params.start_date,
+      timeCout: (params.update && params.update.check_out_time) ?params.update.check_out_time
+                : moment(new Date()).format('HH:mm'),
+      isLoading: false,
       modeDate: 'date',
       modeTime: 'time',
       show: false,
@@ -65,173 +44,128 @@ class HotelReqScreen extends Component {
       showTimeCin: false,
       showCout: false,
       showTimeCout: false,
-      through: "Self",
+      through: (params.update && params.update.through) ? params.update.through : "Self",
       attachFiles: [],
-      locationList: [],
+      stateList: [],
+      stateItem: {"Name": (params.update && params.update.state) ? params.update.state : "Select State", "Value": "", "Code": "", "Id":0},
+      curState: (params.update && params.update.state) ? params.update.state : null,
+      stateError: null,
+      fetchCityData: null,
+      isCityLoading: false,
+      cityList: [],
+      cityItem: {"Name": (params.update && params.update.city) ? params.update.city : "Select Location", "Value": "", "Code": "", "Id":0},
+      cityError: null,
+      curCity: (params.update && params.update.city) ? params.update.city : null,
+      hasCity: true,
       throughtList: [],
       createdReq: [],
       typeList: [],
-      type: '',
-      amount: '0.0',
-      days: 0,
-      tempReq: null,
-      lineitem: 0,
-      planList: [],
-      vanderName: ''
+      type: (params.update && params.update.state) ? params.update.state : '',
+      maxAmt: params.item.upper_limit == "On Actual" ? "5000000"
+              : params.item.upper_limit != "NA" ? params.item.upper_limit
+              : '0.0',
+      amount: (params.update && params.update.check_in_date) ? params.update.amount :null,
+      amntError: null,
+      days: 1,
+      modalVisible: false,
+      uploadData: [{"type":"Approve Email","file":[]},
+                    {"type":"Other","file":[]},
+                    {"type":"Hotel Booking confirmation document","file":[]},
+                    {"type":"Hotel booking invoice","file":[]},
+                    {"type":"Travel agent invoice","file":[]}],
+      curUploadType: 'Approve Email',
+      statusNameOP: '',
+      subStatusNameOP: '',
+      statusName: '',
+      subStatusName: '',
+      OOP: 'Y',
+      vendorname: '',
+      vendorId: '0',
+      cityType: params.item.sub_category_id == "1BM" ? "Metro"
+                :  params.item.sub_category_id == "1BH" ? "HillStation"
+                :  "NonMetro",
     };
   }
 
-  getTripLocationResponse() {
+  componentDidMount() {    
     const {params} = this.props.navigation.state;
-    var cityType = params.item.sub_category_id=="1BM"?"Metro"
-      :params.item.sub_category_id=="1BNM"?"NonMetro"
-      :params.item.sub_category_id=="1BH"?"HillStation":"";
-    this.setState({ isLoading: true }, () => {
-      AsyncStorage.getItem(LOCATION_KEY ).then(value => {
-        return fetch(API_URL+'getLocationListForHotel?cityType='+cityType)
-        .then((response)=> response.json() )
-        .then((responseJson) => {
-          this.setState({ 
-            locationList: responseJson, 
-            isLoading: false,
-          });
-        })
-        .catch((Error) => {
-          console.log(Error)
-        });  
-      });
+    let cityType = params.item.sub_category_id == "1BM" ? "Metro"
+                :  params.item.sub_category_id == "1BH" ? "HillStation"
+                :  "NonMetro";
+
+    this.props.getStates()
+    .then(()=>{
+      for(var i=0; i<this.props.stateList.dataSource.length; i++) {
+        if(this.props.stateList.dataSource[i].type == this.state.cityType) {
+          this.state.stateList.push({
+            "Name": this.props.stateList.dataSource[i].state,
+            "Value": this.props.stateList.dataSource[i].city,
+            "Code": this.props.stateList.dataSource[i].type,
+            "Id": this.props.stateList.dataSource[i].id,
+          },)
+        }
+      }
     });
-  };
 
-  getTripThrough() {
-    this.setState({ isLoading: true }, () => {
-      AsyncStorage.getItem(THROUGH_KEY ).then(value => {
-        return fetch(API_URL+'getTravelThroughList')
-        .then((response)=> response.json() )
-        .then((responseJson) => {
-          this.setState({ 
-            throughtList: responseJson,
-            through: responseJson[0].travel_through_type,
-            isLoading: false,
-          });
-        })
-        .catch((Error) => {
-          console.log(Error)
-        });  
-      });
-    });
-  };
-
-  getTripType() {
-    this.setState({ isLoading: true }, () => {
-      AsyncStorage.getItem(TYPE_KEY ).then(value => {
-        return fetch(API_URL+'getTravelNameList')
-        .then((response)=> response.json() )
-        .then((responseJson) => {
-          this.setState({ 
-            typeList: responseJson,
-            type: responseJson[0].travel_type,
-            isLoading: false,
-          });
-        })
-        .catch((Error) => {
-          console.log(Error)
-        });  
-      });
-    });
-  };
-
-  reqCreate =() => {
-    this.setState({ isLoading: true }, () => {
-      const {params} = this.props.navigation.state;
-      this.props.reqCreate([{
-        "trip_hdr_id_fk": params.params.trip_hdr_id,
-        "trip_no": params.params.trip_no,
-        "status_id": "6",
-        "status": "Plan Trip/PJP",
-        "sub_status_id": "6.1",
-        "sub_status": "Requisition Initiated",
-        "userid": params.params.userid,
-        "username": params.params.username,
-        "useremail": params.params.useremail,
-        "is_outof_policy": "N",
-        "is_billRequired": "N",
-        "delete_status": "false",
-        "pending_with": params.params.pending_with,
-        "pending_with_email": params.params.pending_with_email,
-        "pending_with_name": params.params.pending_with_name,
-        "lineitem": this.state.lineitem
-      }])
-      .then(() => {
-        fetch(API_URL+'getRequisitionListNonSales?triphdrId='+params.params.trip_hdr_id)
-          .then((response)=> response.json() )
-          .then((responseJson) => {
-            this.setState({ 
-              planList: responseJson,
-            });
-          })
-          .then(()=>{
-            {this.state.planList.map((item, index) => {
-              if (item.lineitem == this.state.lineitem) {
-                this.setState({tempReq: item })
-              }
-            })}
-          })
-          .then(() => {
-            let newTempReq = this.state.tempReq;
-            newTempReq.trip_hdr_id_fk = params.params.trip_hdr_id;
-            newTempReq.req_type = params.item.sub_category_id;
-            newTempReq.start_date = params.params.start_date;
-            newTempReq.end_date = params.params.end_date;
-            newTempReq.amount = this.state.amount;
-            newTempReq.through = this.state.through;
-            newTempReq.creation_date = this.state.curDate;
-            newTempReq.username = params.params.username;
-            newTempReq.useremail = params.params.useremail;
-            newTempReq.upper_limit = params.item.upper_limit;
-
-            /* Requisition Secific*/
-            newTempReq.travel_date = moment(this.state.date).format("YYYY-MM-DD");
-            newTempReq.travel_type = this.state.type;
-            newTempReq.check_in_date = moment(this.state.dateCin).format("YYYY-MM-DD");
-            newTempReq.check_out_date = moment(this.state.dateCout).format("YYYY-MM-DD");
-            newTempReq.check_in_time = moment(this.state.timeCin).format('HH:mm');
-            newTempReq.check_out_time = moment(this.state.timeCout).format('HH:mm');
-            newTempReq.days = this.state.days;
-            newTempReq.state = this.state.tState;
-            newTempReq.city = this.state.tcity;
-            newTempReq.va_ta_id = this.state.through == "Self" ? "0" : this.state.vanderName
-
-            this.setState({
-              tempReq : newTempReq,
-            })
-          })
-          .then(() => {
-            this.props.reqUpdate([this.state.tempReq])
-            .then(() => {
-              this.props.getPlans(params.params.trip_hdr_id);
-            });
-          })          
-          .then(()=>{
-            this.props.navigation.goBack()
-            /*this.setState({
-              isLoading: false
-            });*/
-            Toast.show('Requisition Created Successfuly.', Toast.LONG);
-            console.log('Requisition create successfuly.');
-          })
-          .catch((Error) => {
-            console.log(Error)
-          });       
+    this.props.getReqLocations()
+    .then(()=>{
+      this.setState({
+        fetchCityData: this.props.locations.dataSource
       })
+    })
+    .then(() => {
+      if(params.update && params.update.state){
+        for(var i=0; i<this.state.fetchCityData.length; i++) {
+          if(this.state.fetchCityData[i].state == params.update.state) {
+            this.state.cityList.push({
+              "Name": this.state.fetchCityData[i].city,
+              "Value": this.state.fetchCityData[i].city,
+              "Code": this.state.fetchCityData[i].type,
+              "Id": this.state.fetchCityData[i].id,
+            },)
+          }
+        }
+      }
     });
-    Keyboard.dismiss();
-  }
-  
-  componentDidMount() {
-    this.getTripLocationResponse();
-    this.getTripThrough();
-    this.getTripType();
+
+    this.props.getTravelThrough()
+    .then(()=>{
+      this.setState({ 
+        throughtList: this.props.travelThroughState.dataSource,
+        through: (params.update && params.update.through) 
+                  ? params.update.through 
+                  :this.props.travelThroughState.dataSource.length>0
+                    ?this.props.travelThroughState.dataSource[0].travel_through_type:''
+      });
+    })
+
+    this.props.getTravelType()
+    .then(()=>{
+      this.setState({ 
+        typeList: this.props.travelTypeState.dataSource,
+        type: (params.update && params.update.travel_type) 
+              ? params.update.travel_type 
+              : this.props.travelTypeState.dataSource.length>0
+                ?this.props.travelTypeState.dataSource[0].travel_type:''
+      });
+    })
+
+    this.props.getStatus("7","7.5")
+    .then(()=>{
+      this.setState({
+        statusNameOP: this.props.statusResult.dataSource[0].trip_pjp_status,
+        subStatusNameOP: this.props.statusResult.dataSource[0].sub_status
+      });
+    });
+
+    this.props.getStatus("7","7.4")
+    .then(()=>{
+      this.setState({
+        statusName: this.props.statusResult.dataSource[0].trip_pjp_status,
+        subStatusName: this.props.statusResult.dataSource[0].sub_status
+      });
+    });
+
     this.props.navigation.setParams({
       handleBackPress: this._handleBackPress.bind(this)
     });
@@ -240,10 +174,8 @@ class HotelReqScreen extends Component {
       return true;
     });
   }
+
   componentWillUnmount() {
-    this.getTripLocationResponse();
-    this.getTripThrough();
-    this.getTripType();
     this.backHandler.remove();
   }
 
@@ -264,26 +196,112 @@ class HotelReqScreen extends Component {
       { cancelable: false }
     );
   }
-  
-  onValueChangeState = (value) => {
-    this.setState({
-      tState: value
-    });    
-    var newStateList = Array.from(StateDist.states);
-    for( var i = 0; i < newStateList.length; i++){ 
-      if ( newStateList[i].state.toLowerCase(value) === value.toLowerCase(value)) {
-        var newCityList = newStateList[i].districts
-      }
-    }
-    this.setState({
-      cityList: newCityList
-    });
+
+  setModalVisible(visible) {
+    this.setState({modalVisible: visible});
   }
 
-  onValueChangeCity = (value) => {
+  onValueChangeUploadType = (value) => {
+    this.setState({ curUploadType: value });
+  }
+
+  uploadRequest = ()=> {
+    if(this.state.attachFiles.length<=0) {
+      Alert.alert(
+        "",
+        "You have not selected any file. Please choose your file.",
+        [
+          {
+            text: "cancel",
+            style: 'cancel',
+          },
+        ],
+        { cancelable: true }
+      );
+    } else {
+      this.setState({modalVisible: false});
+    }
+  }
+
+  removeAttach(type,e) {
+    for(var i =0; i<this.state.uploadData.length; i++) {
+      if(this.state.uploadData[i].type==type && e !== -1) {
+        let newList = this.state.uploadData[i].file;
+        newList.splice(e, 1);
+        this.state.uploadData[i].file = newList;
+        this.setState({attachFiles: newList});
+      }
+    }
+  }
+
+  async selectAttachFiles() {
+    try {
+      const results = await DocumentPicker.pickMultiple({
+        type: [DocumentPicker.types.allFiles],
+      });
+      if (results.length>1) {
+        alert(results.length + ' fils are uploade successfully.');
+      } else {
+        alert(results.length + ' fil is uploade successfully.');
+      }      
+      for(var i=0; i<this.state.uploadData.length; i++) {
+        if(this.state.uploadData[i].type == this.state.curUploadType) {
+          this.state.uploadData[i].file = results
+        }
+      }
+      this.setState({ 
+        attachFiles: results 
+      });
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        alert('You have not select any file for attachment');
+      } else {
+        alert('Unknown Error: ' + JSON.stringify(err));
+        throw err;
+      }
+    }
+  }
+  
+  stateSelected(value){
+    AsyncStorage.getItem("ASYNC_STORAGE_STATE_KEY")
+    .then(() => {
+      this.setState({
+        stateItem: value,
+        stateError: null,
+        curState: value.Name,
+        isCityLoading: true,
+        cityItem: {"Name": "Select Location", "Value": "", "Code": "", "Id":0},
+      })
+      this.state.cityList=[];
+    })
+    .then(() => {
+      for(var i=0; i<this.state.fetchCityData.length; i++) {
+        if(this.state.fetchCityData[i].state == value.Name) {
+          this.state.cityList.push({
+            "Name": this.state.fetchCityData[i].city,
+            "Value": this.state.fetchCityData[i].city,
+            "Code": this.state.fetchCityData[i].type,
+            "Id": this.state.fetchCityData[i].id,
+          },)
+        }
+      }
+    })
+    .then(()=>{
+      this.setState({
+        isCityLoading: false,
+        hasCity: this.state.cityList.length>0?true:false
+      })
+      console.log(this.state.cityList)
+    })
+  }
+
+  citySelected(value){
+    console.log('hi');
     this.setState({
-      tcity: value
-    });
+      cityItem: value,
+      cityError: null,
+      curCity: value.Name,
+    })
   }
 
   setDate = (event, date) => {
@@ -295,15 +313,18 @@ class HotelReqScreen extends Component {
       dateCout: date
     });
   } 
+
   show = mode => {
     this.setState({
       show: true,
       mode,
     });
   } 
+
   datepicker = () => {
     this.show('date');
   }
+
   onValueChangeThrough = (value) => {
     this.setState({
       through: value
@@ -311,78 +332,128 @@ class HotelReqScreen extends Component {
   }
 
   setDateCin = (event, dateCin) => {
-    dateCin = dateCin || this.state.dateCin; 
+    if(dateCin != undefined) {
+      dateCin = dateCin || this.state.dateCin; 
+      this.setState({
+        showCin: Platform.OS === 'ios' ? true : false,
+        dateCin,
+        dateCout: dateCin
+      });    
+      var newDays= moment(this.state.dateCout, "DD.MM.YYYY").diff(moment(this.state.dateCin, "DD.MM.YYYY"), 'days')
+      this.setState({
+        days: newDays+1
+      });
+    } else {
+      this.setState({
+        showCin: Platform.OS === 'ios' ? true : false,
+      });
+    }
     this.setState({
       showCin: Platform.OS === 'ios' ? true : false,
-      dateCin,
-      dateCout: dateCin
-    });    
-    var newDays= moment(this.state.dateCout, "DD.MM.YYYY").diff(moment(this.state.dateCin, "DD.MM.YYYY"), 'days')
-    this.setState({
-      days: newDays
     });
   } 
+
   showCin = mode => {
     this.setState({
       showCin: true,
       mode,
     });
   } 
+
   datepickerCin = () => {
     this.showCin('date');
   }
 
   setTimeCin = (event, timeCin) => {
-    timeCin = timeCin || this.state.timeCin; 
-    this.setState({
-      showTimeCin: Platform.OS === 'ios' ? true : false,
-      timeCin
-    });
+    if(timeCin != undefined) {
+      timeCin = timeCin || this.state.timeCin; 
+      this.setState({
+        showTimeCin: Platform.OS === 'ios' ? true : false,
+        timeCin: moment(timeCin).format('HH:mm'),
+        timeCout: moment(timeCin).format('HH:mm')
+      });
+    } else {
+      this.setState({
+        showTimeCin: Platform.OS === 'ios' ? true : false,
+      });
+    }
   } 
+
   showTimeCin = mode => {
     this.setState({
       showTimeCin: true,
       mode,
     });
   } 
+
   timepickerCin = () => {
     this.showTimeCin('time');
   }
 
   setDateCout = (event, dateCout) => {
-    dateCout = dateCout || this.state.dateCout; 
-    this.setState({
-      showCout: Platform.OS === 'ios' ? true : false,
-      dateCout,
-    });    
-    var newDays= moment(this.state.dateCout, "DD.MM.YYYY").diff(moment(this.state.dateCin, "DD.MM.YYYY"), 'days')
-    this.setState({
-      days: newDays
-    });
+    if(dateCout != undefined) {
+      dateCout = dateCout || this.state.dateCout; 
+      this.setState({
+        showCout: Platform.OS === 'ios' ? true : false,
+        dateCout,
+      });    
+      var newDays= moment(this.state.dateCout, "DD.MM.YYYY").diff(moment(this.state.dateCin, "DD.MM.YYYY"), 'days')
+      this.setState({
+        days: newDays+1
+      });
+    } else { 
+      this.setState({
+        showCout: Platform.OS === 'ios' ? true : false,
+      });
+    }
   } 
+
   showCout = mode => {
     this.setState({
       showCout: true,
       mode,
     });
   } 
+
   datepickerCout = () => {
     this.showCout('date');
   }
 
   setTimeCout = (event, timeCout) => {
-    timeCout = timeCout || this.state.timeCout; 
-    this.setState({
-      showTimeCout: Platform.OS === 'ios' ? true : false,
-      timeCout
-    });
+    if(timeCout != undefined) {
+      timeCout = timeCout || this.state.timeCout;
+      if(this.state.days == 1 && (parseInt(moment(timeCout).format('HH:mm'))<=parseInt(this.state.timeCin))){
+        Alert.alert(
+          "",
+          "CheckOut time can not be less or equal then CheckIn Time for same day.",
+          [
+            {
+              text: "Ok",
+              style: 'cancel',
+            },
+          ],
+          { cancelable: true }
+        );
+      } else {
+        this.setState({
+          showTimeCout: Platform.OS === 'ios' ? true : false,
+          timeCout: moment(timeCout).format('HH:mm')
+        });
+      }
+    } else {
+      this.setState({
+        showTimeCout: Platform.OS === 'ios' ? true : false,
+      });
+    }
   } 
+
   showTimeCout = mode => {
     this.setState({
       showTimeCout: true,
       mode,
     });
   } 
+  
   timepickerCout = () => {
     this.showTimeCout('time');
   }
@@ -393,101 +464,244 @@ class HotelReqScreen extends Component {
     });
   }
   
-  removeAttach(e) {
-    var newList = this.state.attachFiles;
-    if (e !== -1) {
-      newList.splice(e, 1);
-      this.setState({attachFiles: newList});
-    }
-  }
-  async selectAttachFiles() {
-    try {
-      const results = await DocumentPicker.pickMultiple({
-        type: [DocumentPicker.types.allFiles],
-      });
-      if (results.length>1) {
-        alert(results.length + ' fils are uploade successfuly.');
-      } else {
-        alert(results.length + ' fil is uploade successfuly.');
-      }
-      this.setState({ attachFiles: results });
-    } catch (err) {
-      if (DocumentPicker.isCancel(err)) {
-        alert('You have not select any file for attachment');
-      } else {
-        alert('Unknown Error: ' + JSON.stringify(err));
-        throw err;
-      }
-    }
-  }
-  
   handleChangeAmount = (amnt) => {
-    this.setState({ amount: amnt })
+    const {params} = this.props.navigation.state;
+    this.setState({ 
+      amount: amnt,
+      amntError: null,
+      OOP: (((params.item.upper_limit == "NA") && amnt > this.state.maxAmt) || amnt > this.state.maxAmt) ?'Y':'N'
+    })
+  }
+
+  reqCreate =() => {
+    const {params} = this.props.navigation.state;
+    this.props.getPlans(params.params.trip_hdr_id)
+    .then(()=>{
+      this.props.reqCreate([{
+        "trip_hdr_id_fk": params.params.trip_hdr_id,          
+        "trip_no": params.params.trip_no,
+        "useremail": params.params.email,
+        "username": params.params.name,
+        "userid": params.params.userid,
+        "is_billRequired": "N",
+        "delete_status" : "false",
+        "pending_with": global.USER.supervisorId,
+        "pending_with_name": global.USER.supervisorName,
+        "pending_with_email": global.USER.supervisorEmail,
+        "financer_id": global.USER.financerId,
+        "financer_email": global.USER.financerEmail,
+        "financer_name": global.USER.financerName,
+        "lineitem": this.props.plans.dataSource.length + 1,
+        "start_date": params.params.start_date,
+        "end_date": params.params.end_date,
+        "creation_date": moment(this.state.curDate).format("YYYY-MM-DD"),
+        "gl": params.item.gl,
+        "travel_heads": params.item.travel_heads,
+        "travel_date": moment(this.state.date).format("YYYY-MM-DD"),
+        "req_type": params.item.sub_category_id,
+
+        "through": this.state.through,
+        "travel_type": this.state.type,
+        "amount": this.state.amount?this.state.amount:0,
+        "check_in_date": this.state.dateCin,
+        "check_in_time": this.state.timeCin,
+        "check_out_date": this.state.dateCout,
+        "check_out_time": this.state.timeCout,
+        "days": this.state.days,
+        "state": this.state.curState,
+        "city": this.state.curCity,
+        "status_id": "7",
+        "sub_status_id": this.state.OOP?"7.5":"7.4",
+        "status": this.state.OOP? this.state.statusNameOP :this.state.statusName,
+        "sub_status": this.state.OOP? this.state.subStatusNameOP :this.state.subStatusName,
+        "is_outof_policy": this.state.OOP,
+      }])
+      .then(()=>{
+        this.props.getPlans(params.params.trip_hdr_id)
+        .then(()=>{
+          this.setState({
+            isLoading: false,
+          });
+        })
+        .then(()=>{
+          this.props.navigation.goBack();
+          Toast.show('Requisition Created Successfully', Toast.LONG);
+        })
+      })
+    });
+  }
+
+  reqUpdate = () => {
+    const {params} = this.props.navigation.state;
+    let newReq = params.update;
+    AsyncStorage.getItem("ASYNC_STORAGE_UPDATE_KEY")
+    .then(()=>{
+      newReq.travel_date = moment(this.state.date).format("YYYY-MM-DD");
+      newReq.req_type = params.item.sub_category_id;
+
+      newReq.through = this.state.through;
+      newReq.travel_type = this.state.type;
+      newReq.amount = this.state.amount?this.state.amount:0;
+      newReq.check_in_date = this.state.dateCin;
+      newReq.check_in_time = this.state.timeCin;
+      newReq.check_out_date = this.state.dateCout;
+      newReq.check_out_time = this.state.timeCout;
+      newReq.days = this.state.days;
+      newReq.state = this.state.curState;
+      newReq.city = this.state.curCity;
+      newReq.status_id = "7";
+      newReq.sub_status_id = this.state.OOP?"7.5":"7.4";
+      newReq.status = this.state.OOP? this.state.statusNameOP :this.state.statusName;
+      newReq.sub_status = this.state.OOP? this.state.subStatusNameOP :this.state.subStatusName;
+      newReq.is_outof_policy = this.state.OOP;
+    })
+    .then(()=>{
+      this.props.reqUpdate([newReq])
+      .then(()=>{
+        this.props.getPlans(params.params.trip_hdr_id)
+        .then(()=>{
+          this.setState({
+            isLoading: false,
+          });
+        })
+        .then(()=>{
+          this.props.navigation.goBack();
+          Toast.show('Requisition Updated Successfully', Toast.LONG);
+        });
+      });
+    });
+  }
+
+  submitReq = () => {
+    if (!this.state.curState || !this.state.curCity || !this.state.amount) {
+      if (!this.state.curState) {
+        this.setState({
+          stateError: 'Please select state.',
+        });
+      }
+      if (!this.state.curCity) {
+        this.setState({
+          cityError: 'Please select Location/City.',
+        });
+      }
+      if (!this.state.amount) {
+        this.setState({
+          amntError: 'Please enter Approx amount.',
+        });
+      }
+    } else {      
+      this.setState({
+        isLoading: true,
+      });
+      const {params} = this.props.navigation.state;
+      if(params.update){
+        this.reqUpdate();
+      } else {
+        this.reqCreate();
+      }
+    }
   }
 
   render() {
     const {params} = this.props.navigation.state;
     
-    if(this.state.isLoading || this.props.reqCreate.isLoading || this.props.reqUpdate.isLoading){
+    if(this.state.isLoading || 
+      this.props.reqUpdate.isLoading ||
+      this.props.locations.isLoading){
       return(
         <Loader/>
       )
-    }
+    } else {
     console.log(params);
     return (
       <KeyboardAvoidingView style={styles.container} behavior="margin, height, padding">
         <ScrollView contentContainerStyle={styles.scrollView}>
-          <Text style={styles.title}>{params.item.sub_category}</Text>
+          <View style={styles.titleRow}>
+            <Text style={styles.title}>{params.item.sub_category}</Text>
+          </View>
           <Form>
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>State:</Label>
-              <Picker
-                mode="popup"
-                placeholder="State:" 
-                selectedValue = {this.state.tState} 
-                onValueChange = {this.onValueChangeState}                
-                style={styles.formInput}
-                prompt="Select State">
-                {StateDist.states.map((item, index) => {
-                return (
-                  <Picker.Item label={item.state} value={item.state} key={index} />
-                );
-                })}
-              </Picker>
+              <View style={styles.pickerWraper}>
+                <PickerModal
+                  renderSelectView={(disabled, selected, showModal) =>
+                    <TouchableOpacity style={styles.pickerBtn} onPress={showModal}>
+                      <Text style={styles.pickerBtnText}>{this.state.stateItem.Name}</Text>
+                      <Icon name="arrow-dropdown" style={styles.pickerBtnIcon} />
+                    </TouchableOpacity>
+                  }
+                  onSelected={this.stateSelected.bind(this)}
+                  onClosed={()=>{}}
+                  onBackButtonPressed={()=>{}}
+                  items={this.state.stateList}
+                  //sortingLanguage={'tr'}
+                  showToTopButton={true}
+                  selected={this.state.stateItem}
+                  showAlphabeticalIndex={true}
+                  autoGenerateAlphabeticalIndex={true}
+                  selectPlaceholderText={'Choose one...'}
+                  onEndReached={() => console.log('list ended...')}
+                  searchPlaceholderText={'Search State'}
+                  requireSelection={false}
+                  autoSort={false}
+                />
+              </View>
             </Item>
+            {this.state.stateError &&
+              <Text style={styles.errorText}>{this.state.stateError}</Text>
+            }
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Location/City:</Label>
-              <Picker
-                mode="popup"
-                placeholder="Location/City:" 
-                selectedValue = {this.state.tcity} 
-                onValueChange = {this.onValueChangeCity}
-                style={styles.formInput}
-                prompt="Select Location/City">
-                {this.state.cityList.map((item, index) => {
-                return (
-                  <Picker.Item label={item} value={item} key={index} />
-                );
-                })}
-              </Picker>
+              {this.state.isCityLoading ?
+              <ActivityIndicator size="small" color="#ddd" style={{alignSelf:'flex-end',marginRight:16}} />:
+              this.state.hasCity ?
+              <View style={styles.pickerWraper}>
+                <PickerModal
+                  renderSelectView={(disabled, selected, showModal) =>
+                    <TouchableOpacity style={styles.pickerBtn} onPress={showModal}>
+                      <Text style={styles.pickerBtnText}>{this.state.cityItem.Name}</Text>
+                      <Icon name="arrow-dropdown" style={styles.pickerBtnIcon} />
+                    </TouchableOpacity>
+                  }
+                  onSelected={this.citySelected.bind(this)}
+                  onClosed={()=>{}}
+                  onBackButtonPressed={()=>{}}
+                  items={this.state.cityList}
+                  showToTopButton={true}
+                  selected={this.state.cityItem}
+                  showAlphabeticalIndex={true}
+                  autoGenerateAlphabeticalIndex={true}
+                  selectPlaceholderText={'Choose one...'}
+                  onEndReached={() => console.log('list ended...')}
+                  searchPlaceholderText={'Search City'}
+                  requireSelection={false}
+                  autoSort={false}
+                />
+              </View>
+              :
+              <Text style={[styles.formInput,styles.readOnly,{fontSize:12,color:'orange'}]}>
+                No city available for this State.
+              </Text>}
             </Item>
-            <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Eligible Amount/Per Day:</Label>
-              <Text style={[styles.formInput,styles.readOnly]}>
-                {params.item.upper_limit}
-              </Text>
-            </Item>
+            {this.state.cityError &&
+              <Text style={styles.errorText}>{this.state.cityError}</Text>
+            }
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Travel Date:</Label>
               <TouchableOpacity onPress={this.datepicker} style={styles.datePicker}>
-                <Text style={styles.datePickerLabel}>{moment(this.state.date).format(global.DATEFORMAT)}</Text>
+                <Text style={styles.datePickerLabel}>{moment(
+                  params.update? params.update.travel_date : this.state.date
+                  ).format(global.DATEFORMAT)}</Text>
                 <Icon name="calendar" style={styles.datePickerIcon} />
               </TouchableOpacity>
             </Item>
             { this.state.show && 
-            <DateTimePicker value={this.state.date}
-              mode={this.state.modeDate}
-              minimumDate={new Date(this.state.curDate)}
+            <DateTimePicker value={new Date(moment(
+              params.update? params.update.travel_date : this.state.date
+              ).format('YYYY-MM-DD'))}
+              mode="date"
+              minimumDate={new Date(moment(params.params.start_date).format('YYYY-MM-DD'))}
+              maximumDate={new Date(moment(params.params.end_date).format('YYYY-MM-DD'))}
               display="default"
               onChange={this.setDate} />
             }
@@ -518,11 +732,12 @@ class HotelReqScreen extends Component {
                 style={styles.formInput}
                 prompt="Select Through"
                 >
-                {this.state.throughtList.map((item, index) => {
+                  <Picker.Item label={"Self"} value={"Self"} />
+                {/*this.state.throughtList.map((item, index) => {
                   return (
                     <Picker.Item label={item.travel_through_type} value={item.travel_through_type} key={index} />
                   );
-                })}
+                })*/}
               </Picker>
             </Item>
             <Item fixedLabel style={styles.formRow}>
@@ -533,13 +748,18 @@ class HotelReqScreen extends Component {
             </Item>
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Approx Amount:</Label>
-              <Input 
+              <TextInput 
+                placeholder='0.00' 
                 style={styles.formInput}
-                value= {this.state.amount}
-                keyboardType = "number-pad"
-                onChangeText={this.handleChangeAmount}
-                />
+                underlineColorAndroid= "rgba(0,0,0,0)"
+                value = {this.state.amount?this.state.amount:'0'}
+                keyboardType="decimal-pad"
+                autoCapitalize="words"
+                onChangeText={this.handleChangeAmount} />
             </Item>
+            {this.state.amntError &&
+              <Text style={styles.errorText}>{this.state.amntError}</Text>
+            }
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>CheckIn Date:</Label>
               <TouchableOpacity onPress={this.datepickerCin} style={styles.datePicker}>
@@ -548,22 +768,22 @@ class HotelReqScreen extends Component {
               </TouchableOpacity>
             </Item>
             { this.state.showCin && 
-            <DateTimePicker value={this.state.dateCin}
+            <DateTimePicker value={new Date(moment(this.state.dateCin).format('YYYY-MM-DD'))}
               mode={this.state.modeDate}
               minimumDate={new Date(this.state.date)}
+              maximumDate={new Date(moment(params.params.end_date).format('YYYY-MM-DD'))}
               display="default"
               onChange={this.setDateCin} />
             }
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>CheckIn Time:</Label>
               <TouchableOpacity onPress={this.timepickerCin} style={styles.datePicker}>
-                <Text style={styles.datePickerLabel}>{moment(this.state.timeCin).format('HH:mm')}</Text>
+                <Text style={styles.datePickerLabel}>{this.state.timeCin}</Text>
                 <Icon name="time" style={styles.datePickerIcon} />
               </TouchableOpacity>
             </Item>
             { this.state.showTimeCin && 
-            <DateTimePicker value={this.state.timeCin}
-              //timeZoneOffsetInMinutes={0}
+            <DateTimePicker value={new Date()}
               mode={this.state.modeTime}
               is24Hour={true}
               display="default"
@@ -577,22 +797,22 @@ class HotelReqScreen extends Component {
               </TouchableOpacity>
             </Item>
             { this.state.showCout && 
-            <DateTimePicker value={this.state.dateCout}
+            <DateTimePicker value={new Date(moment(this.state.dateCout).format('YYYY-MM-DD'))}
               mode={this.state.modeDate}
               minimumDate={new Date(this.state.dateCin)}
+              maximumDate={new Date(moment(params.params.end_date).format('YYYY-MM-DD'))}
               display="default"
               onChange={this.setDateCout} />
             }
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>CheckOut Time:</Label>
               <TouchableOpacity onPress={this.timepickerCout} style={styles.datePicker}>
-                <Text style={styles.datePickerLabel}>{moment(this.state.timeCout).format('HH:mm')}</Text>
+                <Text style={styles.datePickerLabel}>{this.state.timeCout}</Text>
                 <Icon name="time" style={styles.datePickerIcon} />
               </TouchableOpacity>
             </Item>
             { this.state.showTimeCout && 
-            <DateTimePicker value={this.state.timeCout}
-              //timeZoneOffsetInMinutes={0}
+            <DateTimePicker value={new Date()}
               mode={this.state.modeTime}
               is24Hour={true}
               display="default"
@@ -602,9 +822,15 @@ class HotelReqScreen extends Component {
               <Label style={styles.formLabel}>No of Days:</Label>
               <Text style={[styles.formInput,styles.readOnly]}>{this.state.days}</Text>
             </Item>
+            <Item fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Eligible Amount:</Label>
+              <Text style={[styles.formInput,styles.readOnly]}>
+                {this.state.days * params.item.upper_limit}
+              </Text>
+            </Item>
             <View style={styles.attachRow}>
               <Text style={styles.formLabel}>Attachments:</Text>              
-              <Button rounded bordered info onPress={this.selectAttachFiles.bind(this)} style={styles.atchBtn}>                
+              <Button rounded bordered info onPress={() => { this.setModalVisible(true); }} style={styles.atchBtn}>                
                 <Icon name='attach' style={{fontSize:16, marginRight:0}} />
                 <Text style={{fontSize:12,textAlign:'center'}}>
                   Attach Documents
@@ -612,19 +838,105 @@ class HotelReqScreen extends Component {
               </Button>
             </View>
           </Form>
-          {this.state.attachFiles.map((item, key) => (
-            <View key={key} style={styles.atchFileRow}>
-              <Text style={styles.atchFileName}>{item.name ? item.name : ''}</Text>
-              <Button bordered small rounded danger style={styles.actionBtn}
-                onPress={()=>this.removeAttach(key)}>
-                <Icon name='close' style={styles.actionBtnIco} />
-              </Button>
+          {this.state.uploadData.map((item, key) => (
+            (item.file.length>0) ?
+            <View key={key}>
+            <Text style={styles.attachType}>{item.type}</Text>
+            {item.file.map((file, index)=>(
+              <View key={index} style={styles.atchFileRow}>
+                {file.type == "image/webp" ||
+                  file.type == "image/jpeg" ||
+                  file.type == "image/jpg" ||
+                  file.type == "image/png" ||
+                  file.type == "image/gif" ?
+                <Image
+                  style={{width: 50, height: 50, marginRight:10}}
+                  source={{uri: file.uri}}
+                />:null}
+                <Text style={styles.atchFileName}>{file.name ? file.name : ''}</Text>
+                <Button bordered small rounded danger style={styles.actionBtn}
+                  onPress={()=>this.removeAttach(item.type,index)}>
+                  <Icon name='close' style={styles.actionBtnIco} />
+                </Button>
+              </View>
+            ))}
             </View>
+            :null
           ))}
-          <TouchableOpacity style={styles.ftrBtn} onPress={
-            params.update?() => this.reqUpdate()
-            : () => this.reqCreate()
-            }>
+
+          <Modal
+            animationType="slide"
+            transparent={false}
+            visible={this.state.modalVisible}
+            onRequestClose={() => {this.setModalVisible(false)}}>
+            <View style={styles.atchMdlHeader}>
+              <Text style={styles.atchMdlHdrTtl}>Upload Document</Text>
+            </View>
+            <ScrollView contentContainerStyle={styles.atchMdlBody}>
+              <Text style={styles.atchMdlLabel}>Select Document Type:</Text>
+              <View style={styles.pickerHolder}>
+                <Picker
+                  mode="dropdown"
+                  iosIcon={<Icon name="arrow-down" />}
+                  style={styles.atchTypeSelect}
+                  placeholder="Document Type"
+                  placeholderStyle={{ color: "#bfc6ea" }}
+                  placeholderIconColor="#007aff"
+                  selectedValue={this.state.curUploadType}
+                  onValueChange={this.onValueChangeUploadType}
+                  >
+                  {this.state.uploadData.map((item, index) => {
+                    return (
+                    <Picker.Item label={item.type} value={item.type} key={index} />
+                    );
+                  })}
+                </Picker>
+              </View>
+              <TouchableOpacity onPress={this.selectAttachFiles.bind(this)} style={styles.chooseBtn}>                
+                <Icon name='add-circle' style={styles.chooseBtnIcon} />
+                <Text style={styles.chooseBtnText}>Choose File</Text>
+              </TouchableOpacity>
+              
+              {this.state.uploadData.map((item, key) => (
+                (item.type == this.state.curUploadType && item.file.length>0) ?
+                <View key={key}>
+                {item.file.map((file, index)=>(
+                  <View key={index} style={styles.atchFileRow}>
+                    {file.type == "image/webp" ||
+                      file.type == "image/jpeg" ||
+                      file.type == "image/jpg" ||
+                      file.type == "image/png" ||
+                      file.type == "image/gif" ?
+                    <Image
+                      style={{width: 50, height: 50, marginRight:10}}
+                      source={{uri: file.uri}}
+                    />:null}
+                    <Text style={styles.atchFileName}>{file.name ? file.name : ''}</Text>
+                    <Button bordered small rounded danger style={styles.actionBtn}
+                      onPress={()=>this.removeAttach(item.type,index)}>
+                      <Icon name='close' style={styles.actionBtnIco} />
+                    </Button>
+                  </View>
+                ))}
+                </View>
+                :null
+              ))}
+            </ScrollView>
+            <View style={styles.atchMdlFtr}>
+              <TouchableOpacity 
+                onPress={() => {this.setModalVisible(!this.state.modalVisible);}} 
+                style={[styles.atchMdlFtrBtn,styles.atchMdlFtrBtnSecondary]}>
+                <Text style={styles.atchMdlFtrBtnText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                onPress={() => {this.uploadRequest();}} 
+                style={[styles.atchMdlFtrBtn,styles.atchMdlFtrBtnPrimary]}>
+                <Text style={styles.atchMdlFtrBtnText}>Upload</Text>
+              </TouchableOpacity>
+            </View>
+          </Modal>
+
+          <TouchableOpacity style={styles.ftrBtn} onPress={() => this.submitReq()}>
             <LinearGradient 
               start={{x: 0, y: 0}} 
               end={{x: 1, y: 0}} 
@@ -634,23 +946,30 @@ class HotelReqScreen extends Component {
               <Text style={styles.ftrBtnTxt}>Save</Text>
             </LinearGradient>
           </TouchableOpacity >
-          {this.state.through != 1 &&
+
+          {this.state.through != "Self" &&
           <Button full rounded bordered primary style={[styles.ftrBtn, styles.brdBtn]}
-            onPress={() => this.props.navigation.goBack()}>
+            onPress={() => {}}>
             <Icon name='md-paper-plane' style={styles.brdBtnTxt} />
             <Text style={styles.brdBtnTxt}>Send to Travel Agent</Text>
           </Button>}      
         </ScrollView>
       </KeyboardAvoidingView>
     );
+    }
   }
 }
 
 const mapStateToProps = state => {
   return {
     reqCreate: state.reqCreate,
-    reqUpdate: state.reqUpdate,
+    reqUpdateState: state.reqUpdateState,
     plans: state.plans,
+    travelThroughState: state.travelThroughState,
+    travelTypeState: state.travelTypeState,
+    stateList: state.stateList,
+    locations: state.locations,
+    statusResult: state.statusResult,
   };
 };
 
@@ -658,6 +977,11 @@ const mapDispatchToProps = {
   reqCreate: Actions.reqCreate,
   reqUpdate: Actions.reqUpdate,
   getPlans : Actions.getPlans,
+  getTravelThrough: Actions.getTravelThrough,
+  getTravelType: Actions.getTravelType,
+  getStates: Actions.getStates,
+  getReqLocations: Actions.getReqLocations,
+  getStatus: Actions.getStatus
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(HotelReqScreen);

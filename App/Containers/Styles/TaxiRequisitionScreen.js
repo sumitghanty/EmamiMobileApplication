@@ -10,12 +10,12 @@ export default StyleSheet.create({
   header: {
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#f4f4f4',
+    backgroundColor: '#0B5FFF',
     marginBottom: 8
   },
   title: {
     fontSize: 16,
-    color: '#111',    
+    color: '#fff',    
     fontWeight: 'bold',    
   },
   formLabel: {
@@ -95,5 +95,86 @@ export default StyleSheet.create({
     fontSize: 12,
     marginHorizontal: 16,
     color: 'red'
+  },
+  atchMdlHeader: {
+    backgroundColor: '#0B5FFF',
+    paddingHorizontal: 16,
+    paddingVertical: 12
+  },
+  atchMdlHdrTtl: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: 'bold'
+  },
+  atchMdlBody: {
+    padding: 16
+  },
+  atchMdlLabel: {
+    fontSize: 14,
+    marginBottom: 16,
+    color: 'rgba(0,0,0,.5)'
+  },
+  pickerHolder: {
+    backgroundColor: '#fafafa',
+    borderWidth: 1,
+    borderColor: '#e2e2e2',
+    marginBottom: 16,
+    borderRadius: 4
+  },
+  atchTypeSelect: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 4
+  },
+  chooseBtn: {
+    alignSelf: 'center',
+    backgroundColor: '#ff4813',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 24
+  },
+  chooseBtnIcon: {
+    color: '#fff',
+    fontSize: 18,
+    marginRight: 10
+  },
+  chooseBtnText: {
+    fontSize: 14,
+    color: '#fff',
+    fontWeight: 'bold'
+  },
+  atchMdlFtr: {
+    backgroundColor: '#f8f8f8',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,.1)',
+    padding: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end'
+  },
+  atchMdlFtrBtn: {
+    marginHorizontal: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 4
+  },
+  atchMdlFtrBtnSecondary: {
+    backgroundColor: 'red'
+  },
+  atchMdlFtrBtnPrimary: {
+    backgroundColor: '#0B5FFF'
+  },
+  atchMdlFtrBtnText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold'
+  },
+  attachType: {
+    marginHorizontal: 16,
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: 'rgba(0,0,0,.35)'
   }
 });

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { View, KeyboardAvoidingView, ScrollView, Picker, TouchableOpacity, TextInput, Platform, AsyncStorage, Keyboard } from "react-native";
+import { View, KeyboardAvoidingView, ScrollView, TouchableOpacity, TextInput, Platform, Modal, 
+  Keyboard, Picker, Image, Alert, AsyncStorage, BackHandler } from "react-native";
 import { Button, Icon, Text, Form, Item, Label } from 'native-base';
 import DocumentPicker from 'react-native-document-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -8,67 +9,122 @@ import LinearGradient from 'react-native-linear-gradient'
 import { connect } from 'react-redux'
 import Actions from '../redux/actions'
 import Toast from 'react-native-simple-toast'
+import { HeaderBackButton } from "react-navigation-stack"
 
-import {API_URL} from '../config'
 import Loader from '../Components/Loader'
 import styles from './Styles/TaxiRequisitionScreen'
 
-const ASYNC_STORAGE_COMMENTS_KEY = 'ANYTHING_UNIQUE_STRING'
-
 class TaxiRequisitionScreen extends Component {
-  UNSAFE_componentWillMount() {
-    var date = new Date().getDate();
-    var month = new Date().getMonth() + 1;
-    var year = new Date().getFullYear();
-    this.setState({
-      curDate: year+'-'+month+'-'+date,
-      date: new Date(year+'-'+month+'-'+date),
-    });
-  }
+
+  static navigationOptions = ({ navigation }) => {
+    const handleClearPress = navigation.getParam("handleBackPress", () => {});
+    return {
+      title: "Details!",
+      headerLeft: <HeaderBackButton onPress={handleClearPress} />
+    };
+  };
+
   constructor(props) {
-    super(props);
+    super(props);    
+    const {params} = this.props.navigation.state;
     this.state = {
-      curDate: new Date('00, 0, 0'),
-      date: new Date('00, 0, 0'),
+      curDate: new Date,
+      date: params.update?params.update.travel_date:params.params.start_date,
       mode: 'date',
       show: false,     
       attachFiles: [],
-      locationList: [],
-      toLocation: [],
-      isLoading: true,
-      tripFrom: null,
-      tripTo: null,
+      isLoading: false,
       error: false,
-      tripFromError: '',
-      tripToError: '',
-      aprxAmnt: null,
-      aprxAmntError: ''
+      tripFromError: null,
+      tripToError: null,
+      aprxAmnt: (params.update && params.update.amount)?params.update.amount:null,
+      aprxAmntError: null,
+      fromLocation: (params.update && params.update.travel_from)?params.update.travel_from:'',
+      toLocation: (params.update && params.update.travel_to)?params.update.travel_to:'',
+      statusName: '',
+      subStatusName: '',
+      modalVisible: false,
+      uploadData: [{"type":"Approve Email","file":[]},{"type":"Other","file":[]}],
+      curUploadType: 'Approve Email',
     };
   }
-  getTripLocationResponse() {  
-    AsyncStorage.getItem(ASYNC_STORAGE_COMMENTS_KEY ).then(value => {
-      return fetch(API_URL+'getLocationList')
-      .then((response)=> response.json() )
-      .then((responseJson) => {
-        this.setState({ 
-          locationList: responseJson, 
-          isLoading: false,
-        })
-        locationList.push( locationList )
-      })
-      .catch((Error) => {
-        console.log(Error)
-      });  
-    })  
-  };
+  
   componentDidMount() {
-    this.getTripLocationResponse();
+    const {params} = this.props.navigation.state;
+
+    this.props.getStatus("7","7.5")
+    .then(()=>{
+      this.setState({
+        statusName: this.props.statusResult.dataSource[0].trip_pjp_status,
+        subStatusName: this.props.statusResult.dataSource[0].sub_status
+      });
+    });
+
+    this.props.navigation.setParams({
+      handleBackPress: this._handleBackPress.bind(this)
+    });
+    this.backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      this._handleBackPress();
+      return true;
+    });
   }
-   removeAttach(e) {
-    var newList = this.state.attachFiles;
-    if (e !== -1) {
-      newList.splice(e, 1);
-      this.setState({attachFiles: newList});
+
+  componentWillUnmount() {
+    this.backHandler.remove();
+  }
+
+  _handleBackPress() {
+    Alert.alert(
+      "Discard changes?",
+      "Are you sure to go back?",
+      [
+        {
+          text: "No",
+          style: 'cancel',
+        },
+        {
+          text: "Yes",
+          onPress: () => this.props.navigation.goBack(),
+        }
+      ],
+      { cancelable: false }
+    );
+  }
+
+  setModalVisible(visible) {
+    this.setState({modalVisible: visible});
+  }
+
+  onValueChangeUploadType = (value) => {
+    this.setState({ curUploadType: value });
+  }
+
+  uploadRequest = ()=> {
+    if(this.state.attachFiles.length<=0) {
+      Alert.alert(
+        "",
+        "You have not selected any file. Please choose your file.",
+        [
+          {
+            text: "cancel",
+            style: 'cancel',
+          },
+        ],
+        { cancelable: true }
+      );
+    } else {
+      this.setState({modalVisible: false});
+    }
+  }
+
+  removeAttach(type,e) {
+    for(var i =0; i<this.state.uploadData.length; i++) {
+      if(this.state.uploadData[i].type==type && e !== -1) {
+        let newList = this.state.uploadData[i].file;
+        newList.splice(e, 1);
+        this.state.uploadData[i].file = newList;
+        this.setState({attachFiles: newList});
+      }
     }
   }
   async selectAttachFiles() {
@@ -77,11 +133,18 @@ class TaxiRequisitionScreen extends Component {
         type: [DocumentPicker.types.allFiles],
       });
       if (results.length>1) {
-        alert(results.length + ' fils are uploade successfuly.');
+        alert(results.length + ' fils are uploade successfully.');
       } else {
-        alert(results.length + ' fil is uploade successfuly.');
+        alert(results.length + ' fil is uploade successfully.');
+      }      
+      for(var i=0; i<this.state.uploadData.length; i++) {
+        if(this.state.uploadData[i].type == this.state.curUploadType) {
+          this.state.uploadData[i].file = results
+        }
       }
-      this.setState({ attachFiles: results });
+      this.setState({ 
+        attachFiles: results 
+      })
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         alert('You have not select any file for attachment');
@@ -90,25 +153,6 @@ class TaxiRequisitionScreen extends Component {
         throw err;
       }
     }
-  }
-  onValueChangeFrom = (tripFrom) => {
-    this.setState({
-      tripFrom: tripFrom,
-      tripFromError: tripFrom=='Select From Location'?'Please select Trip From Location':'',
-    });
-    var toLocations = Array.value(this.state.locationList);
-    for( var i = 0; i < toLocations.length; i++){ 
-      if ( toLocations[i].city === tripFrom) {
-        toLocations.splice(i, 1); 
-      }
-    }
-    this.setState({toLocation: toLocations});
-  }
-  onValueChangeTo = (tripTo) => {
-    this.setState({
-      tripTo: tripTo,
-      tripToError: tripTo=='Select To Location'?'Please select Trip To Location':'',
-    });
   }
   setDate = (event, date) => {
     date = date || this.state.date; 
@@ -127,29 +171,41 @@ class TaxiRequisitionScreen extends Component {
     this.show('date');
   }
   handleChangeAmount = (amount) => {
-    this.setState({ aprxAmnt: amount })
+    this.setState({ 
+      aprxAmnt: amount,
+      aprxAmntError: null
+    })
+  }
+  handleFromLocation = (text) => {
+    this.setState({ 
+      fromLocation: text,
+      tripFromError: null
+    })
+  }
+  handleToLocation = (text) => {
+    this.setState({ 
+      toLocation: text,
+      tripToError: null
+    })
   }
 
   submitReq = () => {
-    const {params, item} = this.props.navigation.state;
-    if(
-      this.state.tripFrom == null || this.state.tripFrom == "Select From Location" ||
-      this.state.tripTo == null || this.state.tripTo == "Select To Location" ||
-      this.state.aprxAmnt == null
-    ) {
-      if(this.state.tripFrom == null || this.state.tripFrom == "Select From Location") {
+    const {params} = this.props.navigation.state;
+    if( this.state.fromLocation.length < 1 || this.state.toLocation.length < 1 || 
+      this.state.aprxAmnt == null || (!this.state.aprxAmnt) ) {
+      if(this.state.fromLocation.length < 1) {
         this.setState({
-          tripFromError: 'Please select Trip From Location',
+          tripFromError: 'Please enter Destination From',
           error: true,
         });
       }
-      if(this.state.tripTo == null || this.state.tripTo == "Select To Location") {
+      if(this.state.toLocation.length < 1) {
         this.setState({
-          tripToError: 'Please select Trip To Location',
+          tripToError: 'Please enter Destination To',
           error: true,
         });
       }
-      if(this.state.aprxAmnt == null) {
+      if(this.state.aprxAmnt == null || (!this.state.aprxAmnt)) {
         this.setState({
           aprxAmntError: 'Please enter approx amount ',
           error: true,
@@ -157,49 +213,118 @@ class TaxiRequisitionScreen extends Component {
       }
       console.log('There are some eroor.');
     } else {
-      this.setState({ isLoading: true }, () => {      
-        this.props.tripCreate([{
-          "trip_hdr_id": params.trip_hdr_id,
-          "trip_no": params.trip_no,
-          "req_type": item.sub_category_id,
-          "start_date": params.start_date,
-          "end_date": params.end_date,
-
-          "travel_date": this.state.date,
-          "travel_from": this.state.tripFrom,
-          "travel_to": this.state.tripTo,
-          "creation_date": moment(this.state.curDate).format("DD-MM-YYYY"),
-          "through": "Self",
-          "status_id": "7",
-          "sub_status_id": this.state.aprxAmnt?"7.5":"7.4",
-          "amount": this.state.aprxAmnt?this.state.aprxAmnt:0,
-          "is_outof_policy": this.state.aprxAmnt?"Y":"N",
-          "status": "Plan Trip/PJP",
-          "sub_status": this.state.aprxAmnt?"Requisition - Out of Policy":"Requisition Saved",
-          "gl": item.gl,
-          "travel_heads": item.travel_heads
-        }])
+      this.setState({
+        isLoading: true,
+      });
+      if(params.update){
+        let newReq = params.update;
+        AsyncStorage.getItem("ASYNC_STORAGE_UPDATE_KEY")
         .then(()=>{
-          this.props.navigation.goBack();
-          this.setState({ 
-            error: false,
-            isLoading: false
+          newReq.req_type = params.item.sub_category_id;
+          newReq.start_date = params.params.start_date;
+          newReq.end_date = params.params.end_date;
+          newReq.amount = this.state.aprxAmnt?this.state.aprxAmnt:0;
+          newReq.gl = params.item.gl;
+          newReq.travel_heads = params.item.travel_heads;
+          newReq.through = "Self";
+
+          newReq.travel_date = moment(this.state.date).format("YYYY-MM-DD");
+          newReq.travel_from = this.state.fromLocation;
+          newReq.travel_to = this.state.toLocation;
+          newReq.creation_date = moment(this.state.curDate).format("YYYY-MM-DD");
+          newReq.status_id = "7";
+          newReq.sub_status_id = "7.5";
+          newReq.status = this.state.statusName;
+          newReq.sub_status = this.state.subStatusName;
+          newReq.is_outof_policy = "Y";
+        })
+        .then(()=>{
+          this.props.reqUpdate([newReq])
+          .then(()=>{
+            this.props.getPlans(params.params.trip_hdr_id)
+            .then(()=>{
+              this.setState({
+                isLoading: false,
+              });
+            })
+            .then(()=>{
+              this.props.navigation.goBack();
+              Toast.show('Requisition Updated Successfully', Toast.LONG);
+            });
           });
-          Toast.show('Requisition Create Successfully', Toast.LONG);
         });
-      })
+
+      } else {
+        this.props.getPlans(params.params.trip_hdr_id)
+        .then(()=>{
+          this.props.reqCreate([{
+            "trip_hdr_id_fk": params.params.trip_hdr_id,          
+            "trip_no": params.params.trip_no,
+            "useremail": params.params.email,
+            "username": params.params.name,
+            "userid": params.params.userid,
+            "is_billRequired": "N",
+            "delete_status" : "false",
+            "pending_with": global.USER.supervisorId,
+            "pending_with_name": global.USER.supervisorName,
+            "pending_with_email": global.USER.supervisorEmail,
+            "financer_id": global.USER.financerId,
+            "financer_email": global.USER.financerEmail,
+            "financer_name": global.USER.financerName,
+            "lineitem": this.props.plans.dataSource.length + 1,
+
+            "req_type": params.item.sub_category_id,
+            "start_date": params.params.start_date,
+            "end_date": params.params.end_date,
+            "amount": this.state.aprxAmnt?this.state.aprxAmnt:0,
+            "gl": params.item.gl,
+            "travel_heads": params.item.travel_heads,
+            "through": "Self",
+
+            "travel_date": moment(this.state.date).format("YYYY-MM-DD"),
+            "travel_from": this.state.fromLocation,
+            "travel_to": this.state.toLocation,
+            "creation_date": moment(this.state.curDate).format("YYYY-MM-DD"),
+            "status_id": "7",
+            "sub_status_id": "7.5",
+            "status": this.state.statusName,
+            "sub_status": this.state.subStatusName,
+            "is_outof_policy": "Y",
+          }])
+          .then(()=>{
+            this.props.getPlans(params.params.trip_hdr_id)
+            .then(()=>{
+              this.setState({
+                isLoading: false,
+              });
+            })
+            .then(()=>{
+              this.props.navigation.goBack();
+              Toast.show('Requisition Created Successfully', Toast.LONG);
+            })
+          })
+        });
+      }
     }
     Keyboard.dismiss();
   }
 
   render() {
-    const {params, item} = this.props.navigation.state;
-    if(this.state.isLoading){
+    const {params} = this.props.navigation.state;
+    if(this.state.isLoading ||
+      this.props.plans.isLoading ||
+      this.props.statusResult.isLoading
+      ){
       return(
         <Loader/>
       )
-    }
-    console.log(params,item);
+    } else if(this.props.reqCreateState.errorStatus 
+      || this.props.plans.errorStatus || this.props.statusResult.errorStatus) {
+      return(
+        <Text>URL Error</Text>
+      )
+    } else {
+    console.log(params);
     return (
       <KeyboardAvoidingView style={styles.container} behavior="margin, height, padding">
         <ScrollView contentContainerStyle={styles.scrollView}>
@@ -210,15 +335,19 @@ class TaxiRequisitionScreen extends Component {
           <Item fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Travel Date:</Label>
             <TouchableOpacity onPress={this.datepicker} style={styles.datePicker}>
-              <Text style={styles.datePickerLabel}>{moment(this.state.date).format(global.DATEFORMAT)}</Text>
+              <Text style={styles.datePickerLabel}>{moment(
+                params.update? params.update.travel_date : params.params.start_date
+                ).format("DD-MM-YYYY")}</Text>
               <Icon name="calendar" style={styles.datePickerIcon} />
             </TouchableOpacity>
           </Item>
           { this.state.show && 
-          <DateTimePicker value={this.state.date}
-            mode={this.state.mode}
-            minimumDate={new Date(this.state.curDate)}
-            is24Hour={true}
+          <DateTimePicker value={new Date(moment(
+            params.update? params.update.travel_date : params.params.start_date
+            ).format('YYYY-MM-DD'))}
+            mode="date"
+            minimumDate={new Date(moment(params.params.start_date).format('YYYY-MM-DD'))}
+            maximumDate={new Date(moment(params.params.end_date).format('YYYY-MM-DD'))}
             display="default"
             onChange={this.setDate} />
           }
@@ -229,54 +358,47 @@ class TaxiRequisitionScreen extends Component {
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.aprxAmnt}
-              keyboardType= "number-pad"
+              returnKeyType="next"
+              keyboardType="decimal-pad"
+              autoCapitalize="words"
+              onSubmitEditing={() => this.refs.fromInput.focus()}
               onChangeText={this.handleChangeAmount} />
           </Item>
-          {this.state.aprxAmntError.length>0 &&
+          {this.state.aprxAmntError &&
             <Text style={styles.errorText}>{this.state.aprxAmntError}</Text>
           }
           <Item picker fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Destination From:</Label>
-            <Picker
-              placeholder="Select From Location" 
-              selectedValue = {this.state.tripFrom} 
-              onValueChange = {this.onValueChangeFrom}                
-              style={styles.formInput}>
-              <Picker.Item label={'Select From Location'} value={'Select From Location'} />
-              {this.state.locationList.map((item, index) => {
-              return (
-                <Picker.Item label={item.city} value={item.city} key={index} />
-              );
-              })}
-            </Picker>
+            <TextInput 
+              ref='fromInput'
+              onSubmitEditing={() => this.refs.toInput.focus()}
+              placeholder='Enter From destination' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {params.update?this.state.fromLocation:null}
+              returnKeyType="next"
+              onChangeText={this.handleFromLocation} />
           </Item>
-          {this.state.tripFromError.length>0 &&
+          {this.state.tripFromError &&
             <Text style={styles.errorText}>{this.state.tripFromError}</Text>
           }
           <Item picker fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Destination To:</Label>
-            <Picker
-              placeholder="Select To Location" 
-              selectedValue = {this.state.tripTo} 
-              onValueChange = {this.onValueChangeTo}                
-              style={styles.formInput}>
-              <Picker.Item label={'Select To Location'} value={'Select To Location'} />
-              {this.state.toLocation.map((item, index) => {
-              return (
-                <Picker.Item 
-                  label={item.city} 
-                  value={item.city}
-                  key={index} />
-              );
-              })}
-            </Picker>
+            <TextInput 
+              ref='toInput'
+              placeholder='Enter To destination' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {params.update?this.state.toLocation:null}
+              returnKeyType="next"
+              onChangeText={this.handleToLocation} />
           </Item>
-          {this.state.tripToError.length>0 &&
+          {this.state.tripToError &&
             <Text style={styles.errorText}>{this.state.tripToError}</Text>
           }
           <View style={styles.attachRow}>
             <Text style={styles.formLabel}>Attachments:</Text>              
-            <Button rounded bordered info onPress={this.selectAttachFiles.bind(this)} style={styles.atchBtn}>                
+            <Button rounded bordered info onPress={() => { this.setModalVisible(true); }} style={styles.atchBtn}>                
               <Icon name='attach' style={{fontSize:16, marginRight:0}} />
               <Text style={{fontSize:12,textAlign:'center'}}>
                 Attach Documents
@@ -284,16 +406,105 @@ class TaxiRequisitionScreen extends Component {
             </Button>
           </View>
         </Form>
-        {this.state.attachFiles.map((item, key) => (
-          <View key={key} style={styles.atchFileRow}>
-            <Text style={styles.atchFileName}>{item.name ? item.name : ''}</Text>
-            <Button bordered small rounded danger style={styles.actionBtn}
-              onPress={()=>this.removeAttach(key)}>
-              <Icon name='close' style={styles.actionBtnIco} />
-            </Button>
+        {this.state.uploadData.map((item, key) => (
+          (item.file.length>0) ?
+          <View key={key}>
+          <Text style={styles.attachType}>{item.type}</Text>
+          {item.file.map((file, index)=>(
+            <View key={index} style={styles.atchFileRow}>
+              {file.type == "image/webp" ||
+                file.type == "image/jpeg" ||
+                file.type == "image/jpg" ||
+                file.type == "image/png" ||
+                file.type == "image/gif" ?
+              <Image
+                style={{width: 50, height: 50, marginRight:10}}
+                source={{uri: file.uri}}
+              />:null}
+              <Text style={styles.atchFileName}>{file.name ? file.name : ''}</Text>
+              <Button bordered small rounded danger style={styles.actionBtn}
+                onPress={()=>this.removeAttach(item.type,index)}>
+                <Icon name='close' style={styles.actionBtnIco} />
+              </Button>
+            </View>
+          ))}
           </View>
+          :null
         ))}
         </ScrollView>
+
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.modalVisible}
+          onRequestClose={() => {this.setModalVisible(false)}}>
+          <View style={styles.atchMdlHeader}>
+            <Text style={styles.atchMdlHdrTtl}>Upload Document</Text>
+          </View>
+          <ScrollView contentContainerStyle={styles.atchMdlBody}>
+            <Text style={styles.atchMdlLabel}>Select Document Type:</Text>
+            <View style={styles.pickerHolder}>
+              <Picker
+                mode="dropdown"
+                iosIcon={<Icon name="arrow-down" />}
+                style={styles.atchTypeSelect}
+                placeholder="Document Type"
+                placeholderStyle={{ color: "#bfc6ea" }}
+                placeholderIconColor="#007aff"
+                selectedValue={this.state.curUploadType}
+                onValueChange={this.onValueChangeUploadType}
+                >
+                {this.state.uploadData.map((item, index) => {
+                  return (
+                  <Picker.Item label={item.type} value={item.type} key={index} />
+                  );
+                })}
+              </Picker>
+            </View>
+            <TouchableOpacity onPress={this.selectAttachFiles.bind(this)} style={styles.chooseBtn}>                
+              <Icon name='add-circle' style={styles.chooseBtnIcon} />
+              <Text style={styles.chooseBtnText}>Choose File</Text>
+            </TouchableOpacity>
+            
+            {this.state.uploadData.map((item, key) => (
+              (item.type == this.state.curUploadType && item.file.length>0) ?
+              <View key={key}>
+              {item.file.map((file, index)=>(
+                <View key={index} style={styles.atchFileRow}>
+                  {file.type == "image/webp" ||
+                    file.type == "image/jpeg" ||
+                    file.type == "image/jpg" ||
+                    file.type == "image/png" ||
+                    file.type == "image/gif" ?
+                  <Image
+                    style={{width: 50, height: 50, marginRight:10}}
+                    source={{uri: file.uri}}
+                  />:null}
+                  <Text style={styles.atchFileName}>{file.name ? file.name : ''}</Text>
+                  <Button bordered small rounded danger style={styles.actionBtn}
+                    onPress={()=>this.removeAttach(item.type,index)}>
+                    <Icon name='close' style={styles.actionBtnIco} />
+                  </Button>
+                </View>
+              ))}
+              </View>
+              :null
+            ))}
+          </ScrollView>
+          <View style={styles.atchMdlFtr}>
+            <TouchableOpacity 
+              onPress={() => {this.setModalVisible(!this.state.modalVisible);}} 
+              style={[styles.atchMdlFtrBtn,styles.atchMdlFtrBtnSecondary]}>
+              <Text style={styles.atchMdlFtrBtnText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => {this.uploadRequest();}} 
+              style={[styles.atchMdlFtrBtn,styles.atchMdlFtrBtnPrimary]}>
+              <Text style={styles.atchMdlFtrBtnText}>Upload</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+
         <TouchableOpacity onPress={() => this.submitReq()} style={styles.ftrBtn}>
           <LinearGradient 
             start={{x: 0, y: 0}} 
@@ -306,17 +517,24 @@ class TaxiRequisitionScreen extends Component {
         </TouchableOpacity>
       </KeyboardAvoidingView>
     );
+    }
   }
 }
 
 const mapStateToProps = state => {
   return {
-    tripReq: state.tripReq
+    reqCreateState: state.reqCreateState,
+    plans: state.plans,
+    statusResult: state.statusResult,
+    reqUpdateState: state.reqUpdateState
   };
 };
 
 const mapDispatchToProps = {
-  tripReq : Actions.tripReq
+  reqCreate : Actions.reqCreate,
+  getPlans : Actions.getPlans,
+  getStatus: Actions.getStatus,
+  reqUpdate: Actions.reqUpdate
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TaxiRequisitionScreen);

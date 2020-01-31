@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { View, TouchableOpacity, Picker, Platform, AsyncStorage, Keyboard, ActivityIndicator } from "react-native"
-import { Container, Content, Icon, Text, Form, Item, Label, Input } from 'native-base'
+import { View, Text, TouchableOpacity, Picker, Platform, Keyboard, TextInput, BackHandler, Alert, AsyncStorage } from "react-native"
+import { Container, Content, Icon, Form, Item, Label } from 'native-base'
 import Ficon from 'react-native-vector-icons/FontAwesome5'
 import LinearGradient from 'react-native-linear-gradient'
 import DateTimePicker from '@react-native-community/datetimepicker'
@@ -9,32 +9,24 @@ import { connect } from 'react-redux'
 import Actions from '../redux/actions'
 import Toast from 'react-native-simple-toast'
 import { NavigationEvents } from 'react-navigation'
+import PickerModal from 'react-native-picker-modal-view'
 
 import {API_URL} from '../config'
 import Loader from '../Components/Loader'
-import styles from './Styles/TripCreateScreen';
-
-const ASYNC_STORAGE_COMMENTS_KEY = 'ANYTHING_UNIQUE_STRING'
+import styles from './Styles/TripCreateScreen'
 
 class TripCreateScreen extends Component {
-  _isMounted = false;
-  UNSAFE_componentWillMount() {
+  constructor(props) {
+    super(props);
     var date = new Date().getDate();
     var month = new Date().getMonth() + 1;
     var year = new Date().getFullYear();
-    this.setState({
-      curDate: year+'-'+month+'-'+date,
-      dateStart: new Date(year+'-'+month+'-'+date),
-      dateEnd: new Date(year+'-'+month+'-'+date),
-    });
-  }
-  constructor(props) {
-    super(props);
     this.state = {
-      dateStart: new Date('00-00-00'),
+      curDate: year+'-'+month+'-'+date,
+      dateStart: new Date(),
+      dateEnd: new Date(),
       modeStart: 'date',
       showStart: false,
-      dateEnd: new Date('00-00-00'),
       modeEnd: 'date',
       showEnd: false,
       purpose: undefined,
@@ -43,107 +35,95 @@ class TripCreateScreen extends Component {
       travelsName: null,
       travelsNameError: '',
       forId: "1",
-      retainer_id: 1,
-      locationList: [],
-      toLocation: [],
-      tripForList: [],
-      purposeList: [],
-      travelersList: [],
-      isLoading: true,
+      serchLocationList: [],
+      isLoading: false,
       tripNo: '',
       details: '',
-      tripFrom: null,
-      tripTo: null,
       error: false,
       tripFromError: '',
       tripToError: '',
-      name: global.USER.userName,      
+      name: global.USER.userName,
+      fromItem: {"Name": "Select From Location", "Value": "", "Code": "", "Id":0},
+      toItem: {"Name": "Select To Location", "Value": "", "Code": "", "Id":0},
+      saveStatusName: '',
+      saveSubStatusName: '',
+      createStatusName: '',
+      createSubStatusName: ''
     };
-  } 
+    this._handleBackPress = this._handleBackPress.bind(this);
+  }
 
-  getTripForResposnse() {
-    AsyncStorage.getItem(ASYNC_STORAGE_COMMENTS_KEY ).then(value => {
-      return fetch(API_URL+'getTripForMasterList')
-      .then((response)=> response.json() )
-      .then((responseJson) => {
-        this.setState({
-          tripForList: responseJson,
-          isLoading: false,  
-        })
-        //tripForList.push( tripForList )
-      })
-      .catch((Error) => {
-        console.log(Error)
+  componentDidMount() {    
+    this.props.getReqLocations()
+    .then(()=>{
+      for(var i=0; i<this.props.locations.dataSource.length; i++) {
+        this.state.serchLocationList.push({
+          "Name": this.props.locations.dataSource[i].city,
+          "Value": this.props.locations.dataSource[i].city,
+          "Code": this.props.locations.dataSource[i].type,
+		      "Id": this.props.locations.dataSource[i].id,
+        },)
+      }
+    });
+    this.props.getTripFor();
+    this.props.getPurpose('B');
+    this.props.getRetainer();
+
+    this.props.getStatus("1","NA")
+    .then(()=>{
+      this.setState({
+        saveStatusName: this.props.statusResult.dataSource[0].trip_pjp_status,
+        saveSubStatusName: this.props.statusResult.dataSource[0].sub_status
       });
-    })
-  };  
-  getTripLocationResponse() {  
-    AsyncStorage.getItem(ASYNC_STORAGE_COMMENTS_KEY ).then(value => {
-      return fetch(API_URL+'getLocationList')
-      .then((response)=> response.json() )
-      .then((responseJson) => {
-        this.setState({ 
-          locationList: responseJson, 
-          isLoading: false,
-        })
-        //locationList.push( locationList )
-      })
-      .catch((Error) => {
-        console.log(Error)
-      });  
-    })  
-  };
-  getTripPurposeResponse() {  
-    AsyncStorage.getItem(ASYNC_STORAGE_COMMENTS_KEY ).then(value => {
-      return fetch(API_URL+'activeForListOfTripForMaster?active_for=B')
-      .then((response)=> response.json() )
-      .then((responseJson) => {
-        this.setState({ 
-          purposeList: responseJson, 
-          isLoading: false,
-        })
-        //purposeList.push( purposeList )
-      })
-      .catch((Error) => {
-        console.log(Error)
-      });  
-    })  
-  };
-  getTravelersResponse() {  
-    AsyncStorage.getItem(ASYNC_STORAGE_COMMENTS_KEY ).then(value => {
-      return fetch(API_URL+'getRetainerNameList')
-      .then((response)=> response.json() )
-      .then((responseJson) => {
-        this.setState({ 
-          travelersList: responseJson,
-        })
-        //travelersList.push( travelersList )
-      })
-      .catch((Error) => {
-        console.log(Error)
-      });  
-    })  
-  };
+    });
+    this.props.getStatus("2","NA")
+    .then(()=>{
+      this.setState({
+        createStatusName: this.props.statusResult.dataSource[0].trip_pjp_status,
+        createSubStatusName: this.props.statusResult.dataSource[0].sub_status
+      });
+    });
 
-  componentDidMount() {
-    this.getTripForResposnse();
-    this.getTripLocationResponse();
-    this.getTripPurposeResponse();
-    this.getTravelersResponse();
-    this._isMounted = true;
+    BackHandler.addEventListener('hardwareBackPress', this._handleBackPress);
+  }
+
+  componentWillUnmount() {
+    BackHandler.removeEventListener('hardwareBackPress', this._handleBackPress);
+  }
+
+  _handleBackPress() {
+    if (this.props.navigation.isFocused()) {
+      Alert.alert(
+        "Discard changes?",
+        "Are you sure to go back?",
+        [
+          {
+            text: "No",
+            style: 'cancel',
+          },
+          {
+            text: "Yes",
+            onPress: () => this.props.navigation.goBack(),
+          }
+        ],
+        { cancelable: false }
+      );
+      return true;
+    }
   }
 
   onValueChangePurpose = (value) => {
     this.setState({ purpose: value });
-    this.state.purposeList.map((item) => {
+    this.props.purpose.dataSource.map((item) => {
       if (item.purpose_type == value) {
         this.setState({ purposeId: item.purpose_type_id });
+        console.log(item.purpose_type_id);
       }      
     })
   }
   onValueChangeFor = (value) => {
     this.setState({ for: value });
-    this.state.tripForList.map((item) => {
+    this.props.tripFor.dataSource.map((item) => {
       if (item.tripFor_type == value) {
         this.setState({ forId: item.tripFor_type_id });
       }      
@@ -154,11 +134,6 @@ class TripCreateScreen extends Component {
       travelsName: value,
       travelsNameError: value=='Select Travelers'?'Please select a Traveler':'',
     });
-    this.state.travelersList.map((item) => {
-      if (item.name_of_retainers == value) {
-        this.setState({ retainer_id: item.retainer_id });
-      }      
-    })
   }
   setDateEnd = (event, dateEnd) => {
     dateEnd = dateEnd || this.state.dateEnd; 
@@ -193,42 +168,24 @@ class TripCreateScreen extends Component {
   datepickerStart = () => {
     this.showStart('dateStart');
   }
-  onValueChangeFrom = (tripFrom) => {
-    this.setState({
-      tripFrom: tripFrom,
-      tripFromError: tripFrom=='Select From Location'?'Please select Trip From Location':'',
-    });
-    var toLocations = Array.from(this.state.locationList);
-    for( var i = 0; i < toLocations.length; i++){ 
-      if ( toLocations[i].city === tripFrom) {
-        toLocations.splice(i, 1); 
-      }
-    }
-    this.setState({toLocation: toLocations});
-  }
-  onValueChangeTo = (tripTo) => {
-    this.setState({
-      tripTo: tripTo,
-      tripToError: tripTo=='Select To Location'?'Please select Trip To Location':'',
-    });
-  }
+  
   handleChangeDetails = (text) => {
     this.setState({ details: text })
   }
   
-  submitTrip = (statusId,tripNo) => {
+  confirmation = (statusId) => {
     if(
-      this.state.tripFrom == null || this.state.tripFrom == "Select From Location" ||
-      this.state.tripTo == null || this.state.tripTo == "Select To Location" ||
+      this.state.fromItem.Name == null || this.state.fromItem.Name == "Select From Location" ||
+      this.state.toItem.Name == null || this.state.toItem.Name == "Select To Location" ||
       ((this.state.travelsName == null || this.state.travelsName == "Select Travelers") && this.state.forId == "3" )
     ) {
-      if(this.state.tripFrom == null || this.state.tripFrom == "Select From Location") {
+      if(this.state.fromItem.Name == null || this.state.fromItem.Name == "Select From Location") {
         this.setState({
           tripFromError: 'Please select Trip From Location',
           error: true,
         });
       }
-      if(this.state.tripTo == null || this.state.tripTo == "Select To Location") {
+      if(this.state.toItem.Name == null || this.state.toItem.Name == "Select To Location") {
         this.setState({
           tripToError: 'Please select Trip To Location',
           error: true,
@@ -242,91 +199,189 @@ class TripCreateScreen extends Component {
       }
       console.log('There are some eroor.');
     } else {
-      AsyncStorage.getItem(ASYNC_STORAGE_COMMENTS_KEY ).then(value => {
-        return fetch(API_URL+'getLatestTripNumber',{
-          method: "POST",
-          mode: "no-cors",
-          headers: {
-            Accept: 'text/plain',
-            'Content-Type': 'text/plain',
-          },
-          body: "TRIP"
-        })
-        .then((response)=> response.text() )
-
-        .then((tripNo) => {
-          this.setState({ isLoading: true }, () => {      
-            this.props.tripCreate([{
-              "trip_no": tripNo,
-              "trip_from": this.state.tripFrom,
-              "trip_to": this.state.tripTo,
-              "trip_hdr_id": 0,
-              "start_date": moment(this.state.dateStart).format("YYYY-MM-DD"),
-              "end_date": moment(this.state.dateEnd).format("YYYY-MM-DD"),
-              "trip_for": this.state.forId,
-              "purpose": this.state.purposeId,
-              "trip_creator_name": global.USER.userName,
-              "trip_creator_userid": global.USER.userId,
-              "details": this.state.details.length>0?this.state.details:null,
-              "status_id": statusId,
-              "status": statusId == "1"?"Create Trip/PJP - Saved":statusId == "2"?"Create Trip/PJP - Pending with Supervisor":null,
-              "userid": global.USER.userId,
-              "useremail": global.USER.userEmail,
-              "username": global.USER.userName,
-              "delete_status": "false",
-              "pending_with_email": global.USER.supervisorEmail,
-              "pending_with_name": global.USER.supervisorName,
-              "pending_with": global.USER.supervisorId,
-              "name": this.state.forId == "1" ? this.state.name 
-                    : this.state.forId == "3" ? this.state.retainer_id
-                    : this.state.forId == "5" ? ''
-                    :'',
-            }])
-            .then(()=>{
-              this.props.navigation.navigate('TripList');
-              this.setState({ 
-                error: false,
-                isLoading: false
-              });
-              if(statusId == "1") {
-                Toast.show('Trip Updated Successfuly', Toast.LONG);
-              }
-              if(statusId == "2") {
-                Toast.show('Trip Submited Successfuly', Toast.LONG);
-              }
-            });
-          });
-          
-        })
-        .catch((Error) => {
-          console.log(Error)
-        });  
-      })
+      if (statusId == '1') {
+        Alert.alert(
+          "Save",
+          "Do you want to Save this Trip?",
+          [
+            {
+              text: "No",
+              style: 'cancel',
+            },
+            {
+              text: "Yes",
+              onPress: () => this.submitTrip(statusId),
+            }
+          ],
+          { cancelable: true }
+        );
+      } else if(statusId == '2') {
+        Alert.alert(
+          "Submit",
+          "Do you want to Submit tis Trip?",
+          [
+            {
+              text: "No",
+              style: 'cancel',
+            },
+            {
+              text: "Yes",
+              onPress: () => this.submitTrip(statusId),
+            }
+          ],
+          { cancelable: true }
+        );
+      } else {
+        console.log('Status ID not matched')
+      }
     }
+  }
+
+  submitTrip = (statusId,tripNo) => {
+    return fetch(API_URL+'getLatestTripNumber',{
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        Accept: 'text/plain',
+        'Content-Type': 'text/plain',
+      },
+      body: "TRIP"
+    })
+    .then((response)=> response.text() )
+
+    .then((tripNo) => {    
+        this.props.tripCreate([{
+          "trip_no": tripNo,
+          "trip_from": this.state.fromItem.Name,
+          "trip_to": this.state.toItem.Name,
+          "trip_hdr_id": 0,
+          "start_date": moment(this.state.dateStart).format("YYYY-MM-DD"),
+          "end_date": moment(this.state.dateEnd).format("YYYY-MM-DD"),
+          "trip_for": this.state.forId,
+          "purpose": this.state.purposeId,
+          "trip_creator_name": global.USER.userName,
+          "trip_creator_userid": global.USER.userId,
+          "details": this.state.details.length>0?this.state.details:null,
+          "status_id": statusId,
+          "status": statusId == "1"?this.state.saveStatusName:statusId == "2"?this.state.createStatusName:'',
+          "userid": global.USER.userId,
+          "useremail": global.USER.userEmail,
+          "username": global.USER.userName,
+          "delete_status": "false",
+          "pending_with_email": global.USER.supervisorEmail,
+          "pending_with_name": global.USER.supervisorName,
+          "pending_with": global.USER.supervisorId,
+          "name": this.state.forId == "1" ? this.state.name 
+                : this.state.forId == "3" ? this.state.travelsName
+                : this.state.forId == "5" ? ''
+                :'',
+        }])
+        .then(()=>{
+          this.props.getTrips(global.USER.userId)
+        })
+        .then(()=>{
+          console.log('ready to navygate');
+          this.props.navigation.navigate('TripList');
+          this.setState({ 
+            error: false,
+            isLoading: false
+          });
+          if(statusId == "1") {
+            Toast.show('Trip Saved Successfully', Toast.LONG);
+          }
+          if(statusId == "2") {
+            Toast.show('Trip Submited Successfully', Toast.LONG);
+          }
+        })
+    })
+    .catch((Error) => {
+      console.log(Error)
+    });
     Keyboard.dismiss();
   }
 
-  componentWillUnmount() {
-    this.getTripForResposnse();
-    this.getTripLocationResponse();
-    this.getTripPurposeResponse();
-    this.getTravelersResponse();
-    this.props.getTrips(global.USER.userId);
-    this._isMounted = false;
+  renderLocationAlert=()=> {
+    return(
+      Alert.alert(
+        "Warning",
+        "From location and To location can not be same.",
+        [
+          {
+            text: "Cancel",
+            style: 'cancel',
+          },
+        ],
+        { cancelable: false }
+      )
+    )
+  }
+
+  fromSelected(value){
+    AsyncStorage.getItem("ASYNC_STORAGE_FROM_KEY")
+    .then(() => {
+      this.setState({
+        fromItem: value,
+        tripFromError: '',
+      })
+    })
+    .then(()=>{
+      if(this.state.fromItem.Name == this.state.toItem.Name) {
+        this.renderLocationAlert();
+        this.setState({
+          fromItem: {"Name": "Select From Location", "Value": "", "Code": "", "Id":0},
+        })
+      }
+    })
+  }
+  toSelected(value){
+    AsyncStorage.getItem("ASYNC_STORAGE_TO_KEY")
+    .then(() => {
+      this.setState({
+        toItem: value,
+        tripToError: ''
+      })
+    })
+    .then(()=>{
+      if(this.state.fromItem.Name == this.state.toItem.Name) {
+        this.renderLocationAlert();
+        this.setState({
+          toItem: {"Name": "Select To Location", "Value": "", "Code": "", "Id":0},
+        })
+      }
+    })
   }
 
   render() {
-    console.log(this.props.navigation.state.routeName);
-    if(this.state.isLoading || this.props.tripCreate.isLoading){
+    if(
+      this.state.isLoading || 
+      this.props.tripCreate.isLoading ||
+      this.props.locations.isLoading ||
+      this.props.tripFor.isLoading ||
+      this.props.purpose.isLoading ||
+      this.props.retainer.isLoading
+      ){
       return(
         <Loader/>
       )
-    }
+    } else if(
+      this.props.tripCreate.errorStatus ||
+      this.props.locations.errorStatus ||
+      this.props.tripFor.errorStatus ||
+      this.props.purpose.errorStatus ||
+      this.props.retainer.errorStatus
+      ){
+      return(
+        <Text>URL Error</Text>
+      )
+    } else {
+      console.log(moment(this.state.dateStart).format(global.DATEFORMAT));
     return (
       <Container style={styles.container}>
-        <Content Style={styles.content}>
+        <Content contentContainerStyle={styles.content}>
           <NavigationEvents onDidFocus={() => {}} />
-          <Text style={styles.title}>Create Your New Trip</Text>
+          <View style={styles.titleBar}>
+            <Text style={styles.title}>Create New Trip</Text>
+          </View>
           <Form>
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Start Date:</Label>
@@ -336,10 +391,9 @@ class TripCreateScreen extends Component {
               </TouchableOpacity>
             </Item>
             { this.state.showStart && 
-            <DateTimePicker value={this.state.dateStart}
-              mode={this.state.modeStart}
-              minimumDate={new Date(this.state.dateStart)}
-              is24Hour={true}
+            <DateTimePicker value={new Date()}
+              mode="date"
+              minimumDate={new Date()}
               display="default"
               onChange={this.setDateStart} />
             }
@@ -351,16 +405,14 @@ class TripCreateScreen extends Component {
               </TouchableOpacity>
             </Item>
             { this.state.showEnd && 
-            <DateTimePicker value={this.state.dateEnd}
+            <DateTimePicker value={new Date(moment(this.state.dateEnd).format("YYYY-MM-DD"))}
               mode={this.state.modeEnd}
-              minimumDate={new Date(this.state.dateStart)}
-              is24Hour={true}
+              minimumDate={new Date(moment(this.state.dateStart).format("YYYY-MM-DD"))}
               display="default"
               onChange={this.setDateEnd} />
             }
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Purpose:</Label>
-              {this.state.purposeList.length>0 ?
               <Picker
                 mode="dropdown"
                 iosIcon={<Icon name="arrow-down" />}
@@ -371,63 +423,75 @@ class TripCreateScreen extends Component {
                 selectedValue={this.state.purpose}
                 onValueChange={this.onValueChangePurpose}
                 >
-                {this.state.purposeList.map((item, index) => {
+                {this.props.purpose.dataSource.map((item, index) => {
                   return (
                   <Picker.Item label={item.purpose_type} value={item.purpose_type} key={index} />
                   );
                 })}
-              </Picker>:
-              <ActivityIndicator size="small" color="rgba(0,0,0,.35)" style={{marginRight:16}} />
-              }
+              </Picker>
             </Item>
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Form:</Label>
-              {this.state.locationList.length>0?
-              <Picker
-                //placeholder="Select a Location" 
-                selectedValue = {this.state.tripFrom} 
-                onValueChange = {this.onValueChangeFrom}                
-                style={styles.formInput}>
-                <Picker.Item label={'Select From Location'} value={'Select From Location'} />
-                {this.state.locationList.map((item, index) => {
-                return (
-                  <Picker.Item label={item.city} value={item.city} key={index} />
-                );
-                })}
-              </Picker>:
-              <ActivityIndicator size="small" color="rgba(0,0,0,.35)" style={{marginRight:16}} />
-              }
-            </Item>
+              <View style={styles.pickerWraper}>
+                <PickerModal
+                  renderSelectView={(disabled, selected, showModal) =>
+                    <TouchableOpacity style={styles.pickerBtn} onPress={showModal}>
+                      <Text style={styles.pickerBtnText}>{this.state.fromItem.Name}</Text>
+                      <Icon name="arrow-dropdown" style={styles.pickerBtnIcon} />
+                    </TouchableOpacity>
+                  }
+                  onSelected={this.fromSelected.bind(this)}
+                  onClosed={()=>{}}
+                  onBackButtonPressed={()=>{}}
+                  items={this.state.serchLocationList}
+                  //sortingLanguage={'tr'}
+                  showToTopButton={true}
+                  selected={this.state.fromItem}
+                  showAlphabeticalIndex={true}
+                  autoGenerateAlphabeticalIndex={true}
+                  selectPlaceholderText={'Choose one...'}
+                  onEndReached={() => console.log('list ended...')}
+                  searchPlaceholderText={'Search...'}
+                  requireSelection={false}
+                  autoSort={false}
+                />
+              </View>
+            </Item>            
             {this.state.tripFromError.length>0 &&
               <Text style={styles.errorText}>{this.state.tripFromError}</Text>
             }
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>To:</Label>
-              {this.state.locationList.length>0?
-              <Picker
-                //placeholder="Select a Location" 
-                selectedValue = {this.state.tripTo} 
-                onValueChange = {this.onValueChangeTo}                
-                style={styles.formInput}>
-                <Picker.Item label={'Select To Location'} value={'Select To Location'} />
-                {this.state.toLocation.map((item, index) => {
-                return (
-                  <Picker.Item 
-                    label={item.city} 
-                    value={item.city}
-                    key={index} />
-                );
-                })}
-              </Picker>:
-              <ActivityIndicator size="small" color="rgba(0,0,0,.35)" style={{marginRight:16}} />
-              }
+              <View style={styles.pickerWraper}>
+                <PickerModal
+                  renderSelectView={(disabled, selected, showModal) =>
+                    <TouchableOpacity style={styles.pickerBtn} onPress={showModal}>
+                      <Text style={styles.pickerBtnText}>{this.state.toItem.Name}</Text>
+                      <Icon name="arrow-dropdown" style={styles.pickerBtnIcon} />
+                    </TouchableOpacity>
+                  }
+                  onSelected={this.toSelected.bind(this)}
+                  onClosed={()=>{}}
+                  onBackButtonPressed={()=>{}}
+                  items={this.state.serchLocationList}
+                  //sortingLanguage={'tr'}
+                  showToTopButton={true}
+                  selected={this.state.toItem}
+                  showAlphabeticalIndex={true}
+                  autoGenerateAlphabeticalIndex={true}
+                  selectPlaceholderText={'Choose one...'}
+                  onEndReached={() => console.log('list ended...')}
+                  searchPlaceholderText={'Search...'}
+                  requireSelection={false}
+                  autoSort={false}
+                />
+              </View>
             </Item>
             {this.state.tripToError.length>0 &&
               <Text style={styles.errorText}>{this.state.tripToError}</Text>
             }
             <Item picker fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Trip for:</Label>
-              {this.state.tripForList.length>0 ?
               <Picker
                 mode="dropdown"
                 iosIcon={<Icon name="arrow-down" />}
@@ -438,14 +502,12 @@ class TripCreateScreen extends Component {
                 selectedValue={this.state.for}
                 onValueChange={this.onValueChangeFor}
                 >
-                {this.state.tripForList.map((item, index) => {
+                {this.props.tripFor.dataSource.map((item, index) => {
                   return (
                   <Picker.Item label={item.tripFor_type} value={item.tripFor_type} key={index} />
                   );
                 })}
-              </Picker>:
-              <ActivityIndicator size="small" color="rgba(0,0,0,.35)" style={{marginRight:16}} />
-              }
+              </Picker>
             </Item>
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Traveler's Name:</Label>
@@ -462,7 +524,7 @@ class TripCreateScreen extends Component {
                 onValueChange={this.onValueChangeTraveler}
                 >
                 <Picker.Item label={'Select Travelers'} value={'Select Travelers'} />
-                {this.state.travelersList.map((item, index) => {
+                {this.props.retainer.dataSource.map((item, index) => {
                   return (
                   <Picker.Item label={item.name_of_retainers} value={item.name_of_retainers} key={index} />
                   );
@@ -475,20 +537,20 @@ class TripCreateScreen extends Component {
             {this.state.travelsNameError.length>0 &&
               <Text style={styles.errorText}>{this.state.travelsNameError}</Text>
             }
-            <Item stackedLabel style={[styles.formRow,styles.mb]}>
-              <Label style={styles.formLabel}>Details:</Label>
-              <Input 
-                multiline
-                numberOfLines={2}
-                placeholder='Enter your comments'
-                onChangeText={this.handleChangeDetails}
-                style={styles.formInput}
-                />
-            </Item>
+            <Text style={[styles.formLabel,styles.inputLabel]}>Details:</Text>
+            <TextInput 
+              multiline
+              numberOfLines={4}
+              placeholder='Enter your comments'
+              style={styles.textArea}
+              underlineColorAndroid="transparent"
+              onChangeText={this.handleChangeDetails}
+              />
           </Form>         
-        </Content>
+        </Content>       
+        
         <View style={styles.footer}>
-          <TouchableOpacity onPress={() => this.submitTrip(1)} style={styles.ftrBtn}>
+          <TouchableOpacity onPress={() => this.confirmation('1')} style={styles.ftrBtn}>
             <LinearGradient 
               start={{x: 0, y: 0}} 
               end={{x: 1, y: 0}} 
@@ -498,7 +560,7 @@ class TripCreateScreen extends Component {
               <Text style={styles.ftrBtnTxt}>Save</Text>
             </LinearGradient>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => this.submitTrip(2)} style={styles.ftrBtn}>
+          <TouchableOpacity onPress={() => this.confirmation('2')} style={styles.ftrBtn}>
             <LinearGradient 
               start={{x: 0, y: 0}}
               end={{x: 1, y: 0}} 
@@ -512,18 +574,29 @@ class TripCreateScreen extends Component {
       </Container>
     );
   }
+  }
 };
 
 const mapStateToProps = state => {
   return {
     tripCreate: state.tripCreate,
-    trips: state.trips
+    trips: state.trips,
+    locations: state.locations,
+    tripFor: state.tripFor,
+    purpose: state.purpose,
+    retainer: state.retainer,
+    statusResult: state.statusResult
   };
 };
 
 const mapDispatchToProps = {
   tripCreate : Actions.tripCreate,
-  getTrips : Actions.getTrips
+  getTrips : Actions.getTrips,
+  getReqLocations: Actions.getReqLocations,
+  getTripFor: Actions.getTripFor,
+  getPurpose: Actions.getPurpose,
+  getRetainer: Actions.getRetainer,
+  getStatus: Actions.getStatus
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TripCreateScreen);

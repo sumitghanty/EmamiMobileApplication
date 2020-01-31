@@ -95,7 +95,7 @@ class LoginScreen extends Component {
               isLoading: false
             });
             this.props.navigation.navigate('Home');
-            Toast.show('Login Successfuly.', Toast.LONG);
+            Toast.show('Login Successfully.', Toast.LONG);
           }
         })
         .catch((Error) => {

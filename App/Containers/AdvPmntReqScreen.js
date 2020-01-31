@@ -42,9 +42,9 @@ class AdvPmntReqScreen extends Component {
       for (const res of results) {
       }
       if (results.length>1) {
-        alert(results.length + ' fils are uploade successfuly.');
+        alert(results.length + ' fils are uploade successfully.');
       } else {
-        alert(results.length + ' fil is uploade successfuly.');
+        alert(results.length + ' fil is uploade successfully.');
       }
       //Setting the state to show multiple file attributes
       this.setState({ attachFiles: results });
@@ -172,7 +172,7 @@ class AdvPmntReqScreen extends Component {
           </Form>
           <Form style={styles.form}>
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Estimatedd Cost:</Label>
+              <Label style={styles.formLabel}>Estimated Cost:</Label>
               <Text style={styles.value}>{params.estimated_cost ? params.estimated_cost : '00.00'}</Text>
             </Item>
             <Item fixedLabel style={styles.formRow}>

@@ -1,12 +1,19 @@
+import LocationsReducer from './GetLocations'
+import StateListReducer from './GetState'
 import ReqNameReducer from './GetReqName'
+import TripForReducer from './GetTripFor'
+import PurposeReducer from './GetPurpose'
+import RetainerReducer from './GetRetainer'
 import ReqClaimNameReducer from './GetReqClaimName'
 import AttachmentReducer from './GetAttachment'
 import StatusReducer from './GetStatus'
+import TravelThroughReducer from './GetTravelThrough'
+import TravelTypeReducer from './GetTravelType'
 import TripListReducer from './TripList'
 import TripCreateReducer from './TripCreate'
 import TripUpdateReducer from './TripUpdate'
 import TripPlanReducer from './TripPlan'
-import PlanInititeReducer from './PlanInitiate'
+import PlanUpdateReducer from './PlanInitiate'
 import ReqTypeReducer from './ReqType'
 import ApprovedTripPendingReducer from './ApprovedTripPendingList'
 import AdvPmntPendListReducer from './AprvPmntPendList'
@@ -32,23 +39,30 @@ import PjpClaimTotReducer from './PjpClaimTot'
 import PjpClaimRejReducer from './PjpClaimRej'
 
 export default {
+	locations:LocationsReducer,
+	stateList:StateListReducer,
 	reqClaimName:ReqClaimNameReducer,
+	tripFor:TripForReducer,
+	purpose:PurposeReducer,
+	retainer:RetainerReducer,
 	reqName:ReqNameReducer,
 	attachment:AttachmentReducer,
 	statusResult:StatusReducer,
-  trips:TripListReducer,
+	travelThroughState:TravelThroughReducer,
+	travelTypeState:TravelTypeReducer,
+	trips:TripListReducer,
 	tripCreate:TripCreateReducer,
 	tripUpdate:TripUpdateReducer,
-  plans:TripPlanReducer,
-  PlanInitiate:PlanInititeReducer,
-  reqType:ReqTypeReducer,
-  aprvTripPend:ApprovedTripPendingReducer,
+	plans:TripPlanReducer,
+	planUpdateState:PlanUpdateReducer,
+	reqType:ReqTypeReducer,
+	aprvTripPend:ApprovedTripPendingReducer,
 	aprvPmntPend:AdvPmntPendListReducer,
-  aprvTripNonReq:TripAprvNonReqReducer,
+	aprvTripNonReq:TripAprvNonReqReducer,
 	aprvTripWithReq:TripAprvWithReqReducer,
 	advPmnt:AdvPmntReducer,
-	reqCreate:ReqCreateReducer,
-	reqUpdate:ReqUpdateReducer,
+	reqCreateState:ReqCreateReducer,
+	reqUpdateState:ReqUpdateReducer,
 	reqDelete:ReqDeleteReducer,
 	advPmnts:AdvPmntListReducer,
 	aprAdvPmnt:AprvAdvPmntReducer,

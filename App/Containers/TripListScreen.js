@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity} from "react-native";
-import { Container, Content, Text, Icon, Card, CardItem  } from 'native-base';
+import { View, TouchableOpacity } from "react-native";
+import { Container, Content, Text, Icon, Card, CardItem } from 'native-base';
 import { connect } from 'react-redux'
 import Actions from '../redux/actions'
 import Loader from '../Components/Loader'
@@ -21,7 +21,7 @@ class TripListScreen extends Component {
     var year = new Date().getFullYear();
     this.state ={
       searchTerm: '',
-      curDate: parseInt(year+''+month+''+date),
+      curDate: (year+'-'+month+'-'+date),
     }
   }; 
   searchUpdated(term) {
@@ -37,8 +37,12 @@ class TripListScreen extends Component {
       return(
           <Loader/>
       )
+    } else if(this.props.trips.errorStatus){
+      return(
+          <Text>URL Error</Text>
+      )
     } else {
-      //console.log(this.props.navigation.state.routeName);
+      console.log(this.props.navigation.state.routeName);
       const listData = this.props.trips.dataSource;
       const filteredData = listData.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS))
       var sortList = filteredData;
@@ -73,16 +77,18 @@ class TripListScreen extends Component {
               {((item.status_id == "3"
               || item.status_id == "4"
               || item.status_id == "6"
-              || item.status_id == "15"
-              || item.status_id == "16" 
-              || item.status_id == "17" 
-              || item.status_id == "18")
-              && ((parseInt(item.end_date.replace("-","").replace("-","")) - this.state.curDate) > 0)) ?
+              || item.status_id == "7"
+              || item.status_id == "8"
+              || item.status_id == "9" 
+              || item.status_id == "10" 
+              || item.status_id == "11"
+              || item.status_id >= "26")
+              && ((parseInt(item.end_date.replace("-","").replace("-","")) - parseInt(this.state.curDate.replace("-","").replace("-",""))) >= 0)) ?
               <View style={styles.itemHeaderRight}>
                 <TouchableOpacity onPress={() => this.props.navigation.navigate('TripPlan',item)}>
                   <LinearGradient
                     style={styles.planBtn}
-                    colors={["#9752ff", "#5e93ff"]}
+                    colors={["#2cc2d6", "#2cd66c"]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                     >
@@ -108,10 +114,10 @@ class TripListScreen extends Component {
                   <Text style={styles.itemLabel}>End Date:</Text>
                   <Text style={styles.itemValue}>{moment(item.end_date).format(global.DATEFORMAT)}</Text>
                 </View>:null}
-                {item.trip_creator_name ?
+                {item.name ?
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Employee:</Text>
-                  <Text style={styles.itemValue}>{item.trip_creator_name}</Text>
+                  <Text style={styles.itemValue}>{item.name}</Text>
                 </View>:null}
                 {item.status ?
                 <View style={styles.itemRow}>
