@@ -1,4 +1,4 @@
-import {REQUEST} from '../actions/TripPlan'
+import {REQUEST} from '../actions/GetTickets'
 
 export default (state = { dataSource: {}, isLoading: true, errorStatus:false}, action) => {
   switch(action.type){

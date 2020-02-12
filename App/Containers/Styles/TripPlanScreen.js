@@ -163,7 +163,8 @@ export default StyleSheet.create({
     borderBottomColor: 'rgba(0,0,0,.05)',
     flexDirection: 'row',
     alignItems: 'center',
-    borderTopRightRadius: 3
+    borderTopRightRadius: 3,
+    minHeight: 46
   },
   checkBox: {
     width: 46,
@@ -268,6 +269,16 @@ export default StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start'
   },
+  ftrBtnR: {
+    flex: 1
+  },
+  ftrBtnBgR: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 12,
+    justifyContent: 'center'
+  },
   ftrBtn: {
     flex: 1,
     flexDirection: 'column',
@@ -283,6 +294,16 @@ export default StyleSheet.create({
   },
   ftrBtnText: {
     fontSize: 12
+  },
+  ftrBtnIconR: {
+    color: '#fff',
+    fontSize: 24,
+    marginRight: 8
+  },
+  ftrBtnTxtR: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold'
   },
   textPrimary: {
     color: '#217aff'
@@ -311,5 +332,21 @@ export default StyleSheet.create({
     margin: 30,
     color: 'rgba(0,0,0,.35)',
     textAlign: 'center'
+  },
+  cardHrzntl: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: 0,
+    height: 46
+  },
+  cardHrzntlBtnLeft: {
+    height: 46,
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 0,
+    borderBottomLeftRadius: 4,
+    borderBottomRightRadius: 0
+  },
+  cardHrzntlBtnRight: {
+    borderBottomRightRadius: 4
   }
 });

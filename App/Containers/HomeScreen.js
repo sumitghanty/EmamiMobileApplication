@@ -58,9 +58,9 @@ class HomeScreen extends Component {
           style={styles.sliderItemBlock}>
           <Icon name= { item.icon} style={styles.slideIcon} />
           <Text style={styles.slideTitle}>{ item.title }</Text>
-          {(item.id == 6 || item.id == 7)
-          ?<Text style={{fontSize: 12,}}> </Text>
-          :<Text style={{color:'rgba(255,255,255,.65)',fontSize: 12,textAlign:'center'}}>coming soon</Text>}
+          {(item.id == 3 || item.id == 5 || item.id == 7)
+          ?<Text style={{color:'rgba(255,255,255,.65)',fontSize: 12,textAlign:'center'}}>coming soon</Text>
+          :<Text style={{fontSize: 12,}}> </Text>}
         </LinearGradient>
       </TouchableOpacity >
     );
@@ -96,17 +96,17 @@ class HomeScreen extends Component {
     //BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
     request_storage_runtime_permission()
     if(global.USER) {
+      if(global.USER.AdvancePayment_visibility) {
+        this.state.entries.push({ "id":1, "title": "Advance Payment", "icon": "cash", "navigation":"Advance"});
+      }
       if(global.USER.approve_pjp_visibility) {
         this.state.entries.push({ "id":7, "title": "Approve Expense/PJP", "icon": "md-checkmark-circle-outline", "navigation":"ApproveSale" });
       }
       if(global.USER.Approve_visibility_NonSales) {
-        this.state.entries.push({ "id":6, "title": "Approve Expense/Trip Non Sales", "icon": "done-all", "navigation":"ApproveNoneSale" });
+        this.state.entries.push({ "id":6, "title": "Approve Trip/Advance/Expense", "icon": "done-all", "navigation":"ApproveNoneSale" });
       }
       if(global.USER.createReqisition_visibility) {
         this.state.entries.push({ "id":2, "title": "Create/View Trip", "icon": "subway", "navigation":"TripList"});
-      }
-      if(global.USER.AdvancePayment_visibility) {
-        this.state.entries.push({ "id":1, "title": "Advance Payment", "icon": "cash", "navigation":"Advance"});
       }
       if(global.USER.create_pjp_visibility) {
         this.state.entries.push({ "id":3, "title": "Create/View PJP", "icon": "create", "navigation":"PjpList"});

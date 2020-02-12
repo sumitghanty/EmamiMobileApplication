@@ -19,7 +19,7 @@ class HotelReqScreen extends Component {
   static navigationOptions = ({ navigation }) => {
     const handleClearPress = navigation.getParam("handleBackPress", () => {});
     return {
-      title: "Details!",
+      title: "Create Requisition",
       headerLeft: <HeaderBackButton onPress={handleClearPress} />
     };
   };
@@ -64,15 +64,14 @@ class HotelReqScreen extends Component {
       maxAmt: params.item.upper_limit == "On Actual" ? "5000000"
               : params.item.upper_limit != "NA" ? params.item.upper_limit
               : '0.0',
-      amount: (params.update && params.update.check_in_date) ? params.update.amount :null,
+      amount: (params.update && params.update.amount) ? params.update.amount :null,
       amntError: null,
-      days: 1,
+      days: (params.update && params.update.days) ? params.update.days : 1,
       modalVisible: false,
       uploadData: [{"type":"Approve Email","file":[]},
                     {"type":"Other","file":[]},
                     {"type":"Hotel Booking confirmation document","file":[]},
-                    {"type":"Hotel booking invoice","file":[]},
-                    {"type":"Travel agent invoice","file":[]}],
+                    {"type":"Hotel booking invoice","file":[]}],
       curUploadType: 'Approve Email',
       statusNameOP: '',
       subStatusNameOP: '',
@@ -339,7 +338,7 @@ class HotelReqScreen extends Component {
         dateCin,
         dateCout: dateCin
       });    
-      var newDays= moment(this.state.dateCout, "DD.MM.YYYY").diff(moment(this.state.dateCin, "DD.MM.YYYY"), 'days')
+      var newDays= moment(this.state.dateCout, "YYYY-MM-DD").diff(moment(this.state.dateCin, "YYYY-MM-DD"), 'days')
       this.setState({
         days: newDays+1
       });
@@ -397,7 +396,7 @@ class HotelReqScreen extends Component {
         showCout: Platform.OS === 'ios' ? true : false,
         dateCout,
       });    
-      var newDays= moment(this.state.dateCout, "DD.MM.YYYY").diff(moment(this.state.dateCin, "DD.MM.YYYY"), 'days')
+      var newDays= moment(this.state.dateCout, "YYYY-MM-DD").diff(moment(this.state.dateCin, "YYYY-MM-DD"), 'days')
       this.setState({
         days: newDays+1
       });
@@ -483,7 +482,7 @@ class HotelReqScreen extends Component {
         "useremail": params.params.email,
         "username": params.params.name,
         "userid": params.params.userid,
-        "is_billRequired": "N",
+        "is_billRequired": params.item.bill_required,
         "delete_status" : "false",
         "pending_with": global.USER.supervisorId,
         "pending_with_name": global.USER.supervisorName,
@@ -503,17 +502,17 @@ class HotelReqScreen extends Component {
         "through": this.state.through,
         "travel_type": this.state.type,
         "amount": this.state.amount?this.state.amount:0,
-        "check_in_date": this.state.dateCin,
+        "check_in_date": moment(this.state.dateCin).format("YYYY-MM-DD"),
         "check_in_time": this.state.timeCin,
-        "check_out_date": this.state.dateCout,
+        "check_out_date": moment(this.state.dateCout).format("YYYY-MM-DD"),
         "check_out_time": this.state.timeCout,
         "days": this.state.days,
         "state": this.state.curState,
         "city": this.state.curCity,
         "status_id": "7",
-        "sub_status_id": this.state.OOP?"7.5":"7.4",
-        "status": this.state.OOP? this.state.statusNameOP :this.state.statusName,
-        "sub_status": this.state.OOP? this.state.subStatusNameOP :this.state.subStatusName,
+        "sub_status_id": this.state.OOP=="Y"?"7.5":"7.4",
+        "status": this.state.OOP=="Y"? this.state.statusNameOP :this.state.statusName,
+        "sub_status": this.state.OOP=="Y"? this.state.subStatusNameOP :this.state.subStatusName,
         "is_outof_policy": this.state.OOP,
       }])
       .then(()=>{
@@ -542,17 +541,17 @@ class HotelReqScreen extends Component {
       newReq.through = this.state.through;
       newReq.travel_type = this.state.type;
       newReq.amount = this.state.amount?this.state.amount:0;
-      newReq.check_in_date = this.state.dateCin;
+      newReq.check_in_date = moment(this.state.dateCin).format("YYYY-MM-DD");
       newReq.check_in_time = this.state.timeCin;
-      newReq.check_out_date = this.state.dateCout;
+      newReq.check_out_date = moment(this.state.dateCout).format("YYYY-MM-DD");
       newReq.check_out_time = this.state.timeCout;
       newReq.days = this.state.days;
       newReq.state = this.state.curState;
       newReq.city = this.state.curCity;
       newReq.status_id = "7";
-      newReq.sub_status_id = this.state.OOP?"7.5":"7.4";
-      newReq.status = this.state.OOP? this.state.statusNameOP :this.state.statusName;
-      newReq.sub_status = this.state.OOP? this.state.subStatusNameOP :this.state.subStatusName;
+      newReq.sub_status_id = this.state.OOP=="Y"?"7.5":"7.4";
+      newReq.status = this.state.OOP=="Y"? this.state.statusNameOP :this.state.statusName;
+      newReq.sub_status = this.state.OOP=="Y"? this.state.subStatusNameOP :this.state.subStatusName;
       newReq.is_outof_policy = this.state.OOP;
     })
     .then(()=>{
@@ -573,7 +572,7 @@ class HotelReqScreen extends Component {
   }
 
   submitReq = () => {
-    if (!this.state.curState || !this.state.curCity || !this.state.amount) {
+    if (!this.state.curState || !this.state.curCity || (this.state.through=="Self" && !this.state.amount)) {
       if (!this.state.curState) {
         this.setState({
           stateError: 'Please select state.',
@@ -584,7 +583,7 @@ class HotelReqScreen extends Component {
           cityError: 'Please select Location/City.',
         });
       }
-      if (!this.state.amount) {
+      if (this.state.through=="Self" && !this.state.amount) {
         this.setState({
           amntError: 'Please enter Approx amount.',
         });
@@ -605,14 +604,29 @@ class HotelReqScreen extends Component {
   render() {
     const {params} = this.props.navigation.state;
     
-    if(this.state.isLoading || 
-      this.props.reqUpdate.isLoading ||
+    if(this.state.isLoading ||
+      this.props.plans.isLoading ||
+      this.props.travelThroughState.isLoading ||
+      this.props.travelTypeState.isLoading ||
+      this.props.stateList.isLoading ||
+      this.props.statusResult.isLoading ||
       this.props.locations.isLoading){
       return(
         <Loader/>
       )
+    } else if(this.props.reqCreateState.errorStatus || 
+      this.props.reqUpdateState.errorStatus || 
+      this.props.plans.errorStatus ||
+      this.props.travelThroughState.errorStatus ||
+      this.props.travelTypeState.errorStatus ||
+      this.props.stateList.errorStatus ||
+      this.props.locations.errorStatus || 
+      this.props.statusResult.errorStatus) {
+      return(
+        <Text>URL Error</Text>
+      )
     } else {
-    console.log(params);
+    //console.log(params);
     return (
       <KeyboardAvoidingView style={styles.container} behavior="margin, height, padding">
         <ScrollView contentContainerStyle={styles.scrollView}>
@@ -632,7 +646,7 @@ class HotelReqScreen extends Component {
                   }
                   onSelected={this.stateSelected.bind(this)}
                   onClosed={()=>{}}
-                  onBackButtonPressed={()=>{}}
+                  //onBackButtonPressed={()=>{}}
                   items={this.state.stateList}
                   //sortingLanguage={'tr'}
                   showToTopButton={true}
@@ -665,7 +679,7 @@ class HotelReqScreen extends Component {
                   }
                   onSelected={this.citySelected.bind(this)}
                   onClosed={()=>{}}
-                  onBackButtonPressed={()=>{}}
+                  //onBackButtonPressed={()=>{}}
                   items={this.state.cityList}
                   showToTopButton={true}
                   selected={this.state.cityItem}
@@ -689,16 +703,12 @@ class HotelReqScreen extends Component {
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Travel Date:</Label>
               <TouchableOpacity onPress={this.datepicker} style={styles.datePicker}>
-                <Text style={styles.datePickerLabel}>{moment(
-                  params.update? params.update.travel_date : this.state.date
-                  ).format(global.DATEFORMAT)}</Text>
+                <Text style={styles.datePickerLabel}>{moment(this.state.date).format(global.DATEFORMAT)}</Text>
                 <Icon name="calendar" style={styles.datePickerIcon} />
               </TouchableOpacity>
             </Item>
             { this.state.show && 
-            <DateTimePicker value={new Date(moment(
-              params.update? params.update.travel_date : this.state.date
-              ).format('YYYY-MM-DD'))}
+            <DateTimePicker value={new Date(moment(this.state.date).format('YYYY-MM-DD'))}
               mode="date"
               minimumDate={new Date(moment(params.params.start_date).format('YYYY-MM-DD'))}
               maximumDate={new Date(moment(params.params.end_date).format('YYYY-MM-DD'))}
@@ -740,23 +750,25 @@ class HotelReqScreen extends Component {
                 })*/}
               </Picker>
             </Item>
+            {this.state.through == "Self" &&
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Name:</Label>
               <Text style={[styles.formInput,styles.readOnly]}>
                 {global.USER.userName}
               </Text>
-            </Item>
+            </Item>}
+            {this.state.through == "Self" &&
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Approx Amount:</Label>
               <TextInput 
                 placeholder='0.00' 
                 style={styles.formInput}
                 underlineColorAndroid= "rgba(0,0,0,0)"
-                value = {this.state.amount?this.state.amount:'0'}
+                value = {this.state.amount}
                 keyboardType="decimal-pad"
                 autoCapitalize="words"
                 onChangeText={this.handleChangeAmount} />
-            </Item>
+            </Item>}
             {this.state.amntError &&
               <Text style={styles.errorText}>{this.state.amntError}</Text>
             }
@@ -962,7 +974,7 @@ class HotelReqScreen extends Component {
 
 const mapStateToProps = state => {
   return {
-    reqCreate: state.reqCreate,
+    reqCreateState: state.reqCreateState,
     reqUpdateState: state.reqUpdateState,
     plans: state.plans,
     travelThroughState: state.travelThroughState,

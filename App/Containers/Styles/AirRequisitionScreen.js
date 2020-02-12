@@ -200,5 +200,148 @@ export default StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
     color: 'rgba(0,0,0,.35)'
+  },
+
+  flightTitle: {
+    color: '#ff4813',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginHorizontal: 16,
+    marginTop: 16
+  },
+  flightSubTitle: {
+    fontSize: 14,
+    color: 'rgba(0,0,0,.5)',
+    marginHorizontal: 16,
+  },
+  ticketItem: {
+    flexDirection: 'row',
+  },
+  selectedTicket: {
+    backgroundColor: '#0066b3'
+  },
+  ticketColumn: {
+    backgroundColor: '#fd6363',
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 16
+  },
+  ticketLeft: {
+    flex: 5,
+    borderRightColor: '#da3939',
+    borderRightWidth: 1,
+    marginLeft: 16
+  },
+  selectedTicketLeft:{
+    borderRightColor: '#013e6b'
+  },
+  ticketRight: {
+    flex: 2,
+    borderLeftColor: '#ff9090',
+    borderLeftWidth: 1,
+    marginRight: 16
+  },
+  selectedTicketRight:{
+    borderLeftColor: '#32a4fb'
+  },
+  circle: {
+    width: 16,
+    height: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    position: 'absolute',
+    top: '50%',
+    marginTop: 8
+  },
+  circleLeft: {
+    left: -8
+  },
+  circleRight: {
+    right: -8
+  },
+  nameLabel: {
+    color: 'rgba(0,0,0,.5)',
+    fontSize: 11,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    textTransform: 'uppercase'
+  },
+  flightName: {
+    color: '#fff',
+    fontSize: 19,
+    marginBottom:4
+  }, 
+  ticketLabel: {
+    color: 'rgba(0,0,0,.5)',
+    fontSize: 11,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    marginTop: 12
+  },
+  ticketValue: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  price: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    alignSelf: 'center',
+    color: '#fff'
+  },
+  currency: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: 'rgba(255,255,255,.65)',
+    letterSpacing: 2,
+    alignSelf: 'center',
+    marginBottom: 12
+  },
+  oop: {
+    color: 'rgba(0,0,0,.5)',
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  oopValue: {
+    fontSize: 16,
+    color: '#fff',
+  },
+  checkBox: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignSelf: 'center',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,.35)',
+    borderWidth: 1,
+    borderColor: '#fff',
+    marginBottom: 12
+  },
+  checkIcon: {
+    color: '#fff',
+    fontSize: 24
+  },
+  accordionHeader: {
+    backgroundColor: '#0B5FFF',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  acrdTitle: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff'
+  },
+  acrdIcon: {
+    fontSize: 18,
+    color: 'rgba(255,255,255,.75)',
+    marginLeft: 16
+  },
+  mt: {
+    marginTop: 16
   }
 });

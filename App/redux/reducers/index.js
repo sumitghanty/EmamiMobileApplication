@@ -37,6 +37,10 @@ import ReqListSalesReducer from './ReqListSales'
 import ReqClaimListSalesReducer from './ReqClaimListSales'
 import PjpClaimTotReducer from './PjpClaimTot'
 import PjpClaimRejReducer from './PjpClaimRej'
+import VendorReducer from './GetVendor'
+import TicketsReducer from './GetTickets'
+import TripEndDateUpdateReducer from './TripEndDateUpdate'
+import PlansSubmitReducer from './PlansSubmit'
 
 export default {
 	locations:LocationsReducer,
@@ -77,5 +81,9 @@ export default {
 	reqListSales:ReqListSalesReducer,
 	reqClaimListSales:ReqClaimListSalesReducer,
 	pjpClaimTot:PjpClaimTotReducer,
-	pjpClaimRej:PjpClaimRejReducer
+	pjpClaimRej:PjpClaimRejReducer,
+	vendorList:VendorReducer,
+	ticketsList:TicketsReducer,
+	tripEndDateUpdatePost:TripEndDateUpdateReducer,
+	plansSubmitState:PlansSubmitReducer
 };

@@ -112,7 +112,9 @@ class TripListScreen extends Component {
                 {item.end_date ?
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>End Date:</Text>
-                  <Text style={styles.itemValue}>{moment(item.end_date).format(global.DATEFORMAT)}</Text>
+                  <Text style={[styles.itemValue, item.date_change_status=='Y'&&{color:"red"}]}>
+                    {moment(item.end_date).format(global.DATEFORMAT)}
+                  </Text>
                 </View>:null}
                 {item.name ?
                 <View style={styles.itemRow}>
@@ -122,7 +124,9 @@ class TripListScreen extends Component {
                 {item.status ?
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Status:</Text>
-                  <Text style={[styles.itemValue, styles.statusInitiated]}>{item.status}</Text>
+                  <Text style={[styles.itemValue, styles.statusInitiated]}>
+                    {(item.sub_status && item.sub_status != 'NA')?item.sub_status:item.status}
+                  </Text>
                 </View>:null}
               </View>
               {item.status_id == "0" || item.status_id == "1" || item.status_id == "5" ?

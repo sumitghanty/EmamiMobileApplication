@@ -19,7 +19,7 @@ class TaxiRequisitionScreen extends Component {
   static navigationOptions = ({ navigation }) => {
     const handleClearPress = navigation.getParam("handleBackPress", () => {});
     return {
-      title: "Details!",
+      title: "Create Requisition",
       headerLeft: <HeaderBackButton onPress={handleClearPress} />
     };
   };
@@ -263,7 +263,7 @@ class TaxiRequisitionScreen extends Component {
             "useremail": params.params.email,
             "username": params.params.name,
             "userid": params.params.userid,
-            "is_billRequired": "N",
+            "is_billRequired": params.item.bill_required,
             "delete_status" : "false",
             "pending_with": global.USER.supervisorId,
             "pending_with_name": global.USER.supervisorName,
@@ -318,8 +318,10 @@ class TaxiRequisitionScreen extends Component {
       return(
         <Loader/>
       )
-    } else if(this.props.reqCreateState.errorStatus 
-      || this.props.plans.errorStatus || this.props.statusResult.errorStatus) {
+    } else if(this.props.reqCreateState.errorStatus
+      || this.props.reqUpdateState.errorStatus 
+      || this.props.plans.errorStatus 
+      || this.props.statusResult.errorStatus) {
       return(
         <Text>URL Error</Text>
       )
@@ -335,16 +337,12 @@ class TaxiRequisitionScreen extends Component {
           <Item fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Travel Date:</Label>
             <TouchableOpacity onPress={this.datepicker} style={styles.datePicker}>
-              <Text style={styles.datePickerLabel}>{moment(
-                params.update? params.update.travel_date : params.params.start_date
-                ).format("DD-MM-YYYY")}</Text>
+              <Text style={styles.datePickerLabel}>{moment(this.state.date).format("DD-MM-YYYY")}</Text>
               <Icon name="calendar" style={styles.datePickerIcon} />
             </TouchableOpacity>
           </Item>
           { this.state.show && 
-          <DateTimePicker value={new Date(moment(
-            params.update? params.update.travel_date : params.params.start_date
-            ).format('YYYY-MM-DD'))}
+          <DateTimePicker value={new Date(moment(this.state.date).format('YYYY-MM-DD'))}
             mode="date"
             minimumDate={new Date(moment(params.params.start_date).format('YYYY-MM-DD'))}
             maximumDate={new Date(moment(params.params.end_date).format('YYYY-MM-DD'))}

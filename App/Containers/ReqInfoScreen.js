@@ -11,18 +11,27 @@ import styles from './Styles/ReqInfoScreen'
 
 class ReqInfoScreen extends Component {
 
-  componentDidMount(props){
-    this.props.getReqType(global.USER.designation,global.USER.grade);
+  constructor(props) {
+    super(props);
+    this.state = {
+      reqName: '',
+      elAmnt: 0
+    }
   }
 
-  getReqValue = (value) => {
-		for(var i=0; i<this.props.reqType.dataSource.length; i++) {
-      if(this.props.reqType.dataSource[i].sub_category_id == value) {
-        return (
-          this.props.reqType.dataSource[i].sub_category
-        );
+  componentDidMount(props){
+    const {params} = this.props.navigation.state
+    this.props.getReqType(global.USER.designation,global.USER.grade)
+    .then(()=>{
+      for(var i=0; i<this.props.reqType.dataSource.length; i++) {
+        if(this.props.reqType.dataSource[i].sub_category_id == params.req_type) {
+          this.setState({
+            reqName: this.props.reqType.dataSource[i].sub_category,
+            elAmnt: this.props.reqType.dataSource[i].upper_limit
+          });
+        }
       }
-    }
+    });
   }
 
   render() {
@@ -30,9 +39,13 @@ class ReqInfoScreen extends Component {
       return(
         <Loader/>
       )
-    }
+    } else if(this.props.reqType.errorStatus) {
+      return(
+        <Text>URL Error</Text>
+      )
+    } else {
 		const {params} = this.props.navigation.state
-    console.log(params, this.props.reqType.dataSource);
+    //console.log(params, this.props.reqType.dataSource);
     return (
       <ScrollView contentContainerStyle={styles.scrollView}>
         <View style={styles.header}>
@@ -59,87 +72,46 @@ class ReqInfoScreen extends Component {
             <Ficon style={styles.typeIcon} name="road" />
           </View>: null
           }
-          <Text style={styles.typeValue}>{this.getReqValue(params.req_type)}</Text>
+          <Text style={styles.typeValue}>{this.state.reqName}</Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Status:</Text>
-          <Text style={styles.value}>{params.status}</Text>
+          <Text style={styles.value}>{params.sub_status && params.sub_status != 'NA'?params.sub_status:params.status}</Text>
         </View>
-        {params.amount ?
-        <View style={styles.row}>
-          <Text style={styles.label}>Amount:</Text>
-          <Text style={styles.value}>INR {params.amount}</Text>
-        </View>:null}
         {params.travel_date?
         <View style={styles.row}>
           <Text style={styles.label}>Travel Date:</Text>
           <Text style={styles.value}>{moment(params.travel_date).format(global.DATEFORMAT)}</Text>
         </View>:null}
-				{params.start_date?
+        {params.creation_date?
         <View style={styles.row}>
-          <Text style={styles.label}>Start Date:</Text>
-          <Text style={styles.value}>{moment(params.start_date).format(global.DATEFORMAT)}</Text>
-        </View>:null}
-        {params.check_in_time?
-        <View style={styles.row}>
-          <Text style={styles.label}>CheckIn Time:</Text>
-          <Text style={styles.value}>{params.check_in_time}</Text>
-        </View>:null}
-				{params.end_date?
-        <View style={styles.row}>
-          <Text style={styles.label}>End Date:</Text>
-          <Text style={styles.value}>{moment(params.end_date).format(global.DATEFORMAT)}</Text>
-        </View>:null}
-        {params.check_out_time?
-        <View style={styles.row}>
-          <Text style={styles.label}>CheckOut Time:</Text>
-          <Text style={styles.value}>{params.check_out_time}</Text>
-        </View>:null}
-        {params.days?
-        <View style={styles.row}>
-          <Text style={styles.label}>Days:</Text>
-          <Text style={styles.value}>{params.days}</Text>
-        </View>:null}
-        {params.travel_type?
-        <View style={styles.row}>
-          <Text style={styles.label}>Type:</Text>
-          <Text style={styles.value}>{params.travel_type}</Text>
-        </View>:null}
-        {params.travel_from?
-        <View style={styles.row}>
-          <Text style={styles.label}>From:</Text>
-          <Text style={styles.value}>{params.travel_from}</Text>
-        </View>:null}
-        {params.travel_to?
-        <View style={styles.row}>
-          <Text style={styles.label}>To:</Text>
-          <Text style={styles.value}>{params.travel_to}</Text>
-        </View>:null}
-        {params.state?
-        <View style={styles.row}>
-          <Text style={styles.label}>State:</Text>
-          <Text style={styles.value}>{params.state}</Text>
-        </View>:null}
-        {params.city?
-        <View style={styles.row}>
-          <Text style={styles.label}>City:</Text>
-          <Text style={styles.value}>{params.city}</Text>
-        </View>:null}
-        {params.username?
-        <View style={styles.row}>
-          <Text style={styles.label}>User Name:</Text>
-          <Text style={styles.value}>{params.username}</Text>
-        </View>:null}
-        {params.useremail?
-        <View style={styles.row}>
-          <Text style={styles.label}>User Email:</Text>
-          <Text style={styles.value}>{params.useremail}</Text>
+          <Text style={styles.label}>Creation Date:</Text>
+          <Text style={styles.value}>{moment(params.creation_date).format(global.DATEFORMAT)}</Text>
         </View>:null}
         {params.through ?
         <View style={styles.row}>
           <Text style={styles.label}>Through:</Text>
           <Text style={styles.value}>{params.through}</Text>
         </View>:null}
+        {(params.through && params.through == "Self")?
+        <View style={styles.row}>
+          <Text style={styles.label}>Name:</Text>
+          <Text style={styles.value}>{params.username}</Text>
+        </View>:null}
+        {params.amount ?
+        <View style={styles.row}>
+          <Text style={styles.label}>Amount:</Text>
+          <Text style={styles.value}>INR {params.amount}</Text>
+        </View>:null}
+        
+        {params.req_type=='10' || params.req_type=='11' ?
+          this.renderTaxi(params)
+        :params.req_type=='1BH' || params.req_type=='1BM' || params.req_type=='1BNM' ?
+          this.renderHotel(params)
+        :params.req_type=='3' ?
+          this.renderTrain(params)
+        :<>
+        
         {params.attachment ?
         <View style={styles.attachInfo}>
           <Text style={styles.label}>Attachments:</Text>
@@ -150,9 +122,110 @@ class ReqInfoScreen extends Component {
             </View>
           })}
         </View>:null}
+        </>}
       </ScrollView>
     );
+    }
   }
+
+  renderTaxi = (data) => {
+    return <>
+    {data.travel_from &&
+    <View style={styles.row}>
+      <Text style={styles.label}>Destination From:</Text>
+      <Text style={styles.value}>{data.travel_from}</Text>
+    </View>}
+    {data.travel_to &&
+    <View style={styles.row}>
+      <Text style={styles.label}>Destination To:</Text>
+      <Text style={styles.value}>{data.travel_to}</Text>
+    </View>}
+    </>
+  }
+
+  renderHotel = (data) => {
+    return <>
+    {data.state &&
+    <View style={styles.row}>
+      <Text style={styles.label}>State:</Text>
+      <Text style={styles.value}>{data.state}</Text>
+    </View>}
+    {data.city &&
+    <View style={styles.row}>
+      <Text style={styles.label}>Location/City:</Text>
+      <Text style={styles.value}>{data.city}</Text>
+    </View>}
+    {data.travel_type &&
+    <View style={styles.row}>
+      <Text style={styles.label}>Travel Type:</Text>
+      <Text style={styles.value}>{data.travel_type}</Text>
+    </View>}
+    {data.check_in_date &&
+    <View style={styles.row}>
+      <Text style={styles.label}>CheckIn Date:</Text>
+      <Text style={styles.value}>{moment(data.check_in_date).format(global.DATEFORMAT)}</Text>
+    </View>}
+    {data.check_in_time &&
+    <View style={styles.row}>
+      <Text style={styles.label}>CheckIn Time:</Text>
+      <Text style={styles.value}>{data.check_in_time}</Text>
+    </View>}
+    {data.check_out_date &&
+    <View style={styles.row}>
+      <Text style={styles.label}>CheckOut Date:</Text>
+      <Text style={styles.value}>{moment(data.check_out_date).format(global.DATEFORMAT)}</Text>
+    </View>}
+    {data.check_out_time &&
+    <View style={styles.row}>
+      <Text style={styles.label}>CheckOut Time:</Text>
+      <Text style={styles.value}>{data.check_out_time}</Text>
+    </View>}
+    {data.days &&
+    <View style={styles.row}>
+      <Text style={styles.label}>No of Days:</Text>
+      <Text style={styles.value}>{data.days}</Text>
+    </View>}
+    <View style={styles.row}>
+      <Text style={styles.label}>Eligible Amount:</Text>
+      <Text style={styles.value}>{data.days * this.state.elAmnt}</Text>
+    </View>
+    </>
+  }
+
+  renderTrain = (data) => {
+    return <>
+    <View style={styles.row}>
+      <Text style={styles.label}>Eligible Amount/Per Trip:</Text>
+      <Text style={styles.value}>{this.state.elAmnt}</Text>
+    </View>
+    {data.ticket_class &&
+    <View style={styles.row}>
+      <Text style={styles.label}>Ticket Class:</Text>
+      <Text style={styles.value}>{data.ticket_class}</Text>
+    </View>}
+    {data.travel_time &&
+    <View style={styles.row}>
+      <Text style={styles.label}>Suitable Time:</Text>
+      <Text style={styles.value}>{data.travel_time}</Text>
+    </View>}
+    {data.travel_from &&
+    <View style={styles.row}>
+      <Text style={styles.label}>Station/Location From:</Text>
+      <Text style={styles.value}>{data.travel_from}</Text>
+    </View>}
+    {data.travel_to &&
+    <View style={styles.row}>
+      <Text style={styles.label}>Station/Location To:</Text>
+      <Text style={styles.value}>{data.travel_to}</Text>
+    </View>}
+    {data.email &&
+    <View style={styles.row}>
+      <Text style={styles.label}>Personal Email:</Text>
+      <Text style={styles.value}>{data.email}</Text>
+    </View>}
+    </>
+  }
+
 };
 
 const mapStateToProps = state => {

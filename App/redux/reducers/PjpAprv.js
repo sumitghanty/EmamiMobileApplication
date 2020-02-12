@@ -3,7 +3,7 @@ import {REQUEST} from '../actions/PjpAprv'
 export default (state = { dataSource: {}, isLoading: true, errorStatus:false}, action) => {
   switch(action.type){
     case REQUEST:
-    state = {...state, isLoading:true}
+    state = {...state, isLoading:true, errorStatus:false}
     break;
     case REQUEST+'_SUCCESS':
     state = {...state, dataSource:action.payload.data, isLoading:false, errorStatus:false}

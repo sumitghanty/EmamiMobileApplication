@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Modal, TouchableOpacity, Alert } from "react-native";
+import { View, Text, Modal, TouchableOpacity, Alert, AsyncStorage } from "react-native";
 import { Container, Content, Button, Icon, Form, Item, Label } from 'native-base';
 import Ficon from 'react-native-vector-icons/FontAwesome5'
 import LinearGradient from 'react-native-linear-gradient'
@@ -28,15 +28,55 @@ class TripPlanScreen extends Component {
       modalVisible: 0,
       attachData: null,
       editModalData: null,
+      endaDateList: [],
+      endDateLmt: null,
+      airReqData: null,
+      setGoBack: true
     };
   }
   searchUpdated(term) {
     this.setState({ searchTerm: term })
   }
   componentDidMount(props){
-    this.props.getPlans(this.props.navigation.state.params.trip_hdr_id);
-    this.props.getReqType(global.USER.designation,global.USER.grade);
-    this.setState({dataSource: this.props.plans.dataSource});
+    this.props.getPlans(this.props.navigation.state.params.trip_hdr_id)
+    .then(()=>{
+      this.setState({dataSource: this.props.plans.dataSource});
+    })
+    .then(()=>{
+      if(this.props.plans.dataSource.length>0){
+        for(var i=0; i< this.props.plans.dataSource.length; i++) {
+          if(this.props.plans.dataSource[i].check_out_date) {
+            this.state.endaDateList.push(moment(this.props.plans.dataSource[i].check_out_date).format('YYYYMMDD'))
+          }
+          if(this.props.plans.dataSource[i].travel_date) {
+            this.state.endaDateList.push(moment(this.props.plans.dataSource[i].travel_date).format('YYYYMMDD'))
+          }
+        }
+      }
+    })
+    .then(()=>{
+      if(this.props.plans.dataSource.length>0){
+        let acdList = this.state.endaDateList
+        acdList.sort((a,b) => b - a);
+        let Y = parseInt(acdList[0]/10000)
+        let M = parseInt(acdList[0]%10000) < 1000
+                ? '0'+parseInt((acdList[0]%10000)/100)
+                : parseInt((acdList[0]%10000)/100)
+        let D = parseInt(acdList[0]%100) < 10
+                ? '0'+parseInt((acdList[0]%100))
+                : parseInt((acdList[0]%100))
+        this.setState({endDateLmt: Y+'-'+M+'-'+D})
+      }
+    });
+
+    this.props.getReqType(global.USER.designation,global.USER.grade)
+    .then(()=>{
+      for(var i=0; i<this.props.reqType.dataSource.length; i++) {
+        if(this.props.reqType.dataSource[i].sub_category_id == "1") {
+          this.setState({airReqData: this.props.reqType.dataSource[i]})
+        }
+      }
+    });    
   }
   
   setModalVisible(visible) {
@@ -97,11 +137,66 @@ class TripPlanScreen extends Component {
     )
   };
 
-  setDate = (event, date) => {
-    date = date || this.state.date; 
+  endDateRequest = (event, date) => {
+    const {params} = this.props.navigation.state;
+
+    AsyncStorage.getItem("ASYNC_STORAGE_UPDATE_END_DATE")
+    .then(()=>{
+      this.setState({
+        isLoading: true
+      });
+    })
+    .then(()=>{
+      this.props.tripEndDateUpdate([{
+        'date_change_status': 'Y',
+        'changed_end_date' : moment(date).format('YYYY-MM-DD'),
+        'pending_with_email': global.USER.supervisorEmail,
+        'pending_with_name' : global.USER.supervisorName,
+        'pending_with' : global.USER.supervisorId,
+        'trip_hdr_id': params.trip_hdr_id
+      }])
+      .then(() => {
+        this.props.getTrips(global.USER.userId)
+        .then(()=>{
+          date = date || this.state.date;
+          this.setState({
+            show: Platform.OS === 'ios' ? true : false,
+            date,
+            isLoading: false
+          });
+        })
+        .then(() => {
+          Toast.show('Trip End Date Updated.', Toast.LONG);
+        })
+      })
+    })
+  }
+
+  setDate = (event, date) => {    
+    if(date != undefined) {
+      Alert.alert(
+        'Confirm',
+        'Do you want to change the End Date?',
+        [
+          {
+            text: 'No',
+            style: 'cancel',
+            onPress: () => {this.setState({show: Platform.OS === 'ios' ? true : false, });}
+          },
+          {
+            text: 'Yes', 
+            onPress: () => this.endDateRequest(event, date)
+          },
+        ],
+        {cancelable: true},
+      )      
+    } else {
+      this.setState({
+        show: Platform.OS === 'ios' ? true : false,
+      });
+    }
     this.setState({
       show: Platform.OS === 'ios' ? true : false,
-      date,
     });
   }
 
@@ -133,12 +228,152 @@ class TripPlanScreen extends Component {
     })
     this.setState({dataSource: this.props.plans.dataSource})
   }
+
+  submit = (action)=> {
+    if(this.state.SelectedDataList.length<1) {
+      Alert.alert(
+        'Warning',
+        'Please select requisition(s)',
+        [
+          {
+            text: 'Ok',
+            style: 'cancel',
+          },
+        ],
+        {cancelable: true},
+      )
+    } else {
+      this.setState({ isLoading: true });
+      let newList = this.state.SelectedDataList;
+      let statusNamePS = '';
+      let subStatusNamePS = '';
+      let statusNameComp = '';
+      let subStatusNameComp = '';
+      let statusNameSTA = '';
+      let subStatusNameSTA = '';
+      let amountVal = '0.0';
+
+      if(action == "Save") {
+        this.props.getStatus('8','8.1')
+        .then(()=>{
+          statusNamePS = this.props.statusResult.dataSource[0].trip_pjp_status;
+          subStatusNamePS = this.props.statusResult.dataSource[0].sub_status
+        })
+        .then(()=>{
+          this.props.getStatus('11','11.2')
+          .then(()=>{
+            statusNameComp = this.props.statusResult.dataSource[0].trip_pjp_status;
+            subStatusNameComp = this.props.statusResult.dataSource[0].sub_status
+          })
+          .then(()=>{
+            for(var i=0; i< newList.length;i++) {
+
+              if(newList[i].req_type == '1' && newList[i].amount != null && newList[i].amount != '' && newList[i].amount != 'NA' && newList[i].amount == 'On Actual') {
+                amountVal = newList[i].amount;
+              } else {
+                if(newList[i].amount == '') {
+                  amountVal = '0.0';
+                } else if (newList[i].amount == 'NA' || newList[i].amount == 'On Actual'){
+                  amountVal = newList[i].amount;
+                }
+              }
+
+              if(newList[i].status_id == '7' && newList[i].sub_status_id == '7.5' && newList[i].is_outof_policy == 'Y'){
+                newList[i].status_id = '8';
+                newList[i].sub_status_id = '8.1';
+                newList[i].status = statusNamePS;
+                newList[i].sub_status = subStatusNamePS;
+              } else if (newList[i].req_type == '1' && newList[i].sub_status_id == '7.1' && newList[i].is_outof_policy == 'N') {
+                newList[i] == newList[i];
+              }
+              else {
+                newList[i].status_id = '11';
+                newList[i].sub_status_id = '11.2';
+                newList[i].status = statusNameComp;
+                newList[i].sub_status = subStatusNameComp;
+              }
+              newList[i].email = global.USER.userEmail;
+              newList[i].pending_with_name = global.USER.supervisorName;
+              newList[i].pending_with_email = global.USER.supervisorEmail;
+              newList[i].pending_with = global.USER.supervisorId;
+              newList[i].userid = global.USER.userId;
+              newList[i].amount = amountVal;
+            }
+          })
+          .then(()=>{
+            this.props.plansSubmit(newList)
+            .then(()=>{
+              this.props.getTrips(global.USER.userId)
+              .then(()=>{
+                this.setState({ isLoading: false });
+              })
+              .then(()=>{
+                this.props.navigation.goBack();
+                Toast.show('Plan Trip Submitted Successfully', Toast.LONG);
+              })
+            })
+          })
+        })        
+      } else if(action == "Send") {
+        this.props.getStatus('7','7.1')
+        .then(()=>{
+          statusNameSTA = this.props.statusResult.dataSource[0].trip_pjp_status;
+          subStatusNameSTA = this.props.statusResult.dataSource[0].sub_status
+        })
+        .then(()=>{
+          for(var i=0; i< newList.length;i++) {
+            if(newList[i].req_type != '1') {
+              this.setState({ 
+                isLoading: false,
+                setGoBack: false
+              });
+              Alert.alert(
+                'Warning',
+                'Please select proper requisition(s)',
+                [
+                  {
+                    text: 'Ok',
+                    style: 'cancel',
+                  },
+                ],
+                {cancelable: true},
+              )
+            } else if(newList[i].sub_status_id == '7.4' && newList[i].through == "Travel Agent"){
+              newList[i].status_id = '7';
+              newList[i].sub_status_id = '7.1';
+              newList[i].status = statusNameSTA;
+              newList[i].sub_status = subStatusNameSTA;
+            }
+          }
+        })
+        .then(()=>{
+          this.props.planUpdate(newList)
+          .then(()=>{
+            this.props.getTrips(global.USER.userId)
+            .then(()=>{
+              this.setState({ isLoading: false });
+            })
+            .then(()=>{
+              if(this.state.setGoBack){
+                this.props.navigation.goBack();
+                Toast.show('Data Send To Vendor Successfully', Toast.LONG);
+              }
+            })
+          })
+        })        
+      }
+    }
+  }
 	
   render() {
     const {params} = this.props.navigation.state;
     if(this.props.plans.isLoading || this.props.reqType.isLoading || this.state.isLoading){
       return(
         <Loader/>
+      )
+    } else if(this.props.plans.errorStatus || this.props.reqType.errorStatus){
+      return(
+        <Text>URL Error</Text>
       )
     } else {
     var sortList = this.props.plans.dataSource;
@@ -164,9 +399,9 @@ class TripPlanScreen extends Component {
               </TouchableOpacity>
             </Item>
             { this.state.show && 
-            <DateTimePicker value={new Date(params.end_date)}
+            <DateTimePicker value={new Date(this.state.date)}
               mode={this.state.mode}
-              minimumDate={new Date(params.start_date)}
+              minimumDate={new Date(this.state.endDateLmt?this.state.endDateLmt: params.start_date)}
               is24Hour={true}
               display="default"
               onChange={this.setDate} />
@@ -280,7 +515,7 @@ class TripPlanScreen extends Component {
           {sortList.length > 0 ?
             sortList.map((item, index) => {
             return (
-              this.renderItem(item,index)
+              this.renderItem(item,index,params)
             );
             })
             :
@@ -368,29 +603,31 @@ class TripPlanScreen extends Component {
             </View>
           </Modal>
         </Content>
-        {/*<View style={styles.footer}>
-          <TouchableOpacity onPress={() => {}} style={styles.ftrBtn}>
+
+        {this.props.plans.dataSource.length>0 &&
+        <View style={styles.footer}>
+          <TouchableOpacity onPress={() => this.submit("Save")} style={styles.ftrBtnR}>
             <LinearGradient 
               start={{x: 0, y: 0}} 
               end={{x: 1, y: 0}} 
               colors={['#0066b3', '#0a7fd2']} 
-              style={styles.ftrBtnBg}>
-              <Icon name="md-done-all" style={styles.ftrBtnIcon} />
-              <Text style={styles.ftrBtnTxt}>Submit or Complete</Text>
+              style={styles.ftrBtnBgR}>
+              <Icon name="md-done-all" style={styles.ftrBtnIconR} />
+              <Text style={styles.ftrBtnTxtR}>Submit or Complete</Text>
             </LinearGradient>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => {}} style={styles.ftrBtn}>
+          <TouchableOpacity onPress={() => this.submit("Send")} style={styles.ftrBtnR}>
             <LinearGradient 
               start={{x: 0, y: 0}}
               end={{x: 1, y: 0}} 
               colors={['#53c55c', '#33b8d6']} 
-              style={styles.ftrBtnBg}>
-              <Icon name="md-done-all" style={[styles.ftrBtnIcon,{fontSize:20}]} />
-              <Text style={styles.ftrBtnTxt}>Send to Agent</Text>
+              style={styles.ftrBtnBgR}>
+              <Icon name="md-paper-plane" style={styles.ftrBtnIconR} />
+              <Text style={styles.ftrBtnTxtR}>Send to Agent</Text>
             </LinearGradient>
           </TouchableOpacity>
-        </View>*/}
-        <View style={styles.footer}>
+        </View>}
+        {/*<View style={styles.footer}>
           <TouchableOpacity style={styles.ftrBtn} onPress={() => {}}>
             <Ficon name="save" style={[styles.ftrBtnIcon,styles.textPrimary]} />
             <Text style={[styles.ftrBtnText,styles.textPrimary]}>Save</Text>
@@ -403,10 +640,10 @@ class TripPlanScreen extends Component {
             <Icon name="md-paper-plane" style={[styles.ftrBtnIcon,styles.textWarning]} />
             <Text style={[styles.ftrBtnText,styles.textWarning]}>Send to Agent</Text>
           </TouchableOpacity>
-        </View>
+        </View>*/}
       </Container>
     );
-  }
+    }
   }
 	
 	getReqValue = (value) => {
@@ -419,12 +656,37 @@ class TripPlanScreen extends Component {
     }
   }
 
-  renderItem = (data,index) => {
+  renderItem = (data,index,params) => {
+  let item=this.state.airReqData;
+  if(data.sub_status_id == '6.1') {
+    return <View key={index} style={[styles.cardItem,styles.cardHrzntl]}>
+      <Button small danger style={[styles.actionBtn,styles.cardHrzntlBtnLeft]}
+        onPress={()=>this.deleteConfirmation(data)}
+        >
+        <Icon name='trash' style={styles.actionBtnIco} />
+      </Button>
+      <Text style={styles.cardTile}>{ data.sub_status }</Text>
+      <TouchableOpacity 
+        onPress={() => {this.editModalVisible([data,data.req_type]);}}
+        style={[styles.editlBtn,styles.cardHrzntlBtnRight]}
+        >
+        <Icon name="md-create" style={styles.editBtnIcon} />
+        <Text style={styles.editBtnText}>Edit</Text>
+      </TouchableOpacity >
+    </View>
+
+  } else {
   return <TouchableOpacity 
     key={index} 
     style={styles.cardItem} 
-    onPress={() => this.props.navigation.navigate('ReqInfo',data)}>
+    onPress={() => 
+      (data.req_type=='1' && data.sub_status_id == '11.1')
+      ? this.props.navigation.navigate('AirRequisition', {item, params, 'update':data}
+    )
+      :this.props.navigation.navigate('ReqInfo',data)
+    }>
     <View style={styles.cardItemHeader}>
+      {(data.sub_status_id == '7.3' || data.sub_status_id == '7.4' || data.sub_status_id == '7.5') ?
       <TouchableOpacity 
         onPress={() => {this.press(data)}}
         style={[data.check ?styles.checkedBox :styles.unCheckedBox, styles.checkBox]}
@@ -433,7 +695,7 @@ class TripPlanScreen extends Component {
         ? (<Icon name="md-checkmark" style={styles.checkIcon} />)
         : (<Icon name="md-square-outline" style={styles.uncheckIcon} />)
         }
-      </TouchableOpacity >      
+      </TouchableOpacity >:null}     
       {data.req_type=='1' ?
       <Icon style={styles.cardTileIcon} name="airplane" />
       : data.req_type=='10' ?
@@ -480,11 +742,11 @@ class TripPlanScreen extends Component {
         </View>
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>Out Of Policy:</Text>
-          <Text style={styles.cardValue}>{data.is_outof_policy=="Y"&&"Yes"}</Text>
+          <Text style={styles.cardValue}>{data.is_outof_policy=="Y"?"Yes":"No"}</Text>
         </View>
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>Amount:</Text>
-          <Text style={styles.cardValue}>{data.amount}</Text>
+          <Text style={styles.cardValue}>{data.amount?data.amount:'0.0'}</Text>
         </View>
         { data.status_id == '3' || data.status_id == '4' ?
         <View style={styles.cardRow}>
@@ -497,8 +759,7 @@ class TripPlanScreen extends Component {
         </View>:null}
       </View>
       <View style={styles.itemActions}>
-        {(data.status_id=="6" && data.sub_status_id=="6.1") 
-        || (data.status_id=="7" && data.sub_status_id=="7.4") ?
+        {(data.sub_status_id=="6.1" || data.sub_status_id=="7.4") ?
         <Button bordered small rounded danger style={styles.actionBtn}
           onPress={()=>this.deleteConfirmation(data)}
           >
@@ -506,14 +767,15 @@ class TripPlanScreen extends Component {
         </Button>
         :null}
         
-        <Button bordered small rounded primary 
+        {/*<Button bordered small rounded primary 
           style={[styles.actionBtn, styles.mrgTop]}
           onPress={() => {}}>
           <Icon name='attach' style={styles.actionBtnIco} />
-        </Button>
+        </Button>*/}
       </View>
     </View>    
   </TouchableOpacity>
+  }
   };
 
 }
@@ -522,14 +784,24 @@ const mapStateToProps = state => {
   return {
     plans: state.plans,
     reqType: state.reqType,
-    ReqDelete: state.ReqDelete
+    ReqDelete: state.ReqDelete,
+    tripEndDateUpdatePost: state.tripEndDateUpdatePost,
+    trips: state.trips,
+    statusResult: state.statusResult,
+    plansSubmitState: state.plansSubmitState,
+    planUpdateState: state.planUpdateState
   };
 };
 
 const mapDispatchToProps = {
   getPlans : Actions.getPlans,
   getReqType : Actions.getReqType,
-  reqDelete: Actions.reqDelete
+  reqDelete: Actions.reqDelete,
+  tripEndDateUpdate: Actions.tripEndDateUpdate,
+  getTrips : Actions.getTrips,
+  getStatus: Actions.getStatus,
+  plansSubmit: Actions.plansSubmit,
+  planUpdate: Actions.planUpdate
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TripPlanScreen);

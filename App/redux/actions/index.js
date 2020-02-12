@@ -37,6 +37,10 @@ import {getReqSale} from './ReqListSales'
 import {getReqClaimSale} from './ReqClaimListSales'
 import {postPjpClaimTot} from './PjpClaimTot'
 import {postPjpClaimRej} from './PjpClaimRej'
+import {getVendor} from './GetVendor'
+import {getTickets} from './GetTickets'
+import {tripEndDateUpdate} from './TripEndDateUpdate'
+import {plansSubmit} from './PlansSubmit'
 
 export default {
 	getReqLocations:getReqLocations,
@@ -77,5 +81,9 @@ export default {
 	getReqSale:getReqSale,
 	getReqClaimSale:getReqClaimSale,
 	postPjpClaimTot:postPjpClaimTot,
-	postPjpClaimRej:postPjpClaimRej
+	postPjpClaimRej:postPjpClaimRej,
+	getVendor:getVendor,
+	getTickets:getTickets,
+	tripEndDateUpdate:tripEndDateUpdate,
+	plansSubmit:plansSubmit
 }

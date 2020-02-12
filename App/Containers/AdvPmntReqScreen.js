@@ -85,8 +85,11 @@ class AdvPmntReqScreen extends Component {
     let newParams = params;
     newParams.trip_hdr_id=params.trip_hdr_id;
     newParams.id=params.trip_no;
-    newParams.status_id=statusId;
-    newParams.advancePaymentStatus= statusId == "12"?"Advance Payment - Initiated":statusId == "14"?"Advance Payment - Pending with Approver":null;
+    newParams.advancePaymentStatusId=statusId;
+    newParams.advancePaymentStatus= statusId == "12"
+                                      ?"Advance Payment - Initiated"
+                                      :statusId == "14"?"Advance Payment - Pending with Approver"
+                                      :null;
     newParams.sub_status_id="NA";
     newParams.sub_status="NA";
     newParams.payment_amount=this.state.advAmount;

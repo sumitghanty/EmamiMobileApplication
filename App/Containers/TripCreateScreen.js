@@ -442,7 +442,7 @@ class TripCreateScreen extends Component {
                   }
                   onSelected={this.fromSelected.bind(this)}
                   onClosed={()=>{}}
-                  onBackButtonPressed={()=>{}}
+                  //onBackButtonPressed={()=>{}}
                   items={this.state.serchLocationList}
                   //sortingLanguage={'tr'}
                   showToTopButton={true}
@@ -472,7 +472,7 @@ class TripCreateScreen extends Component {
                   }
                   onSelected={this.toSelected.bind(this)}
                   onClosed={()=>{}}
-                  onBackButtonPressed={()=>{}}
+                  //onBackButtonPressed={()=>{}}
                   items={this.state.serchLocationList}
                   //sortingLanguage={'tr'}
                   showToTopButton={true}
