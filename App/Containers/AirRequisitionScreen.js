@@ -40,8 +40,6 @@ class AirRequisitionScreen extends Component {
       subStatusNameOP: '',
       statusName: '',
       subStatusName: '',
-      statusNameWSP: '',
-      subStatusNameWSP: '',
       locationList: [],
       fromItem: {"Name": (params.update && params.update.travel_from) ? params.update.travel_from : "Select From Location", 
                 "Value": "", "Code": "", "Id":0},
@@ -73,9 +71,10 @@ class AirRequisitionScreen extends Component {
                   params.update.sub_status_id == '11.1')) ? true:false,
       ticketList: null,
       selectTicketData: null,
-      acrdOneVisible: 0,
+      acrdOneVisible: params.update.sub_status_id =='7.1'?1:0,
       acrdTwoVisible: 0,
       acrdThreeVisible: 0,
+      sendVenderData: []
     };
   }
 
@@ -146,14 +145,6 @@ class AirRequisitionScreen extends Component {
       });
     });
 
-    this.props.getStatus("7","7.3")
-    .then(()=>{
-      this.setState({
-        statusNameWSP: this.props.statusResult.dataSource[0].trip_pjp_status,
-        subStatusNameWSP: this.props.statusResult.dataSource[0].sub_status
-      });
-    });
-
     if(params.update) {
       this.setState({
         isLoading: true
@@ -195,7 +186,11 @@ class AirRequisitionScreen extends Component {
 
   _handleBackPress() {
     const {params} = this.props.navigation.state;
-    if (params.update && params.update.sub_status_id == '11.1') {
+    if ((params.update && params.update.sub_status_id == '11.1') ||
+        (params.update && params.update.sub_status_id == '7.1') ||
+        (params.update && params.update.sub_status_id == '7.3') ||
+        (params.update && params.update.sub_status_id == '11.2') )
+    {
       this.props.navigation.goBack();
     } else {
       Alert.alert(
@@ -432,11 +427,13 @@ class AirRequisitionScreen extends Component {
     });
   }
 
-  submitReq = () => {
+  submitReq = () => {    
+    const {params} = this.props.navigation.state;
     if (!this.state.fromItem.Name || this.state.fromItem.Name == "Select From Location" ||
         !this.state.toItem.Name || this.state.toItem.Name == "Select To Location" ||
         (this.state.emailError) || (this.state.through=="Self" && !this.state.amount) ||
-        (this.state.readOnly && this.state.ticketList && !this.state.selectTicketData))
+        (this.state.readOnly && this.state.ticketList && !this.state.selectTicketData) ||
+        (this.props.ticketsList.dataSource.length>0 && !this.state.selectTicketData && (params.update.sub_status_id == '7.2' || params.update.sub_status_id == '7.4')))
         {
       if(!this.state.fromItem.Name || this.state.fromItem.Name == "Select From Location") {
         this.setState({
@@ -470,11 +467,24 @@ class AirRequisitionScreen extends Component {
           { cancelable: true }
         );
       }
+      if(this.props.ticketsList.dataSource.length>0 && !this.state.selectTicketData && 
+        (params.update.sub_status_id == '7.2' || params.update.sub_status_id == '7.4')) {
+        Alert.alert(
+          "Warning",
+          "Please select an option for Ticket",
+          [
+            {
+              text: "Ok",
+              style: 'cancel',
+            }
+          ],
+          { cancelable: false }
+        );
+      }
     } else {      
       this.setState({
         isLoading: true,
       });
-      const {params} = this.props.navigation.state;
       if(params.update){
         this.reqUpdate();
       } else {
@@ -567,35 +577,78 @@ class AirRequisitionScreen extends Component {
                         :null;
       
       newReq.status_id = "7";
+      newReq.is_outof_policy = this.state.OOP;
       if(!this.state.selectTicketData) {
         newReq.sub_status_id = this.state.OOP=="Y"?"7.5":"7.4";
         newReq.status = this.state.OOP=="Y"? this.state.statusNameOP :this.state.statusName;
         newReq.sub_status = this.state.OOP=="Y"? this.state.subStatusNameOP :this.state.subStatusName;
-        newReq.is_outof_policy = this.state.OOP;
       } else {
         newReq.flight = this.state.selectTicketData.airline;
         newReq.flight_type = this.state.selectTicketData.type;
         newReq.vendor_comment = this.state.selectTicketData.comment;
+        newReq.flight_selected = 'Y';
+        newReq.gstin = this.state.selectTicketData.gstin;
+        newReq.vendor_pan = this.state.selectTicketData.vendor_pan;
+        newReq.gst_vendor_classification = this.state.selectTicketData.gst_vendor_classification;
+        newReq.vendor_city = this.state.selectTicketData.vendor_city;
+        newReq.vendor_rg = this.state.selectTicketData.vendor_rg;
         if(params.update.sub_status_id == '7.2') {
-          newReq.status = this.state.statusNameWSP;
-          newReq.sub_status = this.state.subStatusNameWSP;
+          newReq.status_id = '7'
+          newReq.sub_status_id = '7.4'
+          newReq.status = this.state.statusName;
+          newReq.sub_status = this.state.subStatusName;
         }
       }
     })
     .then(()=>{
-      this.props.reqUpdate([newReq])
-      .then(()=>{
-        this.props.getPlans(params.params.trip_hdr_id)
+      if(newReq.sub_status_id == '7.4' && this.props.ticketsList.dataSource.length>0 && this.state.selectTicketData){
+        let sendVendData = this.props.ticketsList.dataSource;
+        for(var i=0; i<sendVendData.length; i++) {
+          if(sendVendData[i].id == this.state.selectTicketData.id) {
+            sendVendData[i].flight_selected = 'Y';
+          } else {
+            sendVendData[i].flight_selected = '';
+          }
+          this.state.sendVenderData.push(sendVendData[i]);
+        }
+      } else {
+        console.log('Not send to Vendor');
+      }
+    })
+    .then(()=>{
+      if((newReq.sub_status_id == '7.2' || newReq.sub_status_id == '7.4') && this.props.ticketsList.dataSource.length>0 
+      && this.state.selectTicketData && this.state.sendVenderData.length>0){
+        this.props.updateVndAirRes(this.state.sendVenderData)
         .then(()=>{
-          this.setState({
-            isLoading: false,
+          this.props.reqUpdate([newReq])
+          .then(()=>{
+            this.props.getPlans(params.params.trip_hdr_id)
+            .then(()=>{
+              this.setState({
+                isLoading: false,
+              });
+            })
+            .then(()=>{
+              this.props.navigation.goBack();
+              Toast.show('Requisition Updated Successfully', Toast.LONG);
+            });
           });
         })
+      } else {
+        this.props.reqUpdate([newReq])
         .then(()=>{
-          this.props.navigation.goBack();
-          Toast.show('Requisition Updated Successfully', Toast.LONG);
+          this.props.getPlans(params.params.trip_hdr_id)
+          .then(()=>{
+            this.setState({
+              isLoading: false,
+            });
+          })
+          .then(()=>{
+            this.props.navigation.goBack();
+            Toast.show('Requisition Updated Successfully', Toast.LONG);
+          });
         });
-      });
+      }
     });
   }
 
@@ -629,7 +682,8 @@ class AirRequisitionScreen extends Component {
     return (
       <KeyboardAvoidingView style={styles.container} behavior="margin, height, padding">
         <ScrollView contentContainerStyle={styles.scrollView}>
-          {!this.state.readOnly ?<>
+          {(!this.state.readOnly && params.update.sub_status_id !='11.1' && params.update.sub_status_id !='7.1' 
+          && params.update.sub_status_id !='7.3' && params.update.sub_status_id !='11.2' && !this.state.ticketList) ?<>
           <View style={styles.titleRow}>
             <Text style={styles.title}>Air Requisition {params.update?'Update':'Create'}</Text>
           </View>
@@ -639,7 +693,7 @@ class AirRequisitionScreen extends Component {
               <Text style={[styles.formInput,styles.readOnly,{textAlign:'right'}]}>{params.item.upper_limit}</Text>
             </Item>
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Travel Date:</Label>
+              <Label style={styles.formLabel}>Travel Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <TouchableOpacity onPress={this.datepicker} style={styles.datePicker}>
                 <Text style={styles.datePickerLabel}>{moment(this.state.date).format(global.DATEFORMAT)}</Text>
                 <Icon name="calendar" style={styles.datePickerIcon} />
@@ -654,7 +708,7 @@ class AirRequisitionScreen extends Component {
               onChange={this.setDate} />
             }
             <Item picker fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Suitable Time:</Label>
+              <Label style={styles.formLabel}>Suitable Time:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <Picker
                 mode="dropdown"
                 placeholder="Select Travel Time" 
@@ -670,7 +724,7 @@ class AirRequisitionScreen extends Component {
               </Picker>
             </Item>
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Travel Type:</Label>
+              <Label style={styles.formLabel}>Travel Type:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <Picker
                 mode="dropdown"
                 placeholder="Travel Type"
@@ -687,7 +741,7 @@ class AirRequisitionScreen extends Component {
               </Picker>
             </Item>
             <Item picker fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>From:</Label>
+              <Label style={styles.formLabel}>From:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <View style={styles.pickerWraper}>
                 <PickerModal
                   renderSelectView={(disabled, selected, showModal) =>
@@ -717,7 +771,7 @@ class AirRequisitionScreen extends Component {
               <Text style={styles.errorText}>{this.state.tripFromError}</Text>
             }
             <Item picker fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>To:</Label>
+              <Label style={styles.formLabel}>To:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <View style={styles.pickerWraper}>
                 <PickerModal
                   renderSelectView={(disabled, selected, showModal) =>
@@ -761,7 +815,7 @@ class AirRequisitionScreen extends Component {
               <Text style={styles.errorText}>{this.state.emailError}</Text>
             }
             <Item picker fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Through:</Label>
+              <Label style={styles.formLabel}>Through:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <Picker
                 mode="dropdown"
                 placeholder="Select Through"
@@ -781,7 +835,7 @@ class AirRequisitionScreen extends Component {
             </Item>
             {this.state.through == "Self" &&
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Approx Amount:</Label>
+              <Label style={styles.formLabel}>Approx Amount:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <TextInput 
                 placeholder='0.00' 
                 style={styles.formInput}
@@ -796,7 +850,7 @@ class AirRequisitionScreen extends Component {
             }
             {this.state.through == "Travel Agent" &&
             <Item picker fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Travel Agent Name:</Label>
+              <Label style={styles.formLabel}>Travel Agent Name:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <Picker
                 //mode="dropdown"
                 placeholder="Select Travel Agent Name"
@@ -820,6 +874,8 @@ class AirRequisitionScreen extends Component {
               style={[styles.formInput,{marginHorizontal:16, backgroundColor:'#f8f8f8',borderRadius:4,padding: 8, borderWidth:1,borderColor:'rgba(0,0,0,.1)'}]}
               underlineColorAndroid="transparent"
               onChangeText={this.handleComment} />
+            {(params.update.sub_status_id !='11.1' && params.update.sub_status_id !='7.1'
+             && params.update.sub_status_id !='7.3' && params.update.sub_status_id !='11.2') ?
             <View style={styles.attachRow}>
               <Text style={styles.formLabel}>Attachments:</Text>
               <Button rounded bordered info onPress={() => { this.setModalVisible(true); }} style={styles.atchBtn}>                
@@ -828,7 +884,7 @@ class AirRequisitionScreen extends Component {
                   Attach Documents
                 </Text>
               </Button>
-            </View>
+            </View>:null}
           </Form>
           {this.state.uploadData.map((item, key) => (
             (item.file.length>0) ?
@@ -857,13 +913,15 @@ class AirRequisitionScreen extends Component {
           ))}
           </>:null}
             
-          {this.state.readOnly ?<>
+          {(this.state.readOnly || params.update.sub_status_id =='11.1' || params.update.sub_status_id =='7.1' || 
+          params.update.sub_status_id =='7.3' || params.update.sub_status_id =='11.2' || this.state.ticketList) ?<>
           <TouchableOpacity style={styles.accordionHeader}
             onPress={()=>{this.setAcrdOneVisible()}}>
             <Text style={styles.acrdTitle}>Trip Details</Text>
-            <Icon style={styles.acrdIcon} name={this.state.acrdOneVisible==0?"add-circle":"remove-circle"} />
+            {params.update.sub_status_id !='7.1' &&
+            <Icon style={styles.acrdIcon} name={this.state.acrdOneVisible==0?"add-circle":"remove-circle"} />}
           </TouchableOpacity>
-          <Form style={{marginBottom:16,display:this.state.acrdOneVisible==0?'none':'flex'}}>
+          <Form style={{marginBottom:16,display:(this.state.acrdOneVisible==0)?'none':'flex'}}>
             <Item fixedLabel style={styles.formRow}>
               <Label style={[styles.formLabel,{flex:5}]}>Eligible Amount/Per Trip:</Label>              
               <Text style={[styles.formInput,styles.readOnly,{textAlign:'right'}]}>{params.item.upper_limit}</Text>
@@ -904,7 +962,7 @@ class AirRequisitionScreen extends Component {
             <Text style={[styles.formInput,styles.readOnly]}>{params.update.vendor_comment}</Text>
           </Form>
           
-          {params.update.sub_status_id =='11.1' ? <>
+          {(params.update.sub_status_id =='11.1' || params.update.sub_status_id =='11.1') ? <>
           <TouchableOpacity style={[styles.accordionHeader,styles.mt]}
             onPress={()=>{this.setAcrdTwoVisible()}}>
             <Text style={styles.acrdTitle}>Travel Agent Details</Text>
@@ -1001,13 +1059,14 @@ class AirRequisitionScreen extends Component {
           {this.state.ticketList && <>
           <Text style={styles.flightTitle}>Flight Details</Text>
           {params.update.sub_status_id !='11.1' &&
-          <Text style={styles.flightSubTitle}>Please select one Ticket</Text>}
+          <Text style={styles.flightSubTitle}>Please select an Option<Text style={{color:'red',fontSize:13}}>*</Text></Text>}
           {this.state.ticketList.map((item, key) => (
             this._ticketItem(item, key, params.update)
           ))}
           </>}        
         
-          {params.update.sub_status_id !='11.1' &&
+          {(params.update.sub_status_id !='11.1' && params.update.sub_status_id !='7.1' 
+            && params.update.sub_status_id !='7.3' && params.update.sub_status_id !='11.2') &&
           <TouchableOpacity onPress={() => this.submitReq()} style={styles.ftrBtn}>
             <LinearGradient 
               start={{x: 0, y: 0}} 
@@ -1099,14 +1158,17 @@ class AirRequisitionScreen extends Component {
 
   _ticketItem = (data,index, params) => {
     return<TouchableNativeFeedback
-      useForeground={params.sub_status_id == 11.1 ? false : true}
-      onPress={()=>{params.sub_status_id == 11.1 ?null:this.selectTicket(data)}} 
+      useForeground={(params.sub_status_id == '11.1' || params.sub_status_id == '7.3' || params.sub_status_id == '11.2') ? false : true}
+      onPress={()=>{params.sub_status_id == '11.1' || params.sub_status_id == '7.3' || params.sub_status_id == '11.2' 
+              ?null:this.selectTicket(data)}} 
       key={index}
       style={styles.ticketItemWraper}>
       <View style={styles.ticketItem}>
         <View style={[
           styles.ticketColumn,
           styles.ticketLeft,
+          (data.type == 'YES') && styles.dangerTicket,
+          (data.type == 'YES') && styles.dangerTicketLeft,
           (this.state.selectTicketData && this.state.selectTicketData.id == data.id) && styles.selectedTicket,
           (this.state.selectTicketData && this.state.selectTicketData.id == data.id) && styles.selectedTicketLeft
           ]}>
@@ -1120,7 +1182,9 @@ class AirRequisitionScreen extends Component {
         </View>
         <View style={[
           styles.ticketColumn,
-          styles.ticketRight,
+          styles.ticketRight,          
+          (data.type == 'YES') && styles.dangerTicket,
+          (data.type == 'YES') && styles.dangerTicketRight,
           (this.state.selectTicketData && this.state.selectTicketData.id == data.id) && styles.selectedTicket,
           (this.state.selectTicketData && this.state.selectTicketData.id == data.id) && styles.selectedTicketRight
           ]}>
@@ -1140,8 +1204,13 @@ class AirRequisitionScreen extends Component {
   }
 
   selectTicket=(data)=>{
-    this.setState({ selectTicketData: data })
+    this.setState({ 
+      selectTicketData: data,
+      amount: data.price,
+      OOP: data.type == 'YES'?'Y':'N'
+    })
     console.log(this.state.selectTicketData);
+    console.log(this.state.OOP);
   }
 }
 
@@ -1155,7 +1224,8 @@ const mapStateToProps = state => {
     locations: state.locations,
     statusResult: state.statusResult,
     vendorList: state.vendorList,
-    ticketsList: state.ticketsList
+    ticketsList: state.ticketsList,
+    updateVndAirResState: state.updateVndAirResState
   };
 };
 
@@ -1168,7 +1238,8 @@ const mapDispatchToProps = {
   getStatus: Actions.getStatus,  
   getTravelType: Actions.getTravelType,
   getVendor: Actions.getVendor,
-  getTickets: Actions.getTickets
+  getTickets: Actions.getTickets,
+  updateVndAirRes: Actions.updateVndAirRes
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AirRequisitionScreen);

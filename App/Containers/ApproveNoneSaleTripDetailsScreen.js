@@ -25,7 +25,6 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
       dataSource: null,
       SelectedDataList: [],
       updateParams: '',
-      changeStatusDone: false,
       rejComment: '',
       isLoading: false,
       isError: false,
@@ -75,77 +74,77 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
     this.setState({dataSource: this.props.plans.dataSource})
   }
 
-  changeStatus() {
-    this.setState({ 
-      isLoading: true,
-      modalVisible: false
-    });
-    const {params} = this.props.navigation.state;
-    let newParams = params;
-    if (params.status_id == "2") {
-      newParams.status_id = "3";
-      newParams.status = "Create Trip/PJP - Approved by Supervisor";
-    } else if (params.status_id == "8" && params.sub_status_id == "8.1") {
-      if(params.sub_status_id == "8.1") {
-        newParams.status_id = "9";
-        newParams.sub_status_id = "9.1";
-        newParams.status = "Requisition - Approved by Supervisor";
-      }
-    }
-    this.setState({
-      updateParams:newParams,
-      changeStatusDone: true
-    });
-  }
-
-  changeRejStatus() {
-    this.setState({ 
-      isLoading: true,
-      modalVisible: false
-    });
-    const {params} = this.props.navigation.state;
-    let newParams = params;
-    if (params.status_id == "2") {
-      newParams.status_id = "5";
-      newParams.status = "Create Trip/PJP - Rejected by Supervisor";
-    } else if (params.status_id == "8" && params.sub_status_id == "8.1") {
-      if(params.sub_status_id == "8.1") {
-        newParams.status_id = "10";
-        newParams.sub_status_id = "10.1";
-        newParams.status = "Requisition - Rejected by Supervisor";
-      }
-    }    
-    newParams.comment = this.state.rejComment;
-    this.setState({
-      updateParams:newParams,
-      changeStatusDone: true
-    });
-  }
-
   approveTripNonReq() {
-    this.changeStatus();
-    if(this.state.changeStatusDone) {
+    const {params} = this.props.navigation.state;
+    AsyncStorage.getItem("ASYNC_STORAGE_APRV_TRIP_NON_REQ")
+    .then(()=>{
+      this.setState({ 
+        isLoading: true,
+        modalVisible: false
+      });
+      let newParams = params;
+      if (params.status_id == "2") {
+        newParams.status_id = "3";
+        newParams.status = "Create Trip/PJP - Approved by Supervisor";
+      } else if (params.status_id == "8" && params.sub_status_id == "8.1") {
+        if(params.sub_status_id == "8.1") {
+          newParams.status_id = "9";
+          newParams.sub_status_id = "9.1";
+          newParams.status = "Requisition - Approved by Supervisor";
+        }
+      }
+      this.setState({
+        updateParams:newParams,
+      });
+    })
+    .then(()=>{
       this.props.aprvTripNonReq(this.state.updateParams)
       .then(()=>{
-        this.props.getApprovedTripPending(global.USER.userEmail);
-        this.props.navigation.navigate('ApproveNoneSaleTrip');
-        Toast.show('Trip approved Successfully', Toast.LONG);
-        console.log('Approve Done');
-      });
-    }
+        this.props.getApprovedTripPending(global.USER.userEmail)
+        .then(()=>{
+          this.props.navigation.navigate('ApproveNoneSaleTrip');
+          Toast.show('Trip approved Successfully', Toast.LONG);
+          console.log('Approve Done');
+        });
+      })
+    })
   }
 
   rejectTripNonReq() {
-    this.changeRejStatus();
-    if(this.state.changeStatusDone) {
+    const {params} = this.props.navigation.state;
+    AsyncStorage.getItem("ASYNC_STORAGE_REJ_TRIP_NON_REQ")
+    .then(()=>{
+      this.setState({ 
+        isLoading: true,
+        modalVisible: false
+      });
+      let newParams = params;
+      if (params.status_id == "2") {
+        newParams.status_id = "5";
+        newParams.status = "Create Trip/PJP - Rejected by Supervisor";
+      } else if (params.status_id == "8" && params.sub_status_id == "8.1") {
+        if(params.sub_status_id == "8.1") {
+          newParams.status_id = "10";
+          newParams.sub_status_id = "10.1";
+          newParams.status = "Requisition - Rejected by Supervisor";
+        }
+      }    
+      newParams.comment = this.state.rejComment;
+      this.setState({
+        updateParams:newParams,
+      });
+    })
+    .then(()=>{
       this.props.aprvTripNonReq(this.state.updateParams)
       .then(()=>{
-        this.props.getApprovedTripPending(global.USER.userEmail);
-        this.props.navigation.navigate('ApproveNoneSaleTrip');
-        Toast.show('Trip is rejected successfully', Toast.LONG);
-        console.log('Reject Done');
-      });
-    }
+        this.props.getApprovedTripPending(global.USER.userEmail)
+        .then(()=>{
+          this.props.navigation.navigate('ApproveNoneSaleTrip');
+          Toast.show('Trip is rejected successfully', Toast.LONG);
+          console.log('Reject Done');
+        });
+      })
+    })
   }
 
   approveConfirmation(e) {
@@ -316,9 +315,11 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
     .then(()=>{
       this.props.postAprvTripWithReq(this.state.aprvReqList)
       .then(()=> {
-        this.props.getApprovedTripPending(global.USER.userEmail);
-        this.props.navigation.navigate('ApproveNoneSaleTrip');
-        Toast.show('Requisition Approved Successfully', Toast.LONG);
+        this.props.getApprovedTripPending(global.USER.userEmail)
+        .then(()=>{          
+          this.props.navigation.navigate('ApproveNoneSaleTrip');
+          Toast.show('Requisition Approved Successfully', Toast.LONG);
+        })
       });
     })
     .then(()=>{
@@ -380,9 +381,11 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
     .then(()=>{
       this.props.postAprvTripWithReq(this.state.aprvReqList)
       .then(()=> {
-        this.props.getApprovedTripPending(global.USER.userEmail);
-        this.props.navigation.navigate('ApproveNoneSaleTrip');
-        Toast.show('Requisition Rejected Successfully', Toast.LONG);
+        this.props.getApprovedTripPending(global.USER.userEmail)
+        .then(()=>{
+          this.props.navigation.navigate('ApproveNoneSaleTrip');
+          Toast.show('Requisition Rejected Successfully', Toast.LONG);
+        })
       });
     })
     .then(()=>{
@@ -402,7 +405,34 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
     }
   }
 
+  endDateConf(value) {
+    if(value == 'A') {
+      Alert.alert(
+        'Confirm',
+        'Do you want to Approve the changed end date?',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Yes', 
+            onPress: () => this.endDateAction('value')
+          },
+        ],
+        {cancelable: true},
+      )
+    } else if(value == 'R') {
+      
+    }
+  };
+
+  endDateAction=(value)=>{
+
+  }
+
   render(){
+    console.log(this.props.aprvTripPend.Actions);
     const {params} = this.props.navigation.state;
     if(this.state.isLoading || this.props.plans.isLoading || this.props.reqName.isLoading){
       return(
@@ -416,6 +446,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
         <Text>URL Error</Text>
       )
     } else {
+      console.log(params)
     return(
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
@@ -466,6 +497,40 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
             <Text style={styles.label}>Details:</Text>
             <Text style={styles.value}>{params.details}</Text>
           </View>
+          {params.date_change_status == 'Y' ?<>
+          <View style={styles.row}>
+            <Text style={[styles.label,{flex:3}]}>Requested Changed Date:</Text>
+            <Text style={[styles.value,{color:'red',textAlign:'right'}]}>{moment(params.changed_end_date).format(global.DATEFORMAT)}</Text>
+          </View>
+          <View style={styles.endBtnRow}>
+            <TouchableOpacity 
+              style={styles.endBtn}
+              onPress={() => {this.endDateConf('R')}}
+              >
+              <LinearGradient 
+                start={{x: 0, y: 0}} 
+                end={{x: 1, y: 0}} 
+                colors={['#e63826', '#fb4b7b']} 
+                style={styles.endBtnBg}>
+                <Text style={styles.endBtnTxt}>Reject End Date</Text>
+                <Text>On Progress</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.endBtn}
+              onPress={() => {this.endDateConf('A')}}
+              >
+              <LinearGradient 
+                start={{x: 0, y: 0}} 
+                end={{x: 1, y: 0}} 
+                colors={['#5ba11c', '#92d40a']} 
+                style={styles.endBtnBg}>
+                <Text style={styles.endBtnTxt}>Approved End Date</Text>
+                <Text>On Progress</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+          </>:null}
         </View>
         
         {(this.props.plans.dataSource.length && !this.props.plans.isLoading) ?

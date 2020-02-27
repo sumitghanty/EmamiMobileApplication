@@ -635,7 +635,7 @@ class HotelReqScreen extends Component {
           </View>
           <Form>
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>State:</Label>
+              <Label style={styles.formLabel}>State:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <View style={styles.pickerWraper}>
                 <PickerModal
                   renderSelectView={(disabled, selected, showModal) =>
@@ -665,7 +665,7 @@ class HotelReqScreen extends Component {
               <Text style={styles.errorText}>{this.state.stateError}</Text>
             }
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Location/City:</Label>
+              <Label style={styles.formLabel}>Location/City:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               {this.state.isCityLoading ?
               <ActivityIndicator size="small" color="#ddd" style={{alignSelf:'flex-end',marginRight:16}} />:
               this.state.hasCity ?
@@ -701,7 +701,7 @@ class HotelReqScreen extends Component {
               <Text style={styles.errorText}>{this.state.cityError}</Text>
             }
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Travel Date:</Label>
+              <Label style={styles.formLabel}>Travel Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <TouchableOpacity onPress={this.datepicker} style={styles.datePicker}>
                 <Text style={styles.datePickerLabel}>{moment(this.state.date).format(global.DATEFORMAT)}</Text>
                 <Icon name="calendar" style={styles.datePickerIcon} />
@@ -716,7 +716,7 @@ class HotelReqScreen extends Component {
               onChange={this.setDate} />
             }
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Travel Type:</Label>
+              <Label style={styles.formLabel}>Travel Type:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <Picker
                 mode="dropdown"
                 placeholder="Travel Type"
@@ -759,7 +759,7 @@ class HotelReqScreen extends Component {
             </Item>}
             {this.state.through == "Self" &&
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Approx Amount:</Label>
+              <Label style={styles.formLabel}>Approx Amount:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <TextInput 
                 placeholder='0.00' 
                 style={styles.formInput}
@@ -773,7 +773,7 @@ class HotelReqScreen extends Component {
               <Text style={styles.errorText}>{this.state.amntError}</Text>
             }
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>CheckIn Date:</Label>
+              <Label style={styles.formLabel}>CheckIn Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <TouchableOpacity onPress={this.datepickerCin} style={styles.datePicker}>
                 <Text style={styles.datePickerLabel}>{moment(this.state.dateCin).format(global.DATEFORMAT)}</Text>
                 <Icon name="calendar" style={styles.datePickerIcon} />
@@ -788,7 +788,7 @@ class HotelReqScreen extends Component {
               onChange={this.setDateCin} />
             }
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>CheckIn Time:</Label>
+              <Label style={styles.formLabel}>CheckIn Time:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <TouchableOpacity onPress={this.timepickerCin} style={styles.datePicker}>
                 <Text style={styles.datePickerLabel}>{this.state.timeCin}</Text>
                 <Icon name="time" style={styles.datePickerIcon} />
@@ -802,7 +802,7 @@ class HotelReqScreen extends Component {
               onChange={this.setTimeCin} />
             }
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>CheckOut Date:</Label>
+              <Label style={styles.formLabel}>CheckOut Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <TouchableOpacity onPress={this.datepickerCout} style={styles.datePicker}>
                 <Text style={styles.datePickerLabel}>{moment(this.state.dateCout).format(global.DATEFORMAT)}</Text>
                 <Icon name="calendar" style={styles.datePickerIcon} />
@@ -817,7 +817,7 @@ class HotelReqScreen extends Component {
               onChange={this.setDateCout} />
             }
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>CheckOut Time:</Label>
+              <Label style={styles.formLabel}>CheckOut Time:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <TouchableOpacity onPress={this.timepickerCout} style={styles.datePicker}>
                 <Text style={styles.datePickerLabel}>{this.state.timeCout}</Text>
                 <Icon name="time" style={styles.datePickerIcon} />

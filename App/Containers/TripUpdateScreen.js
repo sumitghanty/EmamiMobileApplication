@@ -419,7 +419,7 @@ class TripUpdateScreen extends Component {
           </View>
           <Form>
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Start Date:</Label>
+              <Label style={styles.formLabel}>Start Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <TouchableOpacity onPress={this.datepickerStart} style={styles.datePicker}>
                 <Text style={styles.datePickerLabel}>{moment(this.state.dateStart).format(global.DATEFORMAT)}</Text>
                 <Icon name="calendar" style={styles.datePickerIcon} />
@@ -434,7 +434,7 @@ class TripUpdateScreen extends Component {
               onChange={this.setDateStart} />
             }
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>End Date:</Label>
+              <Label style={styles.formLabel}>End Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <TouchableOpacity onPress={this.datepickerEnd} style={styles.datePicker}>
                 <Text style={styles.datePickerLabel}>{moment(this.state.dateEnd).format(global.DATEFORMAT)}</Text>
                 <Icon name="calendar" style={styles.datePickerIcon} />
@@ -449,7 +449,7 @@ class TripUpdateScreen extends Component {
               onChange={this.setDateEnd} />
             }
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Purpose:</Label>
+              <Label style={styles.formLabel}>Purpose:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <Picker
                 mode="dropdown"
                 iosIcon={<Icon name="arrow-down" />}
@@ -468,7 +468,7 @@ class TripUpdateScreen extends Component {
               </Picker>
             </Item>
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Form:</Label>
+              <Label style={styles.formLabel}>Form:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <View style={styles.pickerWraper}>
                 <PickerModal
                   renderSelectView={(disabled, selected, showModal) =>
@@ -498,7 +498,7 @@ class TripUpdateScreen extends Component {
               <Text style={styles.errorText}>{this.state.tripFromError}</Text>
             }
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>To:</Label>
+              <Label style={styles.formLabel}>To:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <View style={styles.pickerWraper}>
                 <PickerModal
                   renderSelectView={(disabled, selected, showModal) =>
@@ -528,7 +528,7 @@ class TripUpdateScreen extends Component {
               <Text style={styles.errorText}>{this.state.tripToError}</Text>
             }
             <Item picker fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Trip for:</Label>
+              <Label style={styles.formLabel}>Trip for:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <Picker
                 mode="dropdown"
                 iosIcon={<Icon name="arrow-down" />}
@@ -547,7 +547,11 @@ class TripUpdateScreen extends Component {
               </Picker>
             </Item>
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Traveler's Name:</Label>
+              <Label style={styles.formLabel}>
+                Traveler's Name:
+                {this.state.forId != "1" &&
+                <Text style={{color:'red',fontSize:13}}>*</Text>}
+              </Label>
               {this.state.forId == "1" ?
               <Text style={[styles.value,styles.readOnly]}>{this.state.name}</Text>
               : this.state.forId == "3" ?

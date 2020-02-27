@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity, FlatList } from "react-native";
 import { Container, Content, Text, Icon, Card, CardItem } from 'native-base';
 import { connect } from 'react-redux'
 import Actions from '../redux/actions'
@@ -16,12 +16,8 @@ const KEYS_TO_FILTERS = ['trip_no', 'creation_date', 'start_date', 'end_date', '
 class TripListScreen extends Component {
   constructor(){ 
     super();
-    var date = new Date().getDate();
-    var month = new Date().getMonth() + 1;
-    var year = new Date().getFullYear();
     this.state ={
       searchTerm: '',
-      curDate: (year+'-'+month+'-'+date),
     }
   }; 
   searchUpdated(term) {
@@ -30,6 +26,15 @@ class TripListScreen extends Component {
 
   componentDidMount(){
     this.props.getTrips(global.USER.userId);
+  }
+
+  setAge = (date) => {
+    var m1 = moment(date,'YYYY-MM-DD HH:mm:ss');
+    var m2 = moment(new Date(),'YYYY-MM-DD HH:mm:ss');
+    var diff = m1.diff(m2);
+    return(
+      diff
+    );
   }
   
   render() {
@@ -65,81 +70,83 @@ class TripListScreen extends Component {
           {sortList.length<1 ?
             <Text style={styles.noData}>No Item Found</Text>
           :null}
-          {sortList.map((item, index) => {
-          return (
-          <TouchableOpacity key={index} onPress={() => this.props.navigation.navigate('TripInfo',item)}>
-          <Card style={styles.item}>
-            <CardItem header style={styles.itemHeader}>
-              <View style={styles.itemHeaderLeft}>
-                <Text style={styles.headerLabel}>Trip ID:</Text>
-                <Text style={styles.headerValue}>{item.trip_no}</Text>
-              </View>
-              {((item.status_id == "3"
-              || item.status_id == "4"
-              || item.status_id == "6"
-              || item.status_id == "7"
-              || item.status_id == "8"
-              || item.status_id == "9" 
-              || item.status_id == "10" 
-              || item.status_id == "11"
-              || item.status_id >= "26")
-              && ((parseInt(item.end_date.replace("-","").replace("-","")) - parseInt(this.state.curDate.replace("-","").replace("-",""))) >= 0)) ?
-              <View style={styles.itemHeaderRight}>
-                <TouchableOpacity onPress={() => this.props.navigation.navigate('TripPlan',item)}>
-                  <LinearGradient
-                    style={styles.planBtn}
-                    colors={["#2cc2d6", "#2cd66c"]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    >
-                      <Text uppercase={false} style={styles.planBtnText}>Plan Trip</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              </View>: null}
-            </CardItem>
-            <CardItem style={styles.itemBody}>
-              <View style={styles.itemInfo}>
-                {item.creation_date ?
-                <View style={styles.itemRow}>
-                  <Text style={styles.itemLabel}>Creation Date:</Text>
-                  <Text style={styles.itemValue}>{item.creation_date}</Text>
-                </View>:null}
-                {item.start_date ?
-                <View style={styles.itemRow}>
-                  <Text style={styles.itemLabel}>Start Date:</Text>
-                  <Text style={styles.itemValue}>{moment(item.start_date).format(global.DATEFORMAT)}</Text>
-                </View>:null}
-                {item.end_date ?
-                <View style={styles.itemRow}>
-                  <Text style={styles.itemLabel}>End Date:</Text>
-                  <Text style={[styles.itemValue, item.date_change_status=='Y'&&{color:"red"}]}>
-                    {moment(item.end_date).format(global.DATEFORMAT)}
-                  </Text>
-                </View>:null}
-                {item.name ?
-                <View style={styles.itemRow}>
-                  <Text style={styles.itemLabel}>Employee:</Text>
-                  <Text style={styles.itemValue}>{item.name}</Text>
-                </View>:null}
-                {item.status ?
-                <View style={styles.itemRow}>
-                  <Text style={styles.itemLabel}>Status:</Text>
-                  <Text style={[styles.itemValue, styles.statusInitiated]}>
-                    {(item.sub_status && item.sub_status != 'NA')?item.sub_status:item.status}
-                  </Text>
-                </View>:null}
-              </View>
-              {item.status_id == "0" || item.status_id == "1" || item.status_id == "5" ?
-              <TouchableOpacity style={styles.viewSvBtn} onPress={() => this.props.navigation.navigate('TripUpdate',item)} >
-                <Text style={styles.viewSvBtnText}>Update Trip</Text>
-                <Icon name="ios-arrow-round-forward" style={styles.viewSvBtnIcon} />
-              </TouchableOpacity>:null
-              }
-            </CardItem>
-          </Card>
-          </TouchableOpacity>
-          );
-          })}
+          <View>
+          <FlatList
+            data={sortList}
+            keyExtractor={item => item.trip_hdr_id}
+            renderItem={({ item }) => <TouchableOpacity onPress={() => this.props.navigation.navigate('TripInfo',item)}>
+            <Card style={styles.item}>
+              <CardItem header style={styles.itemHeader}>
+                <View style={styles.itemHeaderLeft}>
+                  <Text style={styles.headerLabel}>Trip ID:</Text>
+                  <Text style={styles.headerValue}>{item.trip_no}</Text>
+                </View>
+                {((item.status_id == "3"
+                || item.status_id == "4"
+                || item.status_id == "6"
+                || item.status_id == "7"
+                || item.status_id == "8"
+                || item.status_id == "9" 
+                || item.status_id == "10" 
+                || item.status_id == "11"
+                || parseInt(item.status_id) >= 26)
+                && (this.setAge(item.end_date) >= 0)) ?
+                <View style={styles.itemHeaderRight}>
+                  <TouchableOpacity onPress={() => this.props.navigation.navigate('TripPlan',item)}>
+                    <LinearGradient
+                      style={styles.planBtn}
+                      colors={["#2cc2d6", "#2cd66c"]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      >
+                        <Text uppercase={false} style={styles.planBtnText}>Plan Trip</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </View>: null}
+              </CardItem>
+              <CardItem style={styles.itemBody}>
+                <View style={styles.itemInfo}>
+                  {item.creation_date ?
+                  <View style={styles.itemRow}>
+                    <Text style={styles.itemLabel}>Creation Date:</Text>
+                    <Text style={styles.itemValue}>{item.creation_date}</Text>
+                  </View>:null}
+                  {item.start_date ?
+                  <View style={styles.itemRow}>
+                    <Text style={styles.itemLabel}>Start Date:</Text>
+                    <Text style={styles.itemValue}>{moment(item.start_date).format(global.DATEFORMAT)}</Text>
+                  </View>:null}
+                  {item.end_date ?
+                  <View style={styles.itemRow}>
+                    <Text style={styles.itemLabel}>End Date:</Text>
+                    <Text style={[styles.itemValue, item.date_change_status=='Y'&&{color:"red"}]}>
+                      {moment(item.end_date).format(global.DATEFORMAT)}
+                    </Text>
+                  </View>:null}
+                  {item.name ?
+                  <View style={styles.itemRow}>
+                    <Text style={styles.itemLabel}>Employee:</Text>
+                    <Text style={styles.itemValue}>{item.name}</Text>
+                  </View>:null}
+                  {item.status ?
+                  <View style={styles.itemRow}>
+                    <Text style={styles.itemLabel}>Status:</Text>
+                    <Text style={[styles.itemValue, styles.statusInitiated]}>
+                      {(item.sub_status && item.sub_status != 'NA')?item.sub_status:item.status}
+                    </Text>
+                  </View>:null}
+                </View>
+                {item.status_id == "0" || item.status_id == "1" || item.status_id == "5" ?
+                <TouchableOpacity style={styles.viewSvBtn} onPress={() => this.props.navigation.navigate('TripUpdate',item)} >
+                  <Text style={styles.viewSvBtnText}>Update Trip</Text>
+                  <Icon name="ios-arrow-round-forward" style={styles.viewSvBtnIcon} />
+                </TouchableOpacity>:null
+                }
+              </CardItem>
+            </Card>
+          </TouchableOpacity>}
+          />
+          </View>
         </Content>
         <TouchableOpacity onPress={() => this.props.navigation.navigate('TripCreate')} style={styles.ftrBtn}>
           <LinearGradient 

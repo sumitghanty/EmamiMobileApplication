@@ -5,11 +5,7 @@ export default StyleSheet.create({
     flex: 1,    
   },
   accordionHeader: {
-    backgroundColor: '#f4f4f4',
-    borderBottomColor: 'rgba(0,0,0,.035)',
-    borderBottomWidth: 1,
-    borderTopColor: 'rgba(0,0,0,.035)',
-    borderTopWidth: 1,
+    backgroundColor: '#0066b3',
     paddingHorizontal: 16,
     paddingVertical: 12,
     flexDirection: 'row',
@@ -18,12 +14,12 @@ export default StyleSheet.create({
   acrdTitle: {
     flex: 1,
     fontSize: 16,
-    color: '#111',
+    color: '#fff',
     fontWeight: 'bold'
   },
   acrdIcon: {
     fontSize: 22,
-    color: 'rgba(0,0,0,.5)',
+    color: 'rgba(255,255,255,.75)',
     marginLeft: 16
   },
   accordionBody: {

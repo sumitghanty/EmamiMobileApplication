@@ -15,6 +15,7 @@ import {tripUpdate} from './TripUpdate'
 import {getPlans} from './TripPlan'
 import {planUpdate} from './PlanInitiate'
 import {getReqType} from './ReqType'
+import {getReqClaimType} from './ReqClaimType'
 import {getApprovedTripPending} from './ApprovedTripPendingList'
 import {getAdvPmntPend} from './AprvPmntPendList'
 import {aprvTripNonReq} from './TripApproveNonReq'
@@ -41,6 +42,10 @@ import {getVendor} from './GetVendor'
 import {getTickets} from './GetTickets'
 import {tripEndDateUpdate} from './TripEndDateUpdate'
 import {plansSubmit} from './PlansSubmit'
+import {updateVndAirRes} from './UpdateVndAirRes'
+import {getExpenses} from './ExpList'
+import {updtReqNSBD} from  './updtReqNSBD'
+import {trpNSClmDtlUpdt} from  './TrpNSClmDtlUpdt'
 
 export default {
 	getReqLocations:getReqLocations,
@@ -85,5 +90,10 @@ export default {
 	getVendor:getVendor,
 	getTickets:getTickets,
 	tripEndDateUpdate:tripEndDateUpdate,
-	plansSubmit:plansSubmit
+	plansSubmit:plansSubmit,
+	updateVndAirRes:updateVndAirRes,
+	getExpenses:getExpenses,
+	getReqClaimType:getReqClaimType,
+	updtReqNSBD:updtReqNSBD,
+	trpNSClmDtlUpdt:trpNSClmDtlUpdt
 }

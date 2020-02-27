@@ -52,14 +52,10 @@ export default StyleSheet.create({
   modalItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingLeft: 12,
-    paddingRight: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: 'transparent'
+    paddingHorizontal: 16,
   },
   modalItemActive: {
-    backgroundColor: '#f4f4f4',
-    borderLeftColor: '#347eff',
+    backgroundColor: '#ff4813',
   },
   modalItemIconHolder: {
     width: 32,
@@ -74,6 +70,12 @@ export default StyleSheet.create({
     color: '#fff',
     fontSize: 18
   },
+  mdlActIcon: {
+    color: '#ff4813'
+  },
+  mdlActText: {
+    color: '#fff'
+  },
   modalItemBody: {
     flex: 1,
     borderBottomWidth: 1,
@@ -85,6 +87,12 @@ export default StyleSheet.create({
   },
   modalItemText: {
     fontSize: 14
+  },
+  modalItemcarot: {
+    color: '#fff',
+    fontSize: 24,
+    position: 'absolute',
+    left: 0
   },
   accordionHeader: {
     backgroundColor: '#0B5FFF',

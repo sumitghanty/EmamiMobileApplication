@@ -256,5 +256,25 @@ export default StyleSheet.create({
     fontSize: 48,
     alignSelf: 'center',
     margin: 20
+  },
+  endBtnRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 8
+  },
+  endBtn: {
+    flex: 1,
+    margin: 8
+  },
+  endBtnBg: {
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 16
+  },
+  endBtnTxt: {
+    textAlign: 'center',
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold'
   }
 });

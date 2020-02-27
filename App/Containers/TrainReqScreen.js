@@ -314,7 +314,7 @@ class TrainReqScreen extends Component {
     this.setState({ 
       amount: amnt,
       amntError: null,
-      OOP: (((params.item.upper_limit == "NA") && amnt > this.state.maxAmt) || amnt > this.state.maxAmt) ?'Y':'N'
+      OOP: (((params.item.upper_limit == "NA") && (parseFloat(amnt) > parseFloat(this.state.maxAmt))) || (parseFloat(amnt) > parseFloat(this.state.maxAmt))) ?'Y':'N'
     })
   }
 
@@ -483,7 +483,7 @@ class TrainReqScreen extends Component {
               <Text style={[styles.formInput,styles.readOnly,{textAlign:'right'}]}>{params.item.upper_limit}</Text>
             </Item>
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Travel Date:</Label>
+              <Label style={styles.formLabel}>Travel Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <TouchableOpacity onPress={this.datepicker} style={styles.datePicker}>
                 <Text style={styles.datePickerLabel}>{moment(this.state.date).format(global.DATEFORMAT)}</Text>
                 <Icon name="calendar" style={styles.datePickerIcon} />
@@ -498,7 +498,7 @@ class TrainReqScreen extends Component {
               onChange={this.setDate} />
             }
             <Item picker fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Ticket Class:</Label>
+              <Label style={styles.formLabel}>Ticket Class:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <Picker
                 placeholder="Select Class" 
                 selectedValue = {this.state.tclass} 
@@ -512,7 +512,7 @@ class TrainReqScreen extends Component {
               </Picker>
             </Item>
             <Item picker fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Suitable Time:</Label>
+              <Label style={styles.formLabel}>Suitable Time:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <Picker
                 mode="dropdown"
                 placeholder="Select Travel Time" 
@@ -528,7 +528,7 @@ class TrainReqScreen extends Component {
               </Picker>
             </Item>
             <Item picker fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Station/Location From:</Label>
+              <Label style={styles.formLabel}>Station/Location From:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <View style={styles.pickerWraper}>
                 <PickerModal
                   renderSelectView={(disabled, selected, showModal) =>
@@ -558,7 +558,7 @@ class TrainReqScreen extends Component {
               <Text style={styles.errorText}>{this.state.tripFromError}</Text>
             }
             <Item picker fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Station/Location To:</Label>
+              <Label style={styles.formLabel}>Station/Location To:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <View style={styles.pickerWraper}>
                 <PickerModal
                   renderSelectView={(disabled, selected, showModal) =>
@@ -621,7 +621,7 @@ class TrainReqScreen extends Component {
             </Item>
             {this.state.through == "Self" &&
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Approx Amount:</Label>
+              <Label style={styles.formLabel}>Approx Amount:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <TextInput 
                 placeholder='0.00' 
                 style={styles.formInput}

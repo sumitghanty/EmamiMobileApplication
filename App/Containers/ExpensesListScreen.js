@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Alert, TouchableOpacity} from "react-native";
+import { View, Alert, TouchableOpacity, FlatList} from "react-native";
 import { Container, Content, Button, Text, Icon, Card, CardItem  } from 'native-base';
 import { connect } from 'react-redux'
 import Actions from '../redux/actions'
@@ -13,37 +13,27 @@ import 'moment-precise-range-plugin'
 
 import styles from './Styles/ExpensesListScreen'
 
-const KEYS_TO_FILTERS = ['trip_no', 'creation_date', 'start_date', 'end_date', 'status','payment_amount','estimated_cost','actual_claim_amount','currency','actual_claim_currency'];
-const STATUS_ID = ["11","17","19","20","23","25","27","29"];
+const KEYS_TO_FILTERS = ['trip_no', 'start_date', 'end_date', 'trip_from', 'trip_to', 'status','payment_amount','estimated_cost','actual_claim_amount','currency','actual_claim_currency'];
+const STATUS_ID = ["3","4","9","11","15","17","19","20","23","25","27","29"];
+/*const STATUS_ID_SALE = ['9', '11', '19', '20', '23', '25'];*/
 
 class ExpensesListScreen extends Component {  
   constructor(){ 
     super();
     this.state ={
       searchTerm: '',
-      curDate: '',
     }
   }; 
   searchUpdated(term) {
     this.setState({ searchTerm: term })
   }
   componentDidMount(){
-    this.props.getAdvPmnts(global.USER.userId,"3",STATUS_ID);
-
-    var date = new Date().getDate();
-    var month = new Date().getMonth() + 1;
-    var year = new Date().getFullYear();
-    var hours = new Date().getHours();
-    var min = new Date().getMinutes();
-    var sec = new Date().getSeconds();
-    this.setState({
-      curDate: year+', '+month+', '+date+' '+hours+':'+min+':'+sec,
-    });
+    this.props.getExpenses(global.USER.userId,"3",STATUS_ID);;
   }
 
   setAge = (date) => {
     var m1 = moment(date,'YYYY-MM-DD HH:mm:ss');
-    var m2 = moment(this.state.curDate,'YYYY-MM-DD HH:mm:ss');
+    var m2 = moment(new Date(),'YYYY-MM-DD HH:mm:ss');
     var diff = moment.duration(m1.diff(m2)).humanize();
     return(
       diff
@@ -51,19 +41,13 @@ class ExpensesListScreen extends Component {
   }
    
   render() {
-    if(this.props.advPmnts.isLoading){
+    if(this.props.expenses.isLoading){
       return(
           <Loader/>
       )
     } else {
-      const listData = this.props.advPmnts.dataSource;
-      const newData = [];
-      for(var i=0; i< listData.length; i++) {
-        for(var j=0; j< listData[i].length; j++) {
-          newData.push(listData[i][j])
-        }
-      }
-      const filteredData = newData.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS));
+      const listData = this.props.expenses.dataSource;
+      const filteredData = listData.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS));
       var sortList = filteredData;
       sortList.sort((a,b) => b.trip_hdr_id - a.trip_hdr_id);
     return (
@@ -81,12 +65,13 @@ class ExpensesListScreen extends Component {
         </View>
         <Content Style={styles.content}>
           <Text style={styles.title}>List of Expenses</Text>
-          {sortList.length<1 &&
+          {sortList.length<1 ?
             <Text style={styles.noData}>No Item Found</Text>
-          }
-          {sortList.map((item, index) => {
-          return (
-          <TouchableOpacity key={index} onPress={() => this.props.navigation.navigate('ExpInfo',item)}>
+          :<View>
+          <FlatList
+            data={sortList}
+            keyExtractor={item => item.trip_no}
+            renderItem={({ item }) =><TouchableOpacity onPress={() => this.props.navigation.navigate('ExpInfo',item)}>
           <Card style={styles.item}>
             <CardItem header style={styles.itemHeader}>
               <Text style={styles.headerLabel}>Trip ID:</Text>
@@ -94,11 +79,6 @@ class ExpensesListScreen extends Component {
             </CardItem>
             <CardItem style={styles.itemBody}>
               <View style={styles.itemInfo}>
-                {item.creation_date &&
-                <View style={styles.itemRow}>
-                  <Text style={styles.itemLabel}>Creation Date:</Text>
-                  <Text style={styles.itemValue}>{item.creation_date}</Text>
-                </View>}
                 {item.start_date &&
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Start Date:</Text>
@@ -122,24 +102,23 @@ class ExpensesListScreen extends Component {
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Advance Payment amount:</Text>
                   <Text style={styles.itemValue}>
-                    {item.payment_amount ?
-                    item.payment_amount+' '+item.currency
-                    : '0'}
-                    </Text>
+                    {item.payment_amount ?item.payment_amount: '0.0'} &nbsp;
+                    {item.currency?item.currency:'INR'}
+                  </Text>
                 </View>
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Estimated amount:</Text>
                   <Text style={styles.itemValue}>
-                  {item.estimated_cost>0 ?
-                  item.estimated_cost+' '+item.currency
-                  : '0'}</Text>
+                    {item.estimated_cost ?item.estimated_cost: '0'} &nbsp;
+                    {item.currency?item.currency:'INR'}
+                  </Text>
                 </View>
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Actual amount:</Text>
-                <Text style={styles.itemValue}>
-                  {item.actual_claim_amount>0 ?
-                  item.actual_claim_amount+' '+item.actual_claim_currency
-                  : '0'}</Text>
+                  <Text style={styles.itemValue}>
+                    {item.actual_claim_amount ?item.actual_claim_amount: '0.0'} &nbsp; 
+                    {item.actual_claim_currency?item.actual_claim_currency:'INR'}
+                  </Text>
                 </View>
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Ageing:</Text>
@@ -148,14 +127,16 @@ class ExpensesListScreen extends Component {
                 {item.status &&
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Status:</Text>
-                  <Text style={[styles.itemValue, styles.statusInitiated]}>{item.status}</Text>
+                  <Text style={[styles.itemValue, styles.statusInitiated]}>
+                    {(item.sub_status && item.sub_status!='NA')?item.sub_status:item.status}
+                  </Text>
                 </View>}
               </View>
             </CardItem>
           </Card>
-          </TouchableOpacity>
-          );
-          })}
+          </TouchableOpacity>}
+          />
+          </View>}
         </Content>
       </Container>
     );
@@ -165,12 +146,12 @@ class ExpensesListScreen extends Component {
 
 const mapStateToProps = state => {
   return {
-    advPmnts: state.advPmnts
+    expenses: state.expenses
   };
 };
 
 const mapDispatchToProps = {
-  getAdvPmnts : Actions.getAdvPmnts
+  getExpenses : Actions.getExpenses
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ExpensesListScreen);

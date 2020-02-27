@@ -1,108 +1,92 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
 export default StyleSheet.create({
-    scrollView: {
-        paddingBottom: 20
-    },
-    row: {
-        flexDirection: 'row',
-        marginLeft: 16,
-        paddingVertical: 16,
-        borderBottomColor: '#c9c9c9',
-        borderBottomWidth: 1
-    },
-    noRow: {
-        flexDirection: 'column'
-    },
-    label: {
-        paddingRight: 16,
-        flex: 1
-    },
-    value: {
-        flex: 1,
-        color: 'rgba(0,0,0,.5)',
-        paddingRight: 16
-    },
-    input: {
-        color: '#111'
-    },
-    btn: {
-        marginHorizontal: 16,
-        marginTop: 24
-    },
-    btnBg: {
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-        borderRadius: 24,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    btnTxt: {
-        color: '#fff',
-        fontWeight: 'bold',
-        letterSpacing: 1,
-        fontSize: 14,
-        textTransform: 'uppercase',
-    },
-    btnIcon: {
-      color: '#fff',
-      fontSize: 20,
-      marginRight: 12
-    },
-    mb: {
-      marginBottom: 20
-    },
-    accordionHeader: {
-      backgroundColor: '#f4f4f4',
-      borderBottomColor: 'rgba(0,0,0,.035)',
-      borderBottomWidth: 1,
-      borderTopColor: 'rgba(0,0,0,.035)',
-      borderTopWidth: 1,
+  scrollView: {
+      paddingBottom: 20
+  },
+  row: {
+      flexDirection: 'row',
+      marginLeft: 16,
+      paddingVertical: 16,
+      borderBottomColor: '#c9c9c9',
+      borderBottomWidth: 1
+  },
+  noRow: {
+      flexDirection: 'column'
+  },
+  label: {
+      paddingRight: 16,
+      flex: 1
+  },
+  value: {
+      flex: 1,
+      color: 'rgba(0,0,0,.5)',
+      paddingRight: 16
+  },
+  input: {
+      color: '#111'
+  },
+  btn: {
+      marginHorizontal: 16,
+      marginTop: 24
+  },
+  btnBg: {
       paddingHorizontal: 16,
-      paddingVertical: 12,
+      paddingVertical: 14,
+      borderRadius: 24,
       flexDirection: 'row',
       alignItems: 'center',
-      marginTop: 16
-    },
-    acrdTitle: {
-      flex: 1,
-      fontSize: 16,
-      color: '#111',
-      fontWeight: 'bold'
-    },
-    acrdIcon: {
-      fontSize: 22,
-      color: 'rgba(0,0,0,.5)',
-      marginLeft: 16
-    },
-    subTitle: {
-        color: 'rgba(0,0,0,.35)',
-        fontSize: 14,
-        marginHorizontal: 16,
-        marginTop: 20,
-        fontWeight: 'bold',
-        textTransform: 'uppercase',
-        letterSpacing: 1
-    },    
-  datePicker: {
+      justifyContent: 'center'
+  },
+  btnTxt: {
+      color: '#fff',
+      fontWeight: 'bold',
+      letterSpacing: 1,
+      fontSize: 14,
+      textTransform: 'uppercase',
+  },
+  btnIcon: {
+    color: '#fff',
+    fontSize: 20,
+    marginRight: 12
+  },
+  mb: {
+    marginBottom: 20
+  },
+  accordionHeader: {
+    backgroundColor: '#0066b3',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1
+    marginTop: 16
   },
-  datePickerIcon: {
-    color: 'rgba(0,0,0,.5)',
-    marginHorizontal: 10,
-    fontSize: 20
+  acrdTitle: {
+    flex: 1,
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: 'bold'
   },
-  datePickerLabel: {
-    flex: 1
+  acrdIcon: {
+    fontSize: 22,
+    color: 'rgba(255,255,255,.5)',
+    marginLeft: 16
+  },
+  subTitle: {
+      color: 'rgba(0,0,0,.35)',
+      fontSize: 14,
+      marginHorizontal: 16,
+      marginTop: 20,
+      fontWeight: 'bold',
+      textTransform: 'uppercase',
+      letterSpacing: 1
   },  
   modalWraper: {
     flex: 1,
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    marginVertical: 30
   },
   modalOverlay: {
     backgroundColor: 'rgba(0,0,0,.35)',
@@ -156,8 +140,22 @@ export default StyleSheet.create({
   modalItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 16,
-    paddingRight: 16
+    paddingHorizontal: 16,
+  },
+  mdlActIcon: {
+    color: '#ff4813'
+  },
+  mdlActText: {
+    color: '#fff'
+  },  
+  modalItemcarot: {
+    color: '#fff',
+    fontSize: 24,
+    position: 'absolute',
+    left: 0
+  },  
+  modalItemActive: {
+    backgroundColor: '#ff4813',
   },
   modalItemIconHolder: {
     width: 32,
@@ -230,5 +228,146 @@ export default StyleSheet.create({
     fontSize: 14,
     marginTop:  16,
     marginHorizontal: 16
+  },
+
+  cardItem: {
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,  
+    elevation: 5,
+    borderRadius: 4,
+    marginHorizontal: 16,
+    marginVertical: 8,
+  },
+  cardItemHeader: {
+    backgroundColor: '#f8f8f8',
+    borderBottomColor: 'rgba(0,0,0,.05)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderTopRightRadius: 3,
+    minHeight: 46
+  },
+  checkBox: {
+    width: 46,
+    height: 46,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderTopLeftRadius: 3
+  },
+  checkedBox: {
+    backgroundColor: '#1abc9c',
+  },
+  unCheckedBox: {
+    backgroundColor: 'rgba(0,0,0,.05)',
+  },
+  uncheckIcon: {
+    fontSize: 20,
+    color: 'rgba(0,0,0,.5)'
+  },
+  checkIcon: {
+    fontSize: 24,
+    color: '#fff'
+  },
+  cardTile: {
+    flex: 1,
+    marginLeft: 16,
+    marginRight: 10,
+    fontSize: 13,
+    color: '#111',
+    fontWeight: 'bold'
+  },
+  cardTileIcon: {
+    fontSize: 16,
+    marginLeft: 12
+  },
+  editlBtn: {
+    borderTopRightRadius: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    backgroundColor: '#347eff',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 46,
+    height: 46
+  },
+  editBtnIcon: {
+    fontSize: 18,
+    color: '#fff',
+  },
+  editBtnText: {
+    fontSize: 11,
+    color: '#fff'
+  },
+  cardBody: {
+    backgroundColor: '#fff',
+    borderBottomLeftRadius: 3,
+    borderBottomRightRadius: 3,
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+  },
+  cardInfo: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    flex: 1
+  },
+  cardRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginVertical: 4
+  },
+  cardLabel: {
+    fontSize: 14,
+    color: 'rgba(0,0,0,.5)',
+    flex: 2,
+    marginRight: 10
+  },
+  cardValue: {
+    flex: 3,
+    color: '#111',
+    fontSize: 14
+  },
+  itemActions: {
+    paddingVertical: 5,
+    paddingRight: 16,
+  },
+  actionBtn: {
+    width: 42,
+    height: 42,
+    marginVertical: 5
+  },
+  actionBtnIco: {
+    marginLeft: 0,
+    marginRight: 0,
+    textAlign: 'center',
+    width: 42
+  },
+  cardHrzntl: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: 0,
+    height: 46
+  },
+  cardHrzntlBtnLeft: {
+    height: 46,
+    width: 46,
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 0,
+    borderBottomLeftRadius: 4,
+    borderBottomRightRadius: 0,
+    backgroundColor: 'red',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  cardHrzntlBtnLeftIco: {
+    fontSize: 28,
+    color: '#fff'
+  },
+  cardHrzntlBtnRight: {
+    borderBottomRightRadius: 4
   }
 });

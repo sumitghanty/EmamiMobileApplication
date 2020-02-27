@@ -221,14 +221,14 @@ export default StyleSheet.create({
     backgroundColor: '#0066b3'
   },
   ticketColumn: {
-    backgroundColor: '#fd6363',
+    backgroundColor: '#1ba032',
     borderRadius: 12,
     padding: 16,
     marginTop: 16
   },
   ticketLeft: {
     flex: 5,
-    borderRightColor: '#da3939',
+    borderRightColor: '#7bf791',
     borderRightWidth: 1,
     marginLeft: 16
   },
@@ -237,13 +237,24 @@ export default StyleSheet.create({
   },
   ticketRight: {
     flex: 2,
-    borderLeftColor: '#ff9090',
+    borderLeftColor: '#105f1e',
     borderLeftWidth: 1,
     marginRight: 16
   },
   selectedTicketRight:{
     borderLeftColor: '#32a4fb'
   },
+
+  dangerTicket: {
+    backgroundColor: '#fd6363',
+  },
+  dangerTicketLeft: {
+    borderRightColor: '#da3939',
+  },
+  dangerTicketRight: {
+    borderLeftColor: '#ff9090',
+  },
+
   circle: {
     width: 16,
     height: 16,
@@ -284,7 +295,7 @@ export default StyleSheet.create({
     fontSize: 16,
   },
   price: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     alignSelf: 'center',
     color: '#fff'

@@ -29,7 +29,7 @@ class TaxiRequisitionScreen extends Component {
     const {params} = this.props.navigation.state;
     this.state = {
       curDate: new Date,
-      date: params.update?params.update.travel_date:params.params.start_date,
+      date: (params.update && params.update.travel_date)?params.update.travel_date:params.params.start_date,
       mode: 'date',
       show: false,     
       attachFiles: [],
@@ -46,6 +46,10 @@ class TaxiRequisitionScreen extends Component {
       modalVisible: false,
       uploadData: [{"type":"Approve Email","file":[]},{"type":"Other","file":[]}],
       curUploadType: 'Approve Email',
+      currency: (params.update && params.updateinvoice_amount_currency)?params.updateinvoice_amount_currency:null,
+      currencyError: null,
+      oop: 'Y',
+      maxAmount: 0,
     };
   }
   
@@ -173,7 +177,15 @@ class TaxiRequisitionScreen extends Component {
   handleChangeAmount = (amount) => {
     this.setState({ 
       aprxAmnt: amount,
-      aprxAmntError: null
+      aprxAmntError: null,
+      maxAmount: (params.item.upper_limit != "On Actual")  && 5000000
+                      (params.item.upper_limit != null && params.item.upper_limit == "NA") && amount
+    })
+  }
+  handleCurrency = (text) => {
+    this.setState({ 
+      currency: amount,
+      currencyError: null
     })
   }
   handleFromLocation = (text) => {
@@ -192,7 +204,7 @@ class TaxiRequisitionScreen extends Component {
   submitReq = () => {
     const {params} = this.props.navigation.state;
     if( this.state.fromLocation.length < 1 || this.state.toLocation.length < 1 || 
-      this.state.aprxAmnt == null || (!this.state.aprxAmnt) ) {
+      this.state.aprxAmnt == null || (!this.state.aprxAmnt) || (params.claim && !this.state.currency) ) {
       if(this.state.fromLocation.length < 1) {
         this.setState({
           tripFromError: 'Please enter Destination From',
@@ -211,11 +223,26 @@ class TaxiRequisitionScreen extends Component {
           error: true,
         });
       }
+      if(params.claim && !this.state.currency) {
+        this.setState({
+          currencyError: 'Please enter Currency',
+          error: true,
+        });
+      }
       console.log('There are some eroor.');
     } else {
       this.setState({
         isLoading: true,
+        maxAmount: (params.item.upper_limit != "On Actual")
+                    ?5000000
+                      //(params.item.upper_limit != null && params.item.upper_limit == "NA")
+                    : '0'
       });
+      if (params.item.upper_limit != "On Actual") {maxAmount
+        this.setState({
+          maxAmount: '5000000',
+        });
+      }
       if(params.update){
         let newReq = params.update;
         AsyncStorage.getItem("ASYNC_STORAGE_UPDATE_KEY")
@@ -236,7 +263,7 @@ class TaxiRequisitionScreen extends Component {
           newReq.sub_status_id = "7.5";
           newReq.status = this.state.statusName;
           newReq.sub_status = this.state.subStatusName;
-          newReq.is_outof_policy = "Y";
+          newReq.is_outof_policy = this.state.oop;
         })
         .then(()=>{
           this.props.reqUpdate([newReq])
@@ -289,7 +316,8 @@ class TaxiRequisitionScreen extends Component {
             "sub_status_id": "7.5",
             "status": this.state.statusName,
             "sub_status": this.state.subStatusName,
-            "is_outof_policy": "Y",
+            "is_outof_policy": this.state.oop,
+            "invoice_amount_currency": this.state.currency
           }])
           .then(()=>{
             this.props.getPlans(params.params.trip_hdr_id)
@@ -335,7 +363,7 @@ class TaxiRequisitionScreen extends Component {
         </View>
         <Form>
           <Item fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Travel Date:</Label>
+            <Label style={styles.formLabel}>Travel Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
             <TouchableOpacity onPress={this.datepicker} style={styles.datePicker}>
               <Text style={styles.datePickerLabel}>{moment(this.state.date).format("DD-MM-YYYY")}</Text>
               <Icon name="calendar" style={styles.datePickerIcon} />
@@ -350,7 +378,7 @@ class TaxiRequisitionScreen extends Component {
             onChange={this.setDate} />
           }
           <Item fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Approx Amount :</Label>
+            <Label style={styles.formLabel}>Approx Amount :<Text style={{color:'red',fontSize:13}}>*</Text></Label>
             <TextInput 
               placeholder='0.00' 
               style={styles.formInput}
@@ -359,14 +387,30 @@ class TaxiRequisitionScreen extends Component {
               returnKeyType="next"
               keyboardType="decimal-pad"
               autoCapitalize="words"
-              onSubmitEditing={() => this.refs.fromInput.focus()}
+              onSubmitEditing={() => this.refs.curncyInput.focus()}
               onChangeText={this.handleChangeAmount} />
           </Item>
           {this.state.aprxAmntError &&
             <Text style={styles.errorText}>{this.state.aprxAmntError}</Text>
           }
+          {params.claim &&
           <Item picker fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Destination From:</Label>
+            <Label style={styles.formLabel}>Currency:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TextInput 
+              ref='curncyInput'
+              onSubmitEditing={() => this.refs.fromInput.focus()}
+              placeholder='Enter Currency' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.currency}
+              returnKeyType="next"
+              onChangeText={this.handleCurrency} />
+          </Item>}
+          {(this.state.tripFromError && params.claim) ?
+            <Text style={styles.errorText}>{this.state.currencyError}</Text>
+          :null}
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Destination From:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
             <TextInput 
               ref='fromInput'
               onSubmitEditing={() => this.refs.toInput.focus()}
@@ -381,7 +425,7 @@ class TaxiRequisitionScreen extends Component {
             <Text style={styles.errorText}>{this.state.tripFromError}</Text>
           }
           <Item picker fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Destination To:</Label>
+            <Label style={styles.formLabel}>Destination To:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
             <TextInput 
               ref='toInput'
               placeholder='Enter To destination' 

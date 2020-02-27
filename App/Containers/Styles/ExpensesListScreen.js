@@ -16,10 +16,10 @@ export default StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 12,
 		paddingBottom: 12,
-    backgroundColor: '#f4f4f4',
+    backgroundColor: '#0066b3',
   },  
   headerLabel: {
-    color: 'rgba(0,0,0,.5)',
+    color: 'rgba(255,255,255,.75)',
     fontSize: 12,
     fontWeight: 'bold',
     textTransform: 'uppercase',
@@ -27,7 +27,7 @@ export default StyleSheet.create({
   },
   headerValue: {
     fontSize: 13,
-    color: '#2b3f4e',
+    color: '#fff',
     fontWeight: 'bold',
 		flex: 1
   }, 

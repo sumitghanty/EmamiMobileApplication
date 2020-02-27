@@ -5,6 +5,7 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import { connect } from 'react-redux'
 import Actions from '../redux/actions'
 import Toast from 'react-native-simple-toast'
+import moment from 'moment'
 
 import {Purpose, For} from '../Components/GetValue'
 import Loader from '../Components/Loader'
@@ -173,11 +174,11 @@ class AdvPmntReqInfoScreen extends Component {
           <View style={[styles.accordionBody,{display:this.state.tripAcrd==0?'none':'flex'}]}>
             <View style={styles.row}>
               <Text style={styles.label}>Start Date:</Text>
-              <Text style={styles.value}>{params.start_date}</Text>
+              <Text style={styles.value}>{moment(params.start_date).format(global.DATEFORMAT)}</Text>
             </View>
             <View style={styles.row}>
               <Text style={styles.label}>End Date:</Text>
-              <Text style={styles.value}>{params.end_date}</Text>
+              <Text style={styles.value}>{moment(params.end_date).format(global.DATEFORMAT)}</Text>
             </View>
             <View style={styles.row}>
               <Text style={styles.label}>From:</Text>

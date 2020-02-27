@@ -15,6 +15,7 @@ import TripUpdateReducer from './TripUpdate'
 import TripPlanReducer from './TripPlan'
 import PlanUpdateReducer from './PlanInitiate'
 import ReqTypeReducer from './ReqType'
+import ReqTypeClaimReducer from './ReqClaimType'
 import ApprovedTripPendingReducer from './ApprovedTripPendingList'
 import AdvPmntPendListReducer from './AprvPmntPendList'
 import TripAprvNonReqReducer from './TripApproveNonReq'
@@ -41,6 +42,10 @@ import VendorReducer from './GetVendor'
 import TicketsReducer from './GetTickets'
 import TripEndDateUpdateReducer from './TripEndDateUpdate'
 import PlansSubmitReducer from './PlansSubmit'
+import UpdateVndAirResReducer from './UpdateVndAirRes'
+import ExpListReducer from './ExpList'
+import updtReqNSBDReducer from './updtReqNSBD'
+import TrpNSClmDtlUpdtReducer from './TrpNSClmDtlUpdt'
 
 export default {
 	locations:LocationsReducer,
@@ -60,6 +65,7 @@ export default {
 	plans:TripPlanReducer,
 	planUpdateState:PlanUpdateReducer,
 	reqType:ReqTypeReducer,
+	reqClaimType:ReqTypeClaimReducer,
 	aprvTripPend:ApprovedTripPendingReducer,
 	aprvPmntPend:AdvPmntPendListReducer,
 	aprvTripNonReq:TripAprvNonReqReducer,
@@ -85,5 +91,9 @@ export default {
 	vendorList:VendorReducer,
 	ticketsList:TicketsReducer,
 	tripEndDateUpdatePost:TripEndDateUpdateReducer,
-	plansSubmitState:PlansSubmitReducer
+	plansSubmitState:PlansSubmitReducer,
+	updateVndAirResState: UpdateVndAirResReducer,
+	expenses:ExpListReducer,
+	updtReqNSBDState:updtReqNSBDReducer,
+	trpNSClmDtlUpdtState:TrpNSClmDtlUpdtReducer
 };

@@ -251,6 +251,8 @@ class TripPlanScreen extends Component {
       let subStatusNameComp = '';
       let statusNameSTA = '';
       let subStatusNameSTA = '';
+      let statusNameWO = '';
+      let subStatusNameWO = '';
       let amountVal = '0.0';
 
       if(action == "Save") {
@@ -267,37 +269,58 @@ class TripPlanScreen extends Component {
           })
           .then(()=>{
             for(var i=0; i< newList.length;i++) {
-
-              if(newList[i].req_type == '1' && newList[i].amount != null && newList[i].amount != '' && newList[i].amount != 'NA' && newList[i].amount == 'On Actual') {
-                amountVal = newList[i].amount;
+              if(newList[i].through != "Self" || (newList[i].through == "Travel Agent" && newList[i].is_outof_policy == 'N')) {
+                this.setState({ 
+                  isLoading: false,
+                  setGoBack: false
+                });
+                Alert.alert(
+                  'Warning',
+                  'Please choose proper options as per the requisition Status and Through ! ',
+                  [
+                    {
+                      text: 'Ok',
+                      style: 'cancel',
+                    },
+                  ],
+                  {cancelable: true},
+                )
+                break
               } else {
-                if(newList[i].amount == '') {
-                  amountVal = '0.0';
-                } else if (newList[i].amount == 'NA' || newList[i].amount == 'On Actual'){
+                if(newList[i].req_type == '1' && newList[i].amount != null && newList[i].amount != '' 
+                  && newList[i].amount != 'NA' && newList[i].amount == 'On Actual') {
                   amountVal = newList[i].amount;
+                } else {
+                  if(newList[i].amount == '') {
+                    amountVal = '0.0';
+                  } else if (newList[i].amount == 'NA' || newList[i].amount == 'On Actual'){
+                    amountVal = newList[i].amount;
+                  }
                 }
-              }
 
-              if(newList[i].status_id == '7' && newList[i].sub_status_id == '7.5' && newList[i].is_outof_policy == 'Y'){
-                newList[i].status_id = '8';
-                newList[i].sub_status_id = '8.1';
-                newList[i].status = statusNamePS;
-                newList[i].sub_status = subStatusNamePS;
-              } else if (newList[i].req_type == '1' && newList[i].sub_status_id == '7.1' && newList[i].is_outof_policy == 'N') {
-                newList[i] == newList[i];
+                if( (newList[i].status_id == '7' && newList[i].sub_status_id == '7.5' && newList[i].is_outof_policy == 'Y')
+                  || (newList[i].through == "Travel Agent" && newList[i].is_outof_policy == 'Y')
+                ){
+                  newList[i].status_id = '8';
+                  newList[i].sub_status_id = '8.1';
+                  newList[i].status = statusNamePS;
+                  newList[i].sub_status = subStatusNamePS;
+                } else if (newList[i].req_type == '1' && newList[i].sub_status_id == '7.1' && newList[i].is_outof_policy == 'N') {
+                  newList[i] == newList[i];
+                }
+                else {
+                  newList[i].status_id = '11';
+                  newList[i].sub_status_id = '11.2';
+                  newList[i].status = statusNameComp;
+                  newList[i].sub_status = subStatusNameComp;
+                }
+                newList[i].email = global.USER.userEmail;
+                newList[i].pending_with_name = global.USER.supervisorName;
+                newList[i].pending_with_email = global.USER.supervisorEmail;
+                newList[i].pending_with = global.USER.supervisorId;
+                newList[i].userid = global.USER.userId;
+                newList[i].amount = amountVal;
               }
-              else {
-                newList[i].status_id = '11';
-                newList[i].sub_status_id = '11.2';
-                newList[i].status = statusNameComp;
-                newList[i].sub_status = subStatusNameComp;
-              }
-              newList[i].email = global.USER.userEmail;
-              newList[i].pending_with_name = global.USER.supervisorName;
-              newList[i].pending_with_email = global.USER.supervisorEmail;
-              newList[i].pending_with = global.USER.supervisorId;
-              newList[i].userid = global.USER.userId;
-              newList[i].amount = amountVal;
             }
           })
           .then(()=>{
@@ -321,44 +344,58 @@ class TripPlanScreen extends Component {
           subStatusNameSTA = this.props.statusResult.dataSource[0].sub_status
         })
         .then(()=>{
-          for(var i=0; i< newList.length;i++) {
-            if(newList[i].req_type != '1') {
-              this.setState({ 
-                isLoading: false,
-                setGoBack: false
-              });
-              Alert.alert(
-                'Warning',
-                'Please select proper requisition(s)',
-                [
-                  {
-                    text: 'Ok',
-                    style: 'cancel',
-                  },
-                ],
-                {cancelable: true},
-              )
-            } else if(newList[i].sub_status_id == '7.4' && newList[i].through == "Travel Agent"){
-              newList[i].status_id = '7';
-              newList[i].sub_status_id = '7.1';
-              newList[i].status = statusNameSTA;
-              newList[i].sub_status = subStatusNameSTA;
-            }
-          }
-        })
-        .then(()=>{
-          this.props.planUpdate(newList)
+          this.props.getStatus('7','7.3')
           .then(()=>{
-            this.props.getTrips(global.USER.userId)
-            .then(()=>{
-              this.setState({ isLoading: false });
-            })
-            .then(()=>{
-              if(this.state.setGoBack){
-                this.props.navigation.goBack();
-                Toast.show('Data Send To Vendor Successfully', Toast.LONG);
+            statusNameWO = this.props.statusResult.dataSource[0].trip_pjp_status;
+            subStatusNameWO = this.props.statusResult.dataSource[0].sub_status
+          })
+          .then(()=>{
+            for(var i=0; i< newList.length;i++) {
+              if(newList[i].through != "Travel Agent" || (newList[i].through == "Travel Agent" && newList[i].is_outof_policy == 'Y')) {
+                this.setState({ 
+                  isLoading: false,
+                  setGoBack: false
+                });
+                Alert.alert(
+                  'Warning',
+                  'Please choose proper options as per the requisition Status or Through or Out Of Policy! ',
+                  [
+                    {
+                      text: 'Ok',
+                      style: 'cancel',
+                    },
+                  ],
+                  {cancelable: true},
+                )
+                break
+              } else if(newList[i].sub_status_id == '7.4' && newList[i].through == "Travel Agent"){                
+                newList[i].status_id = '7';
+                if(newList[i].flight && newList[i].flight.length>0){
+                  newList[i].sub_status_id = '7.3';
+                  newList[i].status = statusNameWO;
+                  newList[i].sub_status = subStatusNameWO;
+                } else {
+                  newList[i].sub_status_id = '7.1';
+                  newList[i].status = statusNameSTA;
+                  newList[i].sub_status = subStatusNameSTA;
+                }
               }
-            })
+            }
+          })
+          .then(()=>{
+            if(this.state.setGoBack) {
+              this.props.planUpdate(newList)
+              .then(()=>{
+                this.props.getTrips(global.USER.userId)
+                .then(()=>{
+                  this.setState({ isLoading: false });
+                })
+                .then(()=>{
+                  this.props.navigation.goBack();
+                  Toast.show('Data Send To Vendor Successfully', Toast.LONG);
+                })
+              })
+            }
           })
         })        
       }
@@ -551,7 +588,7 @@ class TripPlanScreen extends Component {
                 {this.props.reqType.dataSource.map((item, index) => {
                 return (
                 <TouchableOpacity style={[styles.modalItem,
-                  this.state.editModalData && this.state.editModalData[1]==item.sub_category_id && styles.modalItemActive
+                  (this.state.editModalData && this.state.editModalData[1]==item.sub_category_id) && styles.modalItemActive
                 ]}
                   key= {index}
                   onPress={() =>{this.editModalVisible(null); this.props.navigation.navigate(
@@ -566,8 +603,12 @@ class TripPlanScreen extends Component {
                     {item, params, 'update':this.state.editModalData?this.state.editModalData[0]:false}
                   );
                   }}>
+                  {(this.state.editModalData && this.state.editModalData[1]==item.sub_category_id) &&
+                    <Icon style={styles.modalItemcarot} name="md-arrow-dropright" />
+                  }
                   <View style={[styles.modalItemIconHolder,{ backgroundColor:
-                    item.sub_category_id=='1' ? '#007AFF'
+                    (this.state.editModalData && this.state.editModalData[1]==item.sub_category_id) ? '#fff'
+                    : item.sub_category_id=='1' ? '#007AFF'
                     : item.sub_category_id=='10' ? '#3ba03f'
                     : item.sub_category_id=='11' ? '#FF9501'
                     : item.sub_category_id=='3' ? '#f16168'
@@ -577,24 +618,41 @@ class TripPlanScreen extends Component {
                     : null
                     }]}>
                     {item.sub_category_id=='1' ?
-                    <Icon style={styles.modalItemIcon} name="airplane" />
+                    <Icon style={[styles.modalItemIcon, 
+                      (this.state.editModalData && this.state.editModalData[1]==item.sub_category_id) && styles.mdlActIcon]} 
+                      name="airplane" />
                     : item.sub_category_id=='10' ?
-                    <Icon style={[styles.modalItemIcon,{fontSize:24}]} name="ios-car" />
+                    <Icon style={[styles.modalItemIcon,{fontSize:24},
+                      (this.state.editModalData && this.state.editModalData[1]==item.sub_category_id) && styles.mdlActIcon]} 
+                      name="ios-car" />
                     : item.sub_category_id=='11' ?
-                    <Icon style={[styles.modalItemIcon,{fontSize:24}]} name="md-car" />
+                    <Icon style={[styles.modalItemIcon,{fontSize:24},
+                      (this.state.editModalData && this.state.editModalData[1]==item.sub_category_id) && styles.mdlActIcon]} 
+                      name="md-car" />
                     : item.sub_category_id=='3' ?
-                    <Ficon style={styles.modalItemIcon} name="subway" />
+                    <Ficon style={[styles.modalItemIcon, 
+                      (this.state.editModalData && this.state.editModalData[1]==item.sub_category_id) && styles.mdlActIcon]} 
+                      name="subway" />
                     : item.sub_category_id=='1BH' ?
-                    <Ficon style={styles.modalItemIcon} name="hotel" />
+                    <Ficon style={[styles.modalItemIcon, 
+                      (this.state.editModalData && this.state.editModalData[1]==item.sub_category_id) && styles.mdlActIcon]} 
+                      name="hotel" />
                     : item.sub_category_id=='1BM' ?
-                    <Icon style={[styles.modalItemIcon,{fontSize:26}]} name="ios-train" />
+                    <Icon style={[styles.modalItemIcon,{fontSize:26},
+                      (this.state.editModalData && this.state.editModalData[1]==item.sub_category_id) && styles.mdlActIcon]} 
+                      name="ios-train" />
                     : item.sub_category_id=='1BNM' ?
-                    <Ficon style={styles.modalItemIcon} name="road" />
+                    <Ficon style={[styles.modalItemIcon, 
+                      (this.state.editModalData && this.state.editModalData[1]==item.sub_category_id) && styles.mdlActIcon]} 
+                      name="road" />
                     : null
                     }
                   </View>
                   <View style={styles.modalItemBody}>
-                    <Text style={styles.modalItemText}>{item.sub_category}</Text>
+                    <Text style={[styles.modalItemText, 
+                      (this.state.editModalData && this.state.editModalData[1]==item.sub_category_id) && styles.mdlActText]}>
+                        {item.sub_category}
+                    </Text>
                   </View>
                 </TouchableOpacity>
                 );
@@ -658,7 +716,7 @@ class TripPlanScreen extends Component {
 
   renderItem = (data,index,params) => {
   let item=this.state.airReqData;
-  if(data.sub_status_id == '6.1') {
+  if(!data.req_type) {
     return <View key={index} style={[styles.cardItem,styles.cardHrzntl]}>
       <Button small danger style={[styles.actionBtn,styles.cardHrzntlBtnLeft]}
         onPress={()=>this.deleteConfirmation(data)}
@@ -680,13 +738,18 @@ class TripPlanScreen extends Component {
     key={index} 
     style={styles.cardItem} 
     onPress={() => 
-      (data.req_type=='1' && data.sub_status_id == '11.1')
-      ? this.props.navigation.navigate('AirRequisition', {item, params, 'update':data}
-    )
+      ((data.req_type=='1' && data.sub_status_id == '11.1') 
+      || (data.req_type=='1' && data.sub_status_id == '7.1') 
+      || (data.req_type=='1' && data.sub_status_id == '7.3')
+      || (data.req_type=='1' && data.sub_status_id == '11.2'))
+      ? this.props.navigation.navigate('AirRequisition', {item, params, 'update':data})
       :this.props.navigation.navigate('ReqInfo',data)
     }>
     <View style={styles.cardItemHeader}>
-      {(data.sub_status_id == '7.3' || data.sub_status_id == '7.4' || data.sub_status_id == '7.5') ?
+      {((data.status_id=='11') || (data.status_id=='7' && data.sub_status_id =="7.1") || (data.status_id=='7' && data.sub_status_id =="7.3")
+       || (data.status_id=='8' && data.sub_status_id == "8.1") || (data.status_id=='9' && data.sub_status_id == "9.1") 
+       || (data.status_id=='6' && data.sub_status_id == '6.1') || (data.status_id=='7' && data.sub_status_id == '7.2') ) 
+      ? null :
       <TouchableOpacity 
         onPress={() => {this.press(data)}}
         style={[data.check ?styles.checkedBox :styles.unCheckedBox, styles.checkBox]}
@@ -695,7 +758,7 @@ class TripPlanScreen extends Component {
         ? (<Icon name="md-checkmark" style={styles.checkIcon} />)
         : (<Icon name="md-square-outline" style={styles.uncheckIcon} />)
         }
-      </TouchableOpacity >:null}     
+      </TouchableOpacity >}     
       {data.req_type=='1' ?
       <Icon style={styles.cardTileIcon} name="airplane" />
       : data.req_type=='10' ?
@@ -722,11 +785,25 @@ class TripPlanScreen extends Component {
         || data.status_id == "25" 
         ? null :
         <TouchableOpacity 
-          onPress={() => {this.editModalVisible([data,data.req_type]);}}
+          onPress={() => {
+            ((data.req_type=='1' && data.sub_status_id == '11.1') 
+            || (data.req_type=='1' && data.sub_status_id == '7.1') 
+            || (data.req_type=='1' && data.sub_status_id == '7.3')
+            || (data.req_type=='1' && data.sub_status_id == '11.2'))
+            ? this.props.navigation.navigate('AirRequisition', {item, params, 'update':data})
+            :this.editModalVisible([data,data.req_type]);
+          }}
           style={styles.editlBtn}
           >
-          <Icon name="md-create" style={styles.editBtnIcon} />
+          {((data.req_type=='1' && data.sub_status_id == '11.1') 
+          || (data.req_type=='1' && data.sub_status_id == '7.1') 
+          || (data.req_type=='1' && data.sub_status_id == '7.3')
+          || (data.req_type=='1' && data.sub_status_id == '11.2'))
+          ? <Icon name="md-arrow-forward" style={styles.editBtnIcon} />
+          :<>
+          <Icon name="md-create" style={styles.editBtnIcon} />          
           <Text style={styles.editBtnText}>Edit</Text>
+          </>}
         </TouchableOpacity >
       }
     </View>

@@ -7,6 +7,7 @@ import { connect } from 'react-redux'
 import Actions from '../redux/actions'
 
 import Loader from '../Components/Loader'
+import Empty from '../Components/Empty'
 import styles from './Styles/ApproveNoneSaleTripScreen'
 
 const KEYS_TO_FILTERS = ['trip_no', 'creation_date', 'start_date', 'end_date', 'name', 'status', 'trip_from', 'trip_to'];
@@ -15,20 +16,49 @@ class ApproveNoneSaleTripScreen extends Component {
   
   constructor(props){
     super(props);
-    this.state ={ 
-      isLoading: false,
+    this.state ={
       searchTerm: '',
+      dataList: [],
     }
   }  
   searchUpdated(term) {
     this.setState({ searchTerm: term })
   }
   componentDidMount(){
-    this.props.getApprovedTripPending(global.USER.userEmail);
+    this.props.getApprovedTripPending(global.USER.userEmail)
+    .then(()=>{
+      let items = this.props.aprvTripPend.dataSource;
+      let dataList = this.state.dataList;
+      let m2 = moment(new Date(),'YYYY-MM-DD HH:mm:ss');
+      for(var i=0; i<items.length; i++) {
+        let m1 = moment(items[i].end_date,'YYYY-MM-DD HH:mm:ss');
+        var diff = m1.diff(m2);
+        /*if(items[i].status_id == "2" || items[i].status_id == "26" || items[i].status_id == "3" || 
+        items[i].status_id == "4" || items[i].status_id == "8" || items[i].status_id == "9" || items[i].status_id == "10" 
+        || items[i].status_id == "11" || items[i].date_change_status == 'Y') {
+          dataList.push(items[i]);
+        }*/
+        if( (diff>0 && items[i].status_id != "3" && items[i].status_id != "5" && 
+        items[i].sub_status_id != "9.1" && items[i].sub_status_id != "10.1" && items[i].sub_status_id != "11.2" 
+        && items[i].status_id != "22" && items[i].status_id != "23") || items[i].date_change_status == 'Y') {
+          dataList.push(items[i]);
+        }
+      }
+      this.setState({ dataList });      
+    });
+  }
+
+  setAge = (date) => {
+    var m1 = moment(date,'YYYY-MM-DD HH:mm:ss');
+    var m2 = moment(new Date(),'YYYY-MM-DD HH:mm:ss');
+    var diff = m1.diff(m2);
+    return(
+      diff
+    );
   }
 	
   render(){    
-    if(this.props.aprvTripPend.isLoading || this.state.isLoading){
+    if(this.props.aprvTripPend.isLoading){
       return(
         <Loader/>
       )
@@ -37,10 +67,13 @@ class ApproveNoneSaleTripScreen extends Component {
         <Text>URL Error</Text>
       )
     } else {
-      const listData = this.props.aprvTripPend.dataSource;
+      console.log(this.state.dataList);
+      const listData = this.state.dataList;
       const filteredData = listData.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS))
       var sortList = filteredData;
       sortList.sort((a,b) => b.trip_hdr_id - a.trip_hdr_id);
+      
+    if(listData.length>0) {
     return(
     <View style={styles.container}>
       <View style={styles.searchBar}>
@@ -60,8 +93,10 @@ class ApproveNoneSaleTripScreen extends Component {
           <Text style={styles.noData}>No Item Found.</Text>
         }
         {sortList.map((item, index) => {
+          if( (this.setAge(item.end_date)>0 && item.status_id != "3" && item.status_id != "5" && 
+          item.sub_status_id != "9.1" && item.sub_status_id != "10.1" && item.sub_status_id != "11.2" 
+          && item.status_id != "22" && item.status_id != "23" ) || item.date_change_status == 'Y'){
         return (
-					(item.status_id == "2" || item.status_id == "26" || item.status_id == "3" || item.status_id == "4" || item.status_id == "8" || item.status_id == "9" || item.status_id == "10" || item.status_id == "11") ?
           <View key={index} style={styles.linkItem}>
             <View style={styles.card}>
               <View style={styles.itemHeader}>
@@ -79,7 +114,9 @@ class ApproveNoneSaleTripScreen extends Component {
                 </View>
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>End Date:</Text>
-                  <Text style={styles.itemValue}>{moment(item.end_date).format(global.DATEFORMAT)}</Text>
+                  <Text style={[styles.itemValue,item.date_change_status == 'Y'?{color:'red'}:null]}>
+                    {moment(item.end_date).format(global.DATEFORMAT)}
+                  </Text>
                 </View>
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>From:</Text>
@@ -95,7 +132,7 @@ class ApproveNoneSaleTripScreen extends Component {
                 </View>
                 <View style={[styles.itemRow,styles.mb]}>
                   <Text style={styles.itemLabel}>Status</Text>
-                  <Text style={styles.itemValue}>{item.status}</Text>
+                  <Text style={styles.itemValue}>{(item.sub_status && item.sub_status != 'NA') ?item.sub_status:item.status}</Text>
                 </View>
               </View>
               {item.status_id == "2" || item.status_id == "26" ?
@@ -104,20 +141,31 @@ class ApproveNoneSaleTripScreen extends Component {
                 <Text style={styles.itemFtrBtnText}>Approve Trip</Text>
                 <Icon name="ios-arrow-round-forward" style={styles.itemFtrIcon} />
               </TouchableOpacity>
-              : item.status_id == "3" || item.status_id == "4" || item.status_id == "8" || item.status_id == "9" || item.status_id == "10" || item.status_id == "11" ?
+              : item.status_id == "4" || item.status_id == "8" || 
+                item.status_id == "9" || item.status_id == "10" || item.status_id == "11" ?
               <TouchableOpacity style={styles.itemFtrBtn}
                 onPress={() => this.props.navigation.navigate('ApproveNoneSaleTripDetails',item)}>
                 <Text style={[styles.itemFtrBtnText,styles.textInfo]}>Approve Plan Trip</Text>
                 <Icon name="ios-arrow-round-forward" style={[styles.itemFtrIcon,styles.textInfo]} />
               </TouchableOpacity>
+              : (item.status_id == "2" || item.date_change_status == 'Y') ?
+              <TouchableOpacity style={styles.itemFtrBtn}
+                onPress={() => this.props.navigation.navigate('ApproveNoneSaleTripDetails',item)}>
+                <Text style={[styles.itemFtrBtnText,{color:'red'}]}>Approve Trip With End Date</Text>
+                <Icon name="ios-arrow-round-forward" style={[styles.itemFtrIcon,{color:'red'}]} />
+              </TouchableOpacity>
               :null}
             </View>
           </View>
-					:null);
+          );
+        }
         })}
       </ScrollView>
-      </View>
+    </View>      
     );
+  } else {
+    return (<Empty message='There is no Trip for Approval now.' />)
+  }
   }
   }
 };
