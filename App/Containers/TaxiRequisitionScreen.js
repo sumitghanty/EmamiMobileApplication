@@ -49,20 +49,30 @@ class TaxiRequisitionScreen extends Component {
       currency: (params.update && params.updateinvoice_amount_currency)?params.updateinvoice_amount_currency:null,
       currencyError: null,
       oop: 'Y',
-      maxAmount: 0,
+      extAmnt: null
     };
   }
   
   componentDidMount() {
     const {params} = this.props.navigation.state;
 
-    this.props.getStatus("7","7.5")
-    .then(()=>{
-      this.setState({
-        statusName: this.props.statusResult.dataSource[0].trip_pjp_status,
-        subStatusName: this.props.statusResult.dataSource[0].sub_status
+    if(params.claim){
+      this.props.getStatus("20","NA")
+      .then(()=>{
+        this.setState({
+          statusName: this.props.statusResult.dataSource[0].trip_pjp_status,
+          subStatusName: this.props.statusResult.dataSource[0].sub_status
+        });
       });
-    });
+    } else {
+      this.props.getStatus("7","7.5")
+      .then(()=>{
+        this.setState({
+          statusName: this.props.statusResult.dataSource[0].trip_pjp_status,
+          subStatusName: this.props.statusResult.dataSource[0].sub_status
+        });
+      });
+    }
 
     this.props.navigation.setParams({
       handleBackPress: this._handleBackPress.bind(this)
@@ -178,13 +188,11 @@ class TaxiRequisitionScreen extends Component {
     this.setState({ 
       aprxAmnt: amount,
       aprxAmntError: null,
-      maxAmount: (params.item.upper_limit != "On Actual")  && 5000000
-                      (params.item.upper_limit != null && params.item.upper_limit == "NA") && amount
     })
   }
   handleCurrency = (text) => {
     this.setState({ 
-      currency: amount,
+      currency: text,
       currencyError: null
     })
   }
@@ -233,16 +241,10 @@ class TaxiRequisitionScreen extends Component {
     } else {
       this.setState({
         isLoading: true,
-        maxAmount: (params.item.upper_limit != "On Actual")
-                    ?5000000
-                      //(params.item.upper_limit != null && params.item.upper_limit == "NA")
-                    : '0'
+        oop: (params.claim && params.item.upper_limit == "On Actual" && parseFloat(this.state.aprxAmnt)<=5000000) ? 'N':'Y',
+        extAmnt: (params.claim && params.item.upper_limit == "On Actual" && parseFloat(this.state.aprxAmnt)>5000000)? 
+                  parseFloat( parseFloat(this.state.aprxAmnt)-5000000):null
       });
-      if (params.item.upper_limit != "On Actual") {maxAmount
-        this.setState({
-          maxAmount: '5000000',
-        });
-      }
       if(params.update){
         let newReq = params.update;
         AsyncStorage.getItem("ASYNC_STORAGE_UPDATE_KEY")
@@ -259,11 +261,12 @@ class TaxiRequisitionScreen extends Component {
           newReq.travel_from = this.state.fromLocation;
           newReq.travel_to = this.state.toLocation;
           newReq.creation_date = moment(this.state.curDate).format("YYYY-MM-DD");
-          newReq.status_id = "7";
-          newReq.sub_status_id = "7.5";
+          newReq.status_id = params.claim?"20":"7";
+          newReq.sub_status_id = params.claim?"NA":"7.5";
           newReq.status = this.state.statusName;
           newReq.sub_status = this.state.subStatusName;
           newReq.is_outof_policy = this.state.oop;
+          newReq.extra_amount = extAmnt;
         })
         .then(()=>{
           this.props.reqUpdate([newReq])
@@ -312,12 +315,13 @@ class TaxiRequisitionScreen extends Component {
             "travel_from": this.state.fromLocation,
             "travel_to": this.state.toLocation,
             "creation_date": moment(this.state.curDate).format("YYYY-MM-DD"),
-            "status_id": "7",
-            "sub_status_id": "7.5",
+            "status_id": params.claim?"20":"7",
+            "sub_status_id": params.claim?"NA":"7.5",
             "status": this.state.statusName,
             "sub_status": this.state.subStatusName,
             "is_outof_policy": this.state.oop,
-            "invoice_amount_currency": this.state.currency
+            "invoice_amount_currency": this.state.currency,
+            "extra_amount": extAmnt
           }])
           .then(()=>{
             this.props.getPlans(params.params.trip_hdr_id)
@@ -399,14 +403,14 @@ class TaxiRequisitionScreen extends Component {
             <TextInput 
               ref='curncyInput'
               onSubmitEditing={() => this.refs.fromInput.focus()}
-              placeholder='Enter Currency' 
+              placeholder='INR' 
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.currency}
               returnKeyType="next"
               onChangeText={this.handleCurrency} />
           </Item>}
-          {(this.state.tripFromError && params.claim) ?
+          {(this.state.currencyError && params.claim) ?
             <Text style={styles.errorText}>{this.state.currencyError}</Text>
           :null}
           <Item picker fixedLabel style={styles.formRow}>

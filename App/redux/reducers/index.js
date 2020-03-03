@@ -46,6 +46,7 @@ import UpdateVndAirResReducer from './UpdateVndAirRes'
 import ExpListReducer from './ExpList'
 import updtReqNSBDReducer from './updtReqNSBD'
 import TrpNSClmDtlUpdtReducer from './TrpNSClmDtlUpdt'
+import HotelListReducer from './GetHotel'
 
 export default {
 	locations:LocationsReducer,
@@ -95,5 +96,6 @@ export default {
 	updateVndAirResState: UpdateVndAirResReducer,
 	expenses:ExpListReducer,
 	updtReqNSBDState:updtReqNSBDReducer,
-	trpNSClmDtlUpdtState:TrpNSClmDtlUpdtReducer
+	trpNSClmDtlUpdtState:TrpNSClmDtlUpdtReducer,
+	hotelList:HotelListReducer
 };

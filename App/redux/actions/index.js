@@ -46,6 +46,7 @@ import {updateVndAirRes} from './UpdateVndAirRes'
 import {getExpenses} from './ExpList'
 import {updtReqNSBD} from  './updtReqNSBD'
 import {trpNSClmDtlUpdt} from  './TrpNSClmDtlUpdt'
+import {getHotels} from './GetHotel'
 
 export default {
 	getReqLocations:getReqLocations,
@@ -95,5 +96,6 @@ export default {
 	getExpenses:getExpenses,
 	getReqClaimType:getReqClaimType,
 	updtReqNSBD:updtReqNSBD,
-	trpNSClmDtlUpdt:trpNSClmDtlUpdt
+	trpNSClmDtlUpdt:trpNSClmDtlUpdt,
+	getHotels:getHotels
 }

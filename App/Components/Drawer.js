@@ -100,7 +100,7 @@ class Drawer extends React.Component {
               icon
               style={item.title?styles.listItem:styles.dNone} 
               onPress={ 
-                () => (item.id == "1" || item.id == "2") ? this.props.navigation.navigate(item.navigation) : {}
+                () => this.props.navigation.navigate(item.navigation)
                 }>
               <Left>
                 <Icon active name={item.icon} style={styles.listIcon} />

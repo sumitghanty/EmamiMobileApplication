@@ -197,5 +197,13 @@ export default StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
     color: 'rgba(0,0,0,.35)'
+  },
+  addressInput: {
+    marginHorizontal: 16,
+    padding: 10,
+    backgroundColor: '#f9f9f9',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.15)',
+    borderRadius: 6
   }
 });

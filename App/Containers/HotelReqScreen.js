@@ -44,6 +44,7 @@ class HotelReqScreen extends Component {
       showTimeCin: false,
       showCout: false,
       showTimeCout: false,
+      showInv: false,
       through: (params.update && params.update.through) ? params.update.through : "Self",
       attachFiles: [],
       stateList: [],
@@ -77,12 +78,35 @@ class HotelReqScreen extends Component {
       subStatusNameOP: '',
       statusName: '',
       subStatusName: '',
+      statusClaimName:'',
       OOP: 'Y',
       vendorname: '',
       vendorId: '0',
       cityType: params.item.sub_category_id == "1BM" ? "Metro"
                 :  params.item.sub_category_id == "1BH" ? "HillStation"
                 :  "NonMetro",
+      hotelsList: [],
+      hotelItem: {"Name": (params.update && params.update.hotel_name) ? params.update.hotel_name : "Select Hotel/Guest House", 
+                  "Value":"", "Code": (params.update && params.update.hotel_gstin) ? params.update.hotel_gstin : "", 
+                  "Id": (params.update && params.update.hotel) ? params.update.hotel : 0},
+      invoiceAmnt: (params.update && params.update.invoice_amount) ? params.update.invoice_amount :null,
+      invoiceAmntError: null,
+      currency: (params.update && params.update.invoice_currency) ? params.update.invoice_currency :null,
+      currencyError: null,
+      cgst: (params.update && params.update.vendor_CGST) ? params.update.vendor_CGST :null,
+      cgstError:null,
+      sgst: (params.update && params.update.vendor_SGST) ? params.update.vendor_SGST :null,
+      sgstError:null,
+      igst: (params.update && params.update.vendor_IGST) ? params.update.vendor_IGST :null,
+      igstError:null,
+      hsncode: (params.update && params.update.v_hsn_code) ? params.update.v_hsn_code :null,
+      hsncodeError:null,
+      invNumber: (params.update && params.update.invoice_no) ? params.update.invoice_no :null,
+      invNumberError:null,
+      dateInv: (params.update && params.update.invoice_date) ? params.update.invoice_date :new Date(),
+      htlAdrs: (params.update && params.update.hotel_address) ? params.update.hotel_address :null,
+      htlAdrsError:null,
+      hotelNameError: null
     };
   }
 
@@ -164,6 +188,29 @@ class HotelReqScreen extends Component {
         subStatusName: this.props.statusResult.dataSource[0].sub_status
       });
     });
+
+    this.props.getStatus("20","NA")
+    .then(()=>{
+      this.setState({
+        statusClaimName: this.props.statusResult.dataSource[0].trip_pjp_status,
+      });
+    });
+
+    
+    //this.props.getHotels("Boarding and Lodging")
+    if(params.claim){
+      this.props.getHotels(params.item.category)
+      .then(()=>{
+        for(var i=0; i<this.props.hotelList.dataSource.length; i++) {
+          this.state.hotelsList.push({
+            "Name": this.props.hotelList.dataSource[i].vendor_name,
+            "Value": this.props.hotelList.dataSource[i].vendor_city,
+            "Code": this.props.hotelList.dataSource[i].gstin,
+            "Id": this.props.hotelList.dataSource[i].vendor_id,
+          },)
+        }
+      });
+    }
 
     this.props.navigation.setParams({
       handleBackPress: this._handleBackPress.bind(this)
@@ -295,11 +342,17 @@ class HotelReqScreen extends Component {
   }
 
   citySelected(value){
-    console.log('hi');
     this.setState({
       cityItem: value,
       cityError: null,
       curCity: value.Name,
+    })
+  }
+
+  hotelSelected(value){
+    this.setState({
+      hotelItem: value,
+      hotelNameError: null
     })
   }
 
@@ -462,6 +515,26 @@ class HotelReqScreen extends Component {
       type: value
     });
   }
+
+  datepickerInv = () => {
+    this.showInvDate('date');
+  }
+
+  showInvDate = mode => {
+    this.setState({
+      showInv: true,
+      mode,
+    });
+  }
+
+  setDateInv = (event, dateInv) => {
+    dateInv = dateInv || this.state.dateInv; 
+    this.setState({
+      showInv: Platform.OS === 'ios' ? true : false,
+      dateInv,
+    });
+  } 
+
   
   handleChangeAmount = (amnt) => {
     const {params} = this.props.navigation.state;
@@ -469,6 +542,62 @@ class HotelReqScreen extends Component {
       amount: amnt,
       amntError: null,
       OOP: (((params.item.upper_limit == "NA") && amnt > this.state.maxAmt) || amnt > this.state.maxAmt) ?'Y':'N'
+    })
+  }
+
+  handleInvoiceAmnt = (amnt) => {
+    this.setState({ 
+      invoiceAmnt: amnt,
+      invoiceAmntError:null
+    })
+  }
+
+  handleCurrency = (text) => {
+    this.setState({ 
+      currency: text,
+      currencyError:null
+    })
+  }
+
+  handleCgst = (amnt) => {
+    this.setState({ 
+      cgst: amnt,
+      cgstError:null
+    })
+  }
+
+  handleSgst = (amnt) => {
+    this.setState({ 
+      sgst: amnt,
+      sgstError:null
+    })
+  }
+
+  handleIgst = (amnt) => {
+    this.setState({ 
+      igst: amnt,
+      igstError:null
+    })
+  }
+
+  handleHsnCode = (text) => {
+    this.setState({ 
+      hsncode: text,
+      hsncodeError:null
+    })
+  }
+
+  handleInvoiceNumber = (text) => {
+    this.setState({ 
+      invNumber: text,
+      invNumberError:null
+    })
+  }
+
+  handleHtlAdrs = (text) => {
+    this.setState({ 
+      htlAdrs: text,
+      htlAdrsError:null
     })
   }
 
@@ -509,11 +638,30 @@ class HotelReqScreen extends Component {
         "days": this.state.days,
         "state": this.state.curState,
         "city": this.state.curCity,
-        "status_id": "7",
-        "sub_status_id": this.state.OOP=="Y"?"7.5":"7.4",
-        "status": this.state.OOP=="Y"? this.state.statusNameOP :this.state.statusName,
-        "sub_status": this.state.OOP=="Y"? this.state.subStatusNameOP :this.state.subStatusName,
+        "status_id": params.claim?'20':"7",
+        "sub_status_id": params.claim?'NA'
+                         : this.state.OOP=="Y"?"7.5":"7.4",
+        "status": params.claim?this.state.statusClaimName
+                  : this.state.OOP=="Y"? this.state.statusNameOP :this.state.statusName,
+        "sub_status": params.claim?'NA'
+                  : this.state.OOP=="Y"? this.state.subStatusNameOP :this.state.subStatusName,
         "is_outof_policy": this.state.OOP,
+
+        'hotel': this.state.hotelItem.Name == 'Select Hotel/Guest House'? null : this.state.hotelItem.Id,
+        'hotel_name': this.state.hotelItem.Name == 'Select Hotel/Guest House'? null : this.state.hotelItem.Name,
+        'hotel_gstin': this.state.hotelItem.Name == 'Select Hotel/Guest House'? null : this.state.hotelItem.Code,
+        'invoice_amount': this.state.invoiceAmnt,
+        'invoice_currency': this.state.currency,
+        'vendor_CGST': this.state.cgst,
+        'vendor_SGST': this.state.sgst,
+        'vendor_IGST': this.state.igst,
+        'v_hsn_code': this.state.hsncode,
+        'invoice_no': this.state.invNumber,
+        'invoice_date': params.claim?moment(this.state.dateInv).format("YYYY-MM-DD"):null,
+        'hotel_address': this.state.htlAdrs,
+        'hotel_outofpocket_currency':this.state.currency,
+        'extra_amount': (params.claim && params.item.upper_limit == "On Actual" && parseFloat(this.state.amount)>5000000)? 
+                        parseFloat( parseFloat(this.state.amount)-5000000):null
       }])
       .then(()=>{
         this.props.getPlans(params.params.trip_hdr_id)
@@ -524,7 +672,7 @@ class HotelReqScreen extends Component {
         })
         .then(()=>{
           this.props.navigation.goBack();
-          Toast.show('Requisition Created Successfully', Toast.LONG);
+          Toast.show(params.claim?'Expense Created Successfully':'Requisition Created Successfully', Toast.LONG);
         })
       })
     });
@@ -548,11 +696,30 @@ class HotelReqScreen extends Component {
       newReq.days = this.state.days;
       newReq.state = this.state.curState;
       newReq.city = this.state.curCity;
-      newReq.status_id = "7";
-      newReq.sub_status_id = this.state.OOP=="Y"?"7.5":"7.4";
-      newReq.status = this.state.OOP=="Y"? this.state.statusNameOP :this.state.statusName;
-      newReq.sub_status = this.state.OOP=="Y"? this.state.subStatusNameOP :this.state.subStatusName;
+      newReq.status_id = params.claim?'20':"7";
+      newReq.sub_status_id = params.claim?'NA'
+                             : this.state.OOP=="Y"?"7.5":"7.4"
+      newReq.status = params.claim?this.state.statusClaimName
+                      : this.state.OOP=="Y"? this.state.statusNameOP :this.state.statusName;
+      newReq.sub_status = params.claim?'NA'
+                          : this.state.OOP=="Y"? this.state.subStatusNameOP :this.state.subStatusName;
       newReq.is_outof_policy = this.state.OOP;
+      
+      newReq.hotel = (this.state.hotelItem.Name == 'Select Hotel/Guest House')? null : this.state.hotelItem.Id;
+      newReq.hotel_name = (this.state.hotelItem.Name == 'Select Hotel/Guest House')? null : this.state.hotelItem.Name;
+      newReq.hotel_gstin = (this.state.hotelItem.Name == 'Select Hotel/Guest House')? null : this.state.hotelItem.Code;
+      newReq.invoice_amount = this.state.invoiceAmnt;
+      newReq.invoice_currency = this.state.currency;
+      newReq.vendor_CGST = this.state.cgst;
+      newReq.vendor_SGST = this.state.sgst;
+      newReq.vendor_IGST = this.state.igst;
+      newReq.v_hsn_code = this.state.hsncode;
+      newReq.invoice_no = this.state.invNumber;
+      newReq.invoice_date = params.claim?moment(this.state.dateInv).format("YYYY-MM-DD"):null;
+      newReq.hotel_address = this.state.htlAdrs;
+      newReq.hotel_outofpocket_currency = this.state.currency;
+      newReq.extra_amount = (params.claim && params.item.upper_limit == "On Actual" && parseFloat(this.state.amount)>5000000)? 
+                        parseFloat( parseFloat(this.state.amount)-5000000):null;
     })
     .then(()=>{
       this.props.reqUpdate([newReq])
@@ -565,14 +732,22 @@ class HotelReqScreen extends Component {
         })
         .then(()=>{
           this.props.navigation.goBack();
-          Toast.show('Requisition Updated Successfully', Toast.LONG);
+          Toast.show(params.claim?'Expense Updated Successfully':'Requisition Updated Successfully', Toast.LONG);
         });
       });
     });
   }
 
   submitReq = () => {
-    if (!this.state.curState || !this.state.curCity || (this.state.through=="Self" && !this.state.amount)) {
+    const {params} = this.props.navigation.state;
+    if (!this.state.curState || !this.state.curCity || 
+      (this.state.through=="Self" && !this.state.amount && !params.claim) ||
+      (params.claim && this.state.hotelItem.Name == 'Select Hotel/Guest House') ||
+      (params.claim && !this.state.invoiceAmnt) || (params.claim && !this.state.currency) ||
+      (params.claim && !this.state.cgst) || (params.claim && !this.state.sgst) ||
+      (params.claim && !this.state.igst) || (params.claim && !this.state.hsncode) ||
+      (params.claim && !this.state.invNumber) || (params.claim && !this.state.htlAdrs)
+      ) {
       if (!this.state.curState) {
         this.setState({
           stateError: 'Please select state.',
@@ -583,16 +758,60 @@ class HotelReqScreen extends Component {
           cityError: 'Please select Location/City.',
         });
       }
-      if (this.state.through=="Self" && !this.state.amount) {
+      if (this.state.through=="Self" && !this.state.amount && !params.claim) {
         this.setState({
           amntError: 'Please enter Approx amount.',
+        });
+      }
+      if(params.claim && this.state.hotelItem.Name == 'Select Hotel/Guest House'){
+        this.setState({
+          hotelNameError: 'Please select hotel/guest house name.',
+        });
+      }
+      if(params.claim && !this.state.invoiceAmnt) {
+        this.setState({
+          invoiceAmntError: 'Please enter invoice amount.',
+        });
+      }
+      if(params.claim && !this.state.currency) {
+        this.setState({
+          currencyError: 'Please enter currency.',
+        });
+      }
+      if(params.claim && !this.state.cgst) {
+        this.setState({
+          cgstError: 'Please enter CGST.',
+        });
+      }
+      if(params.claim && !this.state.sgst) {
+        this.setState({
+          sgstError: 'Please enter SGST.',
+        });
+      }
+      if(params.claim && !this.state.igst) {
+        this.setState({
+          igstError: 'Please enter IGST.',
+        });
+      }
+      if(params.claim && !this.state.hsncode) {
+        this.setState({
+          hsncodeError: 'Please enter HSN code.',
+        });
+      }
+      if(params.claim && !this.state.invNumber) {
+        this.setState({
+          invNumberError: 'Please enter invoice number.',
+        });
+      }
+      if(params.claim && !this.state.htlAdrs) {
+        this.setState({
+          htlAdrsError: 'Please enter hotel/guest house Address.',
         });
       }
     } else {      
       this.setState({
         isLoading: true,
       });
-      const {params} = this.props.navigation.state;
       if(params.update){
         this.reqUpdate();
       } else {
@@ -757,7 +976,7 @@ class HotelReqScreen extends Component {
                 {global.USER.userName}
               </Text>
             </Item>}
-            {this.state.through == "Self" &&
+            {(this.state.through == "Self" && !params.claim) &&
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Approx Amount:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <TextInput 
@@ -769,7 +988,7 @@ class HotelReqScreen extends Component {
                 autoCapitalize="words"
                 onChangeText={this.handleChangeAmount} />
             </Item>}
-            {this.state.amntError &&
+            {(this.state.amntError && !params.claim) &&
               <Text style={styles.errorText}>{this.state.amntError}</Text>
             }
             <Item fixedLabel style={styles.formRow}>
@@ -840,7 +1059,184 @@ class HotelReqScreen extends Component {
                 {this.state.days * params.item.upper_limit}
               </Text>
             </Item>
-            <View style={styles.attachRow}>
+
+            {params.claim && <>
+
+            <Item fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Hotel/Guest House:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <View style={styles.pickerWraper}>
+                <PickerModal
+                  renderSelectView={(disabled, selected, showModal) =>
+                    <TouchableOpacity style={styles.pickerBtn} onPress={showModal}>
+                      <Text style={styles.pickerBtnText}>{this.state.hotelItem.Name}</Text>
+                      <Icon name="arrow-dropdown" style={styles.pickerBtnIcon} />
+                    </TouchableOpacity>
+                  }
+                  onSelected={this.hotelSelected.bind(this)}
+                  onClosed={()=>{}}
+                  items={this.state.hotelsList}
+                  showToTopButton={true}
+                  selected={this.state.hotelItem}
+                  showAlphabeticalIndex={true}
+                  autoGenerateAlphabeticalIndex={true}
+                  selectPlaceholderText={'Select Hotel/Guest House'}
+                  onEndReached={() => console.log('list ended...')}
+                  searchPlaceholderText={'Search Hotel/Guest House'}
+                  requireSelection={false}
+                  autoSort={false}
+                />
+              </View>
+            </Item>
+            {this.state.hotelNameError &&
+              <Text style={styles.errorText}>{this.state.hotelNameError}</Text>
+            }
+            <Item fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Hotel/Guest House GSTIN:</Label>
+              <Text style={[styles.formInput,styles.readOnly]}>
+                {this.state.hotelItem.Code}
+              </Text>
+            </Item>
+            <Item fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Invoice Amount:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <TextInput 
+                placeholder='0.0' 
+                style={styles.formInput}
+                underlineColorAndroid= "rgba(0,0,0,0)"
+                value = {this.state.invoiceAmnt}
+                keyboardType="decimal-pad"
+                autoCapitalize="words"
+                onSubmitEditing={() => this.refs.curncyInput.focus()}
+                onChangeText={this.handleInvoiceAmnt} />
+            </Item>
+            {this.state.invoiceAmntError &&
+              <Text style={styles.errorText}>{this.state.invoiceAmntError}</Text>
+            }
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Invoice Currency:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <TextInput 
+                ref='curncyInput'
+                onSubmitEditing={() => this.refs.cgst.focus()}
+                placeholder='INR' 
+                style={styles.formInput}
+                underlineColorAndroid= "rgba(0,0,0,0)"
+                value = {this.state.currency}
+                returnKeyType="next"
+                onChangeText={this.handleCurrency} />
+            </Item>
+            {this.state.currencyError &&
+              <Text style={styles.errorText}>{this.state.currencyError}</Text>
+            }
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>CGST:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <TextInput 
+                ref='cgst'
+                onSubmitEditing={() => this.refs.sgst.focus()}
+                placeholder='0.0' 
+                style={styles.formInput}
+                underlineColorAndroid= "rgba(0,0,0,0)"
+                value = {this.state.cgst}
+                keyboardType="decimal-pad"
+                autoCapitalize="words"
+                returnKeyType="next"
+                onChangeText={this.handleCgst} />
+            </Item>
+            {this.state.cgstError &&
+              <Text style={styles.errorText}>{this.state.cgstError}</Text>
+            }
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>SGST:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <TextInput 
+                ref='sgst'
+                onSubmitEditing={() => this.refs.igst.focus()}
+                placeholder='0.0' 
+                style={styles.formInput}
+                underlineColorAndroid= "rgba(0,0,0,0)"
+                value = {this.state.sgst}
+                keyboardType="decimal-pad"
+                autoCapitalize="words"
+                returnKeyType="next"
+                onChangeText={this.handleSgst} />
+            </Item>
+            {this.state.sgstError &&
+              <Text style={styles.errorText}>{this.state.sgstError}</Text>
+            }
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>IGST:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <TextInput 
+                ref='igst'
+                onSubmitEditing={() => this.refs.hsncode.focus()}
+                placeholder='0.0'
+                style={styles.formInput}
+                underlineColorAndroid= "rgba(0,0,0,0)"
+                value = {this.state.igst}
+                keyboardType="decimal-pad"
+                autoCapitalize="words"
+                returnKeyType="next"
+                onChangeText={this.handleIgst} />
+            </Item>
+            {this.state.igstError &&
+              <Text style={styles.errorText}>{this.state.igstError}</Text>
+            }
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>HSN Code:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <TextInput 
+                ref='hsncode'
+                onSubmitEditing={() => this.refs.invNumberInput.focus()}
+                placeholder='Enter HSN Code' 
+                style={styles.formInput}
+                underlineColorAndroid= "rgba(0,0,0,0)"
+                value = {this.state.hsncode}
+                returnKeyType="next"
+                //maxLength={6}
+                onChangeText={this.handleHsnCode} />
+            </Item>
+            {this.state.hsncodeError &&
+              <Text style={styles.errorText}>{this.state.hsncodeError}</Text>
+            }
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Invoice Number:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <TextInput 
+                ref='invNumberInput'
+                placeholder='Enter Invoice number' 
+                style={styles.formInput}
+                underlineColorAndroid= "rgba(0,0,0,0)"
+                value = {this.state.invNumber}
+                returnKeyType="next"
+                onChangeText={this.handleInvoiceNumber} />
+            </Item>
+            {this.state.invNumberError &&
+              <Text style={styles.errorText}>{this.state.invNumberError}</Text>
+            }
+            <Item fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Invoice Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <TouchableOpacity onPress={this.datepickerInv} style={styles.datePicker}>
+                <Text style={styles.datePickerLabel}>{moment(this.state.dateInv).format(global.DATEFORMAT)}</Text>
+                <Icon name="calendar" style={styles.datePickerIcon} />
+              </TouchableOpacity>
+            </Item>
+            { this.state.showInv && 
+            <DateTimePicker value={new Date(moment(this.state.dateInv).format('YYYY-MM-DD'))}
+              mode={this.state.modeDate}
+              display="default"
+              onChange={this.setDateInv} />
+            }
+
+            <Label style={[styles.formLabel,{marginLeft: 16}]}>Hotel/Guest House Address:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TextInput 
+              placeholder='Enter Hotel/Guest House Address' 
+              style={styles.addressInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.htlAdrs}
+              returnKeyType="next"
+              numberOfLines={4}
+              onChangeText={this.handleHtlAdrs} />            
+            {this.state.htlAdrsError &&
+              <Text style={styles.errorText}>{this.state.htlAdrsError}</Text>
+            }
+
+            </>}
+
+            {/*<View style={styles.attachRow}>
               <Text style={styles.formLabel}>Attachments:</Text>              
               <Button rounded bordered info onPress={() => { this.setModalVisible(true); }} style={styles.atchBtn}>                
                 <Icon name='attach' style={{fontSize:16, marginRight:0}} />
@@ -848,7 +1244,7 @@ class HotelReqScreen extends Component {
                   Attach Documents
                 </Text>
               </Button>
-            </View>
+                </View>*/}
           </Form>
           {this.state.uploadData.map((item, key) => (
             (item.file.length>0) ?
@@ -982,6 +1378,7 @@ const mapStateToProps = state => {
     stateList: state.stateList,
     locations: state.locations,
     statusResult: state.statusResult,
+    hotelList: state.hotelList
   };
 };
 
@@ -993,7 +1390,8 @@ const mapDispatchToProps = {
   getTravelType: Actions.getTravelType,
   getStates: Actions.getStates,
   getReqLocations: Actions.getReqLocations,
-  getStatus: Actions.getStatus
+  getStatus: Actions.getStatus,
+  getHotels: Actions.getHotels
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(HotelReqScreen);
