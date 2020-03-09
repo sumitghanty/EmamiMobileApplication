@@ -32,7 +32,8 @@ class ExpInfoScreen extends Component {
       msg: null,
       saveActive: true,
       submitActive: false,
-      reload: false
+      reload: false,
+      airReqData: null,
     };
   }
   componentDidMount(props){
@@ -41,8 +42,17 @@ class ExpInfoScreen extends Component {
       console.log('firsttime')
       this.onScreenLoad();
     });
+
     this.props.getReqClaimType(global.USER.designation,global.USER.grade);
-    this.props.getReqType(global.USER.designation,global.USER.grade);    
+    
+    this.props.getReqType(global.USER.designation,global.USER.grade)
+    .then(()=>{
+      for(var i=0; i<this.props.reqType.dataSource.length; i++) {
+        if(this.props.reqType.dataSource[i].sub_category_id == "1") {
+          this.setState({airReqData: this.props.reqType.dataSource[i]})
+        }
+      }
+    });    
     
     this.props.navigation.addListener(
       'didFocus',
@@ -167,9 +177,7 @@ class ExpInfoScreen extends Component {
 
   editModalVisible(value){
     this.setState({editModalData: value});
-  }
-
-  
+  }  
 
   tripSaveConfirmation() {
     Alert.alert(
@@ -193,7 +201,7 @@ class ExpInfoScreen extends Component {
     let newTrip = this.props.navigation.state;
     let statusName = '';
     let subStatusName = '';
-    AsyncStorage.getItem("TRIPSUBMIT")
+    AsyncStorage.getItem("TRIPSAVE")
     .then(()=>{
       this.setState({
         isLoading: true
@@ -226,9 +234,104 @@ class ExpInfoScreen extends Component {
       })
     })
   }
+
+  tripSubmitConfirmation() {
+    for(var i=0; i< this.props.plans.dataSource.length; i++) {
+      if(this.props.plans.dataSource[i].status_id == '19' && this.props.plans.dataSource[i].delete_status == 'false') {
+        Alert.alert(
+          'Warning',
+          'One or more Requisition is not complete. Please compleet unsaved requisition',
+          [
+            {
+              text: 'Ok',
+              style: 'cancel',
+            },
+          ],
+          {cancelable: true},
+        )
+        break;
+      }
+    }
+    Alert.alert(
+      'Submit',
+      'Do you want to Submit?',
+      [
+        {
+          text: 'No',
+          style: 'cancel',
+        },
+        {
+          text: 'Yes', 
+          onPress: () => this.tripSubmit()
+        },
+      ],
+      {cancelable: true},
+    )
+  }
+
+  tripSubmit() {
+    const {params} = this.props.navigation.state;    
+    let tripData = params
+    let submitData = this.props.plans.dataSource;
+    let statusName = '';
+    let subStatusName = '';
+    
+    AsyncStorage.getItem("TRIPSUBMIT")
+    .then(()=>{
+      this.setState({
+        isLoading: true
+      });
+    })    
+    .then(()=>{
+      this.props.getStatus("21","NA")
+      .then(()=>{
+        statusName = this.props.statusResult.dataSource[0].trip_pjp_status;
+        subStatusName = this.props.statusResult.dataSource[0].sub_status;
+      });
+    })
+    .then(()=>{
+      for(var i=0; i< submitData.length; i++) {
+        submitData[i].status_id = '21';
+        submitData[i].status = statusName;
+        submitData[i].sub_status_id = 'NA';
+        submitData[i].sub_status = subStatusName;
+      }
+    })
+    .then(()=>{
+      this.props.reqUpdate(submitData)
+      .then(()=>{
+        tripData.status_id = '21';
+        tripData.status = statusName;
+        tripData.sub_status_id = 'NA';
+        tripData.sub_status = subStatusName;
+        tripData.actual_claim_amount = this.state.actAmnt;
+        tripData.claim_comment = this.state.msg;
+        tripData.pending_with = global.USER.supervisorId;
+        tripData.pending_with_name = global.USER.supervisorName;
+        tripData.email = global.USER.userEmail;
+        tripData.pending_with_email = global.USER.supervisorEmail;
+      })
+      .then(()=>{
+        this.props.tripClaimUpdate([tripData])
+        .then(()=>{
+          this.props.getExpenses(global.USER.userId,"3",["3","4","9","11","15","17","19","20","23","25","27","29"])
+          .then(()=>{
+            this.setState({
+              isLoading: false,
+            });
+          })
+          .then(()=>{
+            this.props.navigation.goBack();
+            Toast.show('Expenses Submit Successfully', Toast.LONG);
+          });
+        });
+      })
+    });
+  }
 	
   render() {
     const {params} = this.props.navigation.state;
+    console.log(params)
     if(this.props.plans.isLoading || this.props.reqClaimType.isLoading || this.props.reqType.isLoading || this.state.isLoading){
       return(
         <Loader/>
@@ -449,7 +552,7 @@ class ExpInfoScreen extends Component {
           </LinearGradient>
         </TouchableOpacity>}
         {this.state.submitActive &&
-        <TouchableOpacity style={styles.btn}>
+        <TouchableOpacity style={styles.btn} onPress={() => {this.tripSubmitConfirmation()}}>
           <LinearGradient
             style={styles.btnBg}
             colors={['#53c55c', '#33b8d6']}
@@ -724,7 +827,9 @@ class ExpInfoScreen extends Component {
         }
         <Text style={styles.cardTile}>{this.getReqValue(data.req_type)}</Text>
           <TouchableOpacity 
-            onPress={() => {this.editModalVisible([data,data.req_type]);}}
+            onPress={data.req_type=='1' 
+            ?() => {this.props.navigation.navigate('AirRequisition',{item, params, 'update':data,'claim':true})}
+            :() => {this.editModalVisible([data,data.req_type]);}}
             style={styles.editlBtn}
             >
           <Icon name="md-create" style={styles.editBtnIcon} />          
@@ -787,7 +892,10 @@ const mapStateToProps = state => {
     reqType: state.reqType,
     reqClaimType: state.reqClaimType,
     trpNSClmDtlUpdtState: state.trpNSClmDtlUpdtState,
-    statusResult: state.statusResult
+    statusResult: state.statusResult,
+    reqUpdateState: state.reqUpdateState,
+    tripClaimUpdateState: state.tripClaimUpdateState,
+    expenses: state.expenses
   };
 };
 
@@ -798,6 +906,9 @@ const mapDispatchToProps = {
   getReqClaimType : Actions.getReqClaimType,
   trpNSClmDtlUpdt: Actions.trpNSClmDtlUpdt,
   getStatus: Actions.getStatus,
+  reqUpdate: Actions.reqUpdate,
+  tripClaimUpdate: Actions.tripClaimUpdate,
+  getExpenses : Actions.getExpenses
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ExpInfoScreen);

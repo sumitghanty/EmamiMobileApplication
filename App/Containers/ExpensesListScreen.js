@@ -28,7 +28,7 @@ class ExpensesListScreen extends Component {
     this.setState({ searchTerm: term })
   }
   componentDidMount(){
-    this.props.getExpenses(global.USER.userId,"3",STATUS_ID);;
+    this.props.getExpenses(global.USER.userId,"3",STATUS_ID);
   }
 
   setAge = (date) => {

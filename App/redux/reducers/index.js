@@ -47,6 +47,7 @@ import ExpListReducer from './ExpList'
 import updtReqNSBDReducer from './updtReqNSBD'
 import TrpNSClmDtlUpdtReducer from './TrpNSClmDtlUpdt'
 import HotelListReducer from './GetHotel'
+import TripClaimUpdateReducer from './TripClaimUpdate'
 
 export default {
 	locations:LocationsReducer,
@@ -97,5 +98,6 @@ export default {
 	expenses:ExpListReducer,
 	updtReqNSBDState:updtReqNSBDReducer,
 	trpNSClmDtlUpdtState:TrpNSClmDtlUpdtReducer,
-	hotelList:HotelListReducer
+	hotelList:HotelListReducer,
+	tripClaimUpdateState:TripClaimUpdateReducer
 };

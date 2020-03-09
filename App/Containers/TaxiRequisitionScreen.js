@@ -266,7 +266,7 @@ class TaxiRequisitionScreen extends Component {
           newReq.status = this.state.statusName;
           newReq.sub_status = this.state.subStatusName;
           newReq.is_outof_policy = this.state.oop;
-          newReq.extra_amount = extAmnt;
+          newReq.extra_amount = this.state.extAmnt;
         })
         .then(()=>{
           this.props.reqUpdate([newReq])
@@ -321,7 +321,7 @@ class TaxiRequisitionScreen extends Component {
             "sub_status": this.state.subStatusName,
             "is_outof_policy": this.state.oop,
             "invoice_amount_currency": this.state.currency,
-            "extra_amount": extAmnt
+            "extra_amount": this.state.extAmnt,
           }])
           .then(()=>{
             this.props.getPlans(params.params.trip_hdr_id)

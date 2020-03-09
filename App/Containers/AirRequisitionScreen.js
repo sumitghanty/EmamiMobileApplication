@@ -64,7 +64,7 @@ class AirRequisitionScreen extends Component {
       modalVisible: false,
       uploadData: [{"type":"Approve Email","file":[]},{"type":"Other","file":[]}],
       curUploadType: 'Approve Email',
-      comments: (params.update && params.update.comments) ? params.update.comments :null,
+      comments: (params.update && params.update.justification) ? params.update.justification :null,
       flight: (params.update && params.update.flight) ? params.update.flight :null,
       readOnly: (params.update && (params.update.sub_status_id == '7.2' || 
                   params.update.sub_status_id == '7.3' ||
@@ -74,7 +74,33 @@ class AirRequisitionScreen extends Component {
       acrdOneVisible: params.update.sub_status_id =='7.1'?1:0,
       acrdTwoVisible: 0,
       acrdThreeVisible: 0,
-      sendVenderData: []
+      sendVenderData: [],
+
+      tcktNo: (params.update && params.update.ticket_number) ? params.update.ticket_number : null,
+      tcktNoError:null,
+      invNumber: (params.update && params.update.invoice_no) ? params.update.invoice_no :null,
+      invNumberError:null,
+      invoiceAmnt: (params.update && params.update.invoice_amount) ? params.update.invoice_amount :null,
+      invoiceAmntError: null,
+      dateInv: (params.update && params.update.invoice_date) ? params.update.invoice_date :new Date(),
+      cgst: (params.update && params.update.vendor_CGST) ? params.update.vendor_CGST :null,
+      cgstError:null,
+      sgst: (params.update && params.update.vendor_SGST) ? params.update.vendor_SGST :null,
+      sgstError:null,
+      igst: (params.update && params.update.vendor_IGST) ? params.update.vendor_IGST :null,
+      igstError:null,
+      hsncode: (params.update && params.update.v_hsn_code) ? params.update.v_hsn_code :null,
+      hsncodeError:null,
+      showInv: false,
+      authority: null,
+      gstin: null,
+      statusClaimName: '',
+      flightVendorList: [],
+      flightVendor: {"Name": (params.update && params.update.issuing_authorityName) ? params.update.issuing_authorityName : "Select Vendor", 
+                "Value": (params.update && params.update.gstin) ? params.update.gstin : "", 
+                "Code": "", 
+                "Id":0,},
+      flightVendorError: '',
     };
   }
 
@@ -174,6 +200,28 @@ class AirRequisitionScreen extends Component {
     this.props.navigation.setParams({
       handleBackPress: this._handleBackPress.bind(this)
     });
+
+    if(params.claim){
+      this.props.getStatus("20","NA")
+      .then(()=>{
+        this.setState({
+          statusClaimName: this.props.statusResult.dataSource[0].trip_pjp_status,
+        });
+      });
+      
+      this.props.getHotels(params.item.sub_category)
+      .then(()=>{
+        for(var i=0; i<this.props.hotelList.dataSource.length; i++) {
+          this.state.flightVendorList.push({
+            "Name": this.props.hotelList.dataSource[i].vendor_name,
+            "Value": this.props.hotelList.dataSource[i].gstin,
+            "Code": this.props.hotelList.dataSource[i].vendor_city,
+            "Id": this.props.hotelList.dataSource[i].vendor_id,
+          },)
+        }
+      });
+    }
+
     this.backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
       this._handleBackPress();
       return true;
@@ -427,14 +475,98 @@ class AirRequisitionScreen extends Component {
     });
   }
 
+  handleInvoiceAmnt = (amnt) => {
+    this.setState({ 
+      invoiceAmnt: amnt,
+      invoiceAmntError:null
+    })
+  }
+
+  handleCgst = (amnt) => {
+    this.setState({ 
+      cgst: amnt,
+      cgstError:null
+    })
+  }
+
+  handleSgst = (amnt) => {
+    this.setState({ 
+      sgst: amnt,
+      sgstError:null
+    })
+  }
+
+  handleIgst = (amnt) => {
+    this.setState({ 
+      igst: amnt,
+      igstError:null
+    })
+  }
+
+  handleHsnCode = (text) => {
+    this.setState({ 
+      hsncode: text,
+      hsncodeError:null
+    })
+  }
+
+  handleInvoiceNumber = (text) => {
+    this.setState({ 
+      invNumber: text,
+      invNumberError:null
+    })
+  }
+
+  handleTicketNo = (text) => {
+    this.setState({ 
+      tcktNo: text,
+      tcktNoError: null
+    })
+  }
+
+  datepickerInv = () => {
+    this.showInvDate('date');
+  }
+
+  showInvDate = mode => {
+    this.setState({
+      showInv: true,
+      mode,
+    });
+  }
+
+  setDateInv = (event, dateInv) => {
+    dateInv = dateInv || this.state.dateInv; 
+    this.setState({
+      showInv: Platform.OS === 'ios' ? true : false,
+      dateInv,
+    });
+  }
+
+  fvSelected(value){
+    AsyncStorage.getItem("ASYNC_STORAGE_FROM_KEY")
+    .then(() => {
+      this.setState({
+        flightVendor: value,
+        flightVendorError: '',
+      })
+    })
+  }
+
   submitReq = () => {    
     const {params} = this.props.navigation.state;
     if (!this.state.fromItem.Name || this.state.fromItem.Name == "Select From Location" ||
         !this.state.toItem.Name || this.state.toItem.Name == "Select To Location" ||
         (this.state.emailError) || (this.state.through=="Self" && !this.state.amount) ||
         (this.state.readOnly && this.state.ticketList && !this.state.selectTicketData) ||
-        (this.props.ticketsList.dataSource.length>0 && !this.state.selectTicketData && (params.update.sub_status_id == '7.2' || params.update.sub_status_id == '7.4')))
-        {
+        (this.props.ticketsList.dataSource.length>0 && !this.state.selectTicketData && 
+          (params.update.sub_status_id == '7.2' || params.update.sub_status_id == '7.4')) ||
+        (params.claim && !this.state.flightVendor.Name) || (params.claim && this.state.flightVendor.Name == "Select Vendor") ||
+        (params.claim && !this.state.invoiceAmnt) || (params.claim && !this.state.tcktNo) ||
+        (params.claim && !this.state.cgst) || (params.claim && !this.state.sgst) ||
+        (params.claim && !this.state.igst) || (params.claim && !this.state.hsncode) ||
+        (params.claim && !this.state.invNumber)
+    ){
       if(!this.state.fromItem.Name || this.state.fromItem.Name == "Select From Location") {
         this.setState({
           tripFromError: 'Please select Station/Location From'
@@ -480,6 +612,46 @@ class AirRequisitionScreen extends Component {
           ],
           { cancelable: false }
         );
+      }
+      if((params.claim && !this.state.flightVendor.Name) || (params.claim && this.state.flightVendor.Name == "Select Vendor")) {
+        this.setState({
+          flightVendorError: 'Please select a vendor'
+        });
+      }
+      if(params.claim && !this.state.invoiceAmnt) {
+        this.setState({
+          invoiceAmntError: 'Please enter invoice amount.',
+        });
+      }
+      if(params.claim && !this.state.tcktNo) {
+        this.setState({
+          tcktNoError: 'Please enter Ticket Number.',
+        });
+      }
+      if(params.claim && !this.state.cgst) {
+        this.setState({
+          cgstError: 'Please enter CGST.',
+        });
+      }
+      if(params.claim && !this.state.sgst) {
+        this.setState({
+          sgstError: 'Please enter SGST.',
+        });
+      }
+      if(params.claim && !this.state.igst) {
+        this.setState({
+          igstError: 'Please enter IGST.',
+        });
+      }
+      if(params.claim && !this.state.hsncode) {
+        this.setState({
+          hsncodeError: 'Please enter HSN code.',
+        });
+      }
+      if(params.claim && !this.state.invNumber) {
+        this.setState({
+          invNumberError: 'Please enter invoice number.',
+        });
       }
     } else {      
       this.setState({
@@ -538,6 +710,7 @@ class AirRequisitionScreen extends Component {
         "status": this.state.OOP=="Y"? this.state.statusNameOP :this.state.statusName,
         "sub_status": this.state.OOP=="Y"? this.state.subStatusNameOP :this.state.subStatusName,        
         "is_outof_policy": this.state.OOP,
+        "justification": this.state.comments,
       }])
       .then(()=>{
         this.props.getPlans(params.params.trip_hdr_id)
@@ -576,27 +749,49 @@ class AirRequisitionScreen extends Component {
                         this.props.vendorList.dataSource.length>0 ? this.state.vendorId:'0'
                         :null;
       
-      newReq.status_id = "7";
+      newReq.status_id = params.claim?'20':"7";
       newReq.is_outof_policy = this.state.OOP;
-      if(!this.state.selectTicketData) {
-        newReq.sub_status_id = this.state.OOP=="Y"?"7.5":"7.4";
-        newReq.status = this.state.OOP=="Y"? this.state.statusNameOP :this.state.statusName;
-        newReq.sub_status = this.state.OOP=="Y"? this.state.subStatusNameOP :this.state.subStatusName;
+      newReq.is_billRequired = params.item.bill_required;
+      newReq.justification = this.state.comments;
+      newReq.extra_amount = (params.claim && params.item.upper_limit == "On Actual" && parseFloat(this.state.amount)>5000000)? 
+                      parseFloat( parseFloat(this.state.amount)-5000000):null
+
+      if(params.claim) {
+        newReq.sub_status_id = 'NA';
+        newReq.status = this.state.statusClaimName;
+        newReq.sub_status = 'NA';
+        newReq.gstin = this.state.flightVendor.Code;
+        newReq.ticket_number = this.state.tcktNo;
+        newReq.invoice_no = this.state.invNumber;
+        newReq.invoice_date = moment(this.state.dateInv).format("YYYY-MM-DD");
+        newReq.issuing_authorityName = this.state.flightVendor.Name;
+        newReq.invoice_amount = this.state.invoiceAmnt;
+        newReq.vendor_CGST = this.state.cgst;
+        newReq.vendor_SGST = this.state.sgst;
+        newReq.vendor_IGST = this.state.igst;
+        newReq.v_hsn_code = this.state.hsncode;
+        newReq.v_hsn_code = this.state.hsncode;
       } else {
-        newReq.flight = this.state.selectTicketData.airline;
-        newReq.flight_type = this.state.selectTicketData.type;
-        newReq.vendor_comment = this.state.selectTicketData.comment;
-        newReq.flight_selected = 'Y';
-        newReq.gstin = this.state.selectTicketData.gstin;
-        newReq.vendor_pan = this.state.selectTicketData.vendor_pan;
-        newReq.gst_vendor_classification = this.state.selectTicketData.gst_vendor_classification;
-        newReq.vendor_city = this.state.selectTicketData.vendor_city;
-        newReq.vendor_rg = this.state.selectTicketData.vendor_rg;
-        if(params.update.sub_status_id == '7.2') {
-          newReq.status_id = '7'
-          newReq.sub_status_id = '7.4'
-          newReq.status = this.state.statusName;
-          newReq.sub_status = this.state.subStatusName;
+        if(!this.state.selectTicketData) {
+          newReq.sub_status_id = this.state.OOP=="Y"?"7.5":"7.4";
+          newReq.status = this.state.OOP=="Y"? this.state.statusNameOP :this.state.statusName;
+          newReq.sub_status = this.state.OOP=="Y"? this.state.subStatusNameOP :this.state.subStatusName;
+        } else {
+          newReq.flight = this.state.selectTicketData.airline;
+          newReq.flight_type = this.state.selectTicketData.type;
+          newReq.vendor_comment = this.state.selectTicketData.comment;
+          newReq.flight_selected = 'Y';
+          newReq.gstin = this.state.selectTicketData.gstin;
+          newReq.vendor_pan = this.state.selectTicketData.vendor_pan;
+          newReq.gst_vendor_classification = this.state.selectTicketData.gst_vendor_classification;
+          newReq.vendor_city = this.state.selectTicketData.vendor_city;
+          newReq.vendor_rg = this.state.selectTicketData.vendor_rg;
+          if(params.update.sub_status_id == '7.2') {
+            newReq.status_id = '7'
+            newReq.sub_status_id = '7.4'
+            newReq.status = this.state.statusName;
+            newReq.sub_status = this.state.subStatusName;
+          }
         }
       }
     })
@@ -683,7 +878,7 @@ class AirRequisitionScreen extends Component {
       <KeyboardAvoidingView style={styles.container} behavior="margin, height, padding">
         <ScrollView contentContainerStyle={styles.scrollView}>
           {(!this.state.readOnly && params.update.sub_status_id !='11.1' && params.update.sub_status_id !='7.1' 
-          && params.update.sub_status_id !='7.3' && params.update.sub_status_id !='11.2' && !this.state.ticketList) ?<>
+          && params.update.sub_status_id !='7.3' && params.update.sub_status_id !='11.2' && !this.state.ticketList && !params.claim) ?<>
           <View style={styles.titleRow}>
             <Text style={styles.title}>Air Requisition {params.update?'Update':'Create'}</Text>
           </View>
@@ -914,7 +1109,7 @@ class AirRequisitionScreen extends Component {
           </>:null}
             
           {(this.state.readOnly || params.update.sub_status_id =='11.1' || params.update.sub_status_id =='7.1' || 
-          params.update.sub_status_id =='7.3' || params.update.sub_status_id =='11.2' || this.state.ticketList) ?<>
+          params.update.sub_status_id =='7.3' || params.update.sub_status_id =='11.2' || this.state.ticketList || params.claim) ?<>
           <TouchableOpacity style={styles.accordionHeader}
             onPress={()=>{this.setAcrdOneVisible()}}>
             <Text style={styles.acrdTitle}>Trip Details</Text>
@@ -954,12 +1149,15 @@ class AirRequisitionScreen extends Component {
               <Label style={styles.formLabel}>Through:</Label>
               <Text style={[styles.formInput,styles.readOnly]}>{params.update.through}</Text>
             </Item>
+            {params.update.vendor_name &&
             <Item picker fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Travel Agent Name:</Label>
               <Text style={[styles.formInput,styles.readOnly]}>{params.update.vendor_name}</Text>
-            </Item>
+            </Item>}
+            {!params.claim && <>
             <Label style={[styles.formLabel,{marginLeft:16, marginBottom:4}]}>Comments:</Label>
             <Text style={[styles.formInput,styles.readOnly]}>{params.update.vendor_comment}</Text>
+            </>}
           </Form>
           
           {(params.update.sub_status_id =='11.1' || params.update.sub_status_id =='11.1') ? <>
@@ -1063,10 +1261,176 @@ class AirRequisitionScreen extends Component {
           {this.state.ticketList.map((item, key) => (
             this._ticketItem(item, key, params.update)
           ))}
-          </>}        
+          </>}
+
+          {params.claim && <Form>
+
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Ticket Number:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TextInput
+              placeholder='Enter Ticket Numbaer' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.tcktNo}
+              returnKeyType="next"
+              onChangeText={this.handleTicketNo} />
+          </Item>
+          {this.state.tcktNoError &&
+            <Text style={styles.errorText}>{this.state.tcktNoError}</Text>
+          }
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Invoice Number:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TextInput 
+              ref='invNumberInput'
+              placeholder='Enter Invoice number' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.invNumber}
+              returnKeyType="next"
+              onChangeText={this.handleInvoiceNumber} />
+          </Item>
+          {this.state.invNumberError &&
+            <Text style={styles.errorText}>{this.state.invNumberError}</Text>
+          }
+          <Item fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Invoice Amount:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TextInput 
+              placeholder='0.0' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.invoiceAmnt}
+              keyboardType="decimal-pad"
+              autoCapitalize="words"
+              onSubmitEditing={() => this.refs.curncyInput.focus()}
+              onChangeText={this.handleInvoiceAmnt} />
+          </Item>
+          {this.state.invoiceAmntError &&
+            <Text style={styles.errorText}>{this.state.invoiceAmntError}</Text>
+          }
+          <Item fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Invoice Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TouchableOpacity onPress={this.datepickerInv} style={styles.datePicker}>
+              <Text style={styles.datePickerLabel}>{moment(this.state.dateInv).format(global.DATEFORMAT)}</Text>
+              <Icon name="calendar" style={styles.datePickerIcon} />
+            </TouchableOpacity>
+          </Item>
+          { this.state.showInv && 
+          <DateTimePicker value={new Date(moment(this.state.dateInv).format('YYYY-MM-DD'))}
+            mode={this.state.modeDate}
+            display="default"
+            onChange={this.setDateInv} />
+          }
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Flight Vendor:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <View style={styles.pickerWraper}>
+              <PickerModal
+                renderSelectView={(disabled, selected, showModal) =>
+                  <TouchableOpacity style={styles.pickerBtn} onPress={showModal}>
+                    <Text style={styles.pickerBtnText}>{this.state.flightVendor.Name}</Text>
+                    <Icon name="arrow-dropdown" style={styles.pickerBtnIcon} />
+                  </TouchableOpacity>
+                }
+                onSelected={this.fvSelected.bind(this)}
+                onClosed={()=>{}}
+                //onBackButtonPressed={()=>{}}
+                items={this.state.flightVendorList}
+                //sortingLanguage={'tr'}
+                showToTopButton={true}
+                selected={this.state.flightVendor}
+                showAlphabeticalIndex={true}
+                autoGenerateAlphabeticalIndex={true}
+                selectPlaceholderText={'Choose one...'}
+                onEndReached={() => console.log('list ended...')}
+                searchPlaceholderText={'Search...'}
+                requireSelection={false}
+                autoSort={false}
+              />
+            </View>
+          </Item>
+          {this.state.flightVendorError ?
+            <Text style={styles.errorText}>{this.state.flightVendorError}</Text>:null
+          }
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Vendor CGST Amount:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TextInput 
+              ref='cgst'
+              onSubmitEditing={() => this.refs.sgst.focus()}
+              placeholder='0.0' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.cgst}
+              keyboardType="decimal-pad"
+              autoCapitalize="words"
+              returnKeyType="next"
+              onChangeText={this.handleCgst} />
+          </Item>
+          {this.state.cgstError &&
+            <Text style={styles.errorText}>{this.state.cgstError}</Text>
+          }
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Vendor SGST Amount:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TextInput 
+              ref='sgst'
+              onSubmitEditing={() => this.refs.igst.focus()}
+              placeholder='0.0' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.sgst}
+              keyboardType="decimal-pad"
+              autoCapitalize="words"
+              returnKeyType="next"
+              onChangeText={this.handleSgst} />
+          </Item>
+          {this.state.sgstError &&
+            <Text style={styles.errorText}>{this.state.sgstError}</Text>
+          }
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Vendor IGST Amount:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TextInput 
+              ref='igst'
+              onSubmitEditing={() => this.refs.hsncode.focus()}
+              placeholder='0.0'
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.igst}
+              keyboardType="decimal-pad"
+              autoCapitalize="words"
+              returnKeyType="next"
+              onChangeText={this.handleIgst} />
+          </Item>
+          {this.state.igstError &&
+            <Text style={styles.errorText}>{this.state.igstError}</Text>
+          }
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Vendor HSN Code:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TextInput 
+              ref='hsncode'
+              onSubmitEditing={() => this.refs.invNumberInput.focus()}
+              placeholder='Enter HSN Code' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.hsncode}
+              returnKeyType="next"
+              //maxLength={6}
+              onChangeText={this.handleHsnCode} />
+          </Item>
+          {this.state.hsncodeError &&
+            <Text style={styles.errorText}>{this.state.hsncodeError}</Text>
+          }
+
+          <Label style={[styles.formLabel,{marginLeft:16, marginBottom:4}]}>Comments:</Label>
+          <TextInput
+            multiline
+            numberOfLines={4}
+            placeholder='Enter Comments'
+            style={[styles.formInput,{marginHorizontal:16, backgroundColor:'#f8f8f8',borderRadius:4,padding: 8, borderWidth:1,borderColor:'rgba(0,0,0,.1)'}]}
+            underlineColorAndroid="transparent"
+            onChangeText={this.handleComment} />
+
+          </Form>}
         
-          {(params.update.sub_status_id !='11.1' && params.update.sub_status_id !='7.1' 
-            && params.update.sub_status_id !='7.3' && params.update.sub_status_id !='11.2') &&
+          {((params.update.sub_status_id !='11.1' && params.update.sub_status_id !='7.1' 
+            && params.update.sub_status_id !='7.3' && (params.update.sub_status_id !='11.2')) || params.claim) &&
           <TouchableOpacity onPress={() => this.submitReq()} style={styles.ftrBtn}>
             <LinearGradient 
               start={{x: 0, y: 0}} 
@@ -1225,7 +1589,8 @@ const mapStateToProps = state => {
     statusResult: state.statusResult,
     vendorList: state.vendorList,
     ticketsList: state.ticketsList,
-    updateVndAirResState: state.updateVndAirResState
+    updateVndAirResState: state.updateVndAirResState,
+    hotelList: state.hotelList
   };
 };
 
@@ -1239,7 +1604,8 @@ const mapDispatchToProps = {
   getTravelType: Actions.getTravelType,
   getVendor: Actions.getVendor,
   getTickets: Actions.getTickets,
-  updateVndAirRes: Actions.updateVndAirRes
+  updateVndAirRes: Actions.updateVndAirRes,
+  getHotels: Actions.getHotels
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AirRequisitionScreen);

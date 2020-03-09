@@ -82,7 +82,8 @@ class LoginScreen extends Component {
           console.log(res);
           let data = JSON.stringify(res)
           global.USER = JSON.parse(data)
-          if(JSON.stringify( res) == '"Login failed!"') {
+          if(JSON.stringify( res) == '"Login failed!"' || JSON.stringify( res) == '"Login failed 00!"' 
+          || JSON.stringify( res) == '"Login failed !"') {
             this.loginFail();
             this.setState({
               isLoading: false

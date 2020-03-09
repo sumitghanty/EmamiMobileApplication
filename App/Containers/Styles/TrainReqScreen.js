@@ -14,7 +14,7 @@ export default StyleSheet.create({
     fontWeight: 'bold',
   },
   formLabel: {
-    flex: 2,
+    flex: 1,
     paddingRight: 10,
     fontSize: 16,
     color: 'rgba(0,0,0,.5)',
@@ -25,7 +25,7 @@ export default StyleSheet.create({
     color: 'rgba(0,0,0,.5)'
   },
   formInput: {
-    flex: 3,
+    flex: 1,
     paddingRight: 16
   },
   ftrBtn: {
@@ -86,7 +86,7 @@ export default StyleSheet.create({
   datePicker: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 3,
+    flex: 1,
   },
   datePickerIcon: {
     color: 'rgba(0,0,0,.5)',
@@ -99,7 +99,7 @@ export default StyleSheet.create({
     fontSize: 16
   },
   pickerWraper: {
-    flex: 3
+    flex: 1
   },
   pickerBtn: {
    flexDirection: 'row',
@@ -200,5 +200,13 @@ export default StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
     color: 'rgba(0,0,0,.35)'
+  },
+  addressInput: {
+    marginHorizontal: 16,
+    padding: 10,
+    backgroundColor: '#f9f9f9',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.15)',
+    borderRadius: 6
   }
 });

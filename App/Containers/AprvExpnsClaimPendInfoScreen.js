@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ScrollView, View, TouchableOpacity, Text, Modal, TextInput, Alert, Image, FlatList } from "react-native"
+import { ScrollView, View, TouchableOpacity, Text, Modal, TextInput, Alert, Image, FlatList, AsyncStorage } from "react-native"
 import LinearGradient from 'react-native-linear-gradient'
 import Icon from 'react-native-vector-icons/Ionicons'
 import Ficon from 'react-native-vector-icons/FontAwesome5'
@@ -23,7 +23,6 @@ class AprvExpnsClaimPendInfoScreen extends Component {
       claimAcrd: 0,
       advAcrd: 0,
       updateParams: '',
-      changeStatusDone: false,
       rejComment: '',
       isLoading: true,
       attachData: null,
@@ -72,69 +71,87 @@ class AprvExpnsClaimPendInfoScreen extends Component {
     });
   }
 
-  changeStatus() {
-    this.setState({ 
-      isLoading: true,
-      modalVisible: false
-    });
-    const {params} = this.props.navigation.state;
-    let newParams = params;
-    newParams.status_id = "22";
-    newParams.status = "Expense Claim - Approved by Approver";
-    newParams.pending_with = global.USER.financerId;
-    newParams.pending_with_name = global.USER.financerName;
-    newParams.pending_with_email = global.USER.financerEmail;
-    this.setState({
-      updateParams:newParams,
-      changeStatusDone: true
-    });
-  }
-
-  changeRejStatus() {
-    this.setState({ 
-      isLoading: true,
-      modalVisible: false
-    });
-    const {params} = this.props.navigation.state;
-    let newParams = params;
-    newParams.status_id = "23";
-    newParams.status = "Expense Claim - Rejected by Approver";
-    newParams.pending_with = global.USER.financerId;
-    newParams.pending_with_name = global.USER.financerName;
-    newParams.pending_with_email = global.USER.financerEmail;
-    newParams.comment = this.state.rejComment;
-    this.setState({
-      updateParams:newParams,
-      changeStatusDone: true
-    });
-  }
-
   approveTripNonReq() {
-    this.changeStatus();
-    if(this.state.changeStatusDone) {
-      this.props.postExpAprv(this.state.updateParams)
-      .then(()=>{
-        this.props.getExpPendApr("21");
-        this.props.getCostCentre(global.COSTCENTRE);
-        this.props.navigation.navigate('ApproveNoneSaleExpenses');
-        Toast.show('Expense Claim Approved Successfully', Toast.LONG);
-        console.log('Approve Done');
+    const {params} = this.props.navigation.state;
+    let newParams = params;
+    let statusName = '';
+    let subStatusName = '';
+
+    AsyncStorage.getItem("CLAIMAPPROVE")
+    .then(()=>{
+      this.setState({
+        isLoading: true,
+        modalVisible: false
       });
-    }
+    })
+    .then(()=>{
+      this.props.getStatus("22","NA")
+      .then(()=>{
+        statusName = this.props.statusResult.dataSource[0].trip_pjp_status;
+        subStatusName = this.props.statusResult.dataSource[0].sub_status;
+      })
+      .then(()=>{
+        newParams.status_id = "22";
+        newParams.status = statusName;
+        newParams.sub_status_id = "NA";
+        newParams.sub_status = subStatusName;
+        newParams.pending_with = global.USER.financerId;
+        newParams.pending_with_name = global.USER.financerName;
+        newParams.pending_with_email = global.USER.financerEmail;
+      })
+      .then(()=>{
+        this.props.postExpAprv(newParams)
+        .then(()=>{
+          this.props.getExpPendApr("21");
+          this.props.getCostCentre(global.COSTCENTRE);
+          this.props.navigation.navigate('ApproveNoneSaleExpenses');
+          Toast.show('Expense Claim Approved Successfully', Toast.LONG);
+          console.log('Approve Done');
+        });
+      });
+    })
   }
 
   rejectTripNonReq() {
-    this.changeRejStatus();
-    if(this.state.changeStatusDone) {
-      this.props.postExpAprv(this.state.updateParams)
-      .then(()=>{
-        this.props.getExpPendApr("21");
-        this.props.getCostCentre(global.COSTCENTRE);
-        this.props.navigation.navigate('ApproveNoneSaleExpenses');
-        Toast.show('Expense Claim Rejected Successfully', Toast.LONG);
-        console.log('Reject Done');
+    const {params} = this.props.navigation.state;
+    let newParams = params;
+    let statusName = '';
+    let subStatusName = '';
+
+    AsyncStorage.getItem("CLAIMREJECT")
+    .then(()=>{
+      this.setState({
+        isLoading: true,
+        modalVisible: false
       });
-    }
+    })
+    .then(()=>{
+      this.props.getStatus("23","NA")
+      .then(()=>{
+        statusName = this.props.statusResult.dataSource[0].trip_pjp_status;
+        subStatusName = this.props.statusResult.dataSource[0].sub_status;
+      })
+      .then(()=>{
+        newParams.status_id = "23";
+        newParams.status = statusName;
+        newParams.sub_status_id = "NA";
+        newParams.sub_status = subStatusName;
+        newParams.pending_with = global.USER.financerId;
+        newParams.pending_with_name = global.USER.financerName;
+        newParams.pending_with_email = global.USER.financerEmail;
+        newParams.comment = this.state.rejComment;
+      })
+      .then(()=>{
+        this.props.postExpAprv(newParams)
+        .then(()=>{
+          this.props.getExpPendApr("21");
+          this.props.getCostCentre(global.COSTCENTRE);
+          this.props.navigation.navigate('ApproveNoneSaleExpenses');
+          Toast.show('Expense Claim Rejected Successfully', Toast.LONG);
+          console.log('Reject Done');
+        });
+      });
+    })
   }
 
   approveConfirmation(e) {
@@ -575,7 +592,8 @@ const mapStateToProps = state => {
     plans: state.plans,
     costCentre: state.costCentre,
     aprExpPend: state.aprExpPend,
-    attachment: state.attachment
+    attachment: state.attachment,
+    statusResult: state.statusResult,
   };
 };
 
@@ -585,7 +603,8 @@ const mapDispatchToProps = {
   getExpPendApr : Actions.getExpPendApr,
   getCostCentre : Actions.getCostCentre,
   getPlans : Actions.getPlans,
-  getAttachment: Actions.getAttachment
+  getAttachment: Actions.getAttachment,
+  getStatus: Actions.getStatus,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AprvExpnsClaimPendInfoScreen);

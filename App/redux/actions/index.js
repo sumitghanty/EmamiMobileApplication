@@ -47,6 +47,7 @@ import {getExpenses} from './ExpList'
 import {updtReqNSBD} from  './updtReqNSBD'
 import {trpNSClmDtlUpdt} from  './TrpNSClmDtlUpdt'
 import {getHotels} from './GetHotel'
+import {tripClaimUpdate} from './TripClaimUpdate'
 
 export default {
 	getReqLocations:getReqLocations,
@@ -97,5 +98,6 @@ export default {
 	getReqClaimType:getReqClaimType,
 	updtReqNSBD:updtReqNSBD,
 	trpNSClmDtlUpdt:trpNSClmDtlUpdt,
-	getHotels:getHotels
+	getHotels:getHotels,
+	tripClaimUpdate:tripClaimUpdate
 }

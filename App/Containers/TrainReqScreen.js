@@ -63,6 +63,34 @@ class TrainReqScreen extends Component {
       modalVisible: false,
       uploadData: [{"type":"Approve Email","file":[]},{"type":"Other","file":[]}],
       curUploadType: 'Approve Email',
+      invoiceAmnt: (params.update && params.update.invoice_amount) ? params.update.invoice_amount :null,
+      invoiceAmntError: null,
+      currency: (params.update && params.update.invoice_currency) ? params.update.invoice_currency :null,
+      currencyError: null,
+      cgst: (params.update && params.update.vendor_CGST) ? params.update.vendor_CGST :null,
+      cgstError:null,
+      sgst: (params.update && params.update.vendor_SGST) ? params.update.vendor_SGST :null,
+      sgstError:null,
+      igst: (params.update && params.update.vendor_IGST) ? params.update.vendor_IGST :null,
+      igstError:null,
+      hsncode: (params.update && params.update.v_hsn_code) ? params.update.v_hsn_code :null,
+      hsncodeError:null,
+      invNumber: (params.update && params.update.invoice_no) ? params.update.invoice_no :null,
+      invNumberError:null,
+      dateInv: (params.update && params.update.invoice_date) ? params.update.invoice_date :new Date(),
+      msg: (params.update && params.update.justification) ? params.update.justification :null,
+      msgError: null,
+      tStatus: (params.update && params.update.ticket_status) ? params.update.ticket_status : 'Availed',
+      authority: null,
+      gstin: null,
+      showInv: false,
+      statusClaimName: '',
+      tcktNo: (params.update && params.update.ticket_number) ? params.update.ticket_number : null,
+      vendorId: (params.update && params.update.va_ta_id) ? params.update.va_ta_id : null,
+      vPan: (params.update && params.update.vendor_pan) ? params.update.vendor_pan : null,
+      gstVClassification: (params.update && params.update.gst_vendor_classification) ? params.update.gst_vendor_classification : null,
+      vCity: (params.update && params.update.vendor_city) ? params.update.vendor_city : null,
+      vRg: (params.update && params.update.vendor_rg) ? params.update.vendor_rg : null,
     };
   }
 
@@ -92,21 +120,42 @@ class TrainReqScreen extends Component {
       });
     })
 
-    this.props.getStatus("7","7.5")
-    .then(()=>{
-      this.setState({
-        statusNameOP: this.props.statusResult.dataSource[0].trip_pjp_status,
-        subStatusNameOP: this.props.statusResult.dataSource[0].sub_status
+    if(!params.claim){
+      this.props.getStatus("7","7.5")
+      .then(()=>{
+        this.setState({
+          statusNameOP: this.props.statusResult.dataSource[0].trip_pjp_status,
+          subStatusNameOP: this.props.statusResult.dataSource[0].sub_status
+        });
       });
-    });
 
-    this.props.getStatus("7","7.4")
-    .then(()=>{
-      this.setState({
-        statusName: this.props.statusResult.dataSource[0].trip_pjp_status,
-        subStatusName: this.props.statusResult.dataSource[0].sub_status
+      this.props.getStatus("7","7.4")
+      .then(()=>{
+        this.setState({
+          statusName: this.props.statusResult.dataSource[0].trip_pjp_status,
+          subStatusName: this.props.statusResult.dataSource[0].sub_status
+        });
       });
-    });
+    }
+
+    if(params.claim){
+      this.props.getStatus("20","NA")
+      .then(()=>{
+        this.setState({
+          statusClaimName: this.props.statusResult.dataSource[0].trip_pjp_status,
+        });
+      });
+      
+      this.props.getHotels(params.item.sub_category)
+      .then(()=>{
+        if(this.props.hotelList.dataSource.length>0) {
+          this.setState({
+            authority: this.props.hotelList.dataSource[0].vendor_name,
+            gstin: this.props.hotelList.dataSource[0].gstin,
+          });
+        }
+      });
+    }
 
     this.props.navigation.setParams({
       handleBackPress: this._handleBackPress.bind(this)
@@ -201,6 +250,25 @@ class TrainReqScreen extends Component {
       tclass: tclass
     });
   } 
+
+  datepickerInv = () => {
+    this.showInvDate('date');
+  }
+
+  showInvDate = mode => {
+    this.setState({
+      showInv: true,
+      mode,
+    });
+  }
+
+  setDateInv = (event, dateInv) => {
+    dateInv = dateInv || this.state.dateInv; 
+    this.setState({
+      showInv: Platform.OS === 'ios' ? true : false,
+      dateInv,
+    });
+  }
   
   setModalVisible(visible) {
     this.setState({modalVisible: visible});
@@ -309,6 +377,28 @@ class TrainReqScreen extends Component {
     });
   }
 
+  onValueChangeTstatus = (value) => {
+    this.setState({
+      tStatus: value
+    });
+  }
+
+  onValueChangeAuthority = (value) => {
+    for(var i=0; i<this.props.hotelList.dataSource.length; i++) {
+      if(this.props.hotelList.dataSource[i].vendor_name == value){
+        this.setState({
+          authority: value,
+          gstin: this.props.hotelList.dataSource[i].gstin,
+          vendorId: this.props.hotelList.dataSource[i].vendor_id,
+          vPan: this.props.hotelList.dataSource[i].vendor_pan,
+          gstVClassification: this.props.hotelList.dataSource[i].gst_vendor_classification,
+          vCity: this.props.hotelList.dataSource[i].vendor_city,
+          vRg: this.props.hotelList.dataSource[i].vendor_rg,
+        });
+      }
+    }
+  }
+
   handleChangeAmount = (amnt) => {
     const {params} = this.props.navigation.state;
     this.setState({ 
@@ -318,10 +408,78 @@ class TrainReqScreen extends Component {
     })
   }
 
+  handleInvoiceAmnt = (amnt) => {
+    this.setState({ 
+      invoiceAmnt: amnt,
+      invoiceAmntError:null
+    })
+  }
+
+  handleCurrency = (text) => {
+    this.setState({ 
+      currency: text,
+      currencyError:null
+    })
+  }
+
+  handleCgst = (amnt) => {
+    this.setState({ 
+      cgst: amnt,
+      cgstError:null
+    })
+  }
+
+  handleSgst = (amnt) => {
+    this.setState({ 
+      sgst: amnt,
+      sgstError:null
+    })
+  }
+
+  handleIgst = (amnt) => {
+    this.setState({ 
+      igst: amnt,
+      igstError:null
+    })
+  }
+
+  handleHsnCode = (text) => {
+    this.setState({ 
+      hsncode: text,
+      hsncodeError:null
+    })
+  }
+
+  handleInvoiceNumber = (text) => {
+    this.setState({ 
+      invNumber: text,
+      invNumberError:null
+    })
+  }
+
+  handleMsg = (text) => {
+    this.setState({ 
+      msg: text,
+      msgError:null
+    })
+  }
+
+  handleTicketNo = (text) => {
+    this.setState({ 
+      tcktNo: text
+    })
+  }
+
   submitReq = () => {
+    const {params} = this.props.navigation.state;
     if (!this.state.fromItem.Name || this.state.fromItem.Name == "Select From Location" ||
         !this.state.toItem.Name || this.state.toItem.Name == "Select To Location" ||
-        (this.state.emailError) || (this.state.through=="Self" && !this.state.amount)) {
+        (this.state.emailError) || (this.state.through=="Self" && !this.state.amount && !params.claim) ||
+        (params.claim && !this.state.invoiceAmnt) || (params.claim && !this.state.currency) ||
+        (params.claim && !this.state.cgst) || (params.claim && !this.state.sgst) ||
+        (params.claim && !this.state.igst) || (params.claim && !this.state.hsncode) ||
+        (params.claim && !this.state.invNumber) || (params.claim && !this.state.msg)
+      ) {
       if(!this.state.fromItem.Name || this.state.fromItem.Name == "Select From Location") {
         this.setState({
           tripFromError: 'Please select Station/Location From'
@@ -337,9 +495,49 @@ class TrainReqScreen extends Component {
           emailError: 'Email is not valid.',
         });
       }
-      if (this.state.through=="Self" && !this.state.amount) {
+      if (this.state.through=="Self" && !this.state.amount && !params.claim) {
         this.setState({
           amntError: 'Please enter Approx amount.',
+        });
+      }
+      if(params.claim && !this.state.invoiceAmnt) {
+        this.setState({
+          invoiceAmntError: 'Please enter invoice amount.',
+        });
+      }
+      if(params.claim && !this.state.currency) {
+        this.setState({
+          currencyError: 'Please enter currency.',
+        });
+      }
+      if(params.claim && !this.state.cgst) {
+        this.setState({
+          cgstError: 'Please enter CGST.',
+        });
+      }
+      if(params.claim && !this.state.sgst) {
+        this.setState({
+          sgstError: 'Please enter SGST.',
+        });
+      }
+      if(params.claim && !this.state.igst) {
+        this.setState({
+          igstError: 'Please enter IGST.',
+        });
+      }
+      if(params.claim && !this.state.hsncode) {
+        this.setState({
+          hsncodeError: 'Please enter HSN code.',
+        });
+      }
+      if(params.claim && !this.state.invNumber) {
+        this.setState({
+          invNumberError: 'Please enter invoice number.',
+        });
+      }
+      if(params.claim && !this.state.msg) {
+        this.setState({
+          msgError: 'Please enter proper Justification.',
         });
       }
     } else {      
@@ -389,11 +587,35 @@ class TrainReqScreen extends Component {
         "travel_from": this.state.fromItem.Name,
         "travel_to": this.state.toItem.Name,
         "email": this.state.email,
-        "status_id": "7",
-        "sub_status_id": this.state.OOP=="Y"?"7.5":"7.4",
-        "status": this.state.OOP=="Y"? this.state.statusNameOP :this.state.statusName,
-        "sub_status": this.state.OOP=="Y"? this.state.subStatusNameOP :this.state.subStatusName,        
+        "status_id": params.claim?'20':"7",
+        "sub_status_id": params.claim?'NA'
+                        : this.state.OOP=="Y"?"7.5":"7.4",
+        "status": params.claim?this.state.statusClaimName
+                  : this.state.OOP=="Y"? this.state.statusNameOP :this.state.statusName,
+        "sub_status": params.claim?'NA'
+                      : this.state.OOP=="Y"? this.state.subStatusNameOP :this.state.subStatusName,       
         "is_outof_policy": this.state.OOP,
+
+        'ticket_number': this.state.tcktNo,
+        'ticket_status': this.state.tStatus,
+        "justification": this.state.msg,
+        'gstin': this.state.gstin,
+        'invoice_amount': this.state.invoiceAmnt,
+        'invoice_currency': this.state.currency,
+        'vendor_CGST': this.state.cgst,
+        'vendor_SGST': this.state.sgst,
+        'vendor_IGST': this.state.igst,
+        'v_hsn_code': this.state.hsncode,
+        'invoice_no': this.state.invNumber,
+        'invoice_date': params.claim?moment(this.state.dateInv).format("YYYY-MM-DD"):null, 
+        'issuing_authorityName': this.state.authority,
+        'va_ta_id': this.state.vendorId,
+        'vendor_pan': this.state.vPan,
+        'gst_vendor_classification': this.state.gstVClassification,
+        'vendor_rg': this.state.vRg,
+        'vendor_city': this.state.vCity,
+        'extra_amount': (params.claim && params.item.upper_limit == "On Actual" && parseFloat(this.state.amount)>5000000)? 
+                        parseFloat( parseFloat(this.state.amount)-5000000):null
       }])
       .then(()=>{
         this.props.getPlans(params.params.trip_hdr_id)
@@ -404,7 +626,7 @@ class TrainReqScreen extends Component {
         })
         .then(()=>{
           this.props.navigation.goBack();
-          Toast.show('Requisition Created Successfully', Toast.LONG);
+          Toast.show(params.claim?'Expense Created Successfully':'Requisition Created Successfully', Toast.LONG);
         })
       })
     });
@@ -425,11 +647,35 @@ class TrainReqScreen extends Component {
       newReq.travel_from = this.state.fromItem.Name;
       newReq.travel_to = this.state.toItem.Name;
       newReq.email = this.state.email;
-      newReq.status_id = "7";
-      newReq.sub_status_id = this.state.OOP=="Y"?"7.5":"7.4";
-      newReq.status = this.state.OOP=="Y"? this.state.statusNameOP :this.state.statusName;
-      newReq.sub_status = this.state.OOP=="Y"? this.state.subStatusNameOP :this.state.subStatusName;
+      newReq.status_id = params.claim?'20':"7";
+      newReq.sub_status_id = params.claim?'NA'
+                             : this.state.OOP=="Y"?"7.5":"7.4"
+      newReq.status = params.claim?this.state.statusClaimName
+                      : this.state.OOP=="Y"? this.state.statusNameOP :this.state.statusName;
+      newReq.sub_status = params.claim?'NA'
+                          : this.state.OOP=="Y"? this.state.subStatusNameOP :this.state.subStatusName;
       newReq.is_outof_policy = this.state.OOP;
+
+      newReq.ticket_number = this.state.tcktNo,
+      newReq.ticket_status = this.state.tStatus,
+      newReq.justification = this.state.msg,
+      newReq.gstin = this.state.gstin,
+      newReq.invoice_amount = this.state.invoiceAmnt,
+      newReq.invoice_currency = this.state.currency,
+      newReq.vendor_CGST = this.state.cgst,
+      newReq.vendor_SGST = this.state.sgst,
+      newReq.vendor_IGST = this.state.igst,
+      newReq.v_hsn_code = this.state.hsncode,
+      newReq.invoice_no = this.state.invNumber,
+      newReq.invoice_date = params.claim?moment(this.state.dateInv).format("YYYY-MM-DD"):null, 
+      newReq.issuing_authorityName = this.state.authority,
+      newReq.va_ta_id = this.state.vendorId,
+      newReq.vendor_pan = this.state.vPan,
+      newReq.gst_vendor_classification = this.state.gstVClassification,
+      newReq.vendor_rg = this.state.vRg,
+      newReq.vendor_city = this.state.vCity,
+      newReq.extra_amount = (params.claim && params.item.upper_limit == "On Actual" && parseFloat(this.state.amount)>5000000)? 
+                      parseFloat( parseFloat(this.state.amount)-5000000):null
     })
     .then(()=>{
       this.props.reqUpdate([newReq])
@@ -442,7 +688,7 @@ class TrainReqScreen extends Component {
         })
         .then(()=>{
           this.props.navigation.goBack();
-          Toast.show('Requisition Updated Successfully', Toast.LONG);
+          Toast.show(params.claim?'Expense Updated Successfully':'Requisition Updated Successfully', Toast.LONG);
         });
       });
     });
@@ -479,7 +725,7 @@ class TrainReqScreen extends Component {
           </View>
           <Form>            
             <Item fixedLabel style={styles.formRow}>
-              <Label style={[styles.formLabel,{flex:5}]}>Eligible Amount/Per Trip:</Label>
+              <Label style={[styles.formLabel,{flex:2}]}>Eligible Amount/Per Trip:</Label>
               <Text style={[styles.formInput,styles.readOnly,{textAlign:'right'}]}>{params.item.upper_limit}</Text>
             </Item>
             <Item fixedLabel style={styles.formRow}>
@@ -619,7 +865,7 @@ class TrainReqScreen extends Component {
                 })*/}
               </Picker>
             </Item>
-            {this.state.through == "Self" &&
+            {(this.state.through == "Self" && !params.claim) &&
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Approx Amount:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <TextInput 
@@ -631,9 +877,198 @@ class TrainReqScreen extends Component {
                 autoCapitalize="words"
                 onChangeText={this.handleChangeAmount} />
             </Item>}
-            {this.state.amntError &&
+            {(this.state.amntError && !params.claim) &&
               <Text style={styles.errorText}>{this.state.amntError}</Text>
             }
+
+            {params.claim && <>
+
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Ticket Number:</Label>
+              <TextInput
+                placeholder='Enter Ticket Numbaer' 
+                style={styles.formInput}
+                underlineColorAndroid= "rgba(0,0,0,0)"
+                value = {this.state.tcktNo}
+                returnKeyType="next"
+                onChangeText={this.handleTicketNo} />
+            </Item>
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Select Ticket Status:</Label>
+              <Picker
+                //mode="dropdown"
+                placeholder="Select Ticket status"
+                selectedValue={this.state.tStatus}
+                onValueChange={this.onValueChangeTstatus}
+                style={styles.formInput}
+                prompt="Select Ticket status"
+                >
+                  <Picker.Item label={"Availed"} value={"Availed"} />
+                  <Picker.Item label={"Cancelled"} value={"Cancelled"} />
+              </Picker>
+            </Item>
+            <Item fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Invoice Amount:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <TextInput 
+                placeholder='0.0' 
+                style={styles.formInput}
+                underlineColorAndroid= "rgba(0,0,0,0)"
+                value = {this.state.invoiceAmnt}
+                keyboardType="decimal-pad"
+                autoCapitalize="words"
+                onSubmitEditing={() => this.refs.curncyInput.focus()}
+                onChangeText={this.handleInvoiceAmnt} />
+            </Item>
+            {this.state.invoiceAmntError &&
+              <Text style={styles.errorText}>{this.state.invoiceAmntError}</Text>
+            }
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Invoice Currency:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <TextInput 
+                ref='curncyInput'
+                onSubmitEditing={() => this.refs.cgst.focus()}
+                placeholder='INR' 
+                style={styles.formInput}
+                underlineColorAndroid= "rgba(0,0,0,0)"
+                value = {this.state.currency}
+                returnKeyType="next"
+                onChangeText={this.handleCurrency} />
+            </Item>
+            {this.state.currencyError &&
+              <Text style={styles.errorText}>{this.state.currencyError}</Text>
+            }
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Issuing Authority:</Label>
+              <Picker
+                placeholder="Select Issuing Authority"
+                selectedValue={this.state.authority}
+                onValueChange={this.onValueChangeAuthority}
+                style={styles.formInput}
+                prompt="Select Issuing Authority"
+                >
+                  {this.props.hotelList.dataSource.map((item, index) => {
+                  return (
+                    <Picker.Item label={item.vendor_name} value={item.vendor_name} key={index} />
+                  );
+                })}
+              </Picker>
+            </Item>
+            <Item fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>GSTIN:</Label>
+              <Text style={[styles.formInput,styles.readOnly]}>
+                {this.state.gstin}
+              </Text>
+            </Item>
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>CGST:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <TextInput 
+                ref='cgst'
+                onSubmitEditing={() => this.refs.sgst.focus()}
+                placeholder='0.0' 
+                style={styles.formInput}
+                underlineColorAndroid= "rgba(0,0,0,0)"
+                value = {this.state.cgst}
+                keyboardType="decimal-pad"
+                autoCapitalize="words"
+                returnKeyType="next"
+                onChangeText={this.handleCgst} />
+            </Item>
+            {this.state.cgstError &&
+              <Text style={styles.errorText}>{this.state.cgstError}</Text>
+            }
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>SGST:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <TextInput 
+                ref='sgst'
+                onSubmitEditing={() => this.refs.igst.focus()}
+                placeholder='0.0' 
+                style={styles.formInput}
+                underlineColorAndroid= "rgba(0,0,0,0)"
+                value = {this.state.sgst}
+                keyboardType="decimal-pad"
+                autoCapitalize="words"
+                returnKeyType="next"
+                onChangeText={this.handleSgst} />
+            </Item>
+            {this.state.sgstError &&
+              <Text style={styles.errorText}>{this.state.sgstError}</Text>
+            }
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>IGST:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <TextInput 
+                ref='igst'
+                onSubmitEditing={() => this.refs.hsncode.focus()}
+                placeholder='0.0'
+                style={styles.formInput}
+                underlineColorAndroid= "rgba(0,0,0,0)"
+                value = {this.state.igst}
+                keyboardType="decimal-pad"
+                autoCapitalize="words"
+                returnKeyType="next"
+                onChangeText={this.handleIgst} />
+            </Item>
+            {this.state.igstError &&
+              <Text style={styles.errorText}>{this.state.igstError}</Text>
+            }
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>HSN Code:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <TextInput 
+                ref='hsncode'
+                onSubmitEditing={() => this.refs.invNumberInput.focus()}
+                placeholder='Enter HSN Code' 
+                style={styles.formInput}
+                underlineColorAndroid= "rgba(0,0,0,0)"
+                value = {this.state.hsncode}
+                returnKeyType="next"
+                //maxLength={6}
+                onChangeText={this.handleHsnCode} />
+            </Item>
+            {this.state.hsncodeError &&
+              <Text style={styles.errorText}>{this.state.hsncodeError}</Text>
+            }
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Invoice Number:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <TextInput 
+                ref='invNumberInput'
+                placeholder='Enter Invoice number' 
+                style={styles.formInput}
+                underlineColorAndroid= "rgba(0,0,0,0)"
+                value = {this.state.invNumber}
+                returnKeyType="next"
+                onChangeText={this.handleInvoiceNumber} />
+            </Item>
+            {this.state.invNumberError &&
+              <Text style={styles.errorText}>{this.state.invNumberError}</Text>
+            }
+            <Item fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Invoice Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <TouchableOpacity onPress={this.datepickerInv} style={styles.datePicker}>
+                <Text style={styles.datePickerLabel}>{moment(this.state.dateInv).format(global.DATEFORMAT)}</Text>
+                <Icon name="calendar" style={styles.datePickerIcon} />
+              </TouchableOpacity>
+            </Item>
+            { this.state.showInv && 
+            <DateTimePicker value={new Date(moment(this.state.dateInv).format('YYYY-MM-DD'))}
+              mode={this.state.modeDate}
+              display="default"
+              onChange={this.setDateInv} />
+            }
+
+            <Label style={[styles.formLabel,{marginLeft: 16}]}>Justification:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TextInput 
+              placeholder='Enter your justification' 
+              style={styles.addressInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.msg}
+              returnKeyType="next"
+              numberOfLines={4}
+              onChangeText={this.handleMsg} />            
+            {this.state.msgError &&
+              <Text style={styles.errorText}>{this.state.msgError}</Text>
+            }
+
+            </>}
+
             <View style={styles.attachRow}>
               <Text style={styles.formLabel}>Attachments:</Text>
               <Button rounded bordered info onPress={() => { this.setModalVisible(true); }} style={styles.atchBtn}>                
@@ -765,6 +1200,7 @@ const mapStateToProps = state => {
     travelThroughState: state.travelThroughState,
     locations: state.locations,
     statusResult: state.statusResult,
+    hotelList: state.hotelList
   };
 };
 
@@ -774,7 +1210,8 @@ const mapDispatchToProps = {
   getPlans : Actions.getPlans,
   getTravelThrough: Actions.getTravelThrough,
   getReqLocations: Actions.getReqLocations,
-  getStatus: Actions.getStatus
+  getStatus: Actions.getStatus,
+  getHotels: Actions.getHotels
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TrainReqScreen);

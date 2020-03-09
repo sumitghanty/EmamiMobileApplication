@@ -173,32 +173,31 @@ class HotelReqScreen extends Component {
       });
     })
 
-    this.props.getStatus("7","7.5")
-    .then(()=>{
-      this.setState({
-        statusNameOP: this.props.statusResult.dataSource[0].trip_pjp_status,
-        subStatusNameOP: this.props.statusResult.dataSource[0].sub_status
+    if(!params.claim){
+      this.props.getStatus("7","7.5")
+      .then(()=>{
+        this.setState({
+          statusNameOP: this.props.statusResult.dataSource[0].trip_pjp_status,
+          subStatusNameOP: this.props.statusResult.dataSource[0].sub_status
+        });
       });
-    });
 
-    this.props.getStatus("7","7.4")
-    .then(()=>{
-      this.setState({
-        statusName: this.props.statusResult.dataSource[0].trip_pjp_status,
-        subStatusName: this.props.statusResult.dataSource[0].sub_status
+      this.props.getStatus("7","7.4")
+      .then(()=>{
+        this.setState({
+          statusName: this.props.statusResult.dataSource[0].trip_pjp_status,
+          subStatusName: this.props.statusResult.dataSource[0].sub_status
+        });
       });
-    });
+    }
 
-    this.props.getStatus("20","NA")
-    .then(()=>{
-      this.setState({
-        statusClaimName: this.props.statusResult.dataSource[0].trip_pjp_status,
-      });
-    });
-
-    
-    //this.props.getHotels("Boarding and Lodging")
     if(params.claim){
+      this.props.getStatus("20","NA")
+      .then(()=>{
+        this.setState({
+          statusClaimName: this.props.statusResult.dataSource[0].trip_pjp_status,
+        });
+      });
       this.props.getHotels(params.item.category)
       .then(()=>{
         for(var i=0; i<this.props.hotelList.dataSource.length; i++) {
