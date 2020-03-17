@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, KeyboardAvoidingView, ScrollView, TouchableOpacity, TextInput, Platform, Modal, 
+import { View, KeyboardAvoidingView, ScrollView, TouchableOpacity, TextInput, Picker, Platform, Modal, 
   Keyboard, Alert, AsyncStorage, BackHandler, ActivityIndicator, Image } from "react-native";
 import { Button, Icon, Text, Form, Item, Label } from 'native-base';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -14,9 +14,9 @@ import RNFS from 'react-native-fs'
 import RNFetchBlob from 'rn-fetch-blob'
 
 import Loader from '../Components/Loader'
-import styles from './Styles/OtherRequisitionScreen'
+import styles from './Styles/RailCommisionScreen'
 
-class OtherRequisitionScreen extends Component {
+class RailCommisionScreen extends Component {
 
   static navigationOptions = ({ navigation }) => {
     const handleClearPress = navigation.getParam("handleBackPress", () => {});
@@ -31,27 +31,43 @@ class OtherRequisitionScreen extends Component {
     const {params} = this.props.navigation.state;
     this.state = {
       curDate: new Date,
-      dateStart: (params.update && params.update.start_date)?params.update.start_date:params.params.start_date,
-      dateEnd: (params.update && params.update.end_date)?params.update.end_date:params.params.start_date,
+      date: (params.update && params.update.vendor_invoice_date)?params.update.vendor_invoice_date:new Date,
+      dateStart: (params.update && params.update.start_date)?params.update.start_date:new Date,
+      dateEnd: (params.update && params.update.end_date)?params.update.end_date:new Date,
       mode: 'date',
       show: false,
+      showStart: false,
       showEnd: false,
       isLoading: false,
       error: false,
-      aprxAmnt: params.item.category == 'DA'?params.item.upper_limit
-                :(params.update && params.update.amount)?params.update.amount:'0',
       statusName: '',
       subStatusName: '',
       lineitem: (params.update && params.update.lineitem)?params.update.lineitem:null,
-      days: 1,
+      tcktFare: (params.update && params.update.amount)?params.update.amount:null,
+      tcktFareError: null,
+      agntProcCharge: (params.update && params.update.ta_booking_commission_amount)?params.update.ta_booking_commission_amount:null,
+      agntProcChargeError: null,
+      aCGST: (params.update && params.update.ta_booking_CGST)?params.update.ta_booking_CGST:null,
+      aCGSTError: null,
+      aSGST: (params.update && params.update.ta_booking_SGST)?params.update.ta_booking_SGST:null,
+      aSGSTError: null,
+      aIGST: (params.update && params.update.ta_booking_IGST)?params.update.ta_booking_IGST:null,
+      aIGSTError: null,
+      vList: [],
+      vName: (params.update && params.update.issuing_authorityName)?params.update.issuing_authorityName:null,
+      AList: [],
+      AName: (params.update && params.update.vendor_name)?params.update.vendor_name:null,
+      aInvNo: (params.update && params.update.vendor_invoice_no)?params.update.vendor_invoice_no:null,
+      aInvNoError: null,
+      iCurrency: (params.update && params.update.invoice_amount_currency)?params.update.invoice_amount_currency:null,
+      iCurrencyError: null,
+      iAmnt: (params.update && params.update.invoice_amount)?params.update.invoice_amount:null,
+      iAmntError: null,
       modalVisible: false,    
       attachFiles: [],
-      uploadData: [{"type":"Approve Email","file":null,'action':null},{"type":"Other","file":null,'action':null}],
+      uploadData: [{"type":"Approve Email","file":[]},{"type":"Other","file":[]}],
       curUploadType: 'Approve Email',
-      flieSizeIssue: false,
-      tripNo: params.params.trip_no,
-      refresh: false,
-      screenReady: params.update ? false : true,
+      flieSizeIssue: false
     };
   }
   
@@ -64,6 +80,30 @@ class OtherRequisitionScreen extends Component {
         statusName: this.props.statusResult.dataSource[0].trip_pjp_status,
         subStatusName: this.props.statusResult.dataSource[0].sub_status
       });
+    });
+
+    this.props.getHotels('Train')
+    .then(()=>{
+      if(this.props.hotelList.dataSource.length>0) {        
+        for(var i=0; i<this.props.hotelList.dataSource.length; i++) {
+          this.state.vList.push(this.props.hotelList.dataSource[i]);
+        }
+        this.setState({
+          vName: this.props.hotelList.dataSource[0].vendor_name,
+        });
+      }
+    });
+
+    this.props.getHotels('Train Agent')
+    .then(()=>{
+      if(this.props.hotelList.dataSource.length>0) {
+        for(var i=0; i<this.props.hotelList.dataSource.length; i++) {
+          this.state.AList.push(this.props.hotelList.dataSource[i]);
+        }
+        this.setState({
+          AName: this.props.hotelList.dataSource[0].vendor_name,
+        });
+      }
     });
 
     if(params.update){
@@ -118,27 +158,45 @@ class OtherRequisitionScreen extends Component {
     );
   }
 
+  setStartDate = (event, date) => {
+    date = date || this.state.dateStart; 
+    this.setState({
+      showStart: Platform.OS === 'ios' ? true : false,
+      dateStart: date,
+    });
+  }
+  showStart = mode => {
+    this.setState({
+      showStart: true,
+      mode,
+    });
+  } 
+  datepickerStart = () => {
+    this.showStart('date');
+  }
+
+  setEndDate = (event, date) => {
+    date = date || this.state.dateEnd; 
+    this.setState({
+      showEnd: Platform.OS === 'ios' ? true : false,
+      dateEnd: date,
+    });
+  } 
+  showEnd = mode => {
+    this.setState({
+      showEnd: true,
+      mode,
+    });
+  } 
+  datepickerEnd = () => {
+    this.showEnd('date');
+  }
+
   setDate = (event, date) => {
-    const {params} = this.props.navigation.state;
-    if(date != undefined) {
-      date = date || this.state.dateStart; 
-      this.setState({
-        show: Platform.OS === 'ios' ? true : false,
-        dateStart: date,
-        dateEnd: date
-      });    
-      var newDays= moment(this.state.dateEnd, "YYYY-MM-DD").diff(moment(this.state.dateStart, "YYYY-MM-DD"), 'days')
-      this.setState({
-        days: newDays+1,
-        aprxAmnt: params.item.upper_limit * (newDays+1)
-      });
-    } else {
-      this.setState({
-        show: Platform.OS === 'ios' ? true : false,
-      });
-    }
+    date = date || this.state.date; 
     this.setState({
       show: Platform.OS === 'ios' ? true : false,
+      date,
     });
   }
 
@@ -152,39 +210,80 @@ class OtherRequisitionScreen extends Component {
     this.show('date');
   }
 
-  setEndDate = (event, date) => {
-    const {params} = this.props.navigation.state;
-    if(date != undefined) {
-      date = date || this.state.dateEnd; 
-      this.setState({
-        showEnd: Platform.OS === 'ios' ? true : false,
-        dateEnd: date,
-      });    
-      var newDays= moment(this.state.dateEnd, "YYYY-MM-DD").diff(moment(this.state.dateStart, "YYYY-MM-DD"), 'days')
-      this.setState({
-        days: newDays+1,
-        aprxAmnt: params.item.upper_limit * (newDays+1)
-      });
-    } else { 
-      this.setState({
-        showEnd: Platform.OS === 'ios' ? true : false,
-      });
-    }
-  } 
-  showEnd = mode => {
-    this.setState({
-      showEnd: true,
-      mode,
-    });
-  } 
-  datepickerEnd = () => {
-    this.showEnd('date');
+  handleTcktFare = (amount) => {
+    this.setState({ 
+      tcktFare: amount,
+      tcktFareError: null
+    })
   }
 
-  handleChangeAmount = (amount) => {
+  handleAgntProcCharge = (amount) => {
     this.setState({ 
-      aprxAmnt: amount
+      agntProcCharge: amount,
+      agntProcChargeError: null
     })
+  }
+
+  handleACGST = (amount) => {
+    this.setState({ 
+      aCGST: amount,
+      aCGSTError: null
+    })
+  }
+
+  handleASGST = (amount) => {
+    this.setState({ 
+      aSGST: amount,
+      aSGSTError: null
+    })
+  }
+
+  handleAIGST = (amount) => {
+    this.setState({ 
+      aIGST: amount,
+      aIGSTError: null
+    })
+  }
+
+  handleAInvNo = (text) => {
+    this.setState({ 
+      aInvNo: text,
+      aInvNoError: null
+    })
+  }
+
+  handleIAmount = (amount) => {
+    this.setState({ 
+      iAmnt: amount,
+      iAmntError: null
+    })
+  }
+
+  handleCurrncy = (text) => {
+    this.setState({ 
+      iCurrency: text,
+      iCurrencyError: null
+    })
+  }
+
+  onValueChangeVendor = (value) => {
+    for(var i=0; i<this.state.vList.length; i++) {
+      if(this.state.vList[i].vendor_name == value){
+        this.setState({
+          vName: value,
+        });
+      }
+    }
+  }
+
+  onValueChangeAgent = (value) => {
+    for(var i=0; i<this.state.AList.length; i++) {
+      if(this.state.AList[i].vendor_name == value){
+        this.setState({
+          AName: value,
+        });
+      }
+    }
   }
 
   setModalVisible(visible) {
@@ -351,6 +450,54 @@ class OtherRequisitionScreen extends Component {
   }
 
   submitReq = () => {
+    if(!this.state.tcktFare || !this.state.agntProcCharge || !this.state.aCGST || !this.state.aSGST 
+      || !this.state.aIGST || !this.state.aInvNo || !this.state.iCurrency || !this.state.iAmnt) {
+      if(!this.state.tcktFare){
+        this.setState({
+          tcktFareError: 'Please Enter Ticket Fare',
+        });
+      }
+      if(!this.state.agntProcCharge){
+        this.setState({
+          agntProcChargeError: 'Please Enter Agent Processing Charge',
+        });
+      }
+      if(!this.state.aCGST){
+        this.setState({
+          aCGSTError: 'Please Enter Agent CGST',
+        });
+      }
+      if(!this.state.aSGST){
+        this.setState({
+          aSGSTError: 'Please Enter Agent SGST',
+        });
+      }
+      if(!this.state.aIGST){
+        this.setState({
+          aIGSTError: 'Please Enter Agent IGST',
+        });
+      }
+      if(!this.state.aInvNo){
+        this.setState({
+          aInvNoError: 'Please Enter Agent Invoice Number',
+        });
+      }
+      if(!this.state.iCurrency){
+        this.setState({
+          iCurrencyError: 'Please Enter Invoice Currency',
+        });
+      }
+      if(!this.state.iAmnt){
+        this.setState({
+          iAmntError: 'Please Enter Agent Invoice Amount',
+        });
+      }
+    } else {
+      this.saveReq();
+    }
+  }
+
+  saveReq = () => {
     const {params} = this.props.navigation.state;
     this.setState({
       isLoading: true,
@@ -368,12 +515,18 @@ class OtherRequisitionScreen extends Component {
         newReq.sub_status_id = "NA";
         newReq.status = this.state.statusName;
         newReq.sub_status = this.state.subStatusName;
-        if(params.item.bill_required == 'Y') {
-          newReq.is_billRequired = 'Y';
-          newReq.invoice_amount = this.state.aprxAmnt.length<1?0:parseFloat(this.state.aprxAmnt);
-        } else {
-          newReq.amount = this.state.aprxAmnt.length<1?0:parseFloat(this.state.aprxAmnt);
-        }
+        newReq.amount = this.state.tcktFare.length<1?0:parseFloat(this.state.tcktFare);
+
+        newReq.ta_booking_commission_amount = this.state.agntProcCharge;
+        newReq.ta_booking_CGST = this.state.aCGST;
+        newReq.ta_booking_SGST = this.state.aSGST;
+        newReq.ta_booking_IGST = this.state.aIGST;
+        newReq.issuing_authorityName = this.state.vName;
+        newReq.vendor_name = this.state.AName;
+        newReq.vendor_invoice_no = this.state.aInvNo;
+        newReq.vendor_invoice_date = moment(this.state.date).format("YYYY-MM-DD");
+        newReq.invoice_amount = this.state.iAmnt;
+        newReq.invoice_amount_currency = this.state.iCurrency;
       })
       .then(()=>{
         this.props.reqUpdate([newReq])
@@ -408,23 +561,32 @@ class OtherRequisitionScreen extends Component {
           "start_date": moment(this.state.dateStart).format('YYYY-MM-DD'),
           "end_date": moment(this.state.dateEnd).format('YYYY-MM-DD'),
           "req_type": params.item.sub_category_id,
-          "amount": this.state.aprxAmnt.length<1?0:parseFloat(this.state.aprxAmnt),
+          "amount": this.state.tcktFare.length<1?0:parseFloat(this.state.tcktFare),
           "status_id": "20",
           "sub_status_id": "NA",
           "status": this.state.statusName,
           "sub_status": this.state.subStatusName,
           "is_outof_policy": "N",
           "is_billRequired": params.item.bill_required == 'Y'?'Y':'N',
-          "invoice_amount": params.item.bill_required == 'Y'?this.state.aprxAmnt:null,
           "delete_status" : "false",
           "pending_with": global.USER.supervisorId,
           "pending_with_name": global.USER.supervisorName,
           "pending_with_email": global.USER.supervisorEmail,
-          "lineitem": this.state.lineitem,
-          
+          "lineitem": this.state.lineitem,          
           "gl": params.item.gl,
           "travel_heads": params.item.travel_heads,
-          "creation_date": moment(this.state.curDate).format("YYYY-MM-DD"),          
+          "creation_date": moment(this.state.curDate).format("YYYY-MM-DD"),
+
+          'ta_booking_commission_amount': this.state.agntProcCharge,
+          'ta_booking_CGST': this.state.aCGST,
+          'ta_booking_SGST': this.state.aSGST,
+          'ta_booking_IGST': this.state.aIGST,
+          'issuing_authorityName': this.state.vName,
+          'vendor_name': this.state.AName,
+          'vendor_invoice_no': this.state.aInvNo,
+          'vendor_invoice_date': moment(this.state.date).format("YYYY-MM-DD"),
+          'invoice_amount': this.state.iAmnt,
+          'invoice_amount_currency': this.state.iCurrency,
         }]
         this.props.reqCreate(postData)
         .then(()=>{
@@ -452,6 +614,7 @@ class OtherRequisitionScreen extends Component {
     if(this.state.isLoading ||
       this.props.plans.isLoading ||
       this.props.statusResult.isLoading ||
+      this.props.hotelList.isLoading ||
       (params.update && this.props.attachmentList.isLoading) ||
       !this.state.screenReady
       ){
@@ -461,6 +624,7 @@ class OtherRequisitionScreen extends Component {
     } else if(this.props.reqCreateState.errorStatus
       || this.props.reqUpdateState.errorStatus 
       || this.props.plans.errorStatus 
+      || this.props.hotelList.errorStatus
       || this.props.statusResult.errorStatus ||
       (params.update && this.props.attachmentList.errorStatus)) {
       return(
@@ -475,20 +639,20 @@ class OtherRequisitionScreen extends Component {
           <Text style={styles.title}>{params.item.sub_category}</Text>
         </View>
         <Form>
-          <Item fixedLabel style={styles.formRow}>
+        <Item fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Start Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
-            <TouchableOpacity onPress={this.datepicker} style={styles.datePicker}>
+            <TouchableOpacity onPress={this.datepickerStart} style={styles.datePicker}>
               <Text style={styles.datePickerLabel}>{moment(this.state.dateStart).format("DD-MM-YYYY")}</Text>
               <Icon name="calendar" style={styles.datePickerIcon} />
             </TouchableOpacity>
           </Item>
-          { this.state.show && 
+          { this.state.showStart && 
           <DateTimePicker value={new Date(moment(this.state.dateStart).format('YYYY-MM-DD'))}
             mode="date"
             minimumDate={new Date(moment(params.params.start_date).format('YYYY-MM-DD'))}
             maximumDate={new Date(moment(params.params.end_date).format('YYYY-MM-DD'))}
             display="default"
-            onChange={this.setDate} />
+            onChange={this.setStartDate} />
           }
           <Item fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>End Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
@@ -498,37 +662,187 @@ class OtherRequisitionScreen extends Component {
             </TouchableOpacity>
           </Item>
           { this.state.showEnd && 
-          <DateTimePicker value={new Date(moment(this.state.dateStart).format('YYYY-MM-DD'))}
+          <DateTimePicker value={new Date(moment(this.state.dateEnd).format('YYYY-MM-DD'))}
             mode="date"
             minimumDate={new Date(moment(params.params.start_date).format('YYYY-MM-DD'))}
             maximumDate={new Date(moment(params.params.end_date).format('YYYY-MM-DD'))}
             display="default"
             onChange={this.setEndDate} />
           }
-          {params.item.category == 'DA' &&
+
           <Item fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>No of Days :</Label>
-            <Text style={styles.readOnly}>{this.state.days}</Text>
-          </Item>}
-          <Item fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Amount :</Label>
-            {params.item.category != 'DA' ?
+            <Label style={styles.formLabel}>Ticket Fare (Inclusive GST):<Text style={{color:'red',fontSize:13}}>*</Text></Label>
             <TextInput 
               placeholder='0.00' 
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
-              value = {this.state.aprxAmnt}
+              value = {this.state.tcktFare}
               keyboardType="decimal-pad"
               autoCapitalize="words"
-              onChangeText={this.handleChangeAmount} />
-            :<Text style={styles.readOnly}>{this.state.aprxAmnt}</Text>}
+              returnKeyType="next"
+              onSubmitEditing={() => this.refs.pcharge.focus()}
+              onChangeText={this.handleTcktFare} />
           </Item>
-          {params.item.category == 'DA' &&
+          {this.state.tcktFareError &&
+            <Text style={styles.errorText}>{this.state.tcktFareError}</Text>
+          }
           <Item fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Currency :</Label>
-            <Text style={styles.readOnly}>{params.params.currency?params.params.currency:'INR'}</Text>
-          </Item>}
-          
+            <Label style={styles.formLabel}>Agent Processing Charges:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TextInput 
+              placeholder='0.00' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.agntProcCharge}
+              keyboardType="decimal-pad"
+              autoCapitalize="words"
+              ref='pcharge'
+              returnKeyType="next"
+              onSubmitEditing={() => this.refs.cgst.focus()}
+              onChangeText={this.handleAgntProcCharge} />
+          </Item>
+          {this.state.agntProcChargeError &&
+            <Text style={styles.errorText}>{this.state.agntProcChargeError}</Text>
+          }
+          <Item fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Agent CGST:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TextInput 
+              placeholder='0.00' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.aCGST}
+              keyboardType="decimal-pad"
+              autoCapitalize="words"
+              ref='cgst'
+              returnKeyType="next"
+              onSubmitEditing={() => this.refs.sgst.focus()}
+              onChangeText={this.handleACGST} />
+          </Item>
+          {this.state.aCGSTError &&
+            <Text style={styles.errorText}>{this.state.aCGSTError}</Text>
+          }
+          <Item fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Agent SGST:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TextInput 
+              placeholder='0.00' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.aSGST}
+              keyboardType="decimal-pad"
+              autoCapitalize="words"
+              ref='sgst'
+              returnKeyType="next"
+              onSubmitEditing={() => this.refs.igst.focus()}
+              onChangeText={this.handleASGST} />
+          </Item>
+          {this.state.aSGSTError &&
+            <Text style={styles.errorText}>{this.state.aSGSTError}</Text>
+          }
+          <Item fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Agent IGST:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TextInput 
+              placeholder='0.00' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.aIGST}
+              keyboardType="decimal-pad"
+              autoCapitalize="words"
+              ref='igst'
+              returnKeyType="next"
+              onChangeText={this.handleAIGST} />
+          </Item>
+          {this.state.aIGSTError &&
+            <Text style={styles.errorText}>{this.state.aIGSTError}</Text>
+          }
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Vendor Name:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <Picker
+              placeholder="Select Vendor"
+              selectedValue={this.state.vName}
+              onValueChange={this.onValueChangeVendor}
+              style={styles.formInput}
+              prompt="Select Vendor Name"
+              >
+                {this.state.vList.map((item, index) => {
+                return (
+                  <Picker.Item label={item.vendor_name} value={item.vendor_name} key={index} />
+                );
+              })}
+            </Picker>
+          </Item>
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Agent Name:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <Picker
+              placeholder="Select Agent"
+              selectedValue={this.state.AName}
+              onValueChange={this.onValueChangeAgent}
+              style={styles.formInput}
+              prompt="Select Agent Name"
+              >
+                {this.state.AList.map((item, index) => {
+                return (
+                  <Picker.Item label={item.vendor_name} value={item.vendor_name} key={index} />
+                );
+              })}
+            </Picker>
+          </Item>
+          <Item fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Agent Invoice Number:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TextInput 
+              placeholder='Invoice Number' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.aInvNo}
+              onChangeText={this.handleAInvNo} />
+          </Item>
+          {this.state.aInvNoError &&
+            <Text style={styles.errorText}>{this.state.aInvNoError}</Text>
+          }        
+          <Item fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Agent Invoice Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TouchableOpacity onPress={this.datepicker} style={styles.datePicker}>
+              <Text style={styles.datePickerLabel}>{moment(this.state.date).format("DD-MM-YYYY")}</Text>
+              <Icon name="calendar" style={styles.datePickerIcon} />
+            </TouchableOpacity>
+          </Item>
+          { this.state.show && 
+          <DateTimePicker value={new Date(moment(this.state.date).format('YYYY-MM-DD'))}
+            mode="date"
+            minimumDate={new Date(moment(params.params.start_date).format('YYYY-MM-DD'))}
+            maximumDate={new Date(moment(params.params.end_date).format('YYYY-MM-DD'))}
+            display="default"
+            onChange={this.setDate} />
+          }
+          <Item fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Agent Invoice Amount:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TextInput 
+              placeholder='0.00' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.iAmnt}
+              keyboardType="decimal-pad"
+              autoCapitalize="words"
+              returnKeyType="next"
+              onSubmitEditing={() => this.refs.currency.focus()}
+              onChangeText={this.handleIAmount} />
+          </Item>
+          {this.state.iAmntError &&
+            <Text style={styles.errorText}>{this.state.iAmntError}</Text>
+          }
+          <Item fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Invoice Currency:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TextInput 
+              placeholder='INR' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.iCurrency}
+              ref='currency'
+              returnKeyType="next"
+              onChangeText={this.handleCurrncy} />
+          </Item>
+          {this.state.iCurrencyError &&
+            <Text style={styles.errorText}>{this.state.iCurrencyError}</Text>
+          }
+
           <View style={styles.attachRow}>
             <Text style={styles.formLabel}>Attachments:</Text>              
             <Button rounded bordered info onPress={() => { this.setModalVisible(true); }} style={styles.atchBtn}>                
@@ -539,39 +853,41 @@ class OtherRequisitionScreen extends Component {
             </Button>
           </View>
         </Form>
+
         {this.state.uploadData.map((item, key) => (
-          item.file ? 
-          <View key={key}>
-            <Text style={styles.attachType}>{item.type}</Text>
-            <View style={styles.atchFileRow}>
-              {item.file.type == "image/webp" ||
-                item.file.type == "image/jpeg" ||
-                item.file.type == "image/jpg" ||
-                item.file.type == "image/png" ||
-                item.file.type == "image/gif" ?
-              <Image
-                style={{width: 50, height: 50, marginRight:10}}
-                source={{uri: item.file.uri}}
-              />:null}
-              <Text style={styles.atchFileName} numberOfLines = {1}>{item.file.name ? item.file.name : ''}</Text>
-              {params.update &&
-              <>
-              {item.action == 'P' ?
-              <ActivityIndicator size="small" color="#0066b3" />:              
-              <Button bordered small rounded primary style={[styles.actionBtn, styles.actionBtnPrimary, item.action == 'C'?{borderColor:'green'}:null]}
-                onPress={() => {this.downloadImage(item.file.uri,item.type);}}>
-                {item.action == 'C' ?
-                <Icon name='md-checkmark' style={[styles.actionBtnIco,{color:'green'}]} />:                
-                <Icon name='md-download' style={[styles.actionBtnIco,styles.actionBtnIcoPrimary]} />}
-              </Button>}
-              </>}
-              <Button bordered small rounded danger style={styles.actionBtn}
-                onPress={()=>this.removeAttach(item.type)}>
-                <Icon name='close' style={styles.actionBtnIco} />
-              </Button>
-            </View>
-          </View>:null
-        ))}
+            item.file ? 
+            <View key={key}>
+              <Text style={styles.attachType}>{item.type}</Text>
+              <View style={styles.atchFileRow}>
+                {item.file.type == "image/webp" ||
+                  item.file.type == "image/jpeg" ||
+                  item.file.type == "image/jpg" ||
+                  item.file.type == "image/png" ||
+                  item.file.type == "image/gif" ?
+                <Image
+                  style={{width: 50, height: 50, marginRight:10}}
+                  source={{uri: item.file.uri}}
+                />:null}
+                <Text style={styles.atchFileName} numberOfLines = {1}>{item.file.name ? item.file.name : ''}</Text>
+                {params.update &&
+                <>
+                {item.action == 'P' ?
+                <ActivityIndicator size="small" color="#0066b3" />:              
+                <Button bordered small rounded primary style={[styles.actionBtn, styles.actionBtnPrimary, item.action == 'C'?{borderColor:'green'}:null]}
+                  onPress={() => {this.downloadImage(item.file.uri,item.type);}}>
+                  {item.action == 'C' ?
+                  <Icon name='md-checkmark' style={[styles.actionBtnIco,{color:'green'}]} />:                
+                  <Icon name='md-download' style={[styles.actionBtnIco,styles.actionBtnIcoPrimary]} />}
+                </Button>}
+                </>}
+                <Button bordered small rounded danger style={styles.actionBtn}
+                  onPress={()=>this.removeAttach(item.type)}>
+                  <Icon name='close' style={styles.actionBtnIco} />
+                </Button>
+              </View>
+            </View>:null
+          ))}
+
         </ScrollView>
 
         <Modal
@@ -665,8 +981,8 @@ const mapStateToProps = state => {
     statusResult: state.statusResult,
     reqUpdateState: state.reqUpdateState,
     updtReqNSBDState: state.updtReqNSBDState,
+    hotelList: state.hotelList,
     attachmentState: state.attachmentState,
-    //trpNSClmDtlUpdtState: state.trpNSClmDtlUpdtState,
     attachmentList: state.attachmentList
   };
 };
@@ -677,9 +993,9 @@ const mapDispatchToProps = {
   getStatus: Actions.getStatus,
   reqUpdate: Actions.reqUpdate,
   updtReqNSBD: Actions.updtReqNSBD,
+  getHotels: Actions.getHotels,
   attachment: Actions.attachment,
-  //trpNSClmDtlUpdt: Actions.trpNSClmDtlUpdt,
   getAttachments: Actions.getAttachments
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(OtherRequisitionScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(RailCommisionScreen);

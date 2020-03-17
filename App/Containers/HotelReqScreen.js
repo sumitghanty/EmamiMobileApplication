@@ -11,6 +11,8 @@ import Actions from '../redux/actions'
 import Toast from 'react-native-simple-toast'
 import { HeaderBackButton } from "react-navigation-stack"
 import PickerModal from 'react-native-picker-modal-view'
+import RNFS from 'react-native-fs'
+import RNFetchBlob from 'rn-fetch-blob'
 
 import Loader from '../Components/Loader'
 import styles from './Styles/HotelReqScreen.js'
@@ -69,10 +71,9 @@ class HotelReqScreen extends Component {
       amntError: null,
       days: (params.update && params.update.days) ? params.update.days : 1,
       modalVisible: false,
-      uploadData: [{"type":"Approve Email","file":[]},
-                    {"type":"Other","file":[]},
-                    {"type":"Hotel Booking confirmation document","file":[]},
-                    {"type":"Hotel booking invoice","file":[]}],
+      uploadData: [{"type":"Approve Email","file":null,'action':null},
+                    {"type":"Hotel Booking confirmation document","file":null,'action':null},
+                    {"type":"Other","file":null,'action':null},],
       curUploadType: 'Approve Email',
       statusNameOP: '',
       subStatusNameOP: '',
@@ -106,7 +107,12 @@ class HotelReqScreen extends Component {
       dateInv: (params.update && params.update.invoice_date) ? params.update.invoice_date :new Date(),
       htlAdrs: (params.update && params.update.hotel_address) ? params.update.hotel_address :null,
       htlAdrsError:null,
-      hotelNameError: null
+      hotelNameError: null,
+      lineitem: (params.update && params.update.lineitem)?params.update.lineitem:null,
+      flieSizeIssue: false,
+      tripNo: params.params.trip_no,
+      refresh: false,
+      screenReady: params.update ? false : true,
     };
   }
 
@@ -211,6 +217,27 @@ class HotelReqScreen extends Component {
       });
     }
 
+    if(params.update){
+      this.props.getAttachments(params.params.trip_hdr_id,this.state.tripNo,params.update.lineitem)
+      .then(()=>{
+        for(var i=0; i<this.props.attachmentList.dataSource.length; i++) {
+          for(var j=0; j<this.state.uploadData.length; j++) {
+            if(this.props.attachmentList.dataSource[i].doc_type == this.state.uploadData[j].type) {
+              this.state.uploadData[j].file={
+                'size': null,
+                'name': this.props.attachmentList.dataSource[i].file_name,
+                'type': 'image/'+this.getExtention(this.props.attachmentList.dataSource[i].file_name),
+                'uri': this.props.attachmentList.dataSource[i].file_path
+              }
+            }           
+          }
+        }
+      })
+      .then(()=>{
+        this.setState({screenReady: true});
+      })
+    }
+
     this.props.navigation.setParams({
       handleBackPress: this._handleBackPress.bind(this)
     });
@@ -268,35 +295,60 @@ class HotelReqScreen extends Component {
     }
   }
 
-  removeAttach(type,e) {
+  removeAttach(type) {
     for(var i =0; i<this.state.uploadData.length; i++) {
-      if(this.state.uploadData[i].type==type && e !== -1) {
-        let newList = this.state.uploadData[i].file;
-        newList.splice(e, 1);
-        this.state.uploadData[i].file = newList;
-        this.setState({attachFiles: newList});
+      if(this.state.uploadData[i].type == type) {
+        this.state.uploadData[i].file = null;
+        this.state.attachFiles.splice(0,1);
+        this.setState({ 
+          refresh: true 
+        })
       }
     }
   }
-
   async selectAttachFiles() {
     try {
-      const results = await DocumentPicker.pickMultiple({
+      const results = await DocumentPicker.pick({
         type: [DocumentPicker.types.allFiles],
       });
-      if (results.length>1) {
-        alert(results.length + ' fils are uploade successfully.');
-      } else {
-        alert(results.length + ' fil is uploade successfully.');
-      }      
-      for(var i=0; i<this.state.uploadData.length; i++) {
-        if(this.state.uploadData[i].type == this.state.curUploadType) {
-          this.state.uploadData[i].file = results
+      
+      for(var i=0; i<results.length; i++) {
+        if(results[i].size>3000000) {
+          Alert.alert(
+            "File Size issue",
+            "You have selected a large file. Please choose the file less then 3MB.",
+            [
+              {
+                text: "Ok",
+                style: 'cancel',
+              },
+            ],
+            { cancelable: true }
+          );
+          this.setState({ 
+            flieSizeIssue: true 
+          })
+          break
+        }
+        else {
+          this.setState({ 
+            flieSizeIssue: false 
+          })
         }
       }
-      this.setState({ 
-        attachFiles: results 
-      });
+
+      if(!this.state.flieSizeIssue) {
+        alert('File uploaded successfully.');     
+        for(var i=0; i<this.state.uploadData.length; i++) {
+          if(this.state.uploadData[i].type == this.state.curUploadType) {
+            this.state.uploadData[i].file = results;
+          }
+        }
+        this.state.attachFiles.push(results);
+        this.setState({ 
+          refresh: true 
+        })
+      }
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         alert('You have not select any file for attachment');
@@ -305,6 +357,83 @@ class HotelReqScreen extends Component {
         throw err;
       }
     }
+  }
+
+  async atchFiles() {
+    const {params} = this.props.navigation.state;
+    for(var i=0; i<this.state.uploadData.length; i++){
+      let fileBase64 = null;
+      let filePath = this.state.uploadData[i].file.uri;
+      await RNFS.readFile(filePath, 'base64')
+      .then(res =>{
+        fileBase64 = res;
+      })
+      .then(()=>{
+        this.props.attachment({
+          "mimeType": this.state.uploadData[i].file.type,
+          "tripNo": params.params.trip_no,
+          "lineItem": this.state.lineitem,
+          "docType": this.state.uploadData[i].type,
+          "userId": params.params.userid,
+          "trip_hdr_id_fk": params.params.trip_hdr_id,
+          "name": this.state.uploadData[i].file.name,
+          "flow_type": params.claim?'ECR':'PT',
+          "base64Str":fileBase64,
+        })
+      })
+      .catch((err) => {
+        console.log(err.message, err.code);
+      })
+    }
+  }
+
+  downloadImage = (file,type) => {
+    console.log(file);
+    var date = new Date();
+    var image_URL = file;
+    var ext = this.getExtention(image_URL);
+    ext = "." + ext[0];
+    const { config, fs } = RNFetchBlob;
+    let PictureDir = fs.dirs.PictureDir
+    let options = {
+      fileCache: true,
+      addAndroidDownloads: {
+        useDownloadManager: true,
+        notification: true,
+        path: PictureDir + "/Emami/download_" + Math.floor(date.getTime()
+          + date.getSeconds() / 2) + ext,
+        description: 'Image'
+      }
+    }
+    for(i=0; i<this.state.uploadData.length; i++) {
+      if(this.state.uploadData[i].type == type) {
+        this.state.uploadData[i].action = 'P';
+        break;
+      }
+    }
+    this.setState({
+      refresh: true
+    });
+    config(options).fetch('GET', image_URL)
+    .then((res) => {
+      Alert.alert('The file saved to ', res.path());
+    })
+    .then(()=>{
+      for(i=0; i<this.state.uploadData.length; i++) {
+        if(this.state.uploadData[i].type == type) {
+          this.state.uploadData[i].action = 'C';          
+          this.setState({
+            refresh: true
+          });
+          break;
+        }
+      }
+    });
+  }
+ 
+  getExtention = (filename) => {
+    return (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename) :
+      undefined;
   }
   
   stateSelected(value){
@@ -604,6 +733,11 @@ class HotelReqScreen extends Component {
     const {params} = this.props.navigation.state;
     this.props.getPlans(params.params.trip_hdr_id)
     .then(()=>{
+      this.setState({
+        lineitem: this.props.plans.dataSource.length + 1,
+      });
+    })
+    .then(()=>{
       this.props.reqCreate([{
         "trip_hdr_id_fk": params.params.trip_hdr_id,          
         "trip_no": params.params.trip_no,
@@ -618,7 +752,7 @@ class HotelReqScreen extends Component {
         "financer_id": global.USER.financerId,
         "financer_email": global.USER.financerEmail,
         "financer_name": global.USER.financerName,
-        "lineitem": this.props.plans.dataSource.length + 1,
+        "lineitem": this.state.lineitem,
         "start_date": params.params.start_date,
         "end_date": params.params.end_date,
         "creation_date": moment(this.state.curDate).format("YYYY-MM-DD"),
@@ -662,6 +796,9 @@ class HotelReqScreen extends Component {
         'extra_amount': (params.claim && params.item.upper_limit == "On Actual" && parseFloat(this.state.amount)>5000000)? 
                         parseFloat( parseFloat(this.state.amount)-5000000):null
       }])
+      .then(()=>{
+        this.atchFiles();
+      })
       .then(()=>{
         this.props.getPlans(params.params.trip_hdr_id)
         .then(()=>{
@@ -722,6 +859,9 @@ class HotelReqScreen extends Component {
     })
     .then(()=>{
       this.props.reqUpdate([newReq])
+      .then(()=>{
+        this.atchFiles();
+      })
       .then(()=>{
         this.props.getPlans(params.params.trip_hdr_id)
         .then(()=>{
@@ -828,7 +968,9 @@ class HotelReqScreen extends Component {
       this.props.travelTypeState.isLoading ||
       this.props.stateList.isLoading ||
       this.props.statusResult.isLoading ||
-      this.props.locations.isLoading){
+      this.props.locations.isLoading ||
+      (params.update && this.props.attachmentList.isLoading) ||
+      !this.state.screenReady){
       return(
         <Loader/>
       )
@@ -839,7 +981,8 @@ class HotelReqScreen extends Component {
       this.props.travelTypeState.errorStatus ||
       this.props.stateList.errorStatus ||
       this.props.locations.errorStatus || 
-      this.props.statusResult.errorStatus) {
+      this.props.statusResult.errorStatus ||
+      (params.update && this.props.attachmentList.errorStatus)) {
       return(
         <Text>URL Error</Text>
       )
@@ -1235,7 +1378,7 @@ class HotelReqScreen extends Component {
 
             </>}
 
-            {/*<View style={styles.attachRow}>
+            <View style={styles.attachRow}>
               <Text style={styles.formLabel}>Attachments:</Text>              
               <Button rounded bordered info onPress={() => { this.setModalVisible(true); }} style={styles.atchBtn}>                
                 <Icon name='attach' style={{fontSize:16, marginRight:0}} />
@@ -1243,32 +1386,40 @@ class HotelReqScreen extends Component {
                   Attach Documents
                 </Text>
               </Button>
-                </View>*/}
+            </View>
           </Form>
           {this.state.uploadData.map((item, key) => (
-            (item.file.length>0) ?
+            item.file ? 
             <View key={key}>
-            <Text style={styles.attachType}>{item.type}</Text>
-            {item.file.map((file, index)=>(
-              <View key={index} style={styles.atchFileRow}>
-                {file.type == "image/webp" ||
-                  file.type == "image/jpeg" ||
-                  file.type == "image/jpg" ||
-                  file.type == "image/png" ||
-                  file.type == "image/gif" ?
+              <Text style={styles.attachType}>{item.type}</Text>
+              <View style={styles.atchFileRow}>
+                {item.file.type == "image/webp" ||
+                  item.file.type == "image/jpeg" ||
+                  item.file.type == "image/jpg" ||
+                  item.file.type == "image/png" ||
+                  item.file.type == "image/gif" ?
                 <Image
                   style={{width: 50, height: 50, marginRight:10}}
-                  source={{uri: file.uri}}
+                  source={{uri: item.file.uri}}
                 />:null}
-                <Text style={styles.atchFileName}>{file.name ? file.name : ''}</Text>
+                <Text style={styles.atchFileName} numberOfLines = {1}>{item.file.name ? item.file.name : ''}</Text>
+                {params.update &&
+                <>
+                {item.action == 'P' ?
+                <ActivityIndicator size="small" color="#0066b3" />:              
+                <Button bordered small rounded primary style={[styles.actionBtn, styles.actionBtnPrimary, item.action == 'C'?{borderColor:'green'}:null]}
+                  onPress={() => {this.downloadImage(item.file.uri,item.type);}}>
+                  {item.action == 'C' ?
+                  <Icon name='md-checkmark' style={[styles.actionBtnIco,{color:'green'}]} />:                
+                  <Icon name='md-download' style={[styles.actionBtnIco,styles.actionBtnIcoPrimary]} />}
+                </Button>}
+                </>}
                 <Button bordered small rounded danger style={styles.actionBtn}
-                  onPress={()=>this.removeAttach(item.type,index)}>
+                  onPress={()=>this.removeAttach(item.type)}>
                   <Icon name='close' style={styles.actionBtnIco} />
                 </Button>
               </View>
-            ))}
-            </View>
-            :null
+            </View>:null
           ))}
 
           <Modal
@@ -1305,29 +1456,25 @@ class HotelReqScreen extends Component {
               </TouchableOpacity>
               
               {this.state.uploadData.map((item, key) => (
-                (item.type == this.state.curUploadType && item.file.length>0) ?
-                <View key={key}>
-                {item.file.map((file, index)=>(
-                  <View key={index} style={styles.atchFileRow}>
-                    {file.type == "image/webp" ||
-                      file.type == "image/jpeg" ||
-                      file.type == "image/jpg" ||
-                      file.type == "image/png" ||
-                      file.type == "image/gif" ?
-                    <Image
-                      style={{width: 50, height: 50, marginRight:10}}
-                      source={{uri: file.uri}}
-                    />:null}
-                    <Text style={styles.atchFileName}>{file.name ? file.name : ''}</Text>
-                    <Button bordered small rounded danger style={styles.actionBtn}
-                      onPress={()=>this.removeAttach(item.type,index)}>
-                      <Icon name='close' style={styles.actionBtnIco} />
-                    </Button>
-                  </View>
-                ))}
-                </View>
-                :null
-              ))}
+              (item.type == this.state.curUploadType && item.file) ?
+              <View key={key} style={styles.atchFileRow}>
+                {item.file.type == "image/webp" ||
+                  item.file.type == "image/jpeg" ||
+                  item.file.type == "image/jpg" ||
+                  item.file.type == "image/png" ||
+                  item.file.type == "image/gif" ?
+                <Image
+                  style={{width: 50, height: 50, marginRight:10}}
+                  source={{uri: item.file.uri}}
+                />:null}
+                <Text style={styles.atchFileName}>{item.file.name ? item.file.name : ''}</Text>
+                <Button bordered small rounded danger style={styles.actionBtn}
+                  onPress={()=>this.removeAttach(item.type)}>
+                  <Icon name='close' style={styles.actionBtnIco} />
+                </Button>
+              </View>
+              :null
+            ))}
             </ScrollView>
             <View style={styles.atchMdlFtr}>
               <TouchableOpacity 
@@ -1377,7 +1524,9 @@ const mapStateToProps = state => {
     stateList: state.stateList,
     locations: state.locations,
     statusResult: state.statusResult,
-    hotelList: state.hotelList
+    hotelList: state.hotelList,
+    attachmentState: state.attachmentState,
+    attachmentList: state.attachmentList
   };
 };
 
@@ -1390,7 +1539,9 @@ const mapDispatchToProps = {
   getStates: Actions.getStates,
   getReqLocations: Actions.getReqLocations,
   getStatus: Actions.getStatus,
-  getHotels: Actions.getHotels
+  getHotels: Actions.getHotels,
+  attachment: Actions.attachment,
+  getAttachments: Actions.getAttachments
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(HotelReqScreen);

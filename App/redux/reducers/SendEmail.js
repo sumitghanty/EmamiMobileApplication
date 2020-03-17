@@ -1,4 +1,4 @@
-import {REQUEST} from '../actions/GetAttachment'
+import {REQUEST} from '../actions/SendEmail'
 
 export default (state = { dataSource: {}, isLoading: true, errorStatus:false}, action) => {
   switch(action.type){

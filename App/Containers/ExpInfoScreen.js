@@ -592,6 +592,7 @@ class ExpInfoScreen extends Component {
                   : item.sub_category_id=='1BH' ? 'HotelReq'
                   : item.sub_category_id=='1BM' ? 'HotelReq'
                   : item.sub_category_id=='1BNM' ? 'HotelReq'
+                  : item.id==112 ? 'RailCommision'
                   : 'OtherRequisition',
                   {item, params, 
                     'update':this.state.editModalData?this.state.editModalData[0]:false, 
@@ -679,6 +680,7 @@ class ExpInfoScreen extends Component {
                   : item.sub_category_id=='1BH' ? 'HotelReq'
                   : item.sub_category_id=='1BM' ? 'HotelReq'
                   : item.sub_category_id=='1BNM' ? 'HotelReq'
+                  : item.id==112 ? 'RailCommision'
                   : 'OtherRequisition',
                   {item, params, 'update':false, 'actAmnt':this.state.actAmnt, 'claim':true}
                 )
@@ -871,7 +873,7 @@ class ExpInfoScreen extends Component {
           </View>
           <View style={styles.cardRow}>
             <Text style={styles.cardLabel}>Amount:</Text>
-            <Text style={styles.cardValue}>{data.amount?data.amount:'0.0'}</Text>
+            <Text style={styles.cardValue}>{data.invoice_amount?data.invoice_amount:data.amount}</Text>
           </View>          
           <View style={styles.cardRow}>
             <Text style={styles.cardLabel}>Extra Amount:</Text>

@@ -5,7 +5,6 @@ import TripForReducer from './GetTripFor'
 import PurposeReducer from './GetPurpose'
 import RetainerReducer from './GetRetainer'
 import ReqClaimNameReducer from './GetReqClaimName'
-import AttachmentReducer from './GetAttachment'
 import StatusReducer from './GetStatus'
 import TravelThroughReducer from './GetTravelThrough'
 import TravelTypeReducer from './GetTravelType'
@@ -48,6 +47,9 @@ import updtReqNSBDReducer from './updtReqNSBD'
 import TrpNSClmDtlUpdtReducer from './TrpNSClmDtlUpdt'
 import HotelListReducer from './GetHotel'
 import TripClaimUpdateReducer from './TripClaimUpdate'
+import AttachmentReducer from './Attachment'
+import AttachmentListReducer from './GetAttachments'
+import SendEmailReducer from './SendEmail'
 
 export default {
 	locations:LocationsReducer,
@@ -57,7 +59,6 @@ export default {
 	purpose:PurposeReducer,
 	retainer:RetainerReducer,
 	reqName:ReqNameReducer,
-	attachment:AttachmentReducer,
 	statusResult:StatusReducer,
 	travelThroughState:TravelThroughReducer,
 	travelTypeState:TravelTypeReducer,
@@ -99,5 +100,8 @@ export default {
 	updtReqNSBDState:updtReqNSBDReducer,
 	trpNSClmDtlUpdtState:TrpNSClmDtlUpdtReducer,
 	hotelList:HotelListReducer,
-	tripClaimUpdateState:TripClaimUpdateReducer
+	tripClaimUpdateState:TripClaimUpdateReducer,
+	attachmentState:AttachmentReducer,
+	attachmentList:AttachmentListReducer,
+	sendEmailState:SendEmailReducer
 };

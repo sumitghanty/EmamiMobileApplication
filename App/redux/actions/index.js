@@ -5,7 +5,6 @@ import {getTripFor} from './GetTripFor'
 import {getPurpose} from './GetPurpose'
 import {getRetainer} from './GetRetainer'
 import {getReqClaimName} from './GetReqClaimName'
-import {getAttachment} from './GetAttachment'
 import {getStatus} from './GetStatus'
 import {getTravelThrough} from './GetTravelThrough'
 import {getTravelType} from './GetTravelType'
@@ -48,6 +47,9 @@ import {updtReqNSBD} from  './updtReqNSBD'
 import {trpNSClmDtlUpdt} from  './TrpNSClmDtlUpdt'
 import {getHotels} from './GetHotel'
 import {tripClaimUpdate} from './TripClaimUpdate'
+import {attachment} from './Attachment'
+import {getAttachments} from './GetAttachments'
+import {sendEmail} from './SendEmail'
 
 export default {
 	getReqLocations:getReqLocations,
@@ -57,7 +59,6 @@ export default {
 	getPurpose:getPurpose,
 	getRetainer:getRetainer,
 	getReqClaimName:getReqClaimName,
-	getAttachment:getAttachment,
 	getStatus:getStatus,
 	getTravelThrough:getTravelThrough,
 	getTravelType:getTravelType,
@@ -99,5 +100,8 @@ export default {
 	updtReqNSBD:updtReqNSBD,
 	trpNSClmDtlUpdt:trpNSClmDtlUpdt,
 	getHotels:getHotels,
-	tripClaimUpdate:tripClaimUpdate
+	tripClaimUpdate:tripClaimUpdate,
+	attachment:attachment,
+	getAttachments:getAttachments,
+	sendEmail:sendEmail
 }

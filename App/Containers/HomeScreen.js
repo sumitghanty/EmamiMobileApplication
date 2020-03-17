@@ -135,7 +135,7 @@ class HomeScreen extends Component {
           <Text style={styles.appName}>Travel Management System</Text>
           <Text style={styles.userLabel}>
             {global.USER.userName}&nbsp;
-            <Text style={styles.userId}>{'('+global.USER.personId+')'}</Text>
+            <Text style={styles.userId}>{'('+global.USER.userScreenName+')'}</Text>
           </Text>
           <Text style={styles.userLabel}>Designation: {global.USER.designation}</Text>
           <Text style={styles.userLabel}>Department: {global.USER.department}</Text>

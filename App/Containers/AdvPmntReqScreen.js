@@ -170,7 +170,7 @@ class AdvPmntReqScreen extends Component {
             </Item>
             <Item fixedLabel last style={styles.formRow}>
               <Label style={styles.formLabel}>Details:</Label>
-              <Text style={styles.value}>{params.comment}</Text>
+              <Text style={styles.value}>{params.details}</Text>
             </Item>
           </Form>
           <Form style={styles.form}>
@@ -206,7 +206,7 @@ class AdvPmntReqScreen extends Component {
                 <Picker.Item label="INR" value="INR" />
               </Picker>
             </Item>
-            <View style={styles.attachRow}>
+            {/*<View style={styles.attachRow}>
               <Text style={styles.formLabel}>Attachments:</Text>
               <TouchableOpacity onPress={this.selectAttachFiles.bind(this)} style={styles.atchBtn}>
                 <LinearGradient 
@@ -218,7 +218,7 @@ class AdvPmntReqScreen extends Component {
                   <Text style={styles.attachBtnTxt}>Attach Documents</Text>
                 </LinearGradient>
               </TouchableOpacity >
-            </View>
+            </View>*/}
           </Form>
           {this.state.attachFiles.map((item, key) => (
             <View key={key} style={styles.atchFileRow}>

@@ -776,7 +776,8 @@ class TripPlanScreen extends Component {
       : null
       }
       <Text style={styles.cardTile}>{this.getReqValue(data.req_type)}</Text>
-      { data.status_id == "19"
+      { data.status_id == "9"
+        || data.status_id == "19"
         || data.status_id == "20"
         || data.status_id == "21"
         || data.status_id == "22"

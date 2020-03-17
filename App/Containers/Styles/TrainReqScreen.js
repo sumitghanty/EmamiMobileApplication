@@ -60,7 +60,7 @@ export default StyleSheet.create({
     marginTop: 16
   },
   atchFileRow: {
-    marginTop: 6,
+    marginBottom: 6,
     marginHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center'
@@ -82,6 +82,12 @@ export default StyleSheet.create({
     width: 32,
     color: '#d9534f',
     fontSize: 16
+  },
+  actionBtnPrimary: {
+    borderColor: '#0066b3'
+  },
+  actionBtnIcoPrimary: {
+    color: '#0066b3'
   },
   datePicker: {
     flexDirection: 'row',
@@ -199,7 +205,8 @@ export default StyleSheet.create({
     marginHorizontal: 16,
     fontSize: 12,
     fontWeight: 'bold',
-    color: 'rgba(0,0,0,.35)'
+    color: '#111',
+    marginBottom: 6
   },
   addressInput: {
     marginHorizontal: 16,

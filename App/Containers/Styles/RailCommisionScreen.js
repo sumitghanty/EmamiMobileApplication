@@ -1,64 +1,77 @@
 import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
+  container: {
+    flex: 1
+  },
   scrollView: {
     paddingBottom: 30
   },
-  titleRow:{
+  header: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
     backgroundColor: '#0066b3',
-    padding: 16,
+    marginBottom: 8
   },
   title: {
-    fontSize: 14,
-    color: '#fff',
-    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#fff',    
+    fontWeight: 'bold',    
   },
   formLabel: {
-    flex: 2,
-    paddingRight: 10,
+    flex: 1,
+    marginRight: 10,
     fontSize: 16,
     color: 'rgba(0,0,0,.5)',
     marginTop: 16,
     marginBottom: 16
   },
   readOnly: {
-    color: 'rgba(0,0,0,.5)'
-  },
-  formInput: {
-    flex: 3,
+    flex: 1,
+    color: 'rgba(0,0,0,.5)',
     paddingRight: 16
   },
-  ftrBtn: {
-    marginHorizontal: 20,
-    marginTop: 30
+  formInput: {
+    flex: 1,
+    paddingRight: 16,
+    fontSize: 16
   },
-  brdBtn: {
-    borderColor: '#0066b3'
-  },
-  brdBtnTxt: {
-    color: '#0066b3'
-  },  
-  ftrBtnBg: {
-    borderRadius: 24,
-    paddingHorizontal: 8,
-    paddingVertical: 10,
+  datePicker: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center'
+    flex: 1
+  },
+  datePickerIcon: {
+    color: 'rgba(0,0,0,.5)',
+    marginHorizontal: 10
+  },
+  datePickerLabel: {
+    flex: 1
+  },
+  ftrBtnBg: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14
   },
   ftrBtnTxt: {
     color: '#fff',
+    fontSize: 14,
     fontWeight: 'bold',
     letterSpacing: 1,
-    textTransform: 'uppercase',
-    marginHorizontal: 8,
+    textTransform: 'uppercase'
   },
-  attachRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  ftrBtnIcon: {
+    color: '#fff',
+    marginRight: 16,
+    fontSize: 20
+  },
+  errorText: {
+    fontSize: 12,
     marginHorizontal: 16,
-    marginTop: 16
-  },
+    color: 'red'
+  },  
   atchFileRow: {
     marginBottom: 6,
     marginHorizontal: 16,
@@ -88,40 +101,6 @@ export default StyleSheet.create({
   },
   actionBtnIcoPrimary: {
     color: '#0066b3'
-  },
-  datePicker: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 3
-  },
-  datePickerIcon: {
-    color: 'rgba(0,0,0,.5)',
-    marginHorizontal: 10
-  },
-  datePickerLabel: {
-    flex: 1
-  },
-  pickerWraper: {
-    flex: 3
-  },
-  pickerBtn: {
-   flexDirection: 'row',
-   alignItems: 'center',
-   paddingVertical: 10,
-   height: 50,
-  },
-  pickerBtnText: {
-    flex: 1
-  },
-  pickerBtnIcon: {
-    marginHorizontal: 12,
-    color: 'rgba(0,0,0,.5)',
-    fontSize: 19
-  },
-  errorText: {
-    fontSize: 12,
-    marginHorizontal: 16,
-    color: 'red'
   },
   atchMdlHeader: {
     backgroundColor: '#0B5FFF',
@@ -204,13 +183,11 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     color: '#111',
     marginBottom: 6
-  },
-  addressInput: {
+  },    
+  attachRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginHorizontal: 16,
-    padding: 10,
-    backgroundColor: '#f9f9f9',
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.15)',
-    borderRadius: 6
-  }
+    marginTop: 16
+  },
 });

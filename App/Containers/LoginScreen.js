@@ -6,7 +6,7 @@ import { LinearTextGradient } from "react-native-text-gradient"
 import LinearGradient from 'react-native-linear-gradient'
 import Toast from 'react-native-simple-toast'
 
-import {HOST} from '../config'
+import {API_URL_FRONT} from '../config'
 import { Loader } from '../Components';
 import styles from './Styles/LoginScreen';
 import logo from '../Assets/Images/logo.png';
@@ -67,7 +67,7 @@ class LoginScreen extends Component {
       }
     } else {
       this.setState({ isLoading: true }, () => {
-        fetch(HOST+':8080/o/greetings/login',{
+        fetch(API_URL_FRONT+'o/greetings/login',{
           method: "GET",
           mode: "no-cors",
           headers: {
@@ -146,7 +146,7 @@ class LoginScreen extends Component {
       )
     }
     const { username, password } = this.state;
-    console.log('Screen:'+this.props.navigation.state.routeName)
+    console.log(API_URL_FRONT)
     return (
       <KeyboardAvoidingView style={styles.container} behavior="margin, height, padding">
         <ScrollView contentContainerStyle={styles.scrollView}>

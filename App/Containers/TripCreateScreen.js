@@ -18,11 +18,8 @@ import styles from './Styles/TripCreateScreen'
 class TripCreateScreen extends Component {
   constructor(props) {
     super(props);
-    var date = new Date().getDate();
-    var month = new Date().getMonth() + 1;
-    var year = new Date().getFullYear();
     this.state = {
-      curDate: year+'-'+month+'-'+date,
+      curDate: new Date(),
       dateStart: new Date(),
       dateEnd: new Date(),
       modeStart: 'date',
@@ -37,7 +34,7 @@ class TripCreateScreen extends Component {
       forId: "1",
       serchLocationList: [],
       isLoading: false,
-      tripNo: '',
+      tripNo: null,
       details: '',
       error: false,
       tripFromError: '',
@@ -237,10 +234,11 @@ class TripCreateScreen extends Component {
     }
   }
 
-  submitTrip = (statusId,tripNo) => {
+  submitTrip = (statusId) => {
     this.setState({
       isLoading: true
     });
+    var generatedData= null;
     return fetch(API_URL+'getLatestTripNumber',{
       method: "POST",
       mode: "no-cors",
@@ -251,10 +249,14 @@ class TripCreateScreen extends Component {
       body: "TRIP"
     })
     .then((response)=> response.text() )
-
-    .then((tripNo) => {    
+    .then((responseJson)=>{
+      this.setState({
+        tripNo: responseJson
+      });
+    })
+    .then(() => {    
         this.props.tripCreate([{
-          "trip_no": tripNo,
+          "trip_no": this.state.tripNo,
           "trip_from": this.state.fromItem.Name,
           "trip_to": this.state.toItem.Name,
           "trip_hdr_id": 0,
@@ -281,20 +283,46 @@ class TripCreateScreen extends Component {
         }])
         .then(()=>{
           this.props.getTrips(global.USER.userId)
+          .then(()=>{
+            if(statusId == 2) {
+              for(var i=this.props.trips.dataSource.length; i>0; i--) {
+                if(this.props.trips.dataSource[i-1].trip_no == this.state.tripNo) {
+                  generatedData = this.props.trips.dataSource[i-1];                
+                  break;
+                }
+              }
+            } else {
+              console.log('Trip Saved')
+            }
+          })
+          .then(()=>{
+            if(statusId == 2) {
+            this.props.sendEmail({
+              "mailId": global.USER.supervisorEmail,
+              "cc": global.USER.userEmail,
+              "subject": '#'+this.state.tripNo+" Trip Subimted.",
+              "tripNonSales": generatedData,
+              "requisitionNonSales": null
+            })
+            }
+            else {
+              console.log('Trip Saved');
+            }
+          })
+          .then(()=>{
+            console.log('ready to navygate');
+            this.props.navigation.navigate('TripList');
+            this.setState({ 
+              error: false,
+              isLoading: false
+            });
+            if(statusId == "1") {
+              Toast.show('Trip Saved Successfully', Toast.LONG);
+            }
+            if(statusId == "2") {
+              Toast.show('Trip Submited Successfully', Toast.LONG);
+            }
         })
-        .then(()=>{
-          console.log('ready to navygate');
-          this.props.navigation.navigate('TripList');
-          this.setState({ 
-            error: false,
-            isLoading: false
-          });
-          if(statusId == "1") {
-            Toast.show('Trip Saved Successfully', Toast.LONG);
-          }
-          if(statusId == "2") {
-            Toast.show('Trip Submited Successfully', Toast.LONG);
-          }
         })
     })
     .catch((Error) => {
@@ -592,7 +620,8 @@ const mapStateToProps = state => {
     tripFor: state.tripFor,
     purpose: state.purpose,
     retainer: state.retainer,
-    statusResult: state.statusResult
+    statusResult: state.statusResult,
+    sendEmailState: state.sendEmailState
   };
 };
 
@@ -603,7 +632,8 @@ const mapDispatchToProps = {
   getTripFor: Actions.getTripFor,
   getPurpose: Actions.getPurpose,
   getRetainer: Actions.getRetainer,
-  getStatus: Actions.getStatus
+  getStatus: Actions.getStatus,
+  sendEmail: Actions.sendEmail
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TripCreateScreen);

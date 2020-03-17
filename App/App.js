@@ -19,6 +19,7 @@ import AirRequisitionScreen from './Containers/AirRequisitionScreen'
 import TrainReqScreen from './Containers/TrainReqScreen'
 import HotelReqScreen from './Containers/HotelReqScreen'
 import OtherRequisitionScreen from './Containers/OtherRequisitionScreen'
+import RailCommisionScreen from './Containers/RailCommisionScreen'
 import TripInfoScreen from './Containers/TripInfoScreen'
 import ReqInfoScreen from './Containers/ReqInfoScreen'
 import AdvanceScreen from './Containers/AdvanceScreen'
@@ -161,6 +162,12 @@ const StackNavigator = createStackNavigator({
   },
   OtherRequisition: {
     screen: OtherRequisitionScreen,
+    navigationOptions: {
+      headerTitle: 'Create Requisition',
+    },
+  },
+	RailCommision: {
+    screen: RailCommisionScreen,
     navigationOptions: {
       headerTitle: 'Create Requisition',
     },
