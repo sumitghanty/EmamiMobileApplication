@@ -448,7 +448,7 @@ class TrainReqScreen extends Component {
       Alert.alert('The file saved to ', res.path());
     })
     .then(()=>{
-      for(i=0; i<this.state.uploadData.length; i++) {
+      for(var i=0; i<this.state.uploadData.length; i++) {
         if(this.state.uploadData[i].type == type) {
           this.state.uploadData[i].action = 'C';          
           this.setState({
@@ -535,7 +535,8 @@ class TrainReqScreen extends Component {
     this.setState({ 
       amount: amnt,
       amntError: null,
-      OOP: (((params.item.upper_limit == "NA") && (parseFloat(amnt) > parseFloat(this.state.maxAmt))) || (parseFloat(amnt) > parseFloat(this.state.maxAmt))) ?'Y':'N'
+      OOP: (((params.item.upper_limit == "NA") && (parseFloat(amnt) > parseFloat(this.state.maxAmt))) || 
+          (parseFloat(amnt) > parseFloat(this.state.maxAmt))) ?'Y':'N'
     })
   }
 
@@ -1239,7 +1240,7 @@ class TrainReqScreen extends Component {
                   source={{uri: item.file.uri}}
                 />:null}
                 <Text style={styles.atchFileName} numberOfLines = {1}>{item.file.name ? item.file.name : ''}</Text>
-                {params.update &&
+                {(params.update && item.file.uri.includes('http')) &&
                 <>
                 {item.action == 'P' ?
                 <ActivityIndicator size="small" color="#0066b3" />:              

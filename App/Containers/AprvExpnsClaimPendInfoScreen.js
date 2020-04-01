@@ -26,7 +26,6 @@ class AprvExpnsClaimPendInfoScreen extends Component {
       rejComment: '',
       isLoading: true,
       attachData: null,
-      downloadLoading: false,
       planList:[]
     };
   }
@@ -37,11 +36,11 @@ class AprvExpnsClaimPendInfoScreen extends Component {
     .then(()=>{
       for(var i=0; i<this.props.plans.dataSource.length; i++) {
         let newwPlanData= this.props.plans.dataSource[i]
-        this.props.getAttachment(tripHdrId,this.props.plans.dataSource[i].trip_no,this.props.plans.dataSource[i].lineitem)
+        this.props.getAttachments(tripHdrId,this.props.plans.dataSource[i].trip_no,this.props.plans.dataSource[i].lineitem)
         .then(()=>{
           this.state.planList.push({
             "sl":i,
-            "attachment":this.props.attachment.dataSource,
+            "attachment":this.props.attachmentList.dataSource,
             "planData": newwPlanData
           })
         });
@@ -210,12 +209,13 @@ class AprvExpnsClaimPendInfoScreen extends Component {
 
   downloadAttachment=(file)=> {
     this.downloadImage (file);
-    this.setState({downloadLoading: true});
+    this.attachModalVisible(null);
   }
 
   downloadImage = (file) => {
     var date = new Date();
     var image_URL = file;
+    var image_name = this.getFilename(image_URL)
     var ext = this.getExtention(image_URL);
     ext = "." + ext[0];
     const { config, fs } = RNFetchBlob;
@@ -231,9 +231,7 @@ class AprvExpnsClaimPendInfoScreen extends Component {
       }
     }
     config(options).fetch('GET', image_URL).then((res) => {
-      Alert.alert("File Downloaded Successfully.");      
-      this.attachModalVisible(null);
-      this.setState({downloadLoading: false});
+      Alert.alert(image_name + "Downloaded Successfully.");
     });
   }
  
@@ -271,11 +269,11 @@ class AprvExpnsClaimPendInfoScreen extends Component {
     if(this.state.isLoading 
       || this.props.plans.isLoading 
       || this.props.reqName.isLoading
-      || this.props.attachment.isLoading){
+      || this.props.attachmentList.isLoading){
       return(
           <Loader/>
       )
-    } else if (this.props.plans.errorStatus) {
+    } else if (this.props.plans.errorStatus || this.props.reqName.errorStatus || this.props.attachmentList.errorStatus) {
       return (
         <Text>URL Error</Text>
       )
@@ -462,9 +460,7 @@ class AprvExpnsClaimPendInfoScreen extends Component {
             <Text style={styles.modalTitle}>Attachment</Text>
           </View>
           <ScrollView contentContainerStyle={styles.modaCmntlBody}>
-            {this.state.downloadLoading ?
-              <Loader/>
-            :<View>
+            <View>
             {(this.getExtention(this.state.attachData) == 'webp' ||
               this.getExtention(this.state.attachData) == 'png' ||
               this.getExtention(this.state.attachData) == 'jpg' ||
@@ -477,7 +473,7 @@ class AprvExpnsClaimPendInfoScreen extends Component {
                 resizeMode='contain' />
             :<Icon name="ios-paper" style={styles.atchMdlImgIcon} />}
             <Text style={styles.atchMdlImgName}>{this.getFilename(this.state.attachData)}</Text>
-            </View>}
+            </View>
           </ScrollView>
           <View style={styles.modalCmntFooter}>
             <TouchableOpacity style={[styles.modaCmntlBtn, styles.btnDanger]}
@@ -553,7 +549,7 @@ class AprvExpnsClaimPendInfoScreen extends Component {
           <Text style={styles.cardLabel}>Out Of Policy:</Text>
           <Text style={styles.cardValue}>{data.planData.is_outof_policy=="Y"?"Yes":"No"}</Text>
         </View>
-        {/*data.attachment.length > 0 ?
+        {data.attachment.length > 0 ?
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>Attachment:</Text>
           <View style={styles.cardValueCol}>
@@ -575,7 +571,7 @@ class AprvExpnsClaimPendInfoScreen extends Component {
                 </TouchableOpacity>}
             />
           </View>
-        </View>:null*/}
+        </View>:null}
       </View>    
     </TouchableOpacity>
     } else {
@@ -592,7 +588,7 @@ const mapStateToProps = state => {
     plans: state.plans,
     costCentre: state.costCentre,
     aprExpPend: state.aprExpPend,
-    attachment: state.attachment,
+    attachmentList: state.attachmentList,
     statusResult: state.statusResult,
   };
 };
@@ -603,7 +599,7 @@ const mapDispatchToProps = {
   getExpPendApr : Actions.getExpPendApr,
   getCostCentre : Actions.getCostCentre,
   getPlans : Actions.getPlans,
-  getAttachment: Actions.getAttachment,
+  getAttachments: Actions.getAttachments,
   getStatus: Actions.getStatus,
 };
 

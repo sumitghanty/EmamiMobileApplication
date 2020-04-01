@@ -220,7 +220,7 @@ class AdvPmntReqScreen extends Component {
               </TouchableOpacity >
             </View>*/}
           </Form>
-          {this.state.attachFiles.map((item, key) => (
+          {/*this.state.attachFiles.map((item, key) => (
             <View key={key} style={styles.atchFileRow}>
               <Text style={styles.atchFileName}>{item.name ? item.name : ''}</Text>
               <Button bordered small rounded danger style={styles.actionBtn}
@@ -228,7 +228,7 @@ class AdvPmntReqScreen extends Component {
                 <Icon name='close' style={styles.actionBtnIco} />
               </Button>
             </View>
-          ))}
+          ))*/}
         </Content>
         <View style={styles.footer}>
           <TouchableOpacity onPress={() => this.submitAdv("12")} style={styles.ftrBtn}>

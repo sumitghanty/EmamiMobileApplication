@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, KeyboardAvoidingView, ScrollView, TouchableOpacity, TextInput, Platform, Modal, 
-  Keyboard, Alert, AsyncStorage, BackHandler, ActivityIndicator, Image } from "react-native";
+  Keyboard, Alert, AsyncStorage, BackHandler, ActivityIndicator, Image, Picker } from "react-native";
 import { Button, Icon, Text, Form, Item, Label } from 'native-base';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
@@ -319,7 +319,7 @@ class OtherRequisitionScreen extends Component {
         description: 'Image'
       }
     }
-    for(i=0; i<this.state.uploadData.length; i++) {
+    for(var i=0; i<this.state.uploadData.length; i++) {
       if(this.state.uploadData[i].type == type) {
         this.state.uploadData[i].action = 'P';
         break;
@@ -449,6 +449,7 @@ class OtherRequisitionScreen extends Component {
 
   render() {
     const {params} = this.props.navigation.state;
+    console.log(this.state.uploadData);
     if(this.state.isLoading ||
       this.props.plans.isLoading ||
       this.props.statusResult.isLoading ||
@@ -528,7 +529,7 @@ class OtherRequisitionScreen extends Component {
             <Label style={styles.formLabel}>Currency :</Label>
             <Text style={styles.readOnly}>{params.params.currency?params.params.currency:'INR'}</Text>
           </Item>}
-          
+          {/*
           <View style={styles.attachRow}>
             <Text style={styles.formLabel}>Attachments:</Text>              
             <Button rounded bordered info onPress={() => { this.setModalVisible(true); }} style={styles.atchBtn}>                
@@ -538,8 +539,9 @@ class OtherRequisitionScreen extends Component {
               </Text>
             </Button>
           </View>
+          */}
         </Form>
-        {this.state.uploadData.map((item, key) => (
+        {/*this.state.uploadData.map((item, key) => (
           item.file ? 
           <View key={key}>
             <Text style={styles.attachType}>{item.type}</Text>
@@ -554,7 +556,7 @@ class OtherRequisitionScreen extends Component {
                 source={{uri: item.file.uri}}
               />:null}
               <Text style={styles.atchFileName} numberOfLines = {1}>{item.file.name ? item.file.name : ''}</Text>
-              {params.update &&
+              {(params.update && item.file.uri.includes('http')) &&
               <>
               {item.action == 'P' ?
               <ActivityIndicator size="small" color="#0066b3" />:              
@@ -571,7 +573,7 @@ class OtherRequisitionScreen extends Component {
               </Button>
             </View>
           </View>:null
-        ))}
+        ))*/}
         </ScrollView>
 
         <Modal

@@ -156,6 +156,28 @@ export default StyleSheet.create({
     marginHorizontal: 8,
     marginRight: 10
   },
+  cardFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 6,
+    paddingTop: 6,
+    marginTop: 8,    
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,.15)'
+  },
+  cardFooterIcon: {
+    marginHorizontal: 6,
+    fontSize: 24,
+    color: '#0b9aff'
+  },
+  cardFooterText: {
+    marginHorizontal: 6,
+    fontSize: 13,
+    color: '#0b9aff',
+    fontWeight: 'bold',
+    letterSpacing: 2
+  },
   atchLink: {
     backgroundColor: '#f8f8f8',
     borderWidth: 1,
@@ -164,7 +186,8 @@ export default StyleSheet.create({
     height: 52,
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    marginRight: 5
   },
   atchImg: {
     width: '100%',

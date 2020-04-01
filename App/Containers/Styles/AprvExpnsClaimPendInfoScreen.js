@@ -235,7 +235,8 @@ export default StyleSheet.create({
     height: 52,
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    marginRight: 5,
   },
   atchImg: {
     width: '100%',

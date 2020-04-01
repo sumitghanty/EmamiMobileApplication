@@ -45,9 +45,13 @@ class ExpensesListScreen extends Component {
       return(
           <Loader/>
       )
+    } else if(this.props.expenses.errorStatus){
+      return(
+        <Text>URL Error</Text>
+      )
     } else {
       const listData = this.props.expenses.dataSource;
-      const filteredData = listData.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS));
+      const filteredData = listData?listData.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS)):[];
       var sortList = filteredData;
       sortList.sort((a,b) => b.trip_hdr_id - a.trip_hdr_id);
     return (

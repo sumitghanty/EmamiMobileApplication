@@ -319,9 +319,9 @@ const StackNavigator = createStackNavigator({
   },  
   PjpReqDtl: {
     screen:  PjpReqDtlScreen,
-    drawerLabel: "PJP Requisition Details",
+    drawerLabel: "Requisition Details",
     navigationOptions: ({ navigation }) => ({
-      title: 'PJP Requisition Details'
+      title: 'Requisition Details'
     })
   },
   PjpClaimList: {

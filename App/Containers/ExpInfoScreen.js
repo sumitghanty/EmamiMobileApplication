@@ -331,7 +331,7 @@ class ExpInfoScreen extends Component {
 	
   render() {
     const {params} = this.props.navigation.state;
-    console.log(params)
+    //console.log(params)
     if(this.props.plans.isLoading || this.props.reqClaimType.isLoading || this.props.reqType.isLoading || this.state.isLoading){
       return(
         <Loader/>
@@ -340,9 +340,10 @@ class ExpInfoScreen extends Component {
       return(
         <Text>URL Error</Text>
       )
-    } else {
+    } else  if(!this.props.plans.isLoading || !this.props.reqClaimType.isLoading || !this.props.reqType.isLoading || !this.state.isLoading){
     var sortList = this.props.plans.dataSource;
     sortList.sort((a,b) => b.trip_hdr_id - a.trip_hdr_id);
+    console.log(sortList)
     return (
       <ScrollView contentContainerStyle={styles.scrollView}>
         <TouchableOpacity style={styles.accordionHeader}
@@ -883,7 +884,7 @@ class ExpInfoScreen extends Component {
       </View>    
     </TouchableOpacity>
     }
-    };
+  };
 
 };
 

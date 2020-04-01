@@ -484,7 +484,7 @@ class AirRequisitionScreen extends Component {
         description: 'Image'
       }
     }
-    for(i=0; i<this.state.uploadData.length; i++) {
+    for(var i=0; i<this.state.uploadData.length; i++) {
       if(this.state.uploadData[i].type == type) {
         this.state.uploadData[i].action = 'P';
         break;
@@ -1243,7 +1243,7 @@ class AirRequisitionScreen extends Component {
                   source={{uri: item.file.uri}}
                 />:null}
                 <Text style={styles.atchFileName} numberOfLines = {1}>{item.file.name ? item.file.name : ''}</Text>
-                {params.update &&
+                {(params.update && item.file.uri.includes('http')) &&
                 <>
                 {item.action == 'P' ?
                 <ActivityIndicator size="small" color="#0066b3" />:              

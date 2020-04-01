@@ -58,7 +58,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
   }
   press = (hey) => {
     this.props.plans.dataSource.map((item) => {
-      if (item.lineitem === hey.lineitem) {
+      if (item.req_hdr_id === hey.req_hdr_id) {
         item.check = !item.check
         if (item.check === true) {
           this.state.SelectedDataList.push(item);

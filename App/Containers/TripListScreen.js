@@ -49,7 +49,7 @@ class TripListScreen extends Component {
     } else {
       console.log(this.props.navigation.state.routeName);
       const listData = this.props.trips.dataSource;
-      const filteredData = listData.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS))
+      const filteredData = listData?listData.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS)):[]
       var sortList = filteredData;
       sortList.sort((a,b) => b.trip_hdr_id - a.trip_hdr_id);
     return (
@@ -71,9 +71,10 @@ class TripListScreen extends Component {
             <Text style={styles.noData}>No Item Found</Text>
           :null}
           <View>
+          {sortList.length>0 &&
           <FlatList
             data={sortList}
-            keyExtractor={item => item.trip_hdr_id}
+            keyExtractor={item => String(item.trip_hdr_id)}
             renderItem={({ item }) => <TouchableOpacity onPress={() => this.props.navigation.navigate('TripInfo',item)}>
             <Card style={styles.item}>
               <CardItem header style={styles.itemHeader}>
@@ -145,7 +146,7 @@ class TripListScreen extends Component {
               </CardItem>
             </Card>
           </TouchableOpacity>}
-          />
+          />}
           </View>
         </Content>
         <TouchableOpacity onPress={() => this.props.navigation.navigate('TripCreate')} style={styles.ftrBtn}>

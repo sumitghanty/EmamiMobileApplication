@@ -20,7 +20,8 @@ class PjpTripAprvScreen extends Component {
       attachData: null,
       cmntData: null,
       rejComment: null,
-      updateParams: '',
+      updateParams: [],
+      tempUpdateParams: [],
       isLoading: false,
       acrdCmntFirstVisible: 0,
       acrdCmntSecondVisible: 0,
@@ -144,11 +145,18 @@ class PjpTripAprvScreen extends Component {
       cmntError: null
     })
   }
-  handleUserComment = (text) => {
+  handleUserComment = (text,id) => {
     this.setState({ 
       userComment: text,
       reqCmntError: null
     })
+    let cur_req = this.state.tempUpdateParams
+    for(var i=0; i<cur_req.length; i++) {
+      if(cur_req[i].req_hdr_id == id) {
+        this.state.tempUpdateParams[i].claimSupcomment = text;
+        break;
+      }
+    }
   }
   removeCmntError=()=> {
     this.setState({ 
@@ -177,7 +185,8 @@ class PjpTripAprvScreen extends Component {
     let curReq = this.state.updateParams
     for(var i=0; i<curReq.length; i++) {
       if(curReq[i].req_hdr_id == value) {
-        this.state.updateParams[i].claimSupcomment = this.state.userComment
+        this.state.updateParams[i].claimSupcomment = this.state.tempUpdateParams[i].claimSupcomment;
+        break;
       }
     }
     this.setState({cmntData: null});
@@ -227,9 +236,10 @@ class PjpTripAprvScreen extends Component {
   componentDidMount(props){
     this.props.getReqSale(this.props.navigation.state.params.trip_hdr_id)
     .then(()=>{
-      this.setState({
-        updateParams:this.props.reqListSales.dataSource
-      });
+      for(var i=0; i<this.props.reqListSales.dataSource.length; i++){
+        this.state.updateParams.push(this.props.reqListSales.dataSource[i]);
+        this.state.tempUpdateParams.push(this.props.reqListSales.dataSource[i]);
+      }
     });
     this.props.getStatus("9","9.1")
     .then(()=>{
@@ -259,6 +269,7 @@ class PjpTripAprvScreen extends Component {
   } else {    
     console.log(this.state.cmntData?this.state.cmntData.claimEmpcomment:""); /*Don't remove*/
     const {params} = this.props.navigation.state;
+    console.log(this.state.updateParams);
     var sortList = this.props.reqListSales.dataSource;
     sortList.sort((a,b) => b.req_hdr_id - a.req_hdr_id);
   return(
@@ -402,6 +413,7 @@ class PjpTripAprvScreen extends Component {
           <Text style={styles.modalAcrdComents}>{this.state.cmntData.claimEmpcomment}</Text>
           :null}
         </View>
+        {/*
         <TouchableOpacity style={styles.modalAccordionHeader}
           onPress={()=>{this.setAcrdCmntSecondVisible()}}>
           <Text style={styles.modalAcrdTitle}>Financer comment</Text>
@@ -412,15 +424,24 @@ class PjpTripAprvScreen extends Component {
           <Text style={styles.modalAcrdComents}>{this.state.cmntData.claimFinancercomment}</Text>
           :null}
         </View>
+        */}
         <Text style={styles.modalCmntLabel}>Supervisor comment:</Text>
-        <TextInput 
-          multiline
-          numberOfLines={4}
-          placeholder='Enter your comment'
-          style={[styles.modalInput, styles.cmntInput]}
-          underlineColorAndroid="transparent"
-          onChangeText={this.handleUserComment}
-          />        
+        {this.state.tempUpdateParams.map((item, index) => {
+          if(this.state.cmntData && item.req_hdr_id == this.state.cmntData.req_hdr_id) {
+            return (
+              <TextInput 
+                key={index}
+                multiline
+                numberOfLines={4}
+                value= {item.claimSupcomment}
+                placeholder='Enter your comment'
+                style={[styles.modalInput, styles.cmntInput]}
+                underlineColorAndroid="transparent"
+                onChangeText={(text) => this.handleUserComment(text, this.state.cmntData.req_hdr_id)}
+                />
+            );
+          }
+        })}       
         {this.state.reqCmntError ?
           <Text style={styles.errorMsg}>{this.state.reqCmntError}</Text>
         :null}
@@ -470,10 +491,9 @@ class PjpTripAprvScreen extends Component {
 }
 
   renderReq = (data,index) => {
-    return <TouchableOpacity 
+    return <View 
       key={index} 
-      style={styles.cardItem} 
-      onPress={() => {}/*this.props.navigation.navigate('PjpReqDtl',data)*/}>
+      style={styles.cardItem} >
       <View style={styles.cardItemHeader}>
         <View style={styles.cardItemHeaderCol}>
           <Text style={styles.cardHdrLabel}>FROM</Text>
@@ -524,8 +544,14 @@ class PjpTripAprvScreen extends Component {
         </View>
       </View>
       :null}
+      {data.mode == "3" &&
+      <TouchableOpacity style={styles.cardFooter} 
+        onPress={() => this.props.navigation.navigate('PjpReqDtl',data)}>
+        <Icon name="ios-eye" style={styles.cardFooterIcon} />
+        <Text style={styles.cardFooterText}>DETAILS</Text>
+      </TouchableOpacity>}
 
-    </TouchableOpacity>
+    </View>
   };
   
 }

@@ -190,5 +190,12 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     color: '#111',
     marginBottom: 6
-  }
+  },
+      
+  attachRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginTop: 16
+  },
 });

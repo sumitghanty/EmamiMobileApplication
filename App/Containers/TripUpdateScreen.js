@@ -51,6 +51,7 @@ class TripUpdateScreen extends Component {
       name: global.USER.userName,
       updateParams: '',
     };
+    this._handleBackPress = this._handleBackPress.bind(this);
   }
   
   componentDidMount() {
@@ -91,8 +92,8 @@ class TripUpdateScreen extends Component {
 
     this.props.getTripFor()
     .then(()=> {
-      for(var i=0; i<=this.props.tripFor.dataSource.length; i++) {
-        if(this.props.tripFor.dataSource[i].tripFor_type_id == params.trip_for) {
+      for(var i=0; i<this.props.tripFor.dataSource.length; i++) {
+        if(parseInt(this.props.tripFor.dataSource[i].tripFor_type_id) == parseInt(params.trip_for)) {
           this.setState({ 
             for : this.props.tripFor.dataSource[i].tripFor_type,
           })
@@ -102,7 +103,7 @@ class TripUpdateScreen extends Component {
     
     this.props.getPurpose('B')
     .then(()=> {
-      for(var i=0; i<=this.props.purpose.dataSource.length; i++) {
+      for(var i=0; i<this.props.purpose.dataSource.length; i++) {
         if(this.props.purpose.dataSource[i].purpose_type_id == params.purpose) {
           this.setState({ 
             purpose : this.props.purpose.dataSource[i].purpose_type,
@@ -114,8 +115,8 @@ class TripUpdateScreen extends Component {
     this.props.getRetainer()
     .then(()=> {
       if(params.trip_for == "3") {
-        for(var i=0; i<=this.props.retainer.dataSource.length; i++) {
-          if(this.props.retainer.dataSource[i].retainer_id == parseInt(params.name)) {
+        for(var i=0; i<this.props.retainer.dataSource.length; i++) {
+          if(parseInt(this.props.retainer.dataSource[i].retainer_id) == parseInt(params.name)) {
             this.setState({ 
               travelsName : this.props.retainer.dataSource[i].name_of_retainers,
             })
@@ -314,20 +315,20 @@ class TripUpdateScreen extends Component {
         this.props.getTrips(global.USER.userId)
       })
       .then(()=>{
-        this.props.navigation.navigate('TripList')
-        .then(()=>{
-          this.setState({ 
-            error: false,
-            isLoading: false
-          });
-          if(statusId == "1") {
-            Toast.show('Trip Saved Successfully', Toast.LONG);
-          }
-          if(statusId == "2") {
-            Toast.show('Trip Updated Successfully', Toast.LONG);
-          }
-        })        
-      });
+        this.props.navigation.navigate('TripList')       
+      })
+      .then(()=>{
+        this.setState({ 
+          error: false,
+          isLoading: false
+        });
+        if(statusId == "1") {
+          Toast.show('Trip Saved Successfully', Toast.LONG);
+        }
+        if(statusId == "2") {
+          Toast.show('Trip Updated Successfully', Toast.LONG);
+        }
+      }) ;
     })
     
     Keyboard.dismiss();
@@ -408,7 +409,7 @@ class TripUpdateScreen extends Component {
       )
     } else {
     const {params} = this.props.navigation.state;
-    //console.log(this.props.navigation.state.routeName);
+    console.log(params);
     return (
       <Container style={styles.container}>
         <Content Style={styles.content}>

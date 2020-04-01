@@ -111,9 +111,9 @@ class HomeScreen extends Component {
       if(global.USER.create_pjp_visibility) {
         this.state.entries.push({ "id":3, "title": "Create/View PJP", "icon": "create", "navigation":"PjpList"});
       }
-      /*if(global.USER.approve_pjp_visibility) {
+      if(global.USER.approve_pjp_visibility) {
         this.state.entries.push({ "id":4, "title": "Approve Expense/PJP", "icon": "md-checkbox-outline", "navigation":"ApproveExpenses" });
-      }*/
+      }
       if(global.USER.createExpense_visibility) {
         this.state.entries.push({ "id":5, "title": "Create/View Expenses", "icon": "calculator", "navigation":"ExpensesList" });
       }

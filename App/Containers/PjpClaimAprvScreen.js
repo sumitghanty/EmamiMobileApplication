@@ -23,8 +23,10 @@ class PjpClaimAprvScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      updateParams: '',
+      updateParams: [],
+      tempUpdateParams: [],
       acrdVisible: 0,
+      acrdVisibleTwo: 0,
       modalVisible: false,
       attachData: null,
       cmntData: null,
@@ -81,11 +83,18 @@ class PjpClaimAprvScreen extends Component {
       undefined;
   }
 
+  setAcrdVisibleTwo() {
+    this.setState({
+      acrdVisibleTwo: this.state.acrdVisibleTwo == 0?1:0
+    });
+  }
+
   setAcrdVisible() {
     this.setState({
       acrdVisible: this.state.acrdVisible == 0?1:0
     });
   }
+  
   setAcrdCmntFirstVisible() {
     this.setState({
       acrdCmntFirstVisible: this.state.acrdCmntFirstVisible == 0?1:0
@@ -160,6 +169,13 @@ class PjpClaimAprvScreen extends Component {
       reqComment: text,
       reqCmntError: null
     })
+    let cur_req = this.state.tempUpdateParams
+    for(var i=0; i<cur_req.length; i++) {
+      if(cur_req[i].req_hdr_id == id) {
+        this.state.tempUpdateParams[i].claimSupcomment = text;
+        break;
+      }
+    }
   }
   handleJustification=(text)=>{
     this.setState({ justification: text })
@@ -192,7 +208,7 @@ class PjpClaimAprvScreen extends Component {
     let curReq = this.state.updateParams
     for(var i=0; i<curReq.length; i++) {
       if(curReq[i].req_hdr_id == value) {
-        this.state.updateParams[i].claimSupcomment = this.state.userComment
+        this.state.updateParams[i].claimSupcomment = this.state.tempUpdateParams[i].claimSupcomment
       }
     }
     this.setState({cmntData: null});
@@ -288,9 +304,10 @@ class PjpClaimAprvScreen extends Component {
   componentDidMount(props){
     this.props.getReqClaimSale(this.props.navigation.state.params.trip_hdr_id)
     .then(()=>{
-      this.setState({
-        updateParams:this.props.reqClaimListSales.dataSource
-      });
+      for(var i=0; i<this.props.reqClaimListSales.dataSource.length; i++){
+        this.state.updateParams.push(this.props.reqClaimListSales.dataSource[i]);
+        this.state.tempUpdateParams.push(this.props.reqClaimListSales.dataSource[i]);
+      }
     });
     this.props.getStatus("22","NA")
     .then(()=>{
@@ -353,10 +370,14 @@ class PjpClaimAprvScreen extends Component {
           <Text style={styles.itemLabel}>Details:</Text>
           <Text style={styles.itemValue}>{params.details}</Text>
         </View>
-        
-        {sortList.length > 0 ?
-        <Text style={styles.subTitle}>REQUISITION DETAILS</Text>
-        :null }
+      </View>
+
+      <TouchableOpacity style={styles.accordionHeader}
+        onPress={()=>{this.setAcrdVisible()}}>
+        <Text style={styles.acrdTitle}>PJP Details</Text>
+        <Icon style={styles.acrdIcon} name={this.state.acrdVisibleTwo==0?"md-add-circle":"md-remove-circle"} />
+      </TouchableOpacity>
+      <View style={{display:this.state.acrdVisibleTwo==0?'none':'flex'}}>
         {sortList.length > 0 ?
           sortList.map((item, index) => {
           return (
@@ -382,7 +403,7 @@ class PjpClaimAprvScreen extends Component {
       </View>
 
       <View style={styles.titleRow}>
-        <Text style={styles.title}>Tour Plan</Text>
+        <Text style={styles.title}>Claim Details</Text>
       </View>
       <View style={styles.itemRow}>
         <Text style={styles.itemLabel}>Estimated Cost:</Text>
@@ -511,10 +532,11 @@ class PjpClaimAprvScreen extends Component {
         <TextInput 
           multiline
           numberOfLines={4}
+          value= {item.claimSupcomment}
           placeholder='Enter your comment'
           style={[styles.modalInput, styles.cmntInput]}
           underlineColorAndroid="transparent"
-          onChangeText={this.handleUserComment}
+          onChangeText={(text) => this.handleUserComment(text, this.state.cmntData.req_hdr_id)}
           />        
         {this.state.reqCmntError ?
           <Text style={styles.errorMsg}>{this.state.reqCmntError}</Text>

@@ -49,7 +49,7 @@ class TaxiRequisitionScreen extends Component {
       modalVisible: false,
       uploadData: [{"type":"Approve Email","file":null,'action':null},{"type":"Other","file":null,'action':null}],
       curUploadType: 'Approve Email',
-      currency: (params.update && params.updateinvoice_amount_currency)?params.updateinvoice_amount_currency:null,
+      currency: (params.update && params.update.invoice_amount_currency)?params.update.invoice_amount_currency:null,
       currencyError: null,
       oop: 'Y',
       extAmnt: null,
@@ -160,7 +160,7 @@ class TaxiRequisitionScreen extends Component {
   }
 
   removeAttach(type) {
-    for(var i =0; i<this.state.uploadData.length; i++) {
+    for(var i = 0; i<this.state.uploadData.length; i++) {
       if(this.state.uploadData[i].type == type) {
         this.state.uploadData[i].file = null;
         this.state.attachFiles.splice(0,1);
@@ -269,7 +269,7 @@ class TaxiRequisitionScreen extends Component {
         description: 'Image'
       }
     }
-    for(i=0; i<this.state.uploadData.length; i++) {
+    for(var i=0; i<this.state.uploadData.length; i++) {
       if(this.state.uploadData[i].type == type) {
         this.state.uploadData[i].action = 'P';
         break;
@@ -401,6 +401,7 @@ class TaxiRequisitionScreen extends Component {
           newReq.status = this.state.statusName;
           newReq.sub_status = this.state.subStatusName;
           newReq.is_outof_policy = this.state.oop;
+          newReq.invoice_amount_currency = this.state.currency;
           newReq.extra_amount = this.state.extAmnt;
         })
         .then(()=>{
@@ -623,7 +624,7 @@ class TaxiRequisitionScreen extends Component {
                 source={{uri: item.file.uri}}
               />:null}
               <Text style={styles.atchFileName} numberOfLines = {1}>{item.file.name ? item.file.name : ''}</Text>
-              {params.update &&
+              {(params.update && item.file.uri.includes('http')) &&
               <>
               {item.action == 'P' ?
               <ActivityIndicator size="small" color="#0066b3" />:              

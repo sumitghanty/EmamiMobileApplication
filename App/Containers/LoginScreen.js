@@ -67,7 +67,7 @@ class LoginScreen extends Component {
       }
     } else {
       this.setState({ isLoading: true }, () => {
-        fetch(API_URL_FRONT+'o/greetings/login',{
+        fetch(API_URL_FRONT+'login',{
           method: "GET",
           mode: "no-cors",
           headers: {
