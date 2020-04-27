@@ -102,7 +102,7 @@ class AprvExpnsClaimPendInfoScreen extends Component {
         this.props.postExpAprv(newParams)
         .then(()=>{
           this.props.getExpPendApr("21");
-          this.props.getCostCentre(global.COSTCENTRE);
+          this.props.getCostCentre(global.USER.costCentre);
           this.props.navigation.navigate('ApproveNoneSaleExpenses');
           Toast.show('Expense Claim Approved Successfully', Toast.LONG);
           console.log('Approve Done');
@@ -144,7 +144,7 @@ class AprvExpnsClaimPendInfoScreen extends Component {
         this.props.postExpAprv(newParams)
         .then(()=>{
           this.props.getExpPendApr("21");
-          this.props.getCostCentre(global.COSTCENTRE);
+          this.props.getCostCentre(global.USER.costCentre);
           this.props.navigation.navigate('ApproveNoneSaleExpenses');
           Toast.show('Expense Claim Rejected Successfully', Toast.LONG);
           console.log('Reject Done');

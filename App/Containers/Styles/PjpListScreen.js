@@ -15,15 +15,22 @@ export default StyleSheet.create({
     marginBottom: 16,
     marginRight: 16
   },
+  arrowbtn: {
+    marginLeft:10,
+    fontSize: 18,
+    width: 24,
+    color: 'rgba(255,255,255,.5)',
+    textAlign: 'center'
+  },
   itemHeader: {
     paddingLeft: 16,
     paddingRight: 8,
     paddingTop: 10,
     paddingBottom: 10,
-    backgroundColor: '#f4f4f4',
+    backgroundColor: '#0066b3',
   },
   headerLabel: {
-    color: 'rgba(0,0,0,.5)',
+    color: 'rgba(255,255,255,.5)',
     fontSize: 14,
     fontWeight: 'bold',
     textTransform: 'uppercase',
@@ -31,8 +38,9 @@ export default StyleSheet.create({
   },
   headerValue: {
     fontSize: 14,
-    color: '#2b3f4e',
-    fontWeight: 'bold'
+    color: '#fff',
+    fontWeight: 'bold',
+    flex: 1
   },  
   statusInitiated: {
     color: '#00b3b3'

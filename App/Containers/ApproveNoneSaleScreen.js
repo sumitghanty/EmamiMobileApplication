@@ -20,7 +20,7 @@ class ApproveNoneSaleScreen extends Component {
     }
   }
   componentDidMount(){
-    this.props.getCostCentre(global.COSTCENTRE);
+    this.props.getCostCentre(global.USER.costCentre);
   }
   render() {
     if(this.props.costCentre.isLoading){

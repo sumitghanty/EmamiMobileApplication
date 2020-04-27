@@ -148,12 +148,13 @@ class ApproveNoneSaleTripScreen extends Component {
                 <Text style={[styles.itemFtrBtnText,styles.textInfo]}>Approve Plan Trip</Text>
                 <Icon name="ios-arrow-round-forward" style={[styles.itemFtrIcon,styles.textInfo]} />
               </TouchableOpacity>
+              /*
               : (item.status_id == "2" || item.date_change_status == 'Y') ?
               <TouchableOpacity style={styles.itemFtrBtn}
                 onPress={() => this.props.navigation.navigate('ApproveNoneSaleTripDetails',item)}>
                 <Text style={[styles.itemFtrBtnText,{color:'red'}]}>Approve Trip With End Date</Text>
                 <Icon name="ios-arrow-round-forward" style={[styles.itemFtrIcon,{color:'red'}]} />
-              </TouchableOpacity>
+              </TouchableOpacity>*/
               :null}
             </View>
           </View>

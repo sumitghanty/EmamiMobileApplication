@@ -24,7 +24,7 @@ class PjpAprvListScreen extends Component {
   }
   componentDidMount(){
     const {params} = this.props.navigation.state;
-    let ID = params == "tour"?["2","3","4","8"]:["21"];
+    let ID = params == "tour"?[2,3,4,8]:[21];
     console.log(ID);
     this.props.getPjpAprvList(global.USER.userEmail,ID);
   }
@@ -76,26 +76,28 @@ class PjpAprvListScreen extends Component {
                 </CardItem>
                 <CardItem style={styles.itemBody}>
                   <View style={styles.itemInfo}>
-                    {item.creation_date &&
+                    {item.creation_date ?
                     <View style={styles.itemRow}>
                       <Text style={styles.itemLabel}>Creation Date:</Text>
                       <Text style={styles.itemValue}>{moment(item.creation_date).format(global.DATEFORMAT)}</Text>
-                    </View>}
-                    {item.month &&
+                    </View>:null}
+                    {item.month ?
                     <View style={styles.itemRow}>
                       <Text style={styles.itemLabel}>For Month of:</Text>
                       <Text style={styles.itemValue}>{item.month} {item.year}</Text>
-                    </View>}
-                    {item.name &&
+                    </View>:null}
+                    {item.name ?
                     <View style={styles.itemRow}>
                       <Text style={styles.itemLabel}>Employee:</Text>
                       <Text style={styles.itemValue}>{item.name}</Text>
-                    </View>}
-                    {item.status &&
+                    </View>:null}
+                    {item.status ?
                     <View style={styles.itemRow}>
                       <Text style={styles.itemLabel}>Status:</Text>
-                      <Text style={[styles.itemValue, styles.statusInitiated]}>{item.status}</Text>
-                    </View>}
+                      <Text style={[styles.itemValue, styles.statusInitiated]}>
+                        {item.sub_status?item.sub_status:item.status}
+                      </Text>
+                    </View>:null}
                   </View>
                 </CardItem>
               </Card>

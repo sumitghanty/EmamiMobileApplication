@@ -229,7 +229,7 @@ class PjpClaimAprvScreen extends Component {
         modalVisible: false
       });
       for(var i=0; i<newParams.length; i++) {
-        newParams[i].status_id = "22";
+        newParams[i].status_id = 22;
         newParams[i].status = this.state.aprvStatusName;
         newParams[i].sub_status_id = "";
         newParams[i].sub_status = this.state.aprvSubStatusName;
@@ -240,7 +240,7 @@ class PjpClaimAprvScreen extends Component {
       this.props.postPjpClaimAprv(newParams)
     })
     .then(()=>{
-      tripParams.status_id = "22";
+      tripParams.status_id = 22;
       tripParams.status = this.state.aprvStatusName;
       tripParams.sub_status_id = "";
       tripParams.sub_status = this.state.aprvSubStatusName;
@@ -250,9 +250,9 @@ class PjpClaimAprvScreen extends Component {
       tripParams.claim_justifiaction = this.state.justification;
     })
     .then(()=>{
-      this.props.postPjpClaimTot(tripParams)
+      this.props.postPjpClaimTot([tripParams])
       .then(()=>{
-        this.props.getPjpAprvList(global.USER.userEmail,["21"]);
+        this.props.getPjpAprvList(global.USER.userEmail,[21]);
         this.props.navigation.navigate('PjpAprvList','claim');
         Toast.show('Claim Approved Successfully', Toast.LONG);
         console.log('Approve Done');
@@ -291,7 +291,7 @@ class PjpClaimAprvScreen extends Component {
       tripParams.claim_justifiaction = this.state.justification;
     })
     .then(()=>{
-      this.props.postPjpClaimTot(tripParams)
+      this.props.postPjpClaimTot([tripParams])
       .then(()=>{
         this.props.getPjpAprvList(global.USER.userEmail,["21"]);
         this.props.navigation.navigate('PjpAprvList','claim');
@@ -372,9 +372,9 @@ class PjpClaimAprvScreen extends Component {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.accordionHeader}
-        onPress={()=>{this.setAcrdVisible()}}>
-        <Text style={styles.acrdTitle}>PJP Details</Text>
+      <TouchableOpacity style={[styles.accordionHeader,{marginTop:16}]}
+        onPress={()=>{this.setAcrdVisibleTwo()}}>
+        <Text style={styles.acrdTitle}>Tour Plan</Text>
         <Icon style={styles.acrdIcon} name={this.state.acrdVisibleTwo==0?"md-add-circle":"md-remove-circle"} />
       </TouchableOpacity>
       <View style={{display:this.state.acrdVisibleTwo==0?'none':'flex'}}>
@@ -529,15 +529,22 @@ class PjpClaimAprvScreen extends Component {
           :null}
         </View>
         <Text style={styles.modalCmntLabel}>Supervisor comment:</Text>
-        <TextInput 
-          multiline
-          numberOfLines={4}
-          value= {item.claimSupcomment}
-          placeholder='Enter your comment'
-          style={[styles.modalInput, styles.cmntInput]}
-          underlineColorAndroid="transparent"
-          onChangeText={(text) => this.handleUserComment(text, this.state.cmntData.req_hdr_id)}
-          />        
+        {this.state.tempUpdateParams.map((item, index) => {
+          if(this.state.cmntData && item.req_hdr_id == this.state.cmntData.req_hdr_id) {
+            return (
+              <TextInput 
+                key={index}
+                multiline
+                numberOfLines={4}
+                value= {item.claimSupcomment}
+                placeholder='Enter your comment'
+                style={[styles.modalInput, styles.cmntInput]}
+                underlineColorAndroid="transparent"
+                onChangeText={(text) => this.handleUserComment(text, this.state.cmntData.req_hdr_id)}
+                />
+            );
+          }
+        })}         
         {this.state.reqCmntError ?
           <Text style={styles.errorMsg}>{this.state.reqCmntError}</Text>
         :null}
@@ -588,10 +595,9 @@ class PjpClaimAprvScreen extends Component {
 
   renderReq = (data,index) => {
     const {params} = this.props.navigation.state;
-    return <TouchableOpacity 
+    return <View 
       key={index} 
-      style={styles.cardItem} 
-      onPress={() => {} /*this.props.navigation.navigate('PjpReqDtl',data)**/}>
+      style={styles.cardItem}>
       <View style={styles.cardItemHeader}>
         <View style={styles.cardItemHeaderCol}>
           <Text style={styles.cardHdrLabel}>FROM</Text>
@@ -608,6 +614,10 @@ class PjpClaimAprvScreen extends Component {
         </TouchableOpacity>
       </View>
       <View style={styles.cardRow}>
+        <Text style={styles.cardLabel}>Requisition Type:</Text>
+        <Text style={styles.cardValue}>{data.mode_name}</Text>
+      </View>
+      <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Date:</Text>
         <Text style={styles.cardValue}>{data.pjp_date?moment(data.pjp_date).format(global.DATEFORMAT):null}</Text>
       </View>
@@ -615,6 +625,11 @@ class PjpClaimAprvScreen extends Component {
         <Text style={styles.cardLabel}>Distance:</Text>
         <Text style={styles.cardValue}>{data.distance}</Text>
       </View>
+      {data.twoWay == 'true'?
+      <View style={styles.cardRow}>
+        <Text style={styles.cardLabel}>Local Conveyance - Two way Trip:</Text>
+        <Text style={styles.cardValue}>{data.twoWay == 'true'?'Two Way':null}</Text>
+      </View>:null}
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Actual Distance:</Text>
         <Text style={styles.cardValue}>{data.claimactualdistance}</Text>
@@ -634,10 +649,6 @@ class PjpClaimAprvScreen extends Component {
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Day:</Text>
         <Text style={styles.cardValue}>{data.noofdays}</Text>
-      </View>
-      <View style={styles.cardRow}>
-        <Text style={styles.cardLabel}>Requisition Type:</Text>
-        <Text style={styles.cardValue}>{data.mode_name}</Text>
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Requisition Amount:</Text>
@@ -683,8 +694,14 @@ class PjpClaimAprvScreen extends Component {
         </View>
       </View>
       :null*/}
+      {data.mode == "3" &&
+      <TouchableOpacity style={styles.cardFooter} 
+        onPress={() => this.props.navigation.navigate('PjpReqDtl',{data,'claim':true})}>
+        <Icon name="ios-eye" style={styles.cardFooterIcon} />
+        <Text style={styles.cardFooterText}>DETAILS</Text>
+      </TouchableOpacity>}
 
-    </TouchableOpacity>
+    </View>
   };
 }
 

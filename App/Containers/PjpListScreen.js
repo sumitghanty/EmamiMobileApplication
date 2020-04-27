@@ -1,16 +1,18 @@
 import React, { Component } from 'react'
-import { View, Alert, TouchableOpacity} from "react-native";
+import { View, Alert, TouchableOpacity, AsyncStorage } from "react-native";
 import { Container, Content, Button, Text, Icon, Card, CardItem  } from 'native-base';
-import {API_URL} from '../config'
 import Loader from '../Components/Loader'
 import SearchInput, { createFilter } from 'react-native-search-filter'
 import Vicon from 'react-native-vector-icons/Ionicons'
 import LinearGradient from 'react-native-linear-gradient'
 import moment from 'moment'
+import Actions from '../redux/actions'
+import Toast from 'react-native-simple-toast'
 
 import styles from './Styles/PjpListScreen';
+import { connect } from 'react-redux';
 
-const KEYS_TO_FILTERS = ['trip_no', 'creation_date', 'month', 'status'];
+const KEYS_TO_FILTERS = ['trip_no', 'creation_date', 'month', 'year', 'status'];
 
 class PjpListScreen extends Component {
   constructor(){ 
@@ -24,31 +26,28 @@ class PjpListScreen extends Component {
     this.setState({ searchTerm: term })
   }
   componentDidMount(){
-    return fetch(API_URL+'getTripListSalesByTripNo?user_id='+global.USER.userId)
-      .then((response) => response.json())
-      .then((responseJson) => {
-        this.setState({
-          isLoading: false,
-          dataSource: responseJson,
-        }, function(){
-        });
+    this.props.getPjp(global.USER.userId);
+  }
 
-      })
-      .catch((error) =>{
-        console.error(error);
-      });
-  }
   removeItem(e) {
-    var newList = pjpList;
-    if (e !== -1) {
-      newList.splice(e, 1);
-      this.setState({pjpList: newList});
-    }
+    this.setState({ isLoading: true }, () => {
+      this.props.pjpDelete([e])
+      .then(()=>{
+        this.props.getPjp(global.USER.userId)
+        .then(()=>{
+          this.setState({ isLoading: false })
+        })
+        .then(()=>{
+          Toast.show('Tour delete Successfully', Toast.LONG);
+        })
+      })
+    })    
   }
+
   confirmation(e) {
     Alert.alert(
       'Remove PJP',
-      'Are you sure to remove this PJP?',
+      'Are you sure to remove this Tour?',
       [
         {
           text: 'Cancel',
@@ -62,16 +61,61 @@ class PjpListScreen extends Component {
       {cancelable: true},
     )
   };
+
+  revertItem(e) {
+    this.setState({ isLoading: true })
+    let newData = e;
+    AsyncStorage.getItem("ASYNC_STORAGE_SAVE_KEY")
+    .then(()=>{
+      newData.status_id = 0;
+      newData.status = "initiated"
+    })
+    .then(()=>{
+      this.props.pjpUpdate([newData])
+      .then(()=>{
+        this.props.getPjp(global.USER.userId)
+        .then(()=>{
+          this.setState({ isLoading: false })
+        })
+        .then(()=>{
+          Toast.show('Tour revert Successfully', Toast.LONG);
+        })
+      })
+    })    
+  }
+
+  revertConfirmation(e) {
+    Alert.alert(
+      'Revert PJP',
+      'Are you sure to revert this Tour?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Yes', 
+          onPress: () => this.revertItem(e)
+        },
+      ],
+      {cancelable: true},
+    )
+  };
+
   render() {
-    if(this.state.isLoading){
+    if(this.props.pjp.isLoading){
       return(
           <Loader/>
       )
+    } else if(this.props.pjp.errorStatus){
+      return(
+          <Text>URL Error</Text>
+      )
     } else {
-      const listData = this.state.dataSource;
+      const listData = this.props.pjp.dataSource;
       const filteredData = listData.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS))
       var sortList = filteredData;
-      sortList.sort((a,b) => b.trip_hdr_id - a.trip_hdr_id);
+      sortList.sort((a,b) => parseInt(b.year+moment().month(b.month).format("MM")) - parseInt(a.year+moment().month(a.month).format("MM")));
     return (
       <Container style={styles.container}>
         <View style={styles.searchBar}>
@@ -92,42 +136,17 @@ class PjpListScreen extends Component {
           }
           {sortList.map((item, index) => {
           return (
-            <TouchableOpacity key={index} onPress={() => this.props.navigation.navigate('PjpInfo',item)}>
-              <Card style={styles.item}>
-                <CardItem header style={styles.itemHeader}>
-                  <Text style={styles.headerLabel}>PJP ID:</Text>
-                  <Text style={styles.headerValue}>{item.trip_no}</Text>
-                </CardItem>
-                <CardItem style={styles.itemBody}>
-                  <View style={styles.itemInfo}>
-                    {item.creation_date &&
-                    <View style={styles.itemRow}>
-                      <Text style={styles.itemLabel}>Creation Date:</Text>
-                      <Text style={styles.itemValue}>{moment(item.creation_date).format(global.DATEFORMAT)}</Text>
-                    </View>}
-                    {item.month &&
-                    <View style={styles.itemRow}>
-                      <Text style={styles.itemLabel}>For Month of:</Text>
-                      <Text style={styles.itemValue}>{item.month}</Text>
-                    </View>}
-                    {item.status &&
-                    <View style={styles.itemRow}>
-                      <Text style={styles.itemLabel}>Status:</Text>
-                      <Text style={[styles.itemValue, styles.statusInitiated]}>{item.status}</Text>
-                    </View>}
-                  </View>
-                  <View style={styles.itemActions}>
-                    {item.delete_status == "true" &&<Button bordered small rounded danger style={styles.actionBtn}
-                      onPress={()=>this.confirmation(index)}>
-                      <Icon name='trash' style={styles.actionBtnIco} />
-                    </Button>}
-                    {item.status_id != 3 &&<Button bordered small rounded primary style={[styles.actionBtn, styles.mrgTop]}>
-                      <Icon name='undo' style={styles.actionBtnIco} />
-                    </Button>}
-                  </View>
-                </CardItem>
-              </Card>
-            </TouchableOpacity>
+            item.delete_status == "false" ?
+              (item.status_id == 0 || item.status_id == 1 || item.status_id == 2 || item.status_id == 3 || 
+              item.status_id == 4 || item.status_id == 6 || item.status_id == 7 || item.status_id == 9 || 
+              item.status_id == 10 || item.status_id == 11)?
+              <TouchableOpacity key={index} onPress={() => this.props.navigation.navigate('PjpInfo',item)}>
+                {this.renderItem(item)}
+              </TouchableOpacity>
+              :<View key={index}>
+                {this.renderItem(item)}
+              </View>
+            :null
           );
           })}
         </Content>
@@ -138,13 +157,74 @@ class PjpListScreen extends Component {
             colors={['#53c55c', '#33b8d6']} 
             style={styles.ftrBtnBg}>
             <Icon name='ios-add-circle-outline' style={styles.ftrBtnIcon} />
-            <Text style={styles.ftrBtnTxt}>Create New PJP</Text>
+            <Text style={styles.ftrBtnTxt}>Create New Tour Plan</Text>
           </LinearGradient>
         </TouchableOpacity>
       </Container>
     );
     }
   }
+
+  renderItem = (item) => {
+    return <Card style={styles.item}>
+      <CardItem header style={styles.itemHeader}>
+        <Text style={styles.headerLabel}>PJP ID:</Text>
+        <Text style={styles.headerValue}>{item.trip_no ?item.trip_no:''}</Text>
+        {(item.status_id == 0 || item.status_id == 1 || item.status_id == 2 || item.status_id == 3 || 
+        item.status_id == 4 || item.status_id == 6 || item.status_id == 7 || item.status_id == 9 || 
+        item.status_id == 10 || item.status_id == 11)?
+        <Icon name="md-arrow-round-forward" style={styles.arrowbtn}/>
+        :null}
+      </CardItem>
+      <CardItem style={styles.itemBody}>
+        <View style={styles.itemInfo}>
+          {item.creation_date ?
+          <View style={styles.itemRow}>
+            <Text style={styles.itemLabel}>Creation Date:</Text>
+            <Text style={styles.itemValue}>{moment(item.creation_date).format(global.DATEFORMAT)}</Text>
+          </View>:null}
+          {item.month ?
+          <View style={styles.itemRow}>
+            <Text style={styles.itemLabel}>For Month of:</Text>
+            <Text style={styles.itemValue}>{item.month} {item.year}</Text>
+          </View>:null}
+          <View style={styles.itemRow}>
+            <Text style={styles.itemLabel}>Status:</Text>
+            <Text style={[styles.itemValue, styles.statusInitiated]}>
+              {(item.sub_status && item.sub_status!='NA')?item.sub_status:item.status}
+            </Text>
+          </View>
+        </View>
+        <View style={styles.itemActions}>
+        {item.status_id == 0 ?
+          <Button bordered small rounded danger style={styles.actionBtn}
+            onPress={()=>this.confirmation(item)}>
+            <Icon name='trash' style={styles.actionBtnIco} />
+          </Button>:null}
+          {item.status_id == 8 ?<Button bordered small rounded primary style={[styles.actionBtn, styles.mrgTop]}
+            onPress={()=>this.revertConfirmation(item)}>
+            <Icon name='undo' style={styles.actionBtnIco} />
+          </Button>:null}
+        </View>
+      </CardItem>
+    </Card>
+  }
 };
 
-export default PjpListScreen;
+mapStateToProps = state => {
+  return {
+    pjp : state.pjp,
+    pjpUpdateState: state.pjpUpdateState,
+    pjpDeleteState: state.pjpDeleteState,
+    pjpUpdateState: state.pjpUpdateState
+  };
+};
+
+mapDispatchToProps = {
+  getPjp : Actions.getPjp,
+  pjpUpdate: Actions.pjpUpdate,
+  pjpDelete: Actions.pjpDelete,
+  pjpUpdate: Actions.pjpUpdate
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(PjpListScreen);

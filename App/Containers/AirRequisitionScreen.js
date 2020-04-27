@@ -458,6 +458,8 @@ class AirRequisitionScreen extends Component {
           "name": this.state.uploadData[i].file.name,
           "flow_type": params.claim?'ECR':'PT',
           "base64Str":fileBase64,
+          "repositoryId": global.USER.repositoryId,
+          "folderId": global.USER.folderId
         })
       })
       .catch((err) => {
@@ -699,12 +701,12 @@ class AirRequisitionScreen extends Component {
     ){
       if(!this.state.fromItem.Name || this.state.fromItem.Name == "Select From Location") {
         this.setState({
-          tripFromError: 'Please select Station/Location From'
+          tripFromError: 'Please select travel From'
         });
       }
       if(!this.state.toItem.Name || this.state.toItem.Name == "Select To Location") {
         this.setState({
-          tripToError: 'Please select Station/Location To'
+          tripToError: 'Please select travel To'
         });
       }
       if (this.state.emailError) {
@@ -1002,6 +1004,7 @@ class AirRequisitionScreen extends Component {
       this.props.statusResult.isLoading ||
       this.props.vendorList.isLoading ||
       (params.update && this.props.attachmentList.isLoading) ||
+      (params.claim && this.props.hotelList.isLoading) ||
       !this.state.screenReady
       ){
       return(
@@ -1015,7 +1018,8 @@ class AirRequisitionScreen extends Component {
       this.props.travelTypeState.errorStatus ||
       this.props.statusResult.errorStatus ||
       this.props.vendorList.errorStatus ||
-      (params.update && this.props.attachmentList.errorStatus)
+      (params.update && this.props.attachmentList.errorStatus) ||
+      (params.claim && this.props.hotelList.errorStatus)
       ) {
       return(
         <Text>URL Error</Text>
@@ -1190,7 +1194,7 @@ class AirRequisitionScreen extends Component {
             {(this.state.through && this.state.amntError) &&
               <Text style={styles.errorText}>{this.state.amntError}</Text>
             }
-            {this.state.through == "Travel Agent" &&
+            {this.state.through == "Travel Agent" ?
             <Item picker fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Travel Agent Name:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <Picker
@@ -1207,7 +1211,12 @@ class AirRequisitionScreen extends Component {
                   );
                 })}
               </Picker>
-            </Item>}
+            </Item>
+            :<Item fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Name:</Label>
+              <Text style={[styles.formInput,styles.readOnly]}>{params.params.name}</Text>
+            </Item>
+            }
             <Label style={[styles.formLabel,{marginLeft:16, marginBottom:4}]}>Comments:</Label>
             <TextInput
               multiline
@@ -1413,9 +1422,29 @@ class AirRequisitionScreen extends Component {
           <Text style={styles.flightTitle}>Flight Details</Text>
           {params.update.sub_status_id !='11.1' &&
           <Text style={styles.flightSubTitle}>Please select an Option<Text style={{color:'red',fontSize:13}}>*</Text></Text>}
-          {this.state.ticketList.map((item, key) => (
-            this._ticketItem(item, key, params.update)
-          ))}
+          {this.state.ticketList.map((item, index) => {
+            return (
+            (params.sub_status_id == '11.1' || params.sub_status_id == '7.3' || params.sub_status_id == '11.2') ?
+              <View key={index} style={styles.ticketItemWraper}>
+                {this._ticketItem(item, params.update)}
+              </View>
+            : Platform.OS === 'Android' ?
+              <TouchableNativeFeedback
+                useForeground={true}
+                onPress={()=>{this.selectTicket(data)}} 
+                key={index}
+                style={styles.ticketItemWraper}>
+                {this._ticketItem(item, params.update)}
+              </TouchableNativeFeedback>
+            :
+              <TouchableOpacity 
+                onPress={()=>{this.selectTicket(data)}} 
+                key={index}
+                style={styles.ticketItemWraper}>
+                {this._ticketItem(item, params.update)}
+              </TouchableOpacity>
+          )
+          })}
           </>}
 
           {params.claim && <Form>
@@ -1672,50 +1701,44 @@ class AirRequisitionScreen extends Component {
   }
 
   _ticketItem = (data,index, params) => {
-    return<TouchableNativeFeedback
-      useForeground={(params.sub_status_id == '11.1' || params.sub_status_id == '7.3' || params.sub_status_id == '11.2') ? false : true}
-      onPress={()=>{params.sub_status_id == '11.1' || params.sub_status_id == '7.3' || params.sub_status_id == '11.2' 
-              ?null:this.selectTicket(data)}} 
-      key={index}
-      style={styles.ticketItemWraper}>
-      <View style={styles.ticketItem}>
-        <View style={[
-          styles.ticketColumn,
-          styles.ticketLeft,
-          (data.type == 'YES') && styles.dangerTicket,
-          (data.type == 'YES') && styles.dangerTicketLeft,
-          (this.state.selectTicketData && this.state.selectTicketData.id == data.id) && styles.selectedTicket,
-          (this.state.selectTicketData && this.state.selectTicketData.id == data.id) && styles.selectedTicketLeft
-          ]}>
-          <View style={[styles.circle, styles.circleLeft]}></View>
-          <Text style={styles.nameLabel}>Flight Name:</Text>
-          <Text style={styles.flightName}>{data.airline}</Text>
-          <Text style={styles.ticketLabel}>Departure Time &amp; Place:</Text>
-          <Text style={styles.ticketValue}>{data.departure}</Text>
-          <Text style={styles.ticketLabel}>Arival Time &amp; Place</Text>
-          <Text style={styles.ticketValue}>{data.arrival}</Text>
-        </View>
-        <View style={[
-          styles.ticketColumn,
-          styles.ticketRight,          
-          (data.type == 'YES') && styles.dangerTicket,
-          (data.type == 'YES') && styles.dangerTicketRight,
-          (this.state.selectTicketData && this.state.selectTicketData.id == data.id) && styles.selectedTicket,
-          (this.state.selectTicketData && this.state.selectTicketData.id == data.id) && styles.selectedTicketRight
-          ]}>
-          <View style={[styles.circle, styles.circleRight]}></View>
-          <View style={styles.checkBox}>
-            {this.state.selectTicketData && this.state.selectTicketData.id == data.id &&
-            <Icon name='md-checkmark' style={styles.checkIcon} />
-            }
-          </View>
-          <Text style={styles.price}>{data.price}</Text>
-          <Text style={styles.currency}>{data.currency}</Text>        
-          <Text style={styles.oop}>Out of Policy:</Text>
-          <Text style={styles.oopValue}>{data.type}</Text>
-        </View>
+    return
+    <View style={styles.ticketItem}>
+      <View style={[
+        styles.ticketColumn,
+        styles.ticketLeft,
+        (data.type == 'YES') && styles.dangerTicket,
+        (data.type == 'YES') && styles.dangerTicketLeft,
+        (this.state.selectTicketData && this.state.selectTicketData.id == data.id) && styles.selectedTicket,
+        (this.state.selectTicketData && this.state.selectTicketData.id == data.id) && styles.selectedTicketLeft
+        ]}>
+        <View style={[styles.circle, styles.circleLeft]}></View>
+        <Text style={styles.nameLabel}>Flight Name:</Text>
+        <Text style={styles.flightName}>{data.airline}</Text>
+        <Text style={styles.ticketLabel}>Departure Time &amp; Place:</Text>
+        <Text style={styles.ticketValue}>{data.departure}</Text>
+        <Text style={styles.ticketLabel}>Arival Time &amp; Place</Text>
+        <Text style={styles.ticketValue}>{data.arrival}</Text>
       </View>
-    </TouchableNativeFeedback>
+      <View style={[
+        styles.ticketColumn,
+        styles.ticketRight,          
+        (data.type == 'YES') && styles.dangerTicket,
+        (data.type == 'YES') && styles.dangerTicketRight,
+        (this.state.selectTicketData && this.state.selectTicketData.id == data.id) && styles.selectedTicket,
+        (this.state.selectTicketData && this.state.selectTicketData.id == data.id) && styles.selectedTicketRight
+        ]}>
+        <View style={[styles.circle, styles.circleRight]}></View>
+        <View style={styles.checkBox}>
+          {this.state.selectTicketData && this.state.selectTicketData.id == data.id &&
+          <Icon name='md-checkmark' style={styles.checkIcon} />
+          }
+        </View>
+        <Text style={styles.price}>{data.price}</Text>
+        <Text style={styles.currency}>{data.currency}</Text>        
+        <Text style={styles.oop}>Out of Policy:</Text>
+        <Text style={styles.oopValue}>{data.type}</Text>
+      </View>
+    </View>
   }
 
   selectTicket=(data)=>{

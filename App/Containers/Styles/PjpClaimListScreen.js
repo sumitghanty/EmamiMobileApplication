@@ -1,144 +1,140 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
-    container: {
-        flex: 1
-    },
-    title: {
-        fontSize: 16,
-        color: 'rgba(0,0,0,1)',
-        fontWeight: 'bold',
-        marginHorizontal: 16,
-        marginTop: 16,
-        marginBottom: 8
-    },
-    linkItem: {
-        marginHorizontal: 16,
-        marginVertical: 10
-    },
-    card: {
-        backgroundColor: '#fff',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.8,
-        shadowRadius: 2,  
-        elevation: 5,
-        borderRadius: 4
-    },
-    itemHeader: {
-        backgroundColor: '#f4f4f4',
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderTopLeftRadius: 4,
-        borderTopRightRadius: 4,
-        paddingHorizontal: 8,
-        paddingVertical: 4
-    },
-    itemheaderLabel: {
-        marginVertical: 8,
-        marginRight: 8,
-        fontWeight: 'bold',
-        color: 'rgba(0,0,0,.5)',
-        fontSize: 13,
-        textTransform: 'uppercase',
-    },
-    itemHeaderValue: {
-        flex: 1,
-        margin: 8,
-        color: '#111',
-        fontSize: 14,
-        fontWeight: 'bold'
-    },
-    forwardIcon: {
-        fontSize: 24,
-        marginHorizontal: 8,
-        color: 'rgba(0,0,0,.5)'
-    },
-    cardBody: {
-        backgroundColor: '#fff',
-        paddingTop: 10,
-        borderBottomLeftRadius: 4,
-        borderBottomRightRadius: 4
-    },
-    itemRow: {
-        flexDirection: 'row',
-        marginBottom: 8
-    },
-    mb: {
-        marginBottom: 14
-    },
-    itemLabel: {
-        fontSize: 14,
-        color: 'rgba(0,0,0,.5)',
-        marginLeft: 16,
-        marginRight: 5,
-        flex: 2
-    },
-    itemValue: {
-        color: '#111',
-        flex: 3,
-        marginLeft: 5,
-        marginRight: 16
-    },
-    searchBar: {
-        backgroundColor: '#f4f4f4',
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(0,0,0,.05)'
-    },
-    searchInput: {
-        paddingVertical: 0,
-        height: 38,
-        borderWidth: 1,
-        borderColor: 'rgba(0,0,0,.15)',
-        marginHorizontal: 16,
-        marginVertical: 8,
-        paddingLeft: 16,
-        paddingRight: 42,
-        backgroundColor: '#fff',
-        borderRadius: 18
-    },
-    searchClear: {
-        position: 'absolute',
-        top: 8,
-        right: 26
-    },
-    searchClearIcon: {
-        fontSize: 20,
-        color: 'rgba(0,0,0,.35)',
-        marginTop: 8
-    },
-    searchIcon: {
-        fontSize: 24,
-        marginTop: 6
-    },
-    noData: {
-        textAlign: 'center',
-        margin: 30,
-        color: 'rgba(0,0,0,.5)'
-    },
-    itemFtrBtn: {
-        paddingHorizontal: 8,
-        height: 46,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderTopWidth: 1,
-        borderTopColor: 'rgba(0,0,0,.15)'
-    },
-    itemFtrBtnText: {
-        color: '#347eff',
-        fontWeight: 'bold',
-        fontSize: 13,
-        textTransform: 'uppercase',
-        letterSpacing: 1,
-        marginHorizontal: 4
-    },
-    itemFtrIcon: {
-        color: '#347eff',
-        fontSize: 28,
-        marginHorizontal: 4
-    },
-    textInfo: {
-        color: '#00b3b3'
-    }
+  content: {
+    zIndex: -3
+  },
+  title: {
+    fontSize: 16,
+    color: '#111',
+    padding: 16,
+    fontWeight: 'bold',
+  },
+  item: {
+    marginLeft: 16,
+    marginBottom: 16,
+    marginRight: 16
+  },
+  arrowbtn: {
+    marginLeft:10,
+    fontSize: 18,
+    width: 24,
+    color: 'rgba(255,255,255,.5)',
+    textAlign: 'center'
+  },
+  itemHeader: {
+    paddingLeft: 16,
+    paddingRight: 8,
+    paddingTop: 10,
+    paddingBottom: 10,
+    backgroundColor: '#0066b3',
+  },
+  headerLabel: {
+    color: 'rgba(255,255,255,.5)',
+    fontSize: 14,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    marginRight: 10
+  },
+  headerValue: {
+    fontSize: 14,
+    color: '#fff',
+    fontWeight: 'bold',
+    flex: 1
+  },  
+  statusInitiated: {
+    color: '#00b3b3'
+  },
+  itemBody: {
+    paddingRight: 0
+  },
+  itemInfo: {
+    flex: 1,
+    paddingRight: 16
+  },
+  itemRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginVertical: 4
+  },
+  itemLabel: {
+    flex: 2,
+    color: 'rgba(0,0,0,.35)',
+    paddingRight: 8,
+    fontSize: 14
+  },
+  itemValue: {
+    flex: 3,
+    color: '#2b3f4e',
+    fontSize: 14
+  },
+  actionBtn: {
+    width: 42,
+    height: 42,
+    marginRight: 16
+  },
+  actionBtnIco: {
+    marginLeft: 0,
+    marginRight: 0,
+    textAlign: 'center',
+    width: 42
+  },
+  mrgTop: {
+    marginTop: 10
+  },
+  ftrBtnBg: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14
+  },
+  ftrBtnTxt: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    textTransform: 'uppercase'
+  },
+  ftrBtnIcon: {
+    color: '#fff',
+    marginRight: 16,
+    fontSize: 20
+  },
+  searchBar: {
+      backgroundColor: '#f4f4f4',
+      borderBottomWidth: 1,
+      borderBottomColor: 'rgba(0,0,0,.05)'
+  },
+  searchInput: {
+      paddingVertical: 0,
+      height: 38,
+      borderWidth: 1,
+      borderColor: 'rgba(0,0,0,.15)',
+      marginHorizontal: 16,
+      marginVertical: 8,
+      paddingLeft: 16,
+      paddingRight: 42,
+      backgroundColor: '#fff',
+      borderRadius: 18
+  },
+  searchClear: {
+      position: 'absolute',
+      top: 8,
+      right: 26
+  },
+  searchClearIcon: {
+      fontSize: 20,
+      color: 'rgba(0,0,0,.35)',
+      marginTop: 8
+  },
+  searchIcon: {
+      fontSize: 24,
+      marginTop: 6
+  },
+  noData: {
+      textAlign: 'center',
+      margin: 30,
+      color: 'rgba(0,0,0,.5)'
+  }
 });

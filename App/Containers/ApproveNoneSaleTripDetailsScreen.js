@@ -497,7 +497,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
             <Text style={styles.label}>Details:</Text>
             <Text style={styles.value}>{params.details}</Text>
           </View>
-          {params.date_change_status == 'Y' ?<>
+          {/*params.date_change_status == 'Y' ?<>
           <View style={styles.row}>
             <Text style={[styles.label,{flex:3}]}>Requested Changed Date:</Text>
             <Text style={[styles.value,{color:'red',textAlign:'right'}]}>{moment(params.changed_end_date).format(global.DATEFORMAT)}</Text>
@@ -530,7 +530,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
               </LinearGradient>
             </TouchableOpacity>
           </View>
-          </>:null}
+          </>:null*/}
         </View>
         
         {(this.props.plans.dataSource.length && !this.props.plans.isLoading) ?

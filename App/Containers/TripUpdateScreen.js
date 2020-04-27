@@ -283,7 +283,8 @@ class TripUpdateScreen extends Component {
 
   submitTrip = (statusId) => {
     const {params} = this.props.navigation.state;
-    let newParams = params;
+    let newParams = params;    
+    let generatedData= null;
     AsyncStorage.getItem("ASYNC_STORAGE_FROM_KEY")
     .then(()=>{
       this.setState({ isLoading: true });
@@ -313,6 +314,32 @@ class TripUpdateScreen extends Component {
       this.props.tripUpdate([newParams])
       .then(()=>{
         this.props.getTrips(global.USER.userId)
+        .then(()=>{
+          if(statusId == 2) {
+            for(var i=this.props.trips.dataSource.length; i>0; i--) {
+              if(this.props.trips.dataSource[i-1].trip_no == this.state.tripNo) {
+                generatedData = this.props.trips.dataSource[i-1];                
+                break;
+              }
+            }
+          } else {
+            console.log('Trip Saved')
+          }
+        })
+        .then(()=>{
+          if(statusId == 2) {
+            this.props.sendEmail({
+              "mailId": global.USER.supervisorEmail,
+              "cc": global.USER.userEmail,
+              "subject": '#'+this.state.tripNo+" Trip Subimted.",
+              "tripNonSales": generatedData,
+              "requisitionNonSales": {"sub_status_id":"7.1"}
+            })
+          }
+          else {
+            console.log('Trip Saved');
+          }
+        })
       })
       .then(()=>{
         this.props.navigation.navigate('TripList')       
@@ -623,7 +650,8 @@ const mapStateToProps = state => {
     tripFor: state.tripFor,
     purpose: state.purpose,
     retainer: state.retainer,
-    statusResult: state.statusResult
+    statusResult: state.statusResult,
+    sendEmailState: state.sendEmailState,
   };
 };
 
@@ -634,7 +662,8 @@ const mapDispatchToProps = {
   getTripFor: Actions.getTripFor,
   getPurpose: Actions.getPurpose,
   getRetainer: Actions.getRetainer,
-  getStatus: Actions.getStatus
+  getStatus: Actions.getStatus,
+  sendEmail: Actions.sendEmail,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TripUpdateScreen);

@@ -28,7 +28,6 @@ import AdvPmntReqInfoScreen from './Containers/AdvPmntReqInfoScreen'
 import PjpListScreen from './Containers/PjpListScreen'
 import PjpInfoScreen from './Containers/PjpInfoScreen'
 import PjpCreateScreen from './Containers/PjpCreateScreen'
-import ApproveExpensesScreen from './Containers/ApproveExpensesScreen'
 import ExpensesListScreen from './Containers/ExpensesListScreen'
 import ExpInfoScreen from './Containers/ExpInfoScreen'
 import ApproveNoneSaleScreen from './Containers/ApproveNoneSaleScreen'
@@ -43,8 +42,12 @@ import PjpTripAprvScreen from './Containers/PjpTripAprvScreen'
 import PjpAprvListScreen from './Containers/PjpAprvListScreen'
 import PjpReqDtlScreen from './Containers/PjpReqDtlScreen'
 import PjpClaimAprvScreen from './Containers/PjpClaimAprvScreen'
+import SalesReqScreen from './Containers/SalesReqScreen'
 import Drawer from './Components/Drawer'
 import PjpClaimListScreen from './Containers/PjpClaimListScreen'
+import PjpClaimInfoScreen from './Containers/PjpClaimInfoScreen'
+import SalesClaimReqScreen from './Containers/SalesClaimReqScreen'
+import AirReqSalesScreen from './Containers/AirReqSalesScreen'
 
 class MenuBtn extends Component {
   toggleDrawer = () => {
@@ -218,15 +221,6 @@ const StackNavigator = createStackNavigator({
       title: 'Create New PJP',
     })
   },
-  ApproveExpenses: {
-    screen: ApproveExpensesScreen,
-    drawerLabel: "Approve Expense/PJP",
-    navigationOptions: ({ navigation }) => ({
-      title: 'Approve Expense/PJP',
-      headerLeft: <MenuBtn navigationProps={navigation} />,
-      headerRight: <HomeBtn navigationProps={navigation}/>,
-    })
-  },
   ExpensesList: {
     screen: ExpensesListScreen,
     drawerLabel: "Create/View Expenses",
@@ -326,9 +320,9 @@ const StackNavigator = createStackNavigator({
   },
   PjpClaimList: {
     screen:  PjpClaimListScreen,
-    drawerLabel: "PJP-Claim pending for Approval",
+    drawerLabel: "Epenses List",
     navigationOptions: ({ navigation }) => ({
-      title: 'PJP-Claim pending for Approval'
+      title: 'Epenses List'
     })
   },
   PjpClaimAprv: {
@@ -336,6 +330,34 @@ const StackNavigator = createStackNavigator({
     drawerLabel: "Approve PJP-Claim",
     navigationOptions: ({ navigation }) => ({
       title: 'Approve PJP-Claim'
+    })
+  },  
+  SalesReq: {
+    screen:  SalesReqScreen,
+    drawerLabel: "Create/Update Requisitions",
+    navigationOptions: ({ navigation }) => ({
+      title: 'Create/Update Requisitions'
+    })
+  },   
+  PjpClaimInfo: {
+    screen:  PjpClaimInfoScreen,
+    drawerLabel: "Claim Details",
+    navigationOptions: ({ navigation }) => ({
+      title: 'Claim Details'
+    })
+  },
+  SalesClaimReq: {
+    screen:  SalesClaimReqScreen,
+    drawerLabel: "Create/Update Line Item",
+    navigationOptions: ({ navigation }) => ({
+      title: 'Create/Update Line Item'
+    })
+  },  
+  AirReqSales: {
+    screen:  AirReqSalesScreen,
+    drawerLabel: "Air Requisition",
+    navigationOptions: ({ navigation }) => ({
+      title: 'Air Requisition'
     })
   },
 });

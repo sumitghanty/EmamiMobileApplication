@@ -36,7 +36,7 @@ class Drawer extends React.Component {
       /*if(global.USER.avatar) {
         this.state.uAvatar = global.USER.avatar
       }*/
-      if(global.USER.Approve_visibility_Sales) {
+      if(global.USER.approve_pjp_visibility) {
         this.state.entries[0] = {"id":"2", "title": "Approve Expense/PJP", "icon": "md-checkmark-circle-outline", "navigation":"ApproveSale"}
       }
       if(global.USER.Approve_visibility_NonSales) {
@@ -54,9 +54,6 @@ class Drawer extends React.Component {
       if(global.USER.createExpense_visibility) {
         this.state.entries[5] = {"id":"7", "title": "Create/View Expenses", "icon": "calculator", "navigation":"ExpensesList"}
       }
-      /*if(global.USER.approve_pjp_visibility) {
-        this.state.entries[6] = {"id":"6", "title": "Approve Expense/PJP", "icon": "md-checkbox-outline", "navigation":"ApproveExpenses"}
-      }*/
     }
   }
 

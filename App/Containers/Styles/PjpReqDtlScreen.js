@@ -43,6 +43,7 @@ export default StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 4,
-    padding: 6
+    padding: 6,
+    minHeight: 60
   }
 });

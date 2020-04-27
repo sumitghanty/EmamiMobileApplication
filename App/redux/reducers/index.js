@@ -9,6 +9,7 @@ import StatusReducer from './GetStatus'
 import TravelThroughReducer from './GetTravelThrough'
 import TravelTypeReducer from './GetTravelType'
 import TripListReducer from './TripList'
+import GenerateIdReducer from './GenerateId'
 import TripCreateReducer from './TripCreate'
 import TripUpdateReducer from './TripUpdate'
 import TripPlanReducer from './TripPlan'
@@ -39,6 +40,7 @@ import PjpClaimTotReducer from './PjpClaimTot'
 import PjpClaimRejReducer from './PjpClaimRej'
 import VendorReducer from './GetVendor'
 import TicketsReducer from './GetTickets'
+import TicketsSalesReducer from './GetTicketsSales'
 import TripEndDateUpdateReducer from './TripEndDateUpdate'
 import PlansSubmitReducer from './PlansSubmit'
 import UpdateVndAirResReducer from './UpdateVndAirRes'
@@ -47,9 +49,28 @@ import updtReqNSBDReducer from './updtReqNSBD'
 import TrpNSClmDtlUpdtReducer from './TrpNSClmDtlUpdt'
 import HotelListReducer from './GetHotel'
 import TripClaimUpdateReducer from './TripClaimUpdate'
+import SaleReqTypeReducer from './SaleReqType'
+import CreateReqSaleReducer from './CreateReqSale'
+import UpdtReqSaleReducer from './UpdtReqSale'
+import DeleteReqSaleReducer from './DeleteReqSale'
+import GetCityNameReducer from './GetCityName'
+import GenerateExpReducer from './GenerateExp'
+import PJPTotalReducer from './PJPTotal'
+import PJPCreateReducer from './PJPCreate'
+import PJPUpdateReducer from './PJPUpdate'
+import PJPDeleteReducer from './PJPDelete'
+import GetMaxAmntReducer from './GetMaxAmnt'
+import GetYearReducer from './GetYear'
+import GetPjpByMonthReducer from './GetPjpByMonth'
 import AttachmentReducer from './Attachment'
-import AttachmentListReducer from './GetAttachments'
+import AttachmentListReducer from './GetAttachments'	
+import AttachmentSalesReducer from './AttachmentSales'
+import AttachmentDeleteReducer from './DeleteAttachment'
+import AttachmentDeleteSalesReducer from './DeleteAttachmentSales'
 import SendEmailReducer from './SendEmail'
+import CeateClaimReqReducer from './ClaimReqCreate'
+import UpdatePjpTotReqReducer from './UpdatePjpTot'
+import UpdtClaimReqReducer from './UpdtClaimReq'
 
 export default {
 	locations:LocationsReducer,
@@ -63,6 +84,7 @@ export default {
 	travelThroughState:TravelThroughReducer,
 	travelTypeState:TravelTypeReducer,
 	trips:TripListReducer,
+	generateIdState:GenerateIdReducer,
 	tripCreate:TripCreateReducer,
 	tripUpdate:TripUpdateReducer,
 	plans:TripPlanReducer,
@@ -93,6 +115,7 @@ export default {
 	pjpClaimRej:PjpClaimRejReducer,
 	vendorList:VendorReducer,
 	ticketsList:TicketsReducer,
+	ticketsSalesList:TicketsSalesReducer,
 	tripEndDateUpdatePost:TripEndDateUpdateReducer,
 	plansSubmitState:PlansSubmitReducer,
 	updateVndAirResState: UpdateVndAirResReducer,
@@ -101,7 +124,26 @@ export default {
 	trpNSClmDtlUpdtState:TrpNSClmDtlUpdtReducer,
 	hotelList:HotelListReducer,
 	tripClaimUpdateState:TripClaimUpdateReducer,
+	reqTypeSale:SaleReqTypeReducer,
+	createReqSaleState:CreateReqSaleReducer,
+	updtReqSaleState:UpdtReqSaleReducer,
+	deleteReqSaleState:DeleteReqSaleReducer,
+	cityNameState:GetCityNameReducer,
+	generateExpState:GenerateExpReducer,
+	pjpTotalState:PJPTotalReducer,
+	pjpCreateState: PJPCreateReducer,
+	pjpUpdateState:PJPUpdateReducer,
+	pjpDeleteState:PJPDeleteReducer,
+	maxAmntState:GetMaxAmntReducer,
+	yearList:GetYearReducer,
+	getPjpByMonthState:GetPjpByMonthReducer,
 	attachmentState:AttachmentReducer,
 	attachmentList:AttachmentListReducer,
-	sendEmailState:SendEmailReducer
+	attachmentSalesState:AttachmentSalesReducer,
+	attachmentDeleteState:AttachmentDeleteReducer,
+	attachmentDeleteSalesState:AttachmentDeleteSalesReducer,
+	sendEmailState:SendEmailReducer,
+	ceateClaimState:CeateClaimReqReducer,
+	updatePjpTotState:UpdatePjpTotReqReducer,
+	updtClaimReqState:UpdtClaimReqReducer
 };

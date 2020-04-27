@@ -228,12 +228,13 @@ class TaxiRequisitionScreen extends Component {
     for(var i=0; i<this.state.uploadData.length; i++){
       let fileBase64 = null;
       let filePath = this.state.uploadData[i].file.uri;
+      let data = null;
       await RNFS.readFile(filePath, 'base64')
       .then(res =>{
         fileBase64 = res;
       })
       .then(()=>{
-        this.props.attachment({
+        data = {
           "mimeType": this.state.uploadData[i].file.type,
           "tripNo": params.params.trip_no,
           "lineItem": this.state.lineitem,
@@ -243,7 +244,12 @@ class TaxiRequisitionScreen extends Component {
           "name": this.state.uploadData[i].file.name,
           "flow_type": params.claim?'ECR':'PT',
           "base64Str":fileBase64,
-        })
+          "repositoryId": global.USER.repositoryId,
+          "folderId": global.USER.folderId
+        }
+      })
+      .then(()=>{
+        this.props.attachment(global.USER.personId,global.PASSWORD,data)
       })
       .catch((err) => {
         console.log(err.message, err.code);
@@ -490,7 +496,7 @@ class TaxiRequisitionScreen extends Component {
   }
 
   render() {
-    console.log(this.state.attachFiles)
+    console.log(global.PASSWORD)
     const {params} = this.props.navigation.state;
     if(this.state.isLoading ||
       this.props.plans.isLoading ||

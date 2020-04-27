@@ -77,7 +77,7 @@ export default StyleSheet.create({
     elevation: 5,
     borderRadius: 4,
     marginHorizontal: 16,
-    marginBottom: 16,
+    marginTop: 16,
     paddingBottom: 10
   },
   cardItemHeader: {
@@ -145,6 +145,28 @@ export default StyleSheet.create({
   cardValueCol: {
     flex: 1,
     marginHorizontal: 8
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 6,
+    paddingTop: 6,
+    marginTop: 8,    
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,.15)'
+  },
+  cardFooterIcon: {
+    marginHorizontal: 6,
+    fontSize: 24,
+    color: '#0b9aff'
+  },
+  cardFooterText: {
+    marginHorizontal: 6,
+    fontSize: 13,
+    color: '#0b9aff',
+    fontWeight: 'bold',
+    letterSpacing: 2
   },
   atchLink: {
     backgroundColor: '#f8f8f8',
@@ -334,13 +356,13 @@ export default StyleSheet.create({
   },
   totalTable: {
     marginHorizontal: 16,
-    marginBottom: 16,
+    marginTop: 16,
     backgroundColor: '#f8f8f8',
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,.1)',
+    borderColor: '#ff4813',
   },
   totalTableHeader: {
-    backgroundColor: '#1395f7',
+    backgroundColor: '#ff4813',
     paddingHorizontal: 16,
     paddingVertical: 10,
   },

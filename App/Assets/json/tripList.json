@@ -1,5 +1,0 @@
-[
-	{id:'ASD0321548901', status:'Initiated', statusId: '0', creationDate: '26-07-19', startDate:'01-08-19', employee:'Pradip Kar'},
-	{id:'ASD0321548902', status:'Approved', statusId: '1', creationDate: '15-07-19', startDate:'30-07-19', employee:'Pradip Kar'},
-	{id:'ASD0321548903', status:'Canceled', statusId: '2', creationDate: '21-08-19', startDate:'01-08-19', employee:'Pradip Kar'},
-]

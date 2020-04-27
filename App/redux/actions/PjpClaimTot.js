@@ -7,7 +7,7 @@ export function postPjpClaimTot(data) {
       request: {
         method: 'post',
         url: `createReqSalesClaimpjptotal`,
-        data: [data]
+        data: data
       }
     }
   };

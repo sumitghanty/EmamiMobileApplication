@@ -5,11 +5,11 @@ export default StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
     fontWeight: 'bold',
-    backgroundColor: '#f4f4f4',
+    backgroundColor: '#0066b3',
   },
   titleText: {
     fontSize: 16,
-    color: '#111',
+    color: '#fff',
   },
   formLabel: {
     flex: 2,

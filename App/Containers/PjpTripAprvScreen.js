@@ -8,6 +8,7 @@ import { connect } from 'react-redux'
 import Actions from '../redux/actions'
 import Toast from 'react-native-simple-toast'
 
+import {Purpose, For} from '../Components/GetValue'
 import Loader from '../Components/Loader'
 import styles from './Styles/PjpTripAprvScreen'
 
@@ -207,14 +208,14 @@ class PjpTripAprvScreen extends Component {
       });
       if (value == "A") {
         for(var i=0; i<newParams.length; i++) {
-          newParams[i].status_id = "9";
+          newParams[i].status_id = 9;
           newParams[i].status = this.state.aprvStatusName;
           newParams[i].sub_status_id = "9.1";
           newParams[i].sub_status = this.state.aprvSubStatusName;
         }
       } else if (value == "R") {
         for(var i=0; i<newParams.length; i++) {
-          newParams.status_id = "10";
+          newParams.status_id = 10;
           newParams[i].status = this.state.rejStatusName;
           newParams.sub_status_id = "10.1";
           newParams.sub_status = this.state.rejSubStatusName;
@@ -225,7 +226,7 @@ class PjpTripAprvScreen extends Component {
     .then(()=>{
       this.props.postPjpAprv(newParams)
       .then(()=>{
-        this.props.getPjpAprvList(global.USER.userEmail,["2","3","4","8"]);
+        this.props.getPjpAprvList(global.USER.userEmail,[2,3,4,8]);
         this.props.navigation.navigate('PjpAprvList','tour');
         Toast.show(value == "A"?'Tour Approved Successfully':'Tour Rejected Successfully', Toast.LONG);
         console.log(value == "A"?'Approve Done':'Reject Done');
@@ -291,11 +292,11 @@ class PjpTripAprvScreen extends Component {
         </View>
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>Purpose:</Text>
-          <Text style={styles.itemValue}>{params.purpose}</Text>
+          <Text style={styles.itemValue}><Purpose value={params.purpose} /></Text>
         </View>
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>Trip For:</Text>
-          <Text style={styles.itemValue}>{params.trip_for}</Text>
+          <Text style={styles.itemValue}><For value={params.trip_for} /></Text>
         </View>
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>Traveler Name:</Text>
@@ -317,7 +318,7 @@ class PjpTripAprvScreen extends Component {
       {sortList.length > 0 ?
         sortList.map((item, index) => {
         return (
-          this.renderReq(item,index)
+          this.renderReq(item,params,index)
         );
         })
         :null
@@ -490,7 +491,7 @@ class PjpTripAprvScreen extends Component {
   }
 }
 
-  renderReq = (data,index) => {
+  renderReq = (data,params,index) => {
     return <View 
       key={index} 
       style={styles.cardItem} >
@@ -510,6 +511,10 @@ class PjpTripAprvScreen extends Component {
         </TouchableOpacity>
       </View>
       <View style={styles.cardRow}>
+        <Text style={styles.cardLabel}>Requisition Type:</Text>
+        <Text style={styles.cardValue}>{data.mode_name}</Text>
+      </View>
+      <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Date:</Text>
         <Text style={styles.cardValue}>{data.pjp_date?moment(data.pjp_date).format(global.DATEFORMAT):null}</Text>
       </View>
@@ -517,10 +522,11 @@ class PjpTripAprvScreen extends Component {
         <Text style={styles.cardLabel}>Distance:</Text>
         <Text style={styles.cardValue}>{data.distance}</Text>
       </View>
+      {data.twoWay == 'true' ?
       <View style={styles.cardRow}>
-        <Text style={styles.cardLabel}>Requisition Type:</Text>
-        <Text style={styles.cardValue}>{data.mode_name}</Text>
-      </View>
+        <Text style={styles.cardLabel}>Local Conveyance - Two way Trip:</Text>
+        <Text style={styles.cardValue}>{data.twoWay == 'true'?'Two Way':null}</Text>
+      </View>:null}
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Requisition Amount:</Text>
         <Text style={[styles.cardValue, styles.reqAmnt]}>{data.amount_mode}</Text>
@@ -544,9 +550,9 @@ class PjpTripAprvScreen extends Component {
         </View>
       </View>
       :null}
-      {data.mode == "3" &&
+      {(data.mode == "3" || data.mode == "7" || ((data.mode == "14" || data.mode == "22") && params.place_of_work == "UC")) &&
       <TouchableOpacity style={styles.cardFooter} 
-        onPress={() => this.props.navigation.navigate('PjpReqDtl',data)}>
+        onPress={() => this.props.navigation.navigate('PjpReqDtl',{data,'claim':false})}>
         <Icon name="ios-eye" style={styles.cardFooterIcon} />
         <Text style={styles.cardFooterText}>DETAILS</Text>
       </TouchableOpacity>}

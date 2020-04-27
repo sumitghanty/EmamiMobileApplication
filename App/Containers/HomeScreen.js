@@ -37,10 +37,7 @@ class HomeScreen extends Component {
   _renderItem ({item, index}) {
     return (
       <TouchableOpacity style={styles.sliderItem}
-        onPress={() => (item.id==6 || item.id==7 || item.id==2 || item.id==1 || item.id==5)?  
-                this.props.navigation.navigate(item.navigation)
-                : {}
-                }>
+        onPress={() => this.props.navigation.navigate(item.navigation)}>
         <LinearGradient 
           start={{x: 0, y: 0}} 
           end={{x: 1, y: 0}} 
@@ -57,10 +54,7 @@ class HomeScreen extends Component {
           } 
           style={styles.sliderItemBlock}>
           <Icon name= { item.icon} style={styles.slideIcon} />
-          <Text style={styles.slideTitle}>{ item.title }</Text>
-          {(item.id == 3 || item.id == 5 || item.id == 7)
-          ?<Text style={{color:'rgba(255,255,255,.65)',fontSize: 12,textAlign:'center'}}>coming soon</Text>
-          :<Text style={{fontSize: 12,}}> </Text>}
+          <Text style={styles.slideTitle}>{ item.title }</Text><Text style={{fontSize: 12,}}> </Text>
         </LinearGradient>
       </TouchableOpacity >
     );
@@ -68,7 +62,7 @@ class HomeScreen extends Component {
 
   closeApp = () => {
     this.setState({
-      entries: []
+      entries: [],
     });
     BackHandler.exitApp();
   }
@@ -111,11 +105,9 @@ class HomeScreen extends Component {
       if(global.USER.create_pjp_visibility) {
         this.state.entries.push({ "id":3, "title": "Create/View PJP", "icon": "create", "navigation":"PjpList"});
       }
-      if(global.USER.approve_pjp_visibility) {
-        this.state.entries.push({ "id":4, "title": "Approve Expense/PJP", "icon": "md-checkbox-outline", "navigation":"ApproveExpenses" });
-      }
       if(global.USER.createExpense_visibility) {
-        this.state.entries.push({ "id":5, "title": "Create/View Expenses", "icon": "calculator", "navigation":"ExpensesList" });
+        this.state.entries.push({ "id":5, "title": "Create/View Expenses", "icon": "calculator", 
+            "navigation":global.USER.department=="Sales"?"PjpClaimList":"ExpensesList" });
       }
     }
   }

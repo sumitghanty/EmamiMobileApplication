@@ -11,7 +11,6 @@ import Toast from 'react-native-simple-toast'
 import { NavigationEvents } from 'react-navigation'
 import PickerModal from 'react-native-picker-modal-view'
 
-import {API_URL} from '../config'
 import Loader from '../Components/Loader'
 import styles from './Styles/TripCreateScreen'
 
@@ -239,7 +238,7 @@ class TripCreateScreen extends Component {
       isLoading: true
     });
     var generatedData= null;
-    return fetch(API_URL+'getLatestTripNumber',{
+    /*return fetch(API_URL+'getLatestTripNumber',{
       method: "POST",
       mode: "no-cors",
       headers: {
@@ -252,6 +251,12 @@ class TripCreateScreen extends Component {
     .then((responseJson)=>{
       this.setState({
         tripNo: responseJson
+      });
+    })*/
+    this.props.generateId('TRIP')
+    .then(()=>{
+      this.setState({
+        tripNo: this.props.generateIdState.dataSource
       });
     })
     .then(() => {    
@@ -302,7 +307,7 @@ class TripCreateScreen extends Component {
               "cc": global.USER.userEmail,
               "subject": '#'+this.state.tripNo+" Trip Subimted.",
               "tripNonSales": generatedData,
-              "requisitionNonSales": null
+              "requisitionNonSales": {"sub_status_id":"7.1"}
             })
             }
             else {
@@ -325,9 +330,6 @@ class TripCreateScreen extends Component {
         })
         })
     })
-    .catch((Error) => {
-      console.log(Error)
-    });
     Keyboard.dismiss();
   }
 
@@ -405,7 +407,7 @@ class TripCreateScreen extends Component {
         <Text>URL Error</Text>
       )
     } else {
-      console.log(moment(this.state.dateStart).format(global.DATEFORMAT));
+      console.log(this.state.tripNo);
     return (
       <Container style={styles.container}>
         <Content contentContainerStyle={styles.content}>
@@ -621,7 +623,8 @@ const mapStateToProps = state => {
     purpose: state.purpose,
     retainer: state.retainer,
     statusResult: state.statusResult,
-    sendEmailState: state.sendEmailState
+    sendEmailState: state.sendEmailState,
+    generateIdState: state.generateIdState
   };
 };
 
@@ -633,7 +636,8 @@ const mapDispatchToProps = {
   getPurpose: Actions.getPurpose,
   getRetainer: Actions.getRetainer,
   getStatus: Actions.getStatus,
-  sendEmail: Actions.sendEmail
+  sendEmail: Actions.sendEmail,
+  generateId: Actions.generateId
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TripCreateScreen);

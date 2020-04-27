@@ -66,6 +66,7 @@ class TripPlanScreen extends Component {
                 ? '0'+parseInt((acdList[0]%100))
                 : parseInt((acdList[0]%100))
         this.setState({endDateLmt: Y+'-'+M+'-'+D})
+        console.log(acdList);
       }
     });
 
@@ -415,6 +416,7 @@ class TripPlanScreen extends Component {
     } else {
     var sortList = this.props.plans.dataSource;
     sortList.sort((a,b) => b.req_hdr_id - a.req_hdr_id);
+    console.log(params)
     return (
       <Container style={styles.container}>
         <Content contentContainerStyle={styles.content}>
@@ -435,13 +437,13 @@ class TripPlanScreen extends Component {
                 <Icon name="calendar" style={styles.datePickerIcon} />
               </TouchableOpacity>
             </Item>
-            { this.state.show && 
+            { this.state.show ? 
             <DateTimePicker value={new Date(this.state.date)}
               mode={this.state.mode}
               minimumDate={new Date(this.state.endDateLmt?this.state.endDateLmt: params.start_date)}
               is24Hour={true}
               display="default"
-              onChange={this.setDate} />
+              onChange={this.setDate} />:null
             }
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Purpose:</Label>

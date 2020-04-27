@@ -293,6 +293,8 @@ class OtherRequisitionScreen extends Component {
           "name": this.state.uploadData[i].file.name,
           "flow_type": 'ECR',
           "base64Str":fileBase64,
+          "repositoryId": global.USER.repositoryId,
+          "folderId": global.USER.folderId
         })
       })
       .catch((err) => {

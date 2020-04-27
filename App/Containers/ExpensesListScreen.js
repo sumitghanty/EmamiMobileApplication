@@ -3,11 +3,9 @@ import { View, Alert, TouchableOpacity, FlatList} from "react-native";
 import { Container, Content, Button, Text, Icon, Card, CardItem  } from 'native-base';
 import { connect } from 'react-redux'
 import Actions from '../redux/actions'
-import {API_URL} from '../config'
 import Loader from '../Components/Loader'
 import SearchInput, { createFilter } from 'react-native-search-filter'
 import Vicon from 'react-native-vector-icons/Ionicons'
-import LinearGradient from 'react-native-linear-gradient'
 import moment from 'moment'
 import 'moment-precise-range-plugin'
 
@@ -15,7 +13,6 @@ import styles from './Styles/ExpensesListScreen'
 
 const KEYS_TO_FILTERS = ['trip_no', 'start_date', 'end_date', 'trip_from', 'trip_to', 'status','payment_amount','estimated_cost','actual_claim_amount','currency','actual_claim_currency'];
 const STATUS_ID = ["3","4","9","11","15","17","19","20","23","25","27","29"];
-/*const STATUS_ID_SALE = ['9', '11', '19', '20', '23', '25'];*/
 
 class ExpensesListScreen extends Component {  
   constructor(){ 

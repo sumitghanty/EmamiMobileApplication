@@ -1,7 +1,0 @@
-[
-	{ tripFor_type_id: 1, tripFor_type: 'Self', status: 'A', },
-  { tripFor_type_id: 2, tripFor_type: 'Employee', status: 'D', },
-  { tripFor_type_id: 3, tripFor_type: 'Nonemployee - Retainer', status: 'A', },
-  { tripFor_type_id: 4, tripFor_type: 'Others', status: 'D', },
-  { tripFor_type_id: 5, tripFor_type: 'Group', status: 'A', },
-]

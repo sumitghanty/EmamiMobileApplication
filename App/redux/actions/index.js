@@ -9,6 +9,7 @@ import {getStatus} from './GetStatus'
 import {getTravelThrough} from './GetTravelThrough'
 import {getTravelType} from './GetTravelType'
 import {getTrips} from './TripList'
+import {generateId} from './GenerateId'
 import {tripCreate} from './TripCreate'
 import {tripUpdate} from './TripUpdate'
 import {getPlans} from './TripPlan'
@@ -39,6 +40,7 @@ import {postPjpClaimTot} from './PjpClaimTot'
 import {postPjpClaimRej} from './PjpClaimRej'
 import {getVendor} from './GetVendor'
 import {getTickets} from './GetTickets'
+import {getTicketsSales} from './GetTicketsSales'
 import {tripEndDateUpdate} from './TripEndDateUpdate'
 import {plansSubmit} from './PlansSubmit'
 import {updateVndAirRes} from './UpdateVndAirRes'
@@ -47,9 +49,28 @@ import {updtReqNSBD} from  './updtReqNSBD'
 import {trpNSClmDtlUpdt} from  './TrpNSClmDtlUpdt'
 import {getHotels} from './GetHotel'
 import {tripClaimUpdate} from './TripClaimUpdate'
+import {getReqTypeSale} from './SaleReqType'
+import {createReqSale} from './CreateReqSale'
+import {updtReqSale} from './UpdtReqSale'
+import {deleteReqSale} from './DeleteReqSale'
+import {getCityName} from './GetCityName'
+import {generateExp} from './GenerateExp'
+import {pjpCreate} from './PJPCreate'
+import {pjpUpdate} from './PJPUpdate'
+import {pjpTotal} from './PJPTotal'
+import {pjpDelete} from './PJPDelete'
+import {getMaxAmnt} from './GetMaxAmnt'
+import {getYear} from './GetYear'
+import {getPjpByMonth} from './GetPjpByMonth'
 import {attachment} from './Attachment'
 import {getAttachments} from './GetAttachments'
+import {attachmentSales} from './AttachmentSales'
+import {attachmentDelete} from './DeleteAttachment'
+import {attachmentDeleteSales} from './DeleteAttachmentSales'
 import {sendEmail} from './SendEmail'
+import {ceateClaimReq} from './ClaimReqCreate'
+import {updatePjpTot} from './UpdatePjpTot'
+import {updtClaimReq} from './UpdtClaimReq'
 
 export default {
 	getReqLocations:getReqLocations,
@@ -63,6 +84,7 @@ export default {
 	getTravelThrough:getTravelThrough,
 	getTravelType:getTravelType,
 	getTrips:getTrips,
+	generateId:generateId,
 	tripCreate:tripCreate,
 	tripUpdate:tripUpdate,
 	getPlans:getPlans,
@@ -92,6 +114,7 @@ export default {
 	postPjpClaimRej:postPjpClaimRej,
 	getVendor:getVendor,
 	getTickets:getTickets,
+	getTicketsSales:getTicketsSales,
 	tripEndDateUpdate:tripEndDateUpdate,
 	plansSubmit:plansSubmit,
 	updateVndAirRes:updateVndAirRes,
@@ -101,7 +124,26 @@ export default {
 	trpNSClmDtlUpdt:trpNSClmDtlUpdt,
 	getHotels:getHotels,
 	tripClaimUpdate:tripClaimUpdate,
+	getReqTypeSale:getReqTypeSale,
+	createReqSale:createReqSale,
+	updtReqSale:updtReqSale,
+	deleteReqSale:deleteReqSale,
+	getCityName:getCityName,
+	generateExp:generateExp,
+	pjpTotal:pjpTotal,
+	pjpCreate: pjpCreate,
+	pjpDelete:pjpDelete,
+	pjpUpdate:pjpUpdate,
+	getMaxAmnt:getMaxAmnt,
+	getYear:getYear,
+	getPjpByMonth:getPjpByMonth,
 	attachment:attachment,
 	getAttachments:getAttachments,
-	sendEmail:sendEmail
+	attachmentSales:attachmentSales,
+	attachmentDelete:attachmentDelete,
+	attachmentDeleteSales:attachmentDeleteSales,
+	sendEmail:sendEmail,
+	ceateClaimReq:ceateClaimReq,
+	updatePjpTot:updatePjpTot,
+	updtClaimReq:updtClaimReq
 }

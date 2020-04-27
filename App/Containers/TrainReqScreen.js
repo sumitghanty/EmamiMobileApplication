@@ -159,6 +159,11 @@ class TrainReqScreen extends Component {
           this.setState({
             authority: this.props.hotelList.dataSource[0].vendor_name,
             gstin: this.props.hotelList.dataSource[0].gstin,
+            vendorId: this.props.hotelList.dataSource[i].vendor_id,
+            vPan: this.props.hotelList.dataSource[i].vendor_pan,
+            gstVClassification: this.props.hotelList.dataSource[i].gst_vendor_classification,
+            vCity: this.props.hotelList.dataSource[i].vendor_city,
+            vRg: this.props.hotelList.dataSource[i].vendor_rg,
           });
         }
       });
@@ -408,6 +413,8 @@ class TrainReqScreen extends Component {
           "name": this.state.uploadData[i].file.name,
           "flow_type": params.claim?'ECR':'PT',
           "base64Str":fileBase64,
+          "repositoryId": global.USER.repositoryId,
+          "folderId": global.USER.folderId
         })
       })
       .catch((err) => {
@@ -847,6 +854,7 @@ class TrainReqScreen extends Component {
       this.props.locations.isLoading ||
       this.props.statusResult.isLoading ||
       (params.update && this.props.attachmentList.isLoading) ||
+      (params.claim && this.props.hotelList.isLoading) ||
       !this.state.screenReady
       ){
       return(
@@ -858,6 +866,7 @@ class TrainReqScreen extends Component {
       this.props.travelThroughState.errorStatus ||
       this.props.locations.errorStatus || 
       this.props.statusResult.errorStatus ||
+      (params.claim && this.props.hotelList.errorStatus) ||
       (params.update && this.props.attachmentList.errorStatus)) {
       return(
         <Text>URL Error</Text>
