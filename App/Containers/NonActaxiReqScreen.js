@@ -141,7 +141,7 @@ export default class NonActaxiReqScreen extends Component {
             onChange={this.setDate} />
           }
           <Item picker fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Form:</Label>
+            <Label style={styles.formLabel}>From:</Label>
             <Picker
               placeholder="Select a Location" 
               selectedValue = {this.state.from} 
