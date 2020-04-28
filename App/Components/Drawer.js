@@ -70,7 +70,8 @@ class Drawer extends React.Component {
     this.setState({
       entries: []
     });
-    global.USER = null
+    global.USER = null,
+    global.PASSWORD = null,
     this.props.navigation.navigate('Login');
   }
 

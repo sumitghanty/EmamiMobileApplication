@@ -31,7 +31,7 @@ class TripPlanScreen extends Component {
       endaDateList: [],
       endDateLmt: null,
       airReqData: null,
-      setGoBack: true
+      setGoBack: true,
     };
   }
   searchUpdated(term) {
@@ -231,6 +231,7 @@ class TripPlanScreen extends Component {
   }
 
   submit = (action)=> {
+    const {params} = this.props.navigation.state;
     if(this.state.SelectedDataList.length<1) {
       Alert.alert(
         'Warning',
@@ -326,6 +327,15 @@ class TripPlanScreen extends Component {
           })
           .then(()=>{
             this.props.plansSubmit(newList)
+            /*.then(()=>{
+              this.props.sendEmail({
+                "mailId": params.pending_with_email,
+                "cc": null,
+                "subject": 'Kindly Approve The Requisition.',
+                "tripNonSales": params,
+                "requisitionNonSales": {"sub_status_id":'8.1'}
+              })
+            })*/
             .then(()=>{
               this.props.getTrips(global.USER.userId)
               .then(()=>{
@@ -386,6 +396,19 @@ class TripPlanScreen extends Component {
           .then(()=>{
             if(this.state.setGoBack) {
               this.props.planUpdate(newList)
+              /*.then(()=>{
+                for(var i=0; i< newList.length;i++) {
+                  if(newList[i].sub_status_id == '7.1' || newList[i].sub_status_id == '7.3') {
+                    this.props.sendEmail({
+                      "mailId": params.pending_with_email,
+                      "cc": null,
+                      "subject": newList[i].sub_status_id == '7.1'?'Kindly provide flight options.':'Please book a ticket for selected flight',
+                      "tripNonSales": params,
+                      "requisitionNonSales": {"sub_status_id":newList[i].sub_status_id}
+                    })
+                  }
+                }
+              })*/
               .then(()=>{
                 this.props.getTrips(global.USER.userId)
                 .then(()=>{
@@ -869,7 +892,8 @@ const mapStateToProps = state => {
     trips: state.trips,
     statusResult: state.statusResult,
     plansSubmitState: state.plansSubmitState,
-    planUpdateState: state.planUpdateState
+    planUpdateState: state.planUpdateState,
+    sendEmailState: state.sendEmailState,
   };
 };
 
@@ -881,7 +905,8 @@ const mapDispatchToProps = {
   getTrips : Actions.getTrips,
   getStatus: Actions.getStatus,
   plansSubmit: Actions.plansSubmit,
-  planUpdate: Actions.planUpdate
+  planUpdate: Actions.planUpdate,
+  sendEmail: Actions.sendEmail,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TripPlanScreen);

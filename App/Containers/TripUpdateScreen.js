@@ -326,20 +326,20 @@ class TripUpdateScreen extends Component {
             console.log('Trip Saved')
           }
         })
-        .then(()=>{
+        /*.then(()=>{
           if(statusId == 2) {
             this.props.sendEmail({
               "mailId": global.USER.supervisorEmail,
-              "cc": global.USER.userEmail,
-              "subject": '#'+this.state.tripNo+" Trip Subimted.",
+              "cc": null,
+              "subject": 'Kindly provide approval for trip #'+this.state.tripNo,
               "tripNonSales": generatedData,
-              "requisitionNonSales": {"sub_status_id":"7.1"}
+              "requisitionNonSales": null
             })
           }
           else {
             console.log('Trip Saved');
           }
-        })
+        })*/
       })
       .then(()=>{
         this.props.navigation.navigate('TripList')       

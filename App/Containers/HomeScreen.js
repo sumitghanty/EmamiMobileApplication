@@ -114,7 +114,9 @@ class HomeScreen extends Component {
 
 
   render() {
+    console.log('HomeScreen');
     console.log(global.USER);
+    console.log(global.PASSWORD?global.PASSWORD:'NP');
     return (
     <View style={styles.container}>
 			<NetworkError />

@@ -72,9 +72,19 @@ class AdvPmntReqInfoScreen extends Component {
   }
 
   approveTripNonReq() {
+    const {params} = this.props.navigation.state;
     this.changeStatus();
     if(this.state.changeStatusDone) {
       this.props.postAprAdvPmnt(this.state.updateParams)
+      /*.then(()=>{
+        this.props.sendEmail({
+          "mailId": global.USER.financerEmail,
+          "cc": params.email,
+          "subject": 'trip #'+this.state.tripNo+' has been approved.',
+          "tripNonSales": this.state.updateParams,
+          "requisitionNonSales": null
+        })
+      })*/
       .then(()=>{
         this.props.getAdvPmntPend(global.USER.userId,"14");
         this.props.navigation.navigate('ApproveNoneSaleAdvance');
@@ -88,6 +98,15 @@ class AdvPmntReqInfoScreen extends Component {
     this.changeRejStatus();
     if(this.state.changeStatusDone) {
       this.props.postAprAdvPmnt(this.state.updateParams)
+      /*.then(()=>{
+        this.props.sendEmail({
+          "mailId": params.email,
+          "cc": null,
+          "subject": 'trip #'+this.state.tripNo+' has been rejected.',
+          "tripNonSales": this.state.updateParams,
+          "requisitionNonSales": null
+        })
+      })*/
       .then(()=>{
         this.props.getAdvPmntPend(global.USER.userId,"14");
         this.props.navigation.navigate('ApproveNoneSaleAdvance');
@@ -301,13 +320,16 @@ class AdvPmntReqInfoScreen extends Component {
 const mapStateToProps = state => {
   return {
     aprAdvPmnt: state.aprAdvPmnt,
-    aprvPmntPend: state.aprvPmntPend
+    aprvPmntPend: state.aprvPmntPend,
+    sendEmailState: state.sendEmailState,
+    sendEmailState: state.sendEmailState,
   };
 };
 
 const mapDispatchToProps = {
   postAprAdvPmnt : Actions.postAprAdvPmnt,
-  getAdvPmntPend : Actions.getAdvPmntPend
+  getAdvPmntPend : Actions.getAdvPmntPend,
+  sendEmail: Actions.sendEmail,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AdvPmntReqInfoScreen);

@@ -106,18 +106,29 @@ class AdvPmntReqScreen extends Component {
     } else {
       this.setState({ isLoading: true }, () => {      
         this.props.advPmnt([newParams])
-      .then(()=>{
-        this.props.getAdvPmnts(global.USER.userId,"3",["3", "4", "6", "7", "9", "11", "12", "13", "14", "15", "16", "17", "18"]);
-      })
-      .then(()=>{
-        this.props.navigation.navigate('Advance');
-        if(statusId == "14") {
-          Toast.show('Advance payment submited successfully', Toast.LONG);
-        }
-        if(statusId == "12") {
-          Toast.show('Advance payment saved successfully', Toast.LONG);
-        }
-      });
+        /*.then(()=>{    
+          if(statusId ==  '14') {   
+            this.props.sendEmail({
+              "mailId": global.USER.supervisorName,
+              "cc": null,
+              "subject": 'Kindly Approve The Advance Payment',
+              "tripNonSales": newParams,
+              "requisitionNonSales": null
+            })
+          }
+        })*/
+        .then(()=>{
+          this.props.getAdvPmnts(global.USER.userId,"3",["3", "4", "6", "7", "9", "11", "12", "13", "14", "15", "16", "17", "18"]);
+        })
+        .then(()=>{
+          this.props.navigation.navigate('Advance');
+          if(statusId == "14") {
+            Toast.show('Advance payment submited successfully', Toast.LONG);
+          }
+          if(statusId == "12") {
+            Toast.show('Advance payment saved successfully', Toast.LONG);
+          }
+        });
       });
     }
     Keyboard.dismiss();
@@ -261,13 +272,15 @@ class AdvPmntReqScreen extends Component {
 const mapStateToProps = state => {
   return {
     advPmnt: state.advPmnt,
-    advPmnts: state.advPmnts
+    advPmnts: state.advPmnts,
+    sendEmailState: state.sendEmailState,
   };
 };
 
 const mapDispatchToProps = {
   advPmnt : Actions.advPmnt,
-  getAdvPmnts : Actions.getAdvPmnts
+  getAdvPmnts : Actions.getAdvPmnts,
+  sendEmail: Actions.sendEmail,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AdvPmntReqScreen);

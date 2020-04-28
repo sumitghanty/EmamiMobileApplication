@@ -313,6 +313,15 @@ class ExpInfoScreen extends Component {
       })
       .then(()=>{
         this.props.tripClaimUpdate([tripData])
+        /*.then(()=>{    
+          this.props.sendEmail({
+            "mailId": global.USER.supervisorName,
+            "cc": null,
+            "subject": 'Kindly provide approval of expense for trip #'+trip_no,
+            "tripNonSales": tripData,
+            "requisitionNonSales": null
+          })
+        })*/
         .then(()=>{
           this.props.getExpenses(global.USER.userId,"3",["3","4","9","11","15","17","19","20","23","25","27","29"])
           .then(()=>{
@@ -898,7 +907,8 @@ const mapStateToProps = state => {
     statusResult: state.statusResult,
     reqUpdateState: state.reqUpdateState,
     tripClaimUpdateState: state.tripClaimUpdateState,
-    expenses: state.expenses
+    expenses: state.expenses,
+    sendEmailState: state.sendEmailState,
   };
 };
 
@@ -911,7 +921,8 @@ const mapDispatchToProps = {
   getStatus: Actions.getStatus,
   reqUpdate: Actions.reqUpdate,
   tripClaimUpdate: Actions.tripClaimUpdate,
-  getExpenses : Actions.getExpenses
+  getExpenses : Actions.getExpenses,
+  sendEmail: Actions.sendEmail,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ExpInfoScreen);

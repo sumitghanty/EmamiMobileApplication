@@ -38,6 +38,7 @@ class TripListScreen extends Component {
   }
   
   render() {
+    console.log(global.PASSWORD)
     if(this.props.trips.isLoading){
       return(
           <Loader/>

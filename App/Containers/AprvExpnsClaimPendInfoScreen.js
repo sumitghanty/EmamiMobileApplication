@@ -100,6 +100,15 @@ class AprvExpnsClaimPendInfoScreen extends Component {
       })
       .then(()=>{
         this.props.postExpAprv(newParams)
+        /*.then(()=>{
+          this.props.sendEmail({
+            "mailId": global.USER.financerEmail,
+            "cc": params.email,
+            "subject": 'Expense claim has been approved.',
+            "tripNonSales": newParams,
+            "requisitionNonSales": null
+          })
+        })*/
         .then(()=>{
           this.props.getExpPendApr("21");
           this.props.getCostCentre(global.USER.costCentre);
@@ -142,6 +151,15 @@ class AprvExpnsClaimPendInfoScreen extends Component {
       })
       .then(()=>{
         this.props.postExpAprv(newParams)
+        /*.then(()=>{
+          this.props.sendEmail({
+            "mailId": params.email,
+            "cc": null,
+            "subject": 'Expense claim has been rejected.',
+            "tripNonSales": newParams,
+            "requisitionNonSales": null
+          })
+        })*/
         .then(()=>{
           this.props.getExpPendApr("21");
           this.props.getCostCentre(global.USER.costCentre);
@@ -590,6 +608,7 @@ const mapStateToProps = state => {
     aprExpPend: state.aprExpPend,
     attachmentList: state.attachmentList,
     statusResult: state.statusResult,
+    sendEmailState: state.sendEmailState,
   };
 };
 
@@ -601,6 +620,7 @@ const mapDispatchToProps = {
   getPlans : Actions.getPlans,
   getAttachments: Actions.getAttachments,
   getStatus: Actions.getStatus,
+  sendEmail: Actions.sendEmail,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AprvExpnsClaimPendInfoScreen);

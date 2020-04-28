@@ -18,7 +18,8 @@ export default class SplashScreen extends Component {
     global.DATEFORMAT = 'DD/MM/YYYY',
     global.COSTCENTRE = "CORP16",
 
-    global.USER = null
+    global.USER = null;
+    global.PASSWORD = null;
   };
 
   componentDidMount() {
@@ -39,11 +40,12 @@ export default class SplashScreen extends Component {
     try {
       let userData = await AsyncStorage.getItem("userData");
       let data = JSON.parse(userData);
-      this.setState({ userData: data });
       if (data) {
+        console.log(data);
         this.setState({isLogedin: true});
+        global.USER = data.userInfo;
+        global.PASSWORD = data.password;
       }
-      global.USER = data;
     } catch (error) {
       console.log("Something went wrong", error);
     }

@@ -25,6 +25,7 @@ class ApproveNoneSaleTripScreen extends Component {
     this.setState({ searchTerm: term })
   }
   componentDidMount(){
+    //this.props.getApprovedTripPending(global.USER.personId)
     this.props.getApprovedTripPending(global.USER.userEmail)
     .then(()=>{
       let items = this.props.aprvTripPend.dataSource;

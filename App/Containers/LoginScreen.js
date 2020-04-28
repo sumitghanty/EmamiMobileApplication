@@ -21,7 +21,8 @@ class LoginScreen extends Component {
       remember: false,
       isLoading: false,
       userNameError: '',
-      passwordError: ''
+      passwordError: '',
+      userData: null,
     }
   };
 
@@ -80,17 +81,22 @@ class LoginScreen extends Component {
         .then((response)=> response.json())
         .then((res) => {
           console.log(res);
-          let data = JSON.stringify(res)
-          global.USER = JSON.parse(data)
-          if(JSON.stringify( res) == '"Login failed!"' || JSON.stringify( res) == '"Login failed 00!"' 
-          || JSON.stringify( res) == '"Login failed !"') {
+          this.setState({
+            userData: {'userInfo':res,'password':this.state.password}
+          });
+        })
+        .then(() => {
+          if(JSON.stringify(this.state.userData.userInfo) == '"Login failed!"' || JSON.stringify(this.state.userData.userInfo) == '"Login failed 00!"' 
+          || JSON.stringify(this.state.userData.userInfo) == '"Login failed !"') {
             this.loginFail();
             this.setState({
               isLoading: false
             });
           } else {
+            global.USER = this.state.userData.userInfo;
+            global.PASSWORD = this.state.userData.password;
             if(this.state.remember) {
-              this.storeToken(JSON.stringify(res));
+              this.storeToken(JSON.stringify(this.state.userData));
             }
             this.setState({
               isLoading: false
