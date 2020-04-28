@@ -11,7 +11,6 @@ import Toast from 'react-native-simple-toast'
 import { NavigationEvents } from 'react-navigation'
 import PickerModal from 'react-native-picker-modal-view'
 
-import {API_URL} from '../config'
 import Loader from '../Components/Loader'
 import styles from './Styles/TripCreateScreen';
 import updateStyles from './Styles/TripUpdateScreen';
