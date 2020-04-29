@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, KeyboardAvoidingView, ScrollView, Picker, Platform, TouchableOpacity, TextInput, 
-        AsyncStorage, BackHandler, Alert, Modal, Image, ActivityIndicator } from "react-native";
+        AsyncStorage, BackHandler, Alert, Modal, Image, ActivityIndicator, Linking } from "react-native";
 import { Button, Icon, Text, Form, Item, Label } from 'native-base';
 import DocumentPicker from 'react-native-document-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -63,7 +63,7 @@ class TrainReqScreen extends Component {
       attachFiles: [],
       isLoading: false,
       modalVisible: false,
-      uploadData: [{"type":"Approve Email","file":null,'action':null},{"type":"Other","file":null,'action':null}],
+      uploadData: [{"type":"Approve Email","file":[],'action':null},{"type":"Other","file":[],'action':null}],
       curUploadType: 'Approve Email',
       invoiceAmnt: (params.update && params.update.invoice_amount) ? params.update.invoice_amount :null,
       invoiceAmntError: null,
@@ -175,13 +175,13 @@ class TrainReqScreen extends Component {
         for(var i=0; i<this.props.attachmentList.dataSource.length; i++) {
           for(var j=0; j<this.state.uploadData.length; j++) {
             if(this.props.attachmentList.dataSource[i].doc_type == this.state.uploadData[j].type) {
-              this.state.uploadData[j].file={
+              this.state.uploadData[j].file.push({
                 'size': null,
                 'name': this.props.attachmentList.dataSource[i].file_name,
                 'type': 'image/'+this.getExtention(this.props.attachmentList.dataSource[i].file_name),
                 'uri': this.props.attachmentList.dataSource[i].file_path
-              }
-            }           
+              })
+            }         
           }
         }
       })
@@ -423,7 +423,7 @@ class TrainReqScreen extends Component {
     }
   }
 
-  downloadImage = (file,type) => {
+  /*downloadImage = (file,type) => {
     console.log(file);
     var date = new Date();
     var image_URL = file;
@@ -463,6 +463,15 @@ class TrainReqScreen extends Component {
           });
           break;
         }
+      }
+    });
+  }*/
+  downloadImage = (file) => {
+    Linking.canOpenURL(file).then(supported => {
+      if (supported) {
+        Linking.openURL(file);
+      } else {
+        console.log("Don't know how to open URI: " + this.props.url);
       }
     });
   }
@@ -1238,23 +1247,26 @@ class TrainReqScreen extends Component {
             item.file ? 
             <View key={key}>
               <Text style={styles.attachType}>{item.type}</Text>
-              <View style={styles.atchFileRow}>
-                {item.file.type == "image/webp" ||
-                  item.file.type == "image/jpeg" ||
-                  item.file.type == "image/jpg" ||
-                  item.file.type == "image/png" ||
-                  item.file.type == "image/gif" ?
+              {item.file.map((file, index)=>(
+              <View style={styles.atchFileRow} key={index}>
+                {/*file.type == "image/webp" ||
+                  file.type == "image/jpeg" ||
+                  file.type == "image/jpg" ||
+                  file.type == "image/png" ||
+                  file.type == "image/gif" ?
                 <Image
                   style={{width: 50, height: 50, marginRight:10}}
-                  source={{uri: item.file.uri}}
-                />:null}
-                <Text style={styles.atchFileName} numberOfLines = {1}>{item.file.name ? item.file.name : ''}</Text>
-                {(params.update && item.file.uri.includes('http')) &&
+                  source={{uri: file.uri}}
+              />:null*/}
+                <Text style={styles.atchFileName} numberOfLines = {1}>{file.name ? file.name : ''}</Text>
+                {(params.update && file.uri.includes('http')) &&
                 <>
                 {item.action == 'P' ?
                 <ActivityIndicator size="small" color="#0066b3" />:              
                 <Button bordered small rounded primary style={[styles.actionBtn, styles.actionBtnPrimary, item.action == 'C'?{borderColor:'green'}:null]}
-                  onPress={() => {this.downloadImage(item.file.uri,item.type);}}>
+                  //onPress={() => {this.downloadImage(file.uri,item.type);}}
+                  onPress={() => {this.downloadImage(file.uri);}}
+                  >
                   {item.action == 'C' ?
                   <Icon name='md-checkmark' style={[styles.actionBtnIco,{color:'green'}]} />:                
                   <Icon name='md-download' style={[styles.actionBtnIco,styles.actionBtnIcoPrimary]} />}
@@ -1265,6 +1277,7 @@ class TrainReqScreen extends Component {
                   <Icon name='close' style={styles.actionBtnIco} />
                 </Button>
               </View>
+              ))}
             </View>:null
           ))}
           <TouchableOpacity onPress={() => this.submitReq()} style={styles.ftrBtn}>
@@ -1314,21 +1327,25 @@ class TrainReqScreen extends Component {
             
             {this.state.uploadData.map((item, key) => (
               (item.type == this.state.curUploadType && item.file) ?
-              <View key={key} style={styles.atchFileRow}>
-                {item.file.type == "image/webp" ||
-                  item.file.type == "image/jpeg" ||
-                  item.file.type == "image/jpg" ||
-                  item.file.type == "image/png" ||
-                  item.file.type == "image/gif" ?
-                <Image
-                  style={{width: 50, height: 50, marginRight:10}}
-                  source={{uri: item.file.uri}}
-                />:null}
-                <Text style={styles.atchFileName}>{item.file.name ? item.file.name : ''}</Text>
-                <Button bordered small rounded danger style={styles.actionBtn}
-                  onPress={()=>this.removeAttach(item.type)}>
-                  <Icon name='close' style={styles.actionBtnIco} />
-                </Button>
+              <View key={key}>
+              {item.file.map((file, index)=>(
+                <View key={index} style={styles.atchFileRow}>
+                  {/*file.type == "image/webp" ||
+                    file.type == "image/jpeg" ||
+                    file.type == "image/jpg" ||
+                    file.type == "image/png" ||
+                    file.type == "image/gif" ?
+                  <Image
+                    style={{width: 50, height: 50, marginRight:10}}
+                    source={{uri: item.file.uri}}
+              />:null*/}
+                  <Text style={styles.atchFileName}>{file.name ? file.name : ''}</Text>
+                  <Button bordered small rounded danger style={styles.actionBtn}
+                    onPress={()=>this.removeAttach(type)}>
+                    <Icon name='close' style={styles.actionBtnIco} />
+                  </Button>
+                </View>
+              ))}
               </View>
               :null
             ))}

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, KeyboardAvoidingView, ScrollView, TouchableOpacity, TextInput, Platform, Modal, 
-  Keyboard, Picker, Image, Alert, AsyncStorage, BackHandler, ActivityIndicator } from "react-native";
+  Keyboard, Picker, Image, Alert, AsyncStorage, BackHandler, ActivityIndicator, Linking } from "react-native";
 import { Button, Icon, Text, Form, Item, Label } from 'native-base';
 import DocumentPicker from 'react-native-document-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -47,7 +47,7 @@ class TaxiRequisitionScreen extends Component {
       statusName: '',
       subStatusName: '',
       modalVisible: false,
-      uploadData: [{"type":"Approve Email","file":null,'action':null},{"type":"Other","file":null,'action':null}],
+      uploadData: [{"type":"Approve Email","file":[],'action':[]},{"type":"Other","file":[],'action':[]}],
       curUploadType: 'Approve Email',
       currency: (params.update && params.update.invoice_amount_currency)?params.update.invoice_amount_currency:null,
       currencyError: null,
@@ -57,6 +57,7 @@ class TaxiRequisitionScreen extends Component {
       tripNo: params.params.trip_no,
       refresh: false,
       screenReady: params.update ? false : true,
+      goBack: false,
     };
   }
   
@@ -87,13 +88,13 @@ class TaxiRequisitionScreen extends Component {
         for(var i=0; i<this.props.attachmentList.dataSource.length; i++) {
           for(var j=0; j<this.state.uploadData.length; j++) {
             if(this.props.attachmentList.dataSource[i].doc_type == this.state.uploadData[j].type) {
-              this.state.uploadData[j].file={
+              this.state.uploadData[j].file.push({
                 'size': null,
                 'name': this.props.attachmentList.dataSource[i].file_name,
                 'type': 'image/'+this.getExtention(this.props.attachmentList.dataSource[i].file_name),
                 'uri': this.props.attachmentList.dataSource[i].file_path
-              }
-            }           
+              })
+            }         
           }
         }
       })
@@ -159,14 +160,18 @@ class TaxiRequisitionScreen extends Component {
     }
   }
 
-  removeAttach(type) {
+  removeAttach(type,name) {
     for(var i = 0; i<this.state.uploadData.length; i++) {
       if(this.state.uploadData[i].type == type) {
-        this.state.uploadData[i].file = null;
-        this.state.attachFiles.splice(0,1);
-        this.setState({ 
-          refresh: true 
-        })
+        for(var j=0; j<this.state.uploadData[i].file.length; j++){
+          if(this.state.uploadData[i].file[j].name == name) {
+            this.state.uploadData[i].file.splice(j, 1);
+            this.state.attachFiles.splice(0,1);
+            this.setState({ 
+              refresh: true 
+            })
+          }
+        }
       }
     }
   }
@@ -205,7 +210,7 @@ class TaxiRequisitionScreen extends Component {
         alert('File uploaded successfully.');     
         for(var i=0; i<this.state.uploadData.length; i++) {
           if(this.state.uploadData[i].type == this.state.curUploadType) {
-            this.state.uploadData[i].file = results;
+            this.state.uploadData[i].file.push(results);
           }
         }
         this.state.attachFiles.push(results);
@@ -226,38 +231,45 @@ class TaxiRequisitionScreen extends Component {
   async atchFiles() {
     const {params} = this.props.navigation.state;
     for(var i=0; i<this.state.uploadData.length; i++){
-      let fileBase64 = null;
-      let filePath = this.state.uploadData[i].file.uri;
-      let data = null;
-      await RNFS.readFile(filePath, 'base64')
-      .then(res =>{
-        fileBase64 = res;
-      })
-      .then(()=>{
-        data = {
-          "mimeType": this.state.uploadData[i].file.type,
-          "tripNo": params.params.trip_no,
-          "lineItem": this.state.lineitem,
-          "docType": this.state.uploadData[i].type,
-          "userId": params.params.userid,
-          "trip_hdr_id_fk": params.params.trip_hdr_id,
-          "name": this.state.uploadData[i].file.name,
-          "flow_type": params.claim?'ECR':'PT',
-          "base64Str":fileBase64,
-          "repositoryId": global.USER.repositoryId,
-          "folderId": global.USER.folderId
+      for(var j=0; j<this.state.attachFiles.length; j++){
+        if(this.state.uploadData[i].file.name == this.state.attachFiles[j].name){
+          let fileBase64 = null;
+          let filePath = this.state.uploadData[i].file.uri;
+          let data = null;
+          await RNFS.readFile(filePath, 'base64')
+          .then(res =>{
+            fileBase64 = res;
+          })
+          .then(()=>{
+            data = {
+              "repositoryId": global.USER.repositoryId,
+              "folderId": global.USER.folderId,
+              "mimeType": this.state.uploadData[i].file.type,
+              "tripNo": params.params.trip_no,
+              "lineItem": this.state.lineitem,
+              "docType": this.state.uploadData[i].type,
+              "userId": params.params.userid,
+              "trip_hdr_id_fk": params.params.trip_hdr_id,
+              "name": this.state.uploadData[i].file.name,
+              "flow_type": params.claim?'ECR':'PT',
+              "base64Str":fileBase64,
+            }
+          })
+          .then(()=>{
+            this.props.attachment(global.USER.personId,global.PASSWORD,data)
+          })
+          .catch((err) => {
+            console.log(err.message, err.code);
+          })
         }
-      })
-      .then(()=>{
-        this.props.attachment(global.USER.personId,global.PASSWORD,data)
-      })
-      .catch((err) => {
-        console.log(err.message, err.code);
-      })
+      }
     }
+    this.setState({
+      goBack: true
+    });
   }
 
-  downloadImage = (file,type) => {
+  /*downloadImage = (file,type) => {
     console.log(file);
     var date = new Date();
     var image_URL = file;
@@ -297,6 +309,16 @@ class TaxiRequisitionScreen extends Component {
           });
           break;
         }
+      }
+    });
+  }*/
+
+  downloadImage = (file) => {
+    Linking.canOpenURL(file).then(supported => {
+      if (supported) {
+        Linking.openURL(file);
+      } else {
+        console.log("Don't know how to open URI: " + this.props.url);
       }
     });
   }
@@ -406,7 +428,7 @@ class TaxiRequisitionScreen extends Component {
           newReq.sub_status_id = params.claim?"NA":"7.5";
           newReq.status = this.state.statusName;
           newReq.sub_status = this.state.subStatusName;
-          newReq.is_outof_policy = this.state.oop;
+          newReq.is_outof_policy = params.item.sub_category_id == '11'?'N':this.state.oop;
           newReq.invoice_amount_currency = this.state.currency;
           newReq.extra_amount = this.state.extAmnt;
         })
@@ -416,16 +438,18 @@ class TaxiRequisitionScreen extends Component {
             this.atchFiles();
           })
           .then(()=>{
-            this.props.getPlans(params.params.trip_hdr_id)
-            .then(()=>{
-              this.setState({
-                isLoading: false,
+            if(this.state.goBack) {
+              this.props.getPlans(params.params.trip_hdr_id)
+              .then(()=>{
+                this.setState({
+                  isLoading: false,
+                });
+              })
+              .then(()=>{
+                this.props.navigation.goBack();
+                Toast.show('Requisition Updated Successfully', Toast.LONG);
               });
-            })
-            .then(()=>{
-              this.props.navigation.goBack();
-              Toast.show('Requisition Updated Successfully', Toast.LONG);
-            });
+            }
           });
         });
 
@@ -470,24 +494,26 @@ class TaxiRequisitionScreen extends Component {
             "sub_status_id": params.claim?"NA":"7.5",
             "status": this.state.statusName,
             "sub_status": this.state.subStatusName,
-            "is_outof_policy": this.state.oop,
+            "is_outof_policy": params.item.sub_category_id == '11'?'N':this.state.oop,
             "invoice_amount_currency": this.state.currency,
             "extra_amount": this.state.extAmnt,
           }])
           .then(()=>{
             this.atchFiles();
           })
-          .then(()=>{            
-            this.props.getPlans(params.params.trip_hdr_id)
-            .then(()=>{
-              this.setState({
-                isLoading: false,
-              });
-            })
-            .then(()=>{
-              this.props.navigation.goBack();
-              Toast.show('Requisition Created Successfully', Toast.LONG);
-            })
+          .then(()=>{ 
+            if(this.state.goBack) {           
+              this.props.getPlans(params.params.trip_hdr_id)
+              .then(()=>{
+                this.setState({
+                  isLoading: false,
+                });
+              })
+              .then(()=>{
+                this.props.navigation.goBack();
+                Toast.show('Requisition Created Successfully', Toast.LONG);
+              })
+            }
           })
         })
       }
@@ -496,7 +522,8 @@ class TaxiRequisitionScreen extends Component {
   }
 
   render() {
-    console.log(global.PASSWORD)
+    //console.log(global.PASSWORD)
+    console.log(this.state.attachFiles);
     const {params} = this.props.navigation.state;
     if(this.state.isLoading ||
       this.props.plans.isLoading ||
@@ -616,38 +643,42 @@ class TaxiRequisitionScreen extends Component {
           </View>
         </Form>
         {this.state.uploadData.map((item, key) => (
-          item.file ? 
-          <View key={key}>
-            <Text style={styles.attachType}>{item.type}</Text>
-            <View style={styles.atchFileRow}>
-              {item.file.type == "image/webp" ||
-                item.file.type == "image/jpeg" ||
-                item.file.type == "image/jpg" ||
-                item.file.type == "image/png" ||
-                item.file.type == "image/gif" ?
-              <Image
-                style={{width: 50, height: 50, marginRight:10}}
-                source={{uri: item.file.uri}}
-              />:null}
-              <Text style={styles.atchFileName} numberOfLines = {1}>{item.file.name ? item.file.name : ''}</Text>
-              {(params.update && item.file.uri.includes('http')) &&
-              <>
-              {item.action == 'P' ?
-              <ActivityIndicator size="small" color="#0066b3" />:              
-              <Button bordered small rounded primary style={[styles.actionBtn, styles.actionBtnPrimary, item.action == 'C'?{borderColor:'green'}:null]}
-                onPress={() => {this.downloadImage(item.file.uri,item.type);}}>
-                {item.action == 'C' ?
-                <Icon name='md-checkmark' style={[styles.actionBtnIco,{color:'green'}]} />:                
-                <Icon name='md-download' style={[styles.actionBtnIco,styles.actionBtnIcoPrimary]} />}
-              </Button>}
-              </>}
-              <Button bordered small rounded danger style={styles.actionBtn}
-                onPress={()=>this.removeAttach(item.type)}>
-                <Icon name='close' style={styles.actionBtnIco} />
-              </Button>
-            </View>
-          </View>:null
-        ))}
+            (item.file.length>0) ?
+            <View key={key}>
+              <Text style={styles.attachType}>{item.type}</Text>
+              {item.file.map((file, index)=>(
+              <View style={styles.atchFileRow} key={index}>
+                {/*file.type == "image/webp" ||
+                  file.type == "image/jpeg" ||
+                  file.type == "image/jpg" ||
+                  file.type == "image/png" ||
+                  file.type == "image/gif" ?
+                <Image
+                  style={{width: 50, height: 50, marginRight:10}}
+                  source={{uri: file.uri}}
+              />:null*/}
+                <Text style={styles.atchFileName} numberOfLines = {1}>{file.name ? file.name : ''}</Text>
+                {(params.update && file.uri.includes('http')) &&
+                <>
+                {item.action == 'P' ?
+                <ActivityIndicator size="small" color="#0066b3" />:              
+                <Button bordered small rounded primary style={[styles.actionBtn, styles.actionBtnPrimary, item.action == 'C'?{borderColor:'green'}:null]}
+                  //onPress={() => {this.downloadImage(file.uri,item.type);}}
+                  onPress={() => {this.downloadImage(file.uri);}}
+                  >
+                  {item.action == 'C' ?
+                  <Icon name='md-checkmark' style={[styles.actionBtnIco,{color:'green'}]} />:                
+                  <Icon name='md-download' style={[styles.actionBtnIco,styles.actionBtnIcoPrimary]} />}
+                </Button>}
+                </>}
+                <Button bordered small rounded danger style={styles.actionBtn}
+                  onPress={()=>this.removeAttach(item.type,file.name)}>
+                  <Icon name='close' style={styles.actionBtnIco} />
+                </Button>
+              </View>
+              ))}
+            </View>:null
+          ))}
         </ScrollView>
 
         <Modal
@@ -685,21 +716,25 @@ class TaxiRequisitionScreen extends Component {
             
             {this.state.uploadData.map((item, key) => (
               (item.type == this.state.curUploadType && item.file) ?
-              <View key={key} style={styles.atchFileRow}>
-                {item.file.type == "image/webp" ||
-                  item.file.type == "image/jpeg" ||
-                  item.file.type == "image/jpg" ||
-                  item.file.type == "image/png" ||
-                  item.file.type == "image/gif" ?
-                <Image
-                  style={{width: 50, height: 50, marginRight:10}}
-                  source={{uri: item.file.uri}}
-                />:null}
-                <Text style={styles.atchFileName}>{item.file.name ? item.file.name : ''}</Text>
-                <Button bordered small rounded danger style={styles.actionBtn}
-                  onPress={()=>this.removeAttach(item.type)}>
-                  <Icon name='close' style={styles.actionBtnIco} />
-                </Button>
+              <View key={key}>
+              {item.file.map((file, index)=>(
+                <View key={index} style={styles.atchFileRow}>
+                  {/*file.type == "image/webp" ||
+                    file.type == "image/jpeg" ||
+                    file.type == "image/jpg" ||
+                    file.type == "image/png" ||
+                    file.type == "image/gif" ?
+                  <Image
+                    style={{width: 50, height: 50, marginRight:10}}
+                    source={{uri: file.uri}}
+              />:null*/}
+                  <Text style={styles.atchFileName}>{file.name ? file.name : ''}</Text>
+                  <Button bordered small rounded danger style={styles.actionBtn}
+                    onPress={()=>this.removeAttach(typefile.name)}>
+                    <Icon name='close' style={styles.actionBtnIco} />
+                  </Button>
+                </View>
+              ))}
               </View>
               :null
             ))}
@@ -741,7 +776,8 @@ const mapStateToProps = state => {
     statusResult: state.statusResult,
     reqUpdateState: state.reqUpdateState,
     attachmentState: state.attachmentState,
-    attachmentList: state.attachmentList
+    attachmentList: state.attachmentList,
+    attachmentDeleteState: state.attachmentDeleteState
   };
 };
 
@@ -751,7 +787,8 @@ const mapDispatchToProps = {
   getStatus: Actions.getStatus,
   reqUpdate: Actions.reqUpdate,
   attachment: Actions.attachment,
-  getAttachments: Actions.getAttachments
+  getAttachments: Actions.getAttachments,
+  attachmentDelete: Actions.attachmentDelete
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TaxiRequisitionScreen);

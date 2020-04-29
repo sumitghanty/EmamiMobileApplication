@@ -110,7 +110,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
         })
       })*/
       .then(()=>{
-        this.props.getApprovedTripPending(global.USER.userEmail)
+        this.props.getApprovedTripPending(global.USER.personId)
         .then(()=>{
           this.props.navigation.navigate('ApproveNoneSaleTrip');
           Toast.show('Trip approved Successfully', Toast.LONG);
@@ -157,7 +157,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
         })
       })*/
       .then(()=>{
-        this.props.getApprovedTripPending(global.USER.userEmail)
+        this.props.getApprovedTripPending(global.USER.personId)
         .then(()=>{
           this.props.navigation.navigate('ApproveNoneSaleTrip');
           Toast.show('Trip is rejected successfully', Toast.LONG);
@@ -348,7 +348,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
         }
       })*/
       .then(()=> {
-        this.props.getApprovedTripPending(global.USER.userEmail)
+        this.props.getApprovedTripPending(global.USER.personId)
         .then(()=>{          
           this.props.navigation.navigate('ApproveNoneSaleTrip');
           Toast.show('Requisition Approved Successfully', Toast.LONG);
@@ -427,7 +427,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
         }
       })*/
       .then(()=> {
-        this.props.getApprovedTripPending(global.USER.userEmail)
+        this.props.getApprovedTripPending(global.USER.personId)
         .then(()=>{
           this.props.navigation.navigate('ApproveNoneSaleTrip');
           Toast.show('Requisition Rejected Successfully', Toast.LONG);
@@ -788,7 +788,8 @@ const mapStateToProps = state => {
     aprvTripWithReq: state.aprvTripWithReq,
     aprvTripPend: state.aprvTripPend,
     sendEmailState: state.sendEmailState,
-    //statusResult: state.statusResult
+    //statusResult: state.statusResult,
+    attachmentList: state.attachmentList
   };
 };
 
@@ -799,7 +800,8 @@ const mapDispatchToProps = {
   postAprvTripWithReq: Actions.postAprvTripWithReq,
   getApprovedTripPending: Actions.getApprovedTripPending,
   sendEmail: Actions.sendEmail,
-  //getStatus: Actions.getStatus
+  //getStatus: Actions.getStatus,  
+  getAttachments: Actions.getAttachments
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ApproveNoneSaleTripDetailsScreen);
