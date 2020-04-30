@@ -10,7 +10,6 @@ import Toast from 'react-native-simple-toast'
 
 import styles from './Styles/PjpCreateScreen';
 
-const ASYNC_STORAGE_COMMENTS_KEY = 'ANYTHING_UNIQUE_STRING'
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 
 class PjpCreateScreen extends Component {
@@ -132,11 +131,26 @@ class PjpCreateScreen extends Component {
     this.setState({
       isLoading: true
     });
-    this.props.generateId("PJP")
+    /*this.props.generateId("PJP")
     .then(()=>{
       this.setState({
         tripNo: this.props.generateIdState.dataSource
       })
+    })*/
+    return fetch(API_URL+'getLatestTripNumber',{
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        Accept: 'text/plain',
+        'Content-Type': 'text/plain',
+      },
+      body: "TRIP"
+    })
+    .then((response)=> response.text() )
+    .then((responseJson)=>{
+      this.setState({
+        tripNo: responseJson
+      });
     })
     .then(()=>{
       this.props.pjpCreate([{
@@ -177,6 +191,9 @@ class PjpCreateScreen extends Component {
         })
       })
     })
+    .catch((Error) => {
+      console.log(Error)
+    });
   }
   
   render() {    

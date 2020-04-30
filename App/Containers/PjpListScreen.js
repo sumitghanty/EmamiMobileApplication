@@ -115,7 +115,8 @@ class PjpListScreen extends Component {
       const listData = this.props.pjp.dataSource;
       const filteredData = listData.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS))
       var sortList = filteredData;
-      sortList.sort((a,b) => parseInt(b.year+moment().month(b.month).format("MM")) - parseInt(a.year+moment().month(a.month).format("MM")));
+      //sortList.sort((a,b) => parseInt(b.year+moment().month(b.month).format("MM")) - parseInt(a.year+moment().month(a.month).format("MM")));
+      sortList.sort((a,b) => parseInt(b.trip_hdr_id) - parseInt(a.trip_hdr_id));
     return (
       <Container style={styles.container}>
         <View style={styles.searchBar}>

@@ -86,8 +86,11 @@ class TripListScreen extends Component {
                 {((item.status_id == "3"
                 || item.status_id == "4"
                 || item.status_id == "6"
-                || item.status_id == "7"
-                || item.status_id == "8"
+                /*|| item.status_id == "7"
+                || item.status_id == "8"*/
+                || item.sub_status_id == '7.2'
+                || item.sub_status_id == '7.4'
+                || item.sub_status_id == '7.5'
                 || item.status_id == "9" 
                 || item.status_id == "10" 
                 || item.status_id == "11"
