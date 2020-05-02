@@ -130,7 +130,8 @@ export default StyleSheet.create({
     marginRight: 10,
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    borderTopLeftRadius: 3
   },
   actionBtnIco: {
     fontSize: 24,

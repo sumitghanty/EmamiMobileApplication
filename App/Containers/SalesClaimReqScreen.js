@@ -339,14 +339,6 @@ class SalesClaimReqScreen extends Component {
         tripFromError: '',
       })
     })
-    .then(()=>{
-      if(this.state.fromItem.Name == this.state.toItem.Name) {
-        this.renderLocationAlert();
-        this.setState({
-          fromItem: {"Name": "Select From Location", "Value": "", "Code": "", "Id":0},
-        })
-      }
-    })
   }
 
   toSelected(value){
@@ -356,14 +348,6 @@ class SalesClaimReqScreen extends Component {
         toItem: value,
         tripToError: ''
       })
-    })
-    .then(()=>{
-      if(this.state.fromItem.Name == this.state.toItem.Name) {
-        this.renderLocationAlert();
-        this.setState({
-          toItem: {"Name": "Select To Location", "Value": "", "Code": "", "Id":0},
-        })
-      }
     })
   }
 
@@ -775,6 +759,12 @@ class SalesClaimReqScreen extends Component {
     });
     if(params.update){
       this.saveReq(params.update);
+    }
+    else if(this.state.hottelGenrateData) {
+      this.setState({
+        modalFormVisible: 1,
+        isLoading: false,
+      });
     } else {
       let newReqData = null;
       let index = 0
@@ -806,10 +796,12 @@ class SalesClaimReqScreen extends Component {
       newReq.hq = params.params.hq;
       newReq.designation = params.params.designation;
       newReq.pjp_date = moment(this.state.dateStart).format("YYYY-MM-DD");
-      newReq.source_city = this.state.fromItem.Id;
-      newReq.dest_city = this.state.toItem.Id;
-      newReq.source_city_name = this.state.fromItem.Name;
-      newReq.dest_city_name = this.state.toItem.Name;
+      if(this.state.showField){
+        newReq.source_city = this.state.fromItem.Id;
+        newReq.dest_city = this.state.toItem.Id;
+        newReq.source_city_name = this.state.fromItem.Name;
+        newReq.dest_city_name = this.state.toItem.Name;
+      }
       newReq.mode = params.item.category_id;
       newReq.mode_name = params.item.category;
       newReq.status_id = 20;
@@ -895,6 +887,17 @@ class SalesClaimReqScreen extends Component {
         this.setState({
           hottelGenrateData: this.props.generateExpState.dataSource[0],
         });
+      })
+      .then(()=>{
+        if ((params.item.category_id == '6' ||
+        params.item.category_id == '23' ||
+        params.item.category_id == '24' ||
+        params.item.category_id == '25' ||
+        params.item.category_id == '26' ||
+        params.item.category_id == '27') && this.state.twoWay){
+          afterSetDistance.distance = parseFloat(this.props.generateExpState.dataSource[0].distance)*2;
+          afterSetDistance.amount_mode = parseFloat(this.props.generateExpState.dataSource[0].amount_mode)*2;
+        }
       })
       .then(()=>{
         if((afterSetDistance.mode == "14" || afterSetDistance.mode == "22") 

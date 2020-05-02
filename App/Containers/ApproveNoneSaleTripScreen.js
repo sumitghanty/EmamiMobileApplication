@@ -18,7 +18,6 @@ class ApproveNoneSaleTripScreen extends Component {
     super(props);
     this.state ={
       searchTerm: '',
-      dataList: [],
     }
   }  
   searchUpdated(term) {
@@ -26,33 +25,15 @@ class ApproveNoneSaleTripScreen extends Component {
   }
   componentDidMount(){
     this.props.getApprovedTripPending(global.USER.personId)
-    //this.props.getApprovedTripPending(global.USER.userEmail)
-    .then(()=>{
-      let items = this.props.aprvTripPend.dataSource;
-      let dataList = this.state.dataList;
-      let m2 = moment(new Date(),'YYYY-MM-DD HH:mm:ss');
-      for(var i=0; i<items.length; i++) {
-        let m1 = moment(items[i].end_date,'YYYY-MM-DD HH:mm:ss');
-        var diff = m1.diff(m2);
-        /*if(items[i].status_id == "2" || items[i].status_id == "26" || items[i].status_id == "3" || 
-        items[i].status_id == "4" || items[i].status_id == "8" || items[i].status_id == "9" || items[i].status_id == "10" 
-        || items[i].status_id == "11" || items[i].date_change_status == 'Y') {
-          dataList.push(items[i]);
-        }*/
-        if( (diff>0 && items[i].status_id != "3" && items[i].status_id != "5" && 
-        items[i].sub_status_id != "9.1" && items[i].sub_status_id != "10.1" && items[i].sub_status_id != "11.2" 
-        && items[i].status_id != "22" && items[i].status_id != "23") || items[i].date_change_status == 'Y') {
-          dataList.push(items[i]);
-        }
-      }
-      this.setState({ dataList });      
-    });
   }
 
   setAge = (date) => {
-    var m1 = moment(date,'YYYY-MM-DD HH:mm:ss');
-    var m2 = moment(new Date(),'YYYY-MM-DD HH:mm:ss');
-    var diff = m1.diff(m2);
+    let cd = moment(new Date(),'YYYY-MM-DD');
+    let nd = moment(cd).format('YYYY-MM-DD');
+    let m2 = (nd.replace('-','')).replace('-','')
+    let td = moment(date).format('YYYY-MM-DD');
+    let m1 = (td.replace('-','')).replace('-','')
+    var diff = parseInt(m1) - parseInt(m2)
     return(
       diff
     );
@@ -68,8 +49,8 @@ class ApproveNoneSaleTripScreen extends Component {
         <Text>URL Error</Text>
       )
     } else {
-      console.log(this.state.dataList);
-      const listData = this.state.dataList;
+      console.log(this.props.aprvTripPend.dataSource);
+      const listData = this.props.aprvTripPend.dataSource;
       const filteredData = listData.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS))
       var sortList = filteredData;
       sortList.sort((a,b) => b.trip_hdr_id - a.trip_hdr_id);
@@ -94,7 +75,7 @@ class ApproveNoneSaleTripScreen extends Component {
           <Text style={styles.noData}>No Item Found.</Text>
         }
         {sortList.map((item, index) => {
-          if( (this.setAge(item.end_date)>0 && item.status_id != "3" && item.status_id != "5" && 
+          if( (this.setAge(item.end_date)>=0 && item.status_id != "3" && item.status_id != "5" && 
           item.sub_status_id != "9.1" && item.sub_status_id != "10.1" && item.sub_status_id != "11.2" 
           && item.status_id != "22" && item.status_id != "23" ) || item.date_change_status == 'Y'){
         return (

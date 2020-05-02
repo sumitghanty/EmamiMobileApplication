@@ -107,7 +107,9 @@ class HomeScreen extends Component {
       }
       if(global.USER.createExpense_visibility) {
         this.state.entries.push({ "id":5, "title": "Create/View Expenses", "icon": "calculator", 
-            "navigation":global.USER.department=="Sales"?"PjpClaimList":"ExpensesList" });
+            "navigation": (global.USER.department =="Sales")?"PjpClaimList":"ExpensesList" 
+            //"navigation": "ExpensesList"
+          });
       }
     }
   }
@@ -115,6 +117,7 @@ class HomeScreen extends Component {
 
   render() {
     console.log('HomeScreen');
+    console.log((global.USER.department =="Sales")?"PjpClaimList":"ExpensesList")
     console.log(global.USER);
     console.log(global.PASSWORD?global.PASSWORD:'NP');
     return (

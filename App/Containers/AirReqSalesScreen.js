@@ -622,14 +622,14 @@ class AirReqSalesScreen extends Component {
             : Platform.OS === 'Android' ?
               <TouchableNativeFeedback
                 useForeground={true}
-                onPress={()=>{this.selectTicket(data)}} 
+                onPress={()=>{this.selectTicket(item)}} 
                 key={index}
                 style={styles.ticketItemWraper}>
                 {this._ticketItem(item, params.update)}
               </TouchableNativeFeedback>
             :
               <TouchableOpacity 
-                onPress={()=>{this.selectTicket(data)}} 
+                onPress={()=>{this.selectTicket(item)}} 
                 key={index}
                 style={styles.ticketItemWraper}>
                 {this._ticketItem(item, params.update)}
@@ -725,7 +725,7 @@ class AirReqSalesScreen extends Component {
   }
 
   _ticketItem = (data, params) => {
-    return
+    return(
     <View style={styles.ticketItem}>
       <View style={[
         styles.ticketColumn,
@@ -763,6 +763,7 @@ class AirReqSalesScreen extends Component {
         <Text style={styles.oopValue}>{data.type}</Text>
       </View>
     </View>
+    )
   }
 
   selectTicket=(data)=>{

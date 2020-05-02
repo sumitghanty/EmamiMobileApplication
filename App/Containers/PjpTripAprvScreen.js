@@ -39,6 +39,30 @@ class PjpTripAprvScreen extends Component {
     };
   }
 
+  componentDidMount(props){
+    this.props.getReqSale(this.props.navigation.state.params.trip_hdr_id)
+    .then(()=>{
+      for(var i=0; i<this.props.reqListSales.dataSource.length; i++){
+        this.state.updateParams.push(this.props.reqListSales.dataSource[i]);
+        this.state.tempUpdateParams.push(this.props.reqListSales.dataSource[i]);
+      }
+    });
+    this.props.getStatus("9","9.1")
+    .then(()=>{
+      this.setState({
+        aprvStatusName: this.props.statusResult.dataSource[0].trip_pjp_status,
+        aprvSubStatusName: this.props.statusResult.dataSource[0].sub_status
+      });
+    });
+    this.props.getStatus("10","10.1")
+    .then(()=>{
+      this.setState({
+        rejStatusName: this.props.statusResult.dataSource[0].trip_pjp_status,
+        rejSubStatusName: this.props.statusResult.dataSource[0].sub_status
+      });
+    });
+  }
+
   downloadImage = (file) => {
     var date = new Date();
     var image_URL = file;
@@ -208,58 +232,35 @@ class PjpTripAprvScreen extends Component {
       });
       if (value == "A") {
         for(var i=0; i<newParams.length; i++) {
-          newParams[i].status_id = 9;
+          newParams[i].status_id = "9";
           newParams[i].status = this.state.aprvStatusName;
           newParams[i].sub_status_id = "9.1";
           newParams[i].sub_status = this.state.aprvSubStatusName;
         }
       } else if (value == "R") {
         for(var i=0; i<newParams.length; i++) {
-          newParams.status_id = 10;
+          newParams[i].status_id = "10";
           newParams[i].status = this.state.rejStatusName;
-          newParams.sub_status_id = "10.1";
-          newParams.sub_status = this.state.rejSubStatusName;
-          newParams.vendor_comment = this.state.rejComment;
+          newParams[i].sub_status_id = "10.1";
+          newParams[i].sub_status = this.state.rejSubStatusName;
+          newParams[i].vendor_comment = this.state.rejComment;
         }
       }
     })
     .then(()=>{
       this.props.postPjpAprv(newParams)
       .then(()=>{
-        this.props.getPjpAprvList(global.USER.userEmail,[2,3,4,8]);
-        this.props.navigation.navigate('PjpAprvList','tour');
+        this.props.getPjpAprvList(global.USER.personId,[2,3,4,8]);
+        //this.props.navigation.navigate('PjpAprvList','tour');
+        this.props.navigation.goBack();
         Toast.show(value == "A"?'Tour Approved Successfully':'Tour Rejected Successfully', Toast.LONG);
         console.log(value == "A"?'Approve Done':'Reject Done');
       });
     });
   }
 
-  componentDidMount(props){
-    this.props.getReqSale(this.props.navigation.state.params.trip_hdr_id)
-    .then(()=>{
-      for(var i=0; i<this.props.reqListSales.dataSource.length; i++){
-        this.state.updateParams.push(this.props.reqListSales.dataSource[i]);
-        this.state.tempUpdateParams.push(this.props.reqListSales.dataSource[i]);
-      }
-    });
-    this.props.getStatus("9","9.1")
-    .then(()=>{
-      this.setState({
-        aprvStatusName: this.props.statusResult.dataSource[0].trip_pjp_status,
-        aprvSubStatusName: this.props.statusResult.dataSource[0].sub_status
-      });
-    });
-    this.props.getStatus("10","10.1")
-    .then(()=>{
-      this.setState({
-        rejStatusName: this.props.statusResult.dataSource[0].trip_pjp_status,
-        rejSubStatusName: this.props.statusResult.dataSource[0].sub_status
-      });
-    });
-  }
-
   render() {
-  if(this.state.isLoading || this.props.reqListSales.isLoading){
+  if(this.state.isLoading || this.props.reqListSales.isLoading || this.props.statusResult.isLoading){
     return(
       <Loader/>
     )
@@ -290,14 +291,16 @@ class PjpTripAprvScreen extends Component {
           <Text style={styles.itemLabel}>PJP Month:</Text>
           <Text style={styles.itemValue}>{params.month}</Text>
         </View>
+        {params.purpose?
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>Purpose:</Text>
           <Text style={styles.itemValue}><Purpose value={params.purpose} /></Text>
-        </View>
+        </View>:null}
+        {params.trip_for?
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>Trip For:</Text>
           <Text style={styles.itemValue}><For value={params.trip_for} /></Text>
-        </View>
+        </View>:null}
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>Traveler Name:</Text>
           <Text style={styles.itemValue}>{params.name}</Text>

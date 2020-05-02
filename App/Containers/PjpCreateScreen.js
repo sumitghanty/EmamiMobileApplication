@@ -28,6 +28,7 @@ class PjpCreateScreen extends Component {
     super();
     this.state = {
       purpose: undefined,
+      purposeId: "1",
       for: undefined,
       travelsName: undefined,
       forId: 1,
@@ -69,6 +70,12 @@ class PjpCreateScreen extends Component {
 
   onValueChangePurpose = (value) => {
     this.setState({ purpose: value });
+    this.props.purpose.dataSource.map((item) => {
+      if (item.purpose_type == value) {
+        this.setState({ purposeId: item.purpose_type_id });
+        console.log(item.purpose_type_id);
+      }      
+    })
   }
   onValueChangeFor = (value) => {
     this.setState({ for: value });
@@ -144,7 +151,7 @@ class PjpCreateScreen extends Component {
         Accept: 'text/plain',
         'Content-Type': 'text/plain',
       },
-      body: "TRIP"
+      body: "PJP"
     })
     .then((response)=> response.text() )
     .then((responseJson)=>{
@@ -153,8 +160,8 @@ class PjpCreateScreen extends Component {
       });
     })
     .then(()=>{
+      console.log(this.state.tripNo)
       this.props.pjpCreate([{
-        "trip_hdr_id": 0,
         "isGroup": this.state.forId == 5 ? 'Y':'N',
         "person_id": global.USER.personId,
         "travel_grade": global.USER.grade,
@@ -163,9 +170,12 @@ class PjpCreateScreen extends Component {
         "designation": global.USER.designation,
         "zone": global.USER.zone,
         "location": global.USER.location,
-        //"cost_center": global.USER.grade,
-        //"hq": global.USER.grade,
+        "cost_center": global.USER.costCentre,
+        "hq": global.USER.location,
         //"hq_id": global.USER.grade,
+        "pending_with": global.USER.supervisorId,
+        "pending_with_name": global.USER.supervisorName,
+        "pending_with_email": global.USER.supervisorEmail,
         "name": this.state.forId == "1" ? global.USER.userName
           : this.state.forId == "3" ? this.state.travelsName
           : this.state.forId == "5" ? global.USER.userName

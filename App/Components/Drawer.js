@@ -51,8 +51,11 @@ class Drawer extends React.Component {
       if(global.USER.create_pjp_visibility) {
         this.state.entries[4] = {"id":"5", "title": "Create/View PJP", "icon": "create", "navigation":"PjpList"}
       }
-      if(global.USER.createExpense_visibility) {
-        this.state.entries[5] = {"id":"7", "title": "Create/View Expenses", "icon": "calculator", "navigation":"ExpensesList"}
+      if(global.USER.createExpense_visibility ) {
+        this.state.entries[5] = {"id":"7", "title": "Create/View Expenses", "icon": "calculator", 
+          "navigation":(global.USER.department =="Sales")?"PjpClaimList":"ExpensesList"
+          //"navigation":"ExpensesList"
+        }
       }
     }
   }

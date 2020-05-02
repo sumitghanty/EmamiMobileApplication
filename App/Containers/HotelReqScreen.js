@@ -799,7 +799,7 @@ class HotelReqScreen extends Component {
                         parseFloat( parseFloat(this.state.amount)-5000000):null
       }])
       .then(()=>{
-        this.atchFiles();
+        //this.atchFiles();
       })
       .then(()=>{
         this.props.getPlans(params.params.trip_hdr_id)
@@ -862,7 +862,7 @@ class HotelReqScreen extends Component {
     .then(()=>{
       this.props.reqUpdate([newReq])
       .then(()=>{
-        this.atchFiles();
+        //this.atchFiles();
       })
       .then(()=>{
         this.props.getPlans(params.params.trip_hdr_id)

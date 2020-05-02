@@ -27,11 +27,13 @@ class TripListScreen extends Component {
   componentDidMount(){
     this.props.getTrips(global.USER.userId);
   }
-
   setAge = (date) => {
-    var m1 = moment(date,'YYYY-MM-DD HH:mm:ss');
-    var m2 = moment(new Date(),'YYYY-MM-DD HH:mm:ss');
-    var diff = m1.diff(m2);
+    let cd = moment(new Date(),'YYYY-MM-DD');
+    let nd = moment(cd).format('YYYY-MM-DD');
+    let m2 = (nd.replace('-','')).replace('-','')
+    let td = moment(date).format('YYYY-MM-DD');
+    let m1 = (td.replace('-','')).replace('-','')
+    var diff = parseInt(m1) - parseInt(m2)
     return(
       diff
     );

@@ -25,7 +25,8 @@ class AdvanceScreen extends Component {
     this.setState({ searchTerm: term })
   }
   componentDidMount(){
-    this.props.getAdvPmnts(global.USER.userId,"3",["3", "4", "6", "7", "9", "11", "12", "13", "14", "15", "16", "17", "18"]);
+    //this.props.getAdvPmnts(global.USER.userId,"3",["3", "4", "6", "7", "9", "11", "12", "13", "14", "15", "16", "17", "18"]);
+    this.props.getAdvPmnts(global.USER.userId,"3",["3", "4", "6", "7", "9", "11", "12", "13", "14", "16", "18"]);
   }
   removeItem(e) {
     var newList = tripList;

@@ -99,20 +99,20 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
     })
     .then(()=>{
       this.props.aprvTripNonReq(this.state.updateParams)
-      /*.then(()=>{         
-        this.props.sendEmail({
+      .then(()=>{         
+        /*this.props.sendEmail({
           "mailId": params.email,
           "cc": null,
           "subject": params.status_id == "2"? 'trip #'+params.trip_no+' has been approved.'
                     : 'Requisition has been approved.',
           "tripNonSales": this.state.updateParams,
           "requisitionNonSales": null
-        })
-      })*/
+        })*/
+      })
       .then(()=>{
         this.props.getApprovedTripPending(global.USER.personId)
         .then(()=>{
-          this.props.navigation.navigate('ApproveNoneSaleTrip');
+          this.props.navigation.goBack();
           Toast.show('Trip approved Successfully', Toast.LONG);
           console.log('Approve Done');
         });
@@ -159,7 +159,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
       .then(()=>{
         this.props.getApprovedTripPending(global.USER.personId)
         .then(()=>{
-          this.props.navigation.navigate('ApproveNoneSaleTrip');
+          this.props.navigation.goBack();
           Toast.show('Trip is rejected successfully', Toast.LONG);
           console.log('Reject Done');
         });
@@ -334,8 +334,8 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
     })
     .then(()=>{
       this.props.postAprvTripWithReq(this.state.aprvReqList)
-      /*.then(()=>{         
-        for(var i=0; i<this.state.SelectedDataList.length; i++) {
+      .then(()=>{         
+        /*for(var i=0; i<this.state.SelectedDataList.length; i++) {
           let newaprvReqList = this.state.SelectedDataList[i];
           this.props.sendEmail({
             "mailId": params.email,
@@ -345,21 +345,19 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
             "tripNonSales": params,
             "requisitionNonSales": {"sub_status_id":newaprvReqList.status_id == "8"?'9.1':'11.2'}
           })
-        }
-      })*/
+        }*/
+      })
       .then(()=> {
         this.props.getApprovedTripPending(global.USER.personId)
         .then(()=>{          
-          this.props.navigation.navigate('ApproveNoneSaleTrip');
+          this.props.navigation.goBack();
+          this.setState({
+            isLoading: false
+          });
           Toast.show('Requisition Approved Successfully', Toast.LONG);
         })
       });
     })
-    .then(()=>{
-      this.setState({
-        isLoading: false
-      });
-    });
   }
 
   rejectWithReqCheck=()=>{
@@ -413,8 +411,8 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
     })
     .then(()=>{
       this.props.postAprvTripWithReq(this.state.aprvReqList)
-      /*.then(()=>{         
-        for(var i=0; i<this.state.SelectedDataList.length; i++) {
+      .then(()=>{         
+        /*for(var i=0; i<this.state.SelectedDataList.length; i++) {
           let newaprvReqList = this.state.SelectedDataList[i];
           this.props.sendEmail({
             "mailId": params.email,
@@ -424,21 +422,19 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
             "tripNonSales": params,
             "requisitionNonSales": {"sub_status_id":newaprvReqList.status_id == "8"?'10.1':'11.2'}
           })
-        }
-      })*/
+        }*/
+      })
       .then(()=> {
         this.props.getApprovedTripPending(global.USER.personId)
         .then(()=>{
-          this.props.navigation.navigate('ApproveNoneSaleTrip');
+          this.props.navigation.goBack();
+          this.setState({
+            isLoading: false
+          });
           Toast.show('Requisition Rejected Successfully', Toast.LONG);
         })
       });
     })
-    .then(()=>{
-      this.setState({
-        isLoading: false
-      });
-    });
   }
 
   setReqName=(value)=>{

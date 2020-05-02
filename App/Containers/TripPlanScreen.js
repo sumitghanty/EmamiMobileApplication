@@ -271,7 +271,7 @@ class TripPlanScreen extends Component {
           })
           .then(()=>{
             for(var i=0; i< newList.length;i++) {
-              if(newList[i].through != "Self" || (newList[i].through == "Travel Agent" && newList[i].is_outof_policy == 'N')) {
+              if(newList[i].through == "Travel Agent" && newList[i].is_outof_policy == 'N') {
                 this.setState({ 
                   isLoading: false,
                   setGoBack: false

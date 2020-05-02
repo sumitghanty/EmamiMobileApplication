@@ -420,7 +420,7 @@ class ExpInfoScreen extends Component {
               end={{ x: 1, y: 0 }}
               >
               <Icon name='ios-add-circle-outline' style={styles.btnIcon} />
-              <Text uppercase={false} style={styles.btnTxt}>Add Requisition</Text>
+              <Text uppercase={false} style={styles.btnTxt}>Add Expense</Text>
             </LinearGradient>
           </TouchableOpacity>
           {sortList.map((item, index) => {

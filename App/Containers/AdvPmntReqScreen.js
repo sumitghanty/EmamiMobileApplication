@@ -90,8 +90,6 @@ class AdvPmntReqScreen extends Component {
                                       ?"Advance Payment - Initiated"
                                       :statusId == "14"?"Advance Payment - Pending with Approver"
                                       :null;
-    newParams.sub_status_id="NA";
-    newParams.sub_status="NA";
     newParams.payment_amount=this.state.advAmount;
     newParams.currency=this.state.currency;
     newParams.pending_with_name=global.USER.supervisorName;
@@ -118,7 +116,8 @@ class AdvPmntReqScreen extends Component {
           }
         })*/
         .then(()=>{
-          this.props.getAdvPmnts(global.USER.userId,"3",["3", "4", "6", "7", "9", "11", "12", "13", "14", "15", "16", "17", "18"]);
+          //this.props.getAdvPmnts(global.USER.userId,"3",["3", "4", "6", "7", "9", "11", "12", "13", "14", "15", "16", "17", "18"]);
+          this.props.getAdvPmnts(global.USER.userId,"3",["3", "4", "6", "7", "9", "11", "12", "13", "14", "16", "18"]);
         })
         .then(()=>{
           this.props.navigation.navigate('Advance');
@@ -141,7 +140,7 @@ class AdvPmntReqScreen extends Component {
         <Loader/>
       )
     }
-    //console.log(this.state.advAmount);
+    console.log(params);
     return (
       <Container style={styles.container}>
         <Content contentContainerStyle={styles.content}>
@@ -191,6 +190,9 @@ class AdvPmntReqScreen extends Component {
             </Item>
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Advance Payment:</Label>
+              {params.advancePaymentStatusId == '14' ?
+              <Text style={styles.value}>{this.state.advAmount}</Text>
+              :
               <Input 
                 style={styles.formInput} 
                 keyboardType= "number-pad" 
@@ -198,12 +200,16 @@ class AdvPmntReqScreen extends Component {
                 value={this.state.advAmount}
                 onChangeText={this.handleChangeAmount}
                 />
+              }
             </Item>
             {this.state.advAmntError.length>0 ?
               <Text style={styles.errorText}>{this.state.advAmntError}</Text>
             :null}
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Currency:</Label>
+              {params.advancePaymentStatusId == '14' ?
+              <Text style={styles.value}>{this.state.currency}</Text>
+              :
               <Picker
                 mode="dropdown"
                 iosIcon={<Icon name="arrow-down" />}
@@ -216,6 +222,7 @@ class AdvPmntReqScreen extends Component {
                 >
                 <Picker.Item label="INR" value="INR" />
               </Picker>
+              }
             </Item>
             {/*<View style={styles.attachRow}>
               <Text style={styles.formLabel}>Attachments:</Text>
@@ -241,6 +248,7 @@ class AdvPmntReqScreen extends Component {
             </View>
           ))*/}
         </Content>
+        {params.advancePaymentStatusId == '14' ? null :
         <View style={styles.footer}>
           <TouchableOpacity onPress={() => this.submitAdv("12")} style={styles.ftrBtn}>
             <LinearGradient 
@@ -263,6 +271,7 @@ class AdvPmntReqScreen extends Component {
             </LinearGradient>
           </TouchableOpacity >
         </View>
+        }
         
       </Container>
     );

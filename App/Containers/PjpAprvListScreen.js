@@ -26,7 +26,7 @@ class PjpAprvListScreen extends Component {
     const {params} = this.props.navigation.state;
     let ID = params == "tour"?[2,3,4,8]:[21];
     console.log(ID);
-    this.props.getPjpAprvList(global.USER.userEmail,ID);
+    this.props.getPjpAprvList(global.USER.personId,ID);
   }
 
   render() {
@@ -44,6 +44,7 @@ class PjpAprvListScreen extends Component {
       const filteredData = listData.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS))
       var sortList = filteredData;
       sortList.sort((a,b) => b.trip_hdr_id - a.trip_hdr_id);
+      console.log(params);
     return (
       <Container style={styles.container}>
         <View style={styles.searchBar}>

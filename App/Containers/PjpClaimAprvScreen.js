@@ -50,6 +50,28 @@ class PjpClaimAprvScreen extends Component {
     };
   }
 
+  componentDidMount(props){
+    this.props.getReqClaimSale(this.props.navigation.state.params.trip_hdr_id)
+    .then(()=>{
+      for(var i=0; i<this.props.reqClaimListSales.dataSource.length; i++){
+        this.state.updateParams.push(this.props.reqClaimListSales.dataSource[i]);
+        this.state.tempUpdateParams.push(this.props.reqClaimListSales.dataSource[i]);
+      }
+    });
+    this.props.getStatus("22","NA")
+    .then(()=>{
+      this.setState({
+        aprvStatusName: this.props.statusResult.dataSource[0].trip_pjp_status
+      });
+    });
+    this.props.getStatus("23","NA")
+    .then(()=>{
+      this.setState({
+        rejStatusName: this.props.statusResult.dataSource[0].trip_pjp_status
+      });
+    });
+  }
+
   downloadImage = (file) => {
     var date = new Date();
     var image_URL = file;
@@ -252,8 +274,9 @@ class PjpClaimAprvScreen extends Component {
     .then(()=>{
       this.props.postPjpClaimTot([tripParams])
       .then(()=>{
-        this.props.getPjpAprvList(global.USER.userEmail,[21]);
-        this.props.navigation.navigate('PjpAprvList','claim');
+        this.props.getPjpAprvList(global.USER.personId,[21]);
+        //this.props.navigation.navigate('PjpAprvList','claim');
+        this.props.navigation.goBack();
         Toast.show('Claim Approved Successfully', Toast.LONG);
         console.log('Approve Done');
       });
@@ -301,30 +324,8 @@ class PjpClaimAprvScreen extends Component {
     });
   }
 
-  componentDidMount(props){
-    this.props.getReqClaimSale(this.props.navigation.state.params.trip_hdr_id)
-    .then(()=>{
-      for(var i=0; i<this.props.reqClaimListSales.dataSource.length; i++){
-        this.state.updateParams.push(this.props.reqClaimListSales.dataSource[i]);
-        this.state.tempUpdateParams.push(this.props.reqClaimListSales.dataSource[i]);
-      }
-    });
-    this.props.getStatus("22","NA")
-    .then(()=>{
-      this.setState({
-        aprvStatusName: this.props.statusResult.dataSource[0].trip_pjp_status
-      });
-    });
-    this.props.getStatus("23","NA")
-    .then(()=>{
-      this.setState({
-        rejStatusName: this.props.statusResult.dataSource[0].trip_pjp_status
-      });
-    });
-  }
-
   render() {
-  if(this.state.isLoading || this.props.reqClaimListSales.isLoading){
+  if(this.state.isLoading || this.props.reqClaimListSales.isLoading || this.props.statusResult.isLoading){
     return(
       <Loader/>
     )

@@ -320,9 +320,9 @@ const StackNavigator = createStackNavigator({
   },
   PjpClaimList: {
     screen:  PjpClaimListScreen,
-    drawerLabel: "Epenses List",
+    drawerLabel: "Expenses List",
     navigationOptions: ({ navigation }) => ({
-      title: 'Epenses List'
+      title: 'Expenses List'
     })
   },
   PjpClaimAprv: {

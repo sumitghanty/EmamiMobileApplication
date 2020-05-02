@@ -850,7 +850,7 @@ class AirRequisitionScreen extends Component {
         "justification": this.state.comments,
       }])
       .then(()=>{
-        this.atchFiles();
+        //this.atchFiles();
       })
       .then(()=>{
         this.props.getPlans(params.params.trip_hdr_id)
@@ -957,7 +957,7 @@ class AirRequisitionScreen extends Component {
         .then(()=>{
           this.props.reqUpdate([newReq])
           .then(()=>{
-            this.atchFiles();
+            //this.atchFiles();
           })
           .then(()=>{
             this.props.getPlans(params.params.trip_hdr_id)
@@ -975,7 +975,7 @@ class AirRequisitionScreen extends Component {
       } else {
         this.props.reqUpdate([newReq])
         .then(()=>{
-          this.atchFiles();
+          //this.atchFiles();
         })
         .then(()=>{
           this.props.getPlans(params.params.trip_hdr_id)
@@ -1431,14 +1431,14 @@ class AirRequisitionScreen extends Component {
             : Platform.OS === 'Android' ?
               <TouchableNativeFeedback
                 useForeground={true}
-                onPress={()=>{this.selectTicket(data)}} 
+                onPress={()=>{this.selectTicket(item)}} 
                 key={index}
                 style={styles.ticketItemWraper}>
                 {this._ticketItem(item, params.update)}
               </TouchableNativeFeedback>
             :
               <TouchableOpacity 
-                onPress={()=>{this.selectTicket(data)}} 
+                onPress={()=>{this.selectTicket(item)}} 
                 key={index}
                 style={styles.ticketItemWraper}>
                 {this._ticketItem(item, params.update)}
@@ -1700,8 +1700,8 @@ class AirRequisitionScreen extends Component {
     }
   }
 
-  _ticketItem = (data,index, params) => {
-    return
+  _ticketItem = (data, params) => {
+    return(
     <View style={styles.ticketItem}>
       <View style={[
         styles.ticketColumn,
@@ -1739,6 +1739,7 @@ class AirRequisitionScreen extends Component {
         <Text style={styles.oopValue}>{data.type}</Text>
       </View>
     </View>
+    )
   }
 
   selectTicket=(data)=>{

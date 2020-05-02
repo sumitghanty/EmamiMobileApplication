@@ -86,7 +86,7 @@ class AdvPmntReqInfoScreen extends Component {
         })
       })*/
       .then(()=>{
-        this.props.getAdvPmntPend(global.USER.userId,"14");
+        this.props.getAdvPmntPend(global.USER.personId,"14");
         this.props.navigation.navigate('ApproveNoneSaleAdvance');
         Toast.show('Advance Payment Approved Successfully', Toast.LONG);
         console.log('Approve Done');

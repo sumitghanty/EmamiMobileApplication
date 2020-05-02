@@ -25,7 +25,7 @@ class ApproveNoneSaleAdvanceScreen extends Component {
     this.setState({ searchTerm: term })
   }
   componentDidMount(){
-    this.props.getAdvPmntPend(global.USER.userId,"14");
+    this.props.getAdvPmntPend(global.USER.personId,"14");
     var date = new Date().getDate();
     var month = new Date().getMonth() + 1;
     var year = new Date().getFullYear();

@@ -6,7 +6,11 @@ export function attachment(userId,password,data) {
     payload: {
       request: {
         method: 'post',
-        url: 	`uploadFileAsBase64?userId=${tripNo}&password=${lineitem}`,
+        url: 	`uploadFileAsBase64`,
+        headers: {
+          'userId': userId,
+          'password': password
+        },
         data: data
       }
     }

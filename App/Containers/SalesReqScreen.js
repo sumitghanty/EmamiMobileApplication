@@ -292,14 +292,14 @@ class SalesReqScreen extends Component {
         tripFromError: '',
       })
     })
-    .then(()=>{
+    /*.then(()=>{
       if(this.state.fromItem.Name == this.state.toItem.Name) {
         this.renderLocationAlert();
         this.setState({
           fromItem: {"Name": "Select From Location", "Value": "", "Code": "", "Id":0},
         })
       }
-    })
+    })*/
   }
 
   toSelected(value){
@@ -310,14 +310,14 @@ class SalesReqScreen extends Component {
         tripToError: ''
       })
     })
-    .then(()=>{
+    /*.then(()=>{
       if(this.state.fromItem.Name == this.state.toItem.Name) {
         this.renderLocationAlert();
         this.setState({
           toItem: {"Name": "Select To Location", "Value": "", "Code": "", "Id":0},
         })
       }
-    })
+    })*/
   }
 
   handleChangeComments = (text) => {
@@ -571,7 +571,14 @@ class SalesReqScreen extends Component {
     });
     if(params.update){
       this.saveReq(params.update)
-    } else {
+    }
+    else if(this.state.hottelGenrateData) {
+      this.setState({
+        modalFormVisible: 1,
+        isLoading: false,
+      });
+    }
+    else {
       let newReq = null;
       let index = 0
       this.props.createReqSale(1,params.params.trip_hdr_id)
@@ -599,6 +606,9 @@ class SalesReqScreen extends Component {
       newReq.username = params.params.name;
       newReq.userid = params.params.userid;
       newReq.travel_grade = global.USER.grade;
+      newReq.pending_with = global.USER.supervisorId;
+      newReq.pending_with_name = global.USER.supervisorName;
+      newReq.pending_with_email = global.USER.supervisorEmail;
       newReq.hq = params.params.hq;
       newReq.pjp_date = moment(this.state.dateStart).format("YYYY-MM-DD");
       newReq.source_city = this.state.fromItem.Id;
@@ -611,9 +621,9 @@ class SalesReqScreen extends Component {
       newReq.sub_status_id = (params.item.category_id == '7' && this.state.through == "Travel Agent")?"7.1":"7.4";
       newReq.status = this.state.statusName;
       newReq.sub_status = (params.item.category_id == '7' && this.state.through == "Travel Agent")?this.state.subStatusNameSTA:this.state.subStatusName;
-      //newReq.distance = this.state.distance;
       newReq.claimEmpcomment = this.state.comments;
       newReq.twoWay = (this.state.twoWay == true) ? 'true' : 'false';
+      newReq.cost_center = global.USER.costCentre;
 
       if(params.item.category_id == '3'){
         newReq.justification = this.state.msg;
@@ -660,7 +670,18 @@ class SalesReqScreen extends Component {
         afterSetDistance = this.props.generateExpState.dataSource[0];
         this.setState({
           hottelGenrateData: this.props.generateExpState.dataSource[0],
-        });
+        })
+      })
+      .then(()=>{
+        if ((params.item.category_id == '6' ||
+        params.item.category_id == '23' ||
+        params.item.category_id == '24' ||
+        params.item.category_id == '25' ||
+        params.item.category_id == '26' ||
+        params.item.category_id == '27') && this.state.twoWay){
+          afterSetDistance.distance = parseFloat(this.props.generateExpState.dataSource[0].distance)*2;
+          afterSetDistance.amount_mode = parseFloat(this.props.generateExpState.dataSource[0].amount_mode)*2;
+        }
       })
       .then(()=>{
         if((afterSetDistance.mode == "14" || afterSetDistance.mode == "22") 
@@ -670,7 +691,7 @@ class SalesReqScreen extends Component {
             isLoading: false,
           });
         } else {
-          this.props.updtReqSale(this.props.generateExpState.dataSource)
+          this.props.updtReqSale([afterSetDistance])
           .then(()=>{
             newPJP.status_id = 7;
             newPJP.sub_status_id = "7.4";
@@ -712,6 +733,7 @@ class SalesReqScreen extends Component {
   }
 
   render() {
+    console.log(this.state.twoWay?'Twoday':'Singleway');
     const {params} = this.props.navigation.state;
     console.log(params)
     if(this.state.isLoading || this.props.locations.isLoading || this.props.statusResult.isLoading 

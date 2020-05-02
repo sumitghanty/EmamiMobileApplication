@@ -46,6 +46,8 @@ class TaxiRequisitionScreen extends Component {
       toLocation: (params.update && params.update.travel_to)?params.update.travel_to:'',
       statusName: '',
       subStatusName: '',
+      statusNameNon: '',
+      subStatusNameNon: '',
       modalVisible: false,
       uploadData: [{"type":"Approve Email","file":[],'action':[]},{"type":"Other","file":[],'action':[]}],
       curUploadType: 'Approve Email',
@@ -78,6 +80,13 @@ class TaxiRequisitionScreen extends Component {
         this.setState({
           statusName: this.props.statusResult.dataSource[0].trip_pjp_status,
           subStatusName: this.props.statusResult.dataSource[0].sub_status
+        });
+      });
+      this.props.getStatus("7","7.4")
+      .then(()=>{
+        this.setState({
+          statusNameNon: this.props.statusResult.dataSource[0].trip_pjp_status,
+          subStatusNameNon: this.props.statusResult.dataSource[0].sub_status
         });
       });
     }
@@ -133,6 +142,47 @@ class TaxiRequisitionScreen extends Component {
       { cancelable: false }
     );
   }
+    
+  setDate = (event, date) => {
+    date = date || this.state.date; 
+    this.setState({
+      show: Platform.OS === 'ios' ? true : false,
+      date,
+    });
+  } 
+  show = mode => {
+    this.setState({
+      show: true,
+      mode,
+    });
+  } 
+  datepicker = () => {
+    this.show('date');
+  }
+  handleChangeAmount = (amount) => {
+    this.setState({ 
+      aprxAmnt: amount,
+      aprxAmntError: null,
+    })
+  }
+  handleCurrency = (text) => {
+    this.setState({ 
+      currency: text,
+      currencyError: null
+    })
+  }
+  handleFromLocation = (text) => {
+    this.setState({ 
+      fromLocation: text,
+      tripFromError: null
+    })
+  }
+  handleToLocation = (text) => {
+    this.setState({ 
+      toLocation: text,
+      tripToError: null
+    })
+  }
 
   setModalVisible(visible) {
     this.setState({modalVisible: visible});
@@ -166,15 +216,20 @@ class TaxiRequisitionScreen extends Component {
         for(var j=0; j<this.state.uploadData[i].file.length; j++){
           if(this.state.uploadData[i].file[j].name == name) {
             this.state.uploadData[i].file.splice(j, 1);
-            this.state.attachFiles.splice(0,1);
             this.setState({ 
               refresh: true 
             })
           }
         }
       }
+      for(a=0; a<this.state.attachFiles.length; a++){
+        if(this.state.attachFiles[a].name == name) {
+          this.state.attachFiles.splice(a,1);
+        }
+      }
     }
   }
+  
   async selectAttachFiles() {
     try {
       const results = await DocumentPicker.pick({
@@ -206,6 +261,34 @@ class TaxiRequisitionScreen extends Component {
         }
       }
 
+      for(var i=0; i<results.length; i++) {
+        for(var u=0; u<this.state.uploadData.length; u++){
+          for(var f=0; f<this.state.uploadData[u].file.length; f++){
+            if(results[i].name == this.state.uploadData[u].file[f].name) {
+              Alert.alert(
+                "",
+                "File "+results[i].name +" already exists",
+                [
+                  {
+                    text: "Ok",
+                  },
+                ],
+                { cancelable: true }
+              );
+              this.setState({ 
+                flieSizeIssue: true 
+              })
+              break
+            }
+            else {
+              this.setState({ 
+                flieSizeIssue: false 
+              })
+            }
+          }
+        }
+      }
+
       if(!this.state.flieSizeIssue) {
         alert('File uploaded successfully.');     
         for(var i=0; i<this.state.uploadData.length; i++) {
@@ -231,36 +314,39 @@ class TaxiRequisitionScreen extends Component {
   async atchFiles() {
     const {params} = this.props.navigation.state;
     for(var i=0; i<this.state.uploadData.length; i++){
-      for(var j=0; j<this.state.attachFiles.length; j++){
-        if(this.state.uploadData[i].file.name == this.state.attachFiles[j].name){
-          let fileBase64 = null;
-          let filePath = this.state.uploadData[i].file.uri;
-          let data = null;
-          await RNFS.readFile(filePath, 'base64')
-          .then(res =>{
-            fileBase64 = res;
-          })
-          .then(()=>{
-            data = {
-              "repositoryId": global.USER.repositoryId,
-              "folderId": global.USER.folderId,
-              "mimeType": this.state.uploadData[i].file.type,
-              "tripNo": params.params.trip_no,
-              "lineItem": this.state.lineitem,
-              "docType": this.state.uploadData[i].type,
-              "userId": params.params.userid,
-              "trip_hdr_id_fk": params.params.trip_hdr_id,
-              "name": this.state.uploadData[i].file.name,
-              "flow_type": params.claim?'ECR':'PT',
-              "base64Str":fileBase64,
-            }
-          })
-          .then(()=>{
-            this.props.attachment(global.USER.personId,global.PASSWORD,data)
-          })
-          .catch((err) => {
-            console.log(err.message, err.code);
-          })
+      for(var f=0; f<this.state.uploadData[i].file.length; f++){
+        for(var j=0; j<this.state.attachFiles.length; j++){
+          if(this.state.uploadData[i].file[f].name == this.state.attachFiles[j].name){
+            console.log('Attachment')
+            let fileBase64 = null;
+            let filePath = this.state.uploadData[i].file[f].uri;
+            let data = null;
+            await RNFS.readFile(filePath, 'base64')
+            .then(res =>{
+              fileBase64 = res;
+            })
+            .then(()=>{
+              data = {
+                "repositoryId": global.USER.repositoryId,
+                "folderId": global.USER.folderId,
+                "mimeType": this.state.uploadData[i].file[f].type,
+                "tripNo": params.params.trip_no,
+                "lineItem": this.state.lineitem,
+                "docType": this.state.uploadData[i].type,
+                "userId": params.params.userid,
+                "trip_hdr_id_fk": params.params.trip_hdr_id,
+                "name": this.state.uploadData[i].file[f].name,
+                "flow_type": params.claim?'ECR':'PT',
+                "base64Str":fileBase64,
+              }
+            })
+            .then(()=>{
+              this.props.attachment(global.USER.personId,global.PASSWORD,data)
+            })
+            .catch((err) => {
+              console.log(err.message, err.code);
+            })
+          }
         }
       }
     }
@@ -322,51 +408,56 @@ class TaxiRequisitionScreen extends Component {
       }
     });
   }
+
+  deleteAttachemnt = (name) => {
+    const {params} = this.props.navigation.state;
+    let existData = this.props.attachmentList.dataSource;
+    AsyncStorage.getItem("ASYNC_STORAGE_DELETE_KEY")
+    .then(()=>{
+      this.setState({
+        uploadData:  [{"type":"Approve Email","file":[],'action':[]},{"type":"Other","file":[],'action':[]}],
+        isLoading: true
+      });
+    })
+    .then(()=>{
+      for(var i=0; i<existData.length; i++) {
+        if(existData[i].file_name == name) {
+          this.props.attachmentDelete(
+            global.USER.personId,
+            global.PASSWORD,
+            {
+              "id":existData[i].id,
+	            "fileEntryId":existData[i].fileId
+            }
+          )          
+        .then(()=>{
+          this.props.getAttachments(params.params.trip_hdr_id,this.state.tripNo,params.update.lineitem)
+          .then(()=>{
+            for(var i=0; i<this.props.attachmentList.dataSource.length; i++) {
+              for(var j=0; j<this.state.uploadData.length; j++) {
+                if(this.props.attachmentList.dataSource[i].doc_type == this.state.uploadData[j].type) {
+                  this.state.uploadData[j].file.push({
+                    'size': null,
+                    'name': this.props.attachmentList.dataSource[i].file_name,
+                    'type': 'image/'+this.getExtention(this.props.attachmentList.dataSource[i].file_name),
+                    'uri': this.props.attachmentList.dataSource[i].file_path
+                  })
+                }         
+              }
+            }
+          })
+          .then(()=>{
+            this.setState({isLoading: false});
+          })
+        })
+        }
+      }
+    })
+  }
  
   getExtention = (filename) => {
     return (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename) :
       undefined;
-  }
-  
-  setDate = (event, date) => {
-    date = date || this.state.date; 
-    this.setState({
-      show: Platform.OS === 'ios' ? true : false,
-      date,
-    });
-  } 
-  show = mode => {
-    this.setState({
-      show: true,
-      mode,
-    });
-  } 
-  datepicker = () => {
-    this.show('date');
-  }
-  handleChangeAmount = (amount) => {
-    this.setState({ 
-      aprxAmnt: amount,
-      aprxAmntError: null,
-    })
-  }
-  handleCurrency = (text) => {
-    this.setState({ 
-      currency: text,
-      currencyError: null
-    })
-  }
-  handleFromLocation = (text) => {
-    this.setState({ 
-      fromLocation: text,
-      tripFromError: null
-    })
-  }
-  handleToLocation = (text) => {
-    this.setState({ 
-      toLocation: text,
-      tripToError: null
-    })
   }
 
   submitReq = () => {
@@ -425,9 +516,11 @@ class TaxiRequisitionScreen extends Component {
           newReq.travel_to = this.state.toLocation;
           newReq.creation_date = moment(this.state.curDate).format("YYYY-MM-DD");
           newReq.status_id = params.claim?"20":"7";
-          newReq.sub_status_id = params.claim?"NA":"7.5";
-          newReq.status = this.state.statusName;
-          newReq.sub_status = this.state.subStatusName;
+          newReq.sub_status_id = params.claim?"NA"
+                                ?params.item.sub_category_id == '11':'7.4'
+                                :"7.5";
+          newReq.status = (params.item.sub_category_id == '11' && !params.claim)?this.state.statusNameNon:this.state.statusName;
+          newReq.sub_status = (params.item.sub_category_id == '11' && !params.claim)?this.state.subStatusNameNon:this.state.subStatusName;
           newReq.is_outof_policy = params.item.sub_category_id == '11'?'N':this.state.oop;
           newReq.invoice_amount_currency = this.state.currency;
           newReq.extra_amount = this.state.extAmnt;
@@ -491,9 +584,11 @@ class TaxiRequisitionScreen extends Component {
             "travel_to": this.state.toLocation,
             "creation_date": moment(this.state.curDate).format("YYYY-MM-DD"),
             "status_id": params.claim?"20":"7",
-            "sub_status_id": params.claim?"NA":"7.5",
-            "status": this.state.statusName,
-            "sub_status": this.state.subStatusName,
+            "sub_status_id": params.claim?"NA"
+                            ?params.item.sub_category_id == '11':'7.4'
+                            :"7.5",
+            "status": (params.item.sub_category_id == '11' && !params.claim)?this.state.statusNameNon:this.state.statusName,
+            "sub_status": (params.item.sub_category_id == '11' && !params.claim)?this.state.subStatusNameNon:this.state.subStatusName,
             "is_outof_policy": params.item.sub_category_id == '11'?'N':this.state.oop,
             "invoice_amount_currency": this.state.currency,
             "extra_amount": this.state.extAmnt,
@@ -502,7 +597,7 @@ class TaxiRequisitionScreen extends Component {
             this.atchFiles();
           })
           .then(()=>{ 
-            if(this.state.goBack) {           
+            //if(this.state.goBack) {           
               this.props.getPlans(params.params.trip_hdr_id)
               .then(()=>{
                 this.setState({
@@ -513,7 +608,7 @@ class TaxiRequisitionScreen extends Component {
                 this.props.navigation.goBack();
                 Toast.show('Requisition Created Successfully', Toast.LONG);
               })
-            }
+            //}
           })
         })
       }
@@ -666,14 +761,19 @@ class TaxiRequisitionScreen extends Component {
                   //onPress={() => {this.downloadImage(file.uri,item.type);}}
                   onPress={() => {this.downloadImage(file.uri);}}
                   >
-                  {item.action == 'C' ?
+                  {/*item.action == 'C' ?
                   <Icon name='md-checkmark' style={[styles.actionBtnIco,{color:'green'}]} />:                
-                  <Icon name='md-download' style={[styles.actionBtnIco,styles.actionBtnIcoPrimary]} />}
+                  <Icon name='md-download' style={[styles.actionBtnIco,styles.actionBtnIcoPrimary]} />*/}
+                  <Icon name='md-download' style={[styles.actionBtnIco,styles.actionBtnIcoPrimary]} />
                 </Button>}
                 </>}
                 <Button bordered small rounded danger style={styles.actionBtn}
-                  onPress={()=>this.removeAttach(item.type,file.name)}>
-                  <Icon name='close' style={styles.actionBtnIco} />
+                  onPress={(file.uri.includes('http'))
+                          ?()=>this.deleteAttachemnt(file.name)
+                          :()=>this.removeAttach(item.type,file.name)
+                        }
+                  >
+                  <Icon name={file.uri.includes('http')?'trash':'close'} style={styles.actionBtnIco} />
                 </Button>
               </View>
               ))}
@@ -718,7 +818,7 @@ class TaxiRequisitionScreen extends Component {
               (item.type == this.state.curUploadType && item.file) ?
               <View key={key}>
               {item.file.map((file, index)=>(
-                <View key={index} style={styles.atchFileRow}>
+                <View key={index} style={[styles.atchFileRow,{minHeight:32}]}>
                   {/*file.type == "image/webp" ||
                     file.type == "image/jpeg" ||
                     file.type == "image/jpg" ||
@@ -727,12 +827,15 @@ class TaxiRequisitionScreen extends Component {
                   <Image
                     style={{width: 50, height: 50, marginRight:10}}
                     source={{uri: file.uri}}
-              />:null*/}
-                  <Text style={styles.atchFileName}>{file.name ? file.name : ''}</Text>
+                  />:null*/}
+                  <Text style={styles.atchFileName} numberOfLines = {1}>{file.name ? file.name : ''}</Text>
+                  {(!file.uri.includes('http')) ?
                   <Button bordered small rounded danger style={styles.actionBtn}
-                    onPress={()=>this.removeAttach(typefile.name)}>
+                    onPress={()=>this.removeAttach(item.type,file.name)}>
                     <Icon name='close' style={styles.actionBtnIco} />
                   </Button>
+                  :null
+                  }
                 </View>
               ))}
               </View>

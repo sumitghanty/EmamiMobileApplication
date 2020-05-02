@@ -130,7 +130,7 @@ class OtherRequisitionScreen extends Component {
       var newDays= moment(this.state.dateEnd, "YYYY-MM-DD").diff(moment(this.state.dateStart, "YYYY-MM-DD"), 'days')
       this.setState({
         days: newDays+1,
-        aprxAmnt: params.item.upper_limit * (newDays+1)
+        aprxAmnt: parseFloat(params.item.upper_limit) * (parseInt(newDays)+1)
       });
     } else {
       this.setState({
@@ -163,7 +163,7 @@ class OtherRequisitionScreen extends Component {
       var newDays= moment(this.state.dateEnd, "YYYY-MM-DD").diff(moment(this.state.dateStart, "YYYY-MM-DD"), 'days')
       this.setState({
         days: newDays+1,
-        aprxAmnt: params.item.upper_limit * (newDays+1)
+        aprxAmnt: parseFloat(params.item.upper_limit) * (parseInt(newDays)+1)
       });
     } else { 
       this.setState({
@@ -380,7 +380,7 @@ class OtherRequisitionScreen extends Component {
       .then(()=>{
         this.props.reqUpdate([newReq])
         .then(()=>{
-          this.atchFiles();
+          //this.atchFiles();
         })
         .then(()=>{
           this.setState({
@@ -430,7 +430,7 @@ class OtherRequisitionScreen extends Component {
         }]
         this.props.reqCreate(postData)
         .then(()=>{
-          this.atchFiles();
+          //this.atchFiles();
         })
         .then(()=>{
           this.props.updtReqNSBD(postData)
