@@ -323,7 +323,7 @@ class ExpInfoScreen extends Component {
           })
         })*/
         .then(()=>{
-          this.props.getExpenses(global.USER.userId,"3",["3","4","9","11","15","17","19","20","23","25","27","29"])
+          this.props.getExpenses(global.USER.userId,"3",["3","4","9","11","15","17","19","20","21","22","23","25","27","29"])
           .then(()=>{
             this.setState({
               isLoading: false,

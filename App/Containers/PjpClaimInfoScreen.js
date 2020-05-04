@@ -25,7 +25,8 @@ class PjpClaimInfoScreen extends Component {
       msg: null,
       reload: false,
       actAmnt: 0,
-      estimatedCost: 0
+      estimatedCost: 0,
+      paybleAmnt: 0
     };
   }
   componentDidMount(props){
@@ -36,7 +37,7 @@ class PjpClaimInfoScreen extends Component {
       this.onScreenLoad();
     });
 
-    this.props.getStatus("8","8.1")
+    this.props.getStatus("21","NA")
     .then(()=>{
       this.setState({
         statusName: this.props.statusResult.dataSource[0].trip_pjp_status,
@@ -84,13 +85,17 @@ class PjpClaimInfoScreen extends Component {
   onScreenLoad=()=> {
     let tot = 0;
     let estTot = 0;
+    let totPaybleAmnt = 0;
     let data = this.props.reqListSales.dataSource;
     AsyncStorage.getItem("ONSCREENLOAD")
     .then(()=>{
       for (var i=0; i<data.length; i++) {
-        if(data[i].delete_status != 'true') {
-          tot = tot + parseFloat(data[i].claimamount?parseInt(data[i].claimamount):0)
-          estTot = estTot + parseFloat((data[i].amount_mode && data[i].amount_mode != 'On Actual')?parseInt(data[i].amount_mode):0)
+        if(data[i].delete_status == 'false') {
+          tot = tot + parseFloat((data[i].claimamount && data[i].amount_mode != '')?parseFloat(data[i].claimamount):0)
+          estTot = estTot + parseFloat((data[i].amount_mode && data[i].amount_mode != 'On Actual')
+                  ?parseFloat(data[i].amount_mode):0);
+          totPaybleAmnt = totPaybleAmnt + parseFloat((data[i].claimamount && (data[i].claimamount != ''))
+                  ?parseFloat(data[i].claimamount):0);
         }
         /*if(data[i].status_id != '20') {
           this.setState({
@@ -104,6 +109,7 @@ class PjpClaimInfoScreen extends Component {
       this.setState({
         actAmnt: tot,
         estimatedCost: estTot,
+        paybleAmnt: totPaybleAmnt
       });
     });
   }
@@ -155,6 +161,7 @@ class PjpClaimInfoScreen extends Component {
   }
 
   submitData() {
+    const {params} = this.props.navigation.state;
     this.setState({
       isLoading: true
     });
@@ -194,29 +201,33 @@ class PjpClaimInfoScreen extends Component {
           dataList[i].sub_status = this.state.subStatusName;
         }
       }
-      tourData.status_id = 21;
-      tourData.sub_status_id = 'NA';
+      tourData.status_id = '21';
+      //tourData.sub_status_id = 'NA';
       tourData.status = this.state.statusName;
-      tourData.sub_status = this.state.subStatusName;
+      //tourData.sub_status = this.state.subStatusName;
+      tourData.pending_with = global.USER.supervisorId;
+      tourData.pending_with_name = global.USER.supervisorName;
+      tourData.pending_with_email = global.USER.supervisorEmail;
       tourData.estimated_cost = this.state.estimatedCost;
       tourData.actual_claim_amount = this.state.actAmnt;
+      tourData.claimpaybleamount = this.state.paybleAmnt;
     })
     .then(()=>{
       this.props.updtClaimReq(dataList)
       .then(()=>{
         this.props.postPjpClaimTot([tourData])
         .then(()=>{
-          this.props.getPjpClaim(global.USER.userId,[9, 11, 19, 20, 23, 25]);
-        })
-        .then(()=>{
-          this.setState({
-            isLoading: false
+          this.props.getPjpClaim(global.USER.userId,[9, 11, 19, 20, 21, 22, 23, 24, 25])
+          .then(()=>{
+            this.setState({
+              isLoading: false
+            });
+          })
+          .then(()=>{
+            this.props.navigation.goBack();
+            Toast.show('Expenses Submit Successfully', Toast.LONG);
           });
         })
-        .then(()=>{
-          this.props.navigation.goBack();
-          Toast.show('Expenses Submit Successfully', Toast.LONG);
-        });
       })
     })
   }
@@ -281,6 +292,10 @@ class PjpClaimInfoScreen extends Component {
           <View style={styles.row}>
             <Text style={styles.label}>Actual Claim amount:</Text>
             <Text style={styles.value}>{this.state.actAmnt}</Text>
+          </View>          
+          <View style={styles.row}>
+            <Text style={styles.label}>Actual Payable Amount:</Text>
+            <Text style={styles.value}>{this.state.paybleAmnt}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Currency:</Text>

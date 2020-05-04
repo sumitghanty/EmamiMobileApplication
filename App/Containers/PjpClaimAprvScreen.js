@@ -46,17 +46,34 @@ class PjpClaimAprvScreen extends Component {
       aprvStatusName: '',
       aprvSubStatusName: '',
       rejStatusName: '',
-      rejSubStatusName: ''
+      rejSubStatusName: '',
+      rAmnt: 0,
+      cAmnt: 0,
+      pAmnt: 0,
     };
   }
 
   componentDidMount(props){
+    let rAmntTemp =0;
+    let cAmntTemp = 0;
+    let pAmntTemp = 0
     this.props.getReqClaimSale(this.props.navigation.state.params.trip_hdr_id)
     .then(()=>{
-      for(var i=0; i<this.props.reqClaimListSales.dataSource.length; i++){
-        this.state.updateParams.push(this.props.reqClaimListSales.dataSource[i]);
-        this.state.tempUpdateParams.push(this.props.reqClaimListSales.dataSource[i]);
+      let item = this.props.reqClaimListSales.dataSource;
+      for(var i=0; i<item.length; i++){
+        this.state.updateParams.push(item[i]);
+        this.state.tempUpdateParams.push(item[i]);
+        rAmntTemp = rAmntTemp + (item[i].amount_mode && item[i].amount_mode != 'On Actual')? parseFloat(item[i].amount_mode):0;
+        cAmntTemp = cAmntTemp + parseFloat((item[i].claimamount && (item[i].claimamount != ''))?parseFloat(item[i].claimamount):0);
+        pAmntTemp = pAmntTemp + parseFloat((item[i].claimpaybleamount && (item[i].claimpaybleamount != ''))?parseFloat(item[i].claimpaybleamount):0);
       }
+    })
+    .then(()=>{
+      this.setState({
+        rAmnt: rAmntTemp,
+        cAmnt: cAmntTemp,
+        pAmnt: pAmntTemp
+      });
     });
     this.props.getStatus("22","NA")
     .then(()=>{
@@ -251,9 +268,9 @@ class PjpClaimAprvScreen extends Component {
         modalVisible: false
       });
       for(var i=0; i<newParams.length; i++) {
-        newParams[i].status_id = 22;
+        newParams[i].status_id = '22';
         newParams[i].status = this.state.aprvStatusName;
-        newParams[i].sub_status_id = "";
+        newParams[i].sub_status_id = "NA";
         newParams[i].sub_status = this.state.aprvSubStatusName;
         newParams[i].vendor_comment = "Approved";
       }
@@ -262,9 +279,9 @@ class PjpClaimAprvScreen extends Component {
       this.props.postPjpClaimAprv(newParams)
     })
     .then(()=>{
-      tripParams.status_id = 22;
+      tripParams.status_id = '22';
       tripParams.status = this.state.aprvStatusName;
-      tripParams.sub_status_id = "";
+      tripParams.sub_status_id = "NA";
       tripParams.sub_status = this.state.aprvSubStatusName;
       tripParams.pending_with = global.USER.userId;
       tripParams.pending_with_email = global.USER.userEmail;
@@ -295,7 +312,7 @@ class PjpClaimAprvScreen extends Component {
       for(var i=0; i<newParams.length; i++) {
         newParams[i].status_id = "23";
         newParams[i].status = this.state.rejStatusName;
-        newParams[i].sub_status_id = "";
+        newParams[i].sub_status_id = "NA";
         newParams[i].sub_status = this.state.rejSubStatusName;
         newParams[i].vendor_comment = "Approved";
       }
@@ -306,7 +323,7 @@ class PjpClaimAprvScreen extends Component {
     .then(()=>{
       tripParams.status_id = "23";
       tripParams.status = this.state.aprvStatusName;
-      tripParams.sub_status_id = "";
+      tripParams.sub_status_id = "NA";
       tripParams.sub_status = this.state.rejSubStatusName;
       tripParams.pending_with = global.USER.userId;
       tripParams.pending_with_email = global.USER.userEmail;
@@ -338,6 +355,7 @@ class PjpClaimAprvScreen extends Component {
     sortList.sort((a,b) => b.req_hdr_id - a.req_hdr_id);
     const {params} = this.props.navigation.state;
     console.log(this.state.cmntData?this.state.cmntData.claimEmpcomment:""); //Don't remove
+    console.log(params)
   return(
   <View style={styles.container}>
     <ScrollView contentContainerStyle={styles.scrollView}>
@@ -393,11 +411,15 @@ class PjpClaimAprvScreen extends Component {
           </View>
           <View style={styles.totalTableRow}>
             <Text style={styles.totalTableLabel}>Requisition Amount:</Text>
-            <Text style={styles.totalTableValue}>{params.estimated_cost}</Text>
+            <Text style={styles.totalTableValue}>{this.state.rAmnt}</Text>
           </View>
           <View style={styles.totalTableRow}>
             <Text style={styles.totalTableLabel}>Claim Amount:</Text>
-            <Text style={styles.totalTableValue}>{params.actual_claim_amount}</Text>
+            <Text style={styles.totalTableValue}>{this.state.cAmnt}</Text>
+          </View>
+          <View style={styles.totalTableRow}>
+            <Text style={styles.totalTableLabel}>Payable Amount:</Text>
+            <Text style={styles.totalTableValue}>{this.state.pAmnt}</Text>
           </View>
         </View>
         :null}

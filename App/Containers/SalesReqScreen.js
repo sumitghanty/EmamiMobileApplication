@@ -705,14 +705,17 @@ class SalesReqScreen extends Component {
             .then(()=>{
               this.props.getReqSale(params.params.trip_hdr_id)
               .then(()=>{
-                this.setState({
-                  isLoading: false,
+                this.props.getPjp(global.USER.userId)
+                .then(()=>{
+                  this.setState({
+                    isLoading: false,
+                  });
+                })
+                .then(()=>{
+                  this.props.navigation.goBack();
+                  Toast.show('Requisition Saved Successfully', Toast.LONG);
                 });
               })
-              .then(()=>{
-                this.props.navigation.goBack();
-                Toast.show('Requisition Saved Successfully', Toast.LONG);
-              });
             })
           })
         }        
@@ -1284,6 +1287,7 @@ const mapStateToProps = state => {
     pjpTotalState: state.pjpTotalState,
     travelTypeState: state.travelTypeState,
     vendorList: state.vendorList,
+    pjp : state.pjp,
   };
 };
 
@@ -1299,6 +1303,7 @@ const mapDispatchToProps = {
   pjpTotal: Actions.pjpTotal,
   getTravelType: Actions.getTravelType,
   getVendor: Actions.getVendor,
+  getPjp : Actions.getPjp,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SalesReqScreen);

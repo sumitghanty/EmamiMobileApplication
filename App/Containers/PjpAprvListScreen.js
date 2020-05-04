@@ -96,7 +96,7 @@ class PjpAprvListScreen extends Component {
                     <View style={styles.itemRow}>
                       <Text style={styles.itemLabel}>Status:</Text>
                       <Text style={[styles.itemValue, styles.statusInitiated]}>
-                        {item.sub_status?item.sub_status:item.status}
+                        {(params == "tour" && item.sub_status)?item.sub_status:item.status}
                       </Text>
                     </View>:null}
                   </View>

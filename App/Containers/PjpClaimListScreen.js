@@ -14,7 +14,7 @@ import 'moment-precise-range-plugin'
 import styles from './Styles/PjpClaimListScreen'
 
 const KEYS_TO_FILTERS = ['trip_no', 'creation_date', 'month', 'year', 'status'];
-const STATUS_ID = [9, 11, 19, 20, 23, 25];
+const STATUS_ID = [9, 11, 19, 20, 21, 22, 23, 24, 25];
 
 class PjpClaimListScreen extends Component {  
   constructor(){ 
@@ -73,10 +73,7 @@ class PjpClaimListScreen extends Component {
           :<View>
             {sortList.map((item, index) => {
             return (
-              item.delete_status == "true" ?null
-              :(item.status_id == 0 || item.status_id == 1 || item.status_id == 2 || item.status_id == 3 || 
-                item.status_id == 4 || item.status_id == 6 || item.status_id == 7 || item.status_id == 9 || 
-                item.status_id == 10 || item.status_id == 11)?
+              (parseInt(item.status_id) != 21 && parseInt(item.status_id) != 24)?
                 <TouchableOpacity key={index} onPress={() => this.props.navigation.navigate('PjpClaimInfo',item)}>
                   {this.renderItem(item)}
                 </TouchableOpacity>
@@ -97,9 +94,7 @@ class PjpClaimListScreen extends Component {
       <CardItem header style={styles.itemHeader}>
         <Text style={styles.headerLabel}>PJP ID:</Text>
         <Text style={styles.headerValue}>{item.trip_no ?item.trip_no:''}</Text>
-        {(item.status_id == 0 || item.status_id == 1 || item.status_id == 2 || item.status_id == 3 || 
-        item.status_id == 4 || item.status_id == 6 || item.status_id == 7 || item.status_id == 9 || 
-        item.status_id == 10 || item.status_id == 11)?
+        {(parseInt(item.status_id) != 21 && parseInt(item.status_id) != 24)?
         <Icon name="md-arrow-round-forward" style={styles.arrowbtn}/>
         :null}
       </CardItem>
@@ -115,11 +110,11 @@ class PjpClaimListScreen extends Component {
             <Text style={styles.itemLabel}>For Month of:</Text>
             <Text style={styles.itemValue}>{item.month} {item.year}</Text>
           </View>:null}
-          {item.sub_status ?
+          {item.status ?
           <View style={styles.itemRow}>
             <Text style={styles.itemLabel}>Status:</Text>
             <Text style={[styles.itemValue, styles.statusInitiated]}>
-              {(item.sub_status && item.sub_status!='NA')?item.sub_status:item.status}
+              {item.status}
             </Text>
           </View>:null}
         </View>

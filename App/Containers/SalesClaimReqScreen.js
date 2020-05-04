@@ -793,14 +793,22 @@ class SalesClaimReqScreen extends Component {
       newReq.username = params.params.name;
       newReq.userid = params.params.userid;
       newReq.travel_grade = global.USER.grade;
+      newReq.pending_with = global.USER.supervisorId;
+      newReq.pending_with_name = global.USER.supervisorName;
+      newReq.pending_with_email = global.USER.supervisorEmail;
       newReq.hq = params.params.hq;
       newReq.designation = params.params.designation;
+      newReq.cost_center = global.USER.costCentre;
       newReq.pjp_date = moment(this.state.dateStart).format("YYYY-MM-DD");
       if(this.state.showField){
         newReq.source_city = this.state.fromItem.Id;
         newReq.dest_city = this.state.toItem.Id;
         newReq.source_city_name = this.state.fromItem.Name;
         newReq.dest_city_name = this.state.toItem.Name;
+        newReq.claimdeparturetime = this.state.timeCin;
+        newReq.claimarrivaltime = this.state.timeCout;
+        newReq.claimactualdistance = this.state.aDistance;
+        newReq.claimtotaltime = this.state.timeTotal;
       }
       newReq.mode = params.item.category_id;
       newReq.mode_name = params.item.category;
@@ -811,10 +819,6 @@ class SalesClaimReqScreen extends Component {
       newReq.claimEmpcomment = this.state.comments;
 
       newReq.is_outof_policy = parseFloat(this.state.cAmount) > parseFloat(this.state.rqAmnt) ? 'Yes' : 'No';
-      newReq.claimdeparturetime = this.state.timeCin;
-      newReq.claimarrivaltime = this.state.timeCout;
-      newReq.claimactualdistance = this.state.aDistance;
-      newReq.claimtotaltime = this.state.timeTotal;
       newReq.claimamount = this.state.cAmount;
       newReq.claimpaybleamount = this.state.cAmount;
 
@@ -880,58 +884,91 @@ class SalesClaimReqScreen extends Component {
     })
     .then(()=>{
       console.log(newReq)
-      let afterSetDistance = null;    
-      this.props.generateExp([newReq])
-      .then(()=>{
-        afterSetDistance = this.props.generateExpState.dataSource[0];
-        this.setState({
-          hottelGenrateData: this.props.generateExpState.dataSource[0],
-        });
-      })
-      .then(()=>{
-        if ((params.item.category_id == '6' ||
-        params.item.category_id == '23' ||
-        params.item.category_id == '24' ||
-        params.item.category_id == '25' ||
-        params.item.category_id == '26' ||
-        params.item.category_id == '27') && this.state.twoWay){
-          afterSetDistance.distance = parseFloat(this.props.generateExpState.dataSource[0].distance)*2;
-          afterSetDistance.amount_mode = parseFloat(this.props.generateExpState.dataSource[0].amount_mode)*2;
-        }
-      })
-      .then(()=>{
-        if((afterSetDistance.mode == "14" || afterSetDistance.mode == "22") 
-            && afterSetDistance.place_of_work == 'UC' && this.state.uc == 'NA') {
-          this.props.getHotels('Boarding and Lodging')
-          .then(()=>{
-            if(this.props.hotelList.isLoading) {
-              this.setState({
-                isLoading: true,
-              });
-            } else if (this.props.hotelList.errorStatus) {
-              this.setState({
-                hasError: true,
-              });
-            } else {
-              for(var i=0; i<this.props.hotelList.dataSource.length; i++) {
-                this.state.hotelsList.push({
-                  "Name": this.props.hotelList.dataSource[i].vendor_name,
-                  "Value": this.props.hotelList.dataSource[i].vendor_city,
-                  "Code": this.props.hotelList.dataSource[i].gstin,
-                  "Id": this.props.hotelList.dataSource[i].vendor_id,
-                },)
+      if(this.state.showField){
+        let afterSetDistance = null;    
+        this.props.generateExp([newReq])
+        .then(()=>{
+          afterSetDistance = this.props.generateExpState.dataSource[0];
+          this.setState({
+            hottelGenrateData: this.props.generateExpState.dataSource[0],
+          });
+        })
+        .then(()=>{
+          if ((params.item.category_id == '6' ||
+          params.item.category_id == '23' ||
+          params.item.category_id == '24' ||
+          params.item.category_id == '25' ||
+          params.item.category_id == '26' ||
+          params.item.category_id == '27') && this.state.twoWay){
+            afterSetDistance.distance = parseFloat(this.props.generateExpState.dataSource[0].distance)*2;
+            afterSetDistance.amount_mode = parseFloat(this.props.generateExpState.dataSource[0].amount_mode)*2;
+          }
+        })
+        .then(()=>{
+          if((afterSetDistance.mode == "14" || afterSetDistance.mode == "22") 
+              && afterSetDistance.place_of_work == 'UC' && this.state.uc == 'NA') {
+            this.props.getHotels('Boarding and Lodging')
+            .then(()=>{
+              if(this.props.hotelList.isLoading) {
+                this.setState({
+                  isLoading: true,
+                });
+              } else if (this.props.hotelList.errorStatus) {
+                this.setState({
+                  hasError: true,
+                });
+              } else {
+                for(var i=0; i<this.props.hotelList.dataSource.length; i++) {
+                  this.state.hotelsList.push({
+                    "Name": this.props.hotelList.dataSource[i].vendor_name,
+                    "Value": this.props.hotelList.dataSource[i].vendor_city,
+                    "Code": this.props.hotelList.dataSource[i].gstin,
+                    "Id": this.props.hotelList.dataSource[i].vendor_id,
+                  },)
+                }
               }
-            }
-          })
-          .then(()=>{
-            this.setState({
-              isLoading: false,
-              hasError: false,
-              modalFormVisible: 1,
-            });
-          })
-        } else {
-          this.props.updtClaimReq([afterSetDistance])
+            })
+            .then(()=>{
+              this.setState({
+                isLoading: false,
+                hasError: false,
+                modalFormVisible: 1,
+              });
+            })
+          } else {
+            this.props.updtClaimReq([afterSetDistance])
+            .then(()=>{
+              newPJP.status_id = 20;
+              newPJP.sub_status_id = "NA";
+              newPJP.status = this.state.statusName;
+              newPJP.sub_status = this.state.subStatusName;
+              newPJP.estimated_cost = (params.update && params.update.amount_mode)
+                    ?(parseInt(params.estCost) - (params.update.claimamount == 'On Actual')?0:parseInt(params.update.claimamount)) + parseInt(this.state.cAmount)
+                    : parseInt(params.estCost) + parseInt(this.state.cAmount);
+              newPJP.actual_claim_amount = (parseInt(params.actAmnt) - parseInt(params.update.claimamount)) + parseInt(this.state.cAmount);
+            })
+            .then(()=>{
+              this.props.postPjpClaimTot([newPJP])
+              .then(()=>{
+                this.props.getReqSale(params.params.trip_hdr_id)
+                .then(()=>{
+                  this.props.getPjpClaim(global.USER.userId,[9, 11, 19, 20, 21, 22, 23, 24, 25])
+                  .then(()=>{
+                    this.setState({
+                      isLoading: false,
+                    });
+                  })
+                  .then(()=>{
+                    this.props.navigation.goBack();
+                    Toast.show('Requisition Saved Successfully', Toast.LONG);
+                  });
+                })
+              })
+            })
+          }
+        })
+      } else {
+        this.props.updtClaimReq([newReq])
           .then(()=>{
             newPJP.status_id = 20;
             newPJP.sub_status_id = "NA";
@@ -947,18 +984,20 @@ class SalesClaimReqScreen extends Component {
             .then(()=>{
               this.props.getReqSale(params.params.trip_hdr_id)
               .then(()=>{
-                this.setState({
-                  isLoading: false,
+                this.props.getPjpClaim(global.USER.userId,[9, 11, 19, 20, 21, 22, 23, 24, 25])
+                .then(()=>{
+                  this.setState({
+                    isLoading: false,
+                  });
+                })
+                .then(()=>{
+                  this.props.navigation.goBack();
+                  Toast.show('Requisition Saved Successfully', Toast.LONG);
                 });
               })
-              .then(()=>{
-                this.props.navigation.goBack();
-                Toast.show('Requisition Saved Successfully', Toast.LONG);
-              });
             })
           })
-        }
-      })
+      }
     })
   }
 
@@ -1841,7 +1880,8 @@ const mapStateToProps = state => {
     vendorList: state.vendorList,
     hotelList: state.hotelList,
     pjpClaimTot: state.pjpClaimTot,
-    updtClaimReqState: state.updtClaimReqState
+    updtClaimReqState: state.updtClaimReqState,
+    pjpClaims: state.pjpClaims
   };
 };
 
@@ -1858,7 +1898,8 @@ const mapDispatchToProps = {
   getVendor: Actions.getVendor,  
   getHotels: Actions.getHotels,
   postPjpClaimTot: Actions.postPjpClaimTot,
-  updtClaimReq: Actions.updtClaimReq
+  updtClaimReq: Actions.updtClaimReq,
+  getPjpClaim : Actions.getPjpClaim
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SalesClaimReqScreen);
