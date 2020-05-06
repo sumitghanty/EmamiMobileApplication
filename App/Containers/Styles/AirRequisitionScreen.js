@@ -342,7 +342,7 @@ export default StyleSheet.create({
     fontSize: 24
   },
   accordionHeader: {
-    backgroundColor: '#0B5FFF',
+    backgroundColor: '#0066b3',
     paddingHorizontal: 16,
     paddingVertical: 12,
     flexDirection: 'row',
@@ -361,5 +361,16 @@ export default StyleSheet.create({
   },
   mt: {
     marginTop: 16
-  }
+  },
+  textArea: {
+    marginHorizontal: 16,
+    borderRadius: 4,
+    backgroundColor: '#f8f8f8',
+    padding: 6,
+    borderWidth: 1,
+    borderColor: '#ddd'
+  },
+  inputLabel: {
+    marginHorizontal: 16
+  },
 });

@@ -557,7 +557,7 @@ class AirReqSalesScreen extends Component {
             <Text style={styles.acrdTitle}>Flight Informations</Text>
           </View>
           <Form style={{marginBottom:16}}>
-            {/*<Item picker fixedLabel style={styles.formRow}>
+            <Item picker fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Flight Name:</Label>
               <Text style={[styles.formInput,styles.readOnly]}>{this.state.selectTicketData.airline}</Text>
             </Item>
@@ -600,7 +600,7 @@ class AirReqSalesScreen extends Component {
             <Item picker fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>GSTIN:</Label>
               <Text style={[styles.formInput,styles.readOnly]}>{this.state.selectTicketData.gstin}</Text>
-            </Item>*/}
+            </Item>
           </Form>
           </>:null}
 

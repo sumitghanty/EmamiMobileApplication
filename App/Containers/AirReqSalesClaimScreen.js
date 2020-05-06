@@ -17,8 +17,6 @@ import { HeaderBackButton } from "react-navigation-stack"
 import Loader from '../Components/Loader'
 import styles from './Styles/AirRequisitionScreen';
 
-const SUIT_TIME = ['Morning', 'Afternoon', 'Evening', 'Night'];
-
 class AirReqSalesClaimScreen extends Component {
 
   static navigationOptions = ({ navigation }) => {
@@ -33,43 +31,28 @@ class AirReqSalesClaimScreen extends Component {
     super(props);
     const {params} = this.props.navigation.state;
     this.state = {
+      isLoading: false,
       readOnly: params.update.sub_status_id == '7.3' ? true:false,
       ticketList: null,
       selectTicketData: null,
-      acrdOneVisible: params.update.sub_status_id =='7.1'?1:0,
+      acrdOneVisible: 0,
       acrdTwoVisible: 0,
-      acrdThreeVisible: 0,
-      sendVenderData: [],
-      tcktNo: (params.update && params.update.ticket_number) ? params.update.ticket_number : null,
-      tcktNoError:null,      
-      refresh: false,
-      statusNameOP: '',
-      subStatusNameOP: '',
       statusName: '',
-      subStatusName: '',      
-      statusClaimName: '',
-      
-      attachFiles: [],
-      isLoading: false,
-      modalVisible: false,
-      uploadData: [{"type":"Approve Email","file":null,'action':null},{"type":"E-Ticket","file":null,'action':null},{"type":"Other","file":null,'action':null}],
-      curUploadType: 'Approve Email',      
-      flieSizeIssue: false,
+      subStatusName: '',
+      tcktClass: (params.update && params.update.ticket_class)?params.update.ticket_class:null,
+      tcktClassError: null,
+      tcktStatus: (params.update && params.update.ticket_status)?params.update.ticket_status:null,
+      tcktStatusError: null,
+      justification: (params.update && params.update.justification)?params.update.justification:null,
+      justificationError: null,
+      msg: (params.update && params.update.comment)?params.update.comment:null
     };
   }
 
   componentDidMount() {
     const {params} = this.props.navigation.state;
 
-    this.props.getStatus("7","7.5")
-    .then(()=>{
-      this.setState({
-        statusNameOP: this.props.statusResult.dataSource[0].trip_pjp_status,
-        subStatusNameOP: this.props.statusResult.dataSource[0].sub_status
-      });
-    });
-
-    this.props.getStatus("7","7.4")
+    this.props.getStatus("20","NA")
     .then(()=>{
       this.setState({
         statusName: this.props.statusResult.dataSource[0].trip_pjp_status,
@@ -92,203 +75,10 @@ class AirReqSalesClaimScreen extends Component {
         }
       }
     })
-
-    this.props.getAttachments(params.params.trip_hdr_id,this.state.tripNo,params.update.lineitem)
-    .then(()=>{
-      for(var i=0; i<this.props.attachmentList.dataSource.length; i++) {
-        for(var j=0; j<this.state.uploadData.length; j++) {
-          if(this.props.attachmentList.dataSource[i].doc_type == this.state.uploadData[j].type) {
-            this.state.uploadData[j].file={
-              'size': null,
-              'name': this.props.attachmentList.dataSource[i].file_name,
-              'type': 'image/'+this.getExtention(this.props.attachmentList.dataSource[i].file_name),
-              'uri': this.props.attachmentList.dataSource[i].file_path
-            }
-          }           
-        }
-      }
-    })
-
-    if(params.claim){
-      this.props.getStatus("20","NA")
-      .then(()=>{
-        this.setState({
-          statusClaimName: this.props.statusResult.dataSource[0].trip_pjp_status,
-        });
-      });
-    }
-
   }
 
   handleComment = (text) => {
     this.setState({ comments: text })
-  }
-
-  setModalVisible(visible) {
-    this.setState({modalVisible: visible});
-  }
-
-  onValueChangeUploadType = (value) => {
-    this.setState({ curUploadType: value });
-  }
-
-  uploadRequest = ()=> {
-    if(this.state.attachFiles.length<=0) {
-      Alert.alert(
-        "",
-        "You have not selected any file. Please choose your file.",
-        [
-          {
-            text: "cancel",
-            style: 'cancel',
-          },
-        ],
-        { cancelable: true }
-      );
-    } else {
-      this.setState({modalVisible: false});
-    }
-  }
-
-  removeAttach(type) {
-    for(var i =0; i<this.state.uploadData.length; i++) {
-      if(this.state.uploadData[i].type == type) {
-        this.state.uploadData[i].file = null;
-        this.state.attachFiles.splice(0,1);
-        this.setState({ 
-          refresh: true 
-        })
-      }
-    }
-  }
-  async selectAttachFiles() {
-    try {
-      const results = await DocumentPicker.pick({
-        type: [DocumentPicker.types.allFiles],
-      });
-      
-      for(var i=0; i<results.length; i++) {
-        if(results[i].size>3000000) {
-          Alert.alert(
-            "File Size issue",
-            "You have selected a large file. Please choose the file less then 3MB.",
-            [
-              {
-                text: "Ok",
-                style: 'cancel',
-              },
-            ],
-            { cancelable: true }
-          );
-          this.setState({ 
-            flieSizeIssue: true 
-          })
-          break
-        }
-        else {
-          this.setState({ 
-            flieSizeIssue: false 
-          })
-        }
-      }
-
-      if(!this.state.flieSizeIssue) {
-        alert('File uploaded successfully.');     
-        for(var i=0; i<this.state.uploadData.length; i++) {
-          if(this.state.uploadData[i].type == this.state.curUploadType) {
-            this.state.uploadData[i].file = results;
-          }
-        }
-        this.state.attachFiles.push(results);
-        this.setState({ 
-          refresh: true 
-        })
-      }
-    } catch (err) {
-      if (DocumentPicker.isCancel(err)) {
-        alert('You have not select any file for attachment');
-      } else {
-        alert('Unknown Error: ' + JSON.stringify(err));
-        throw err;
-      }
-    }
-  }
-
-  async atchFiles() {
-    const {params} = this.props.navigation.state;
-    for(var i=0; i<this.state.uploadData.length; i++){
-      let fileBase64 = null;
-      let filePath = this.state.uploadData[i].file.uri;
-      await RNFS.readFile(filePath, 'base64')
-      .then(res =>{
-        fileBase64 = res;
-      })
-      .then(()=>{
-        this.props.attachment({
-          "mimeType": this.state.uploadData[i].file.type,
-          "tripNo": params.params.trip_no,
-          "lineItem": this.state.lineitem,
-          "docType": this.state.uploadData[i].type,
-          "userId": params.params.userid,
-          "trip_hdr_id_fk": params.params.trip_hdr_id,
-          "name": this.state.uploadData[i].file.name,
-          "flow_type": params.claim?'ECR':'PT',
-          "base64Str":fileBase64,
-        })
-      })
-      .catch((err) => {
-        console.log(err.message, err.code);
-      })
-    }
-  }
-
-  downloadImage = (file,type) => {
-    console.log(file);
-    var date = new Date();
-    var image_URL = file;
-    var ext = this.getExtention(image_URL);
-    ext = "." + ext[0];
-    const { config, fs } = RNFetchBlob;
-    let PictureDir = fs.dirs.PictureDir
-    let options = {
-      fileCache: true,
-      addAndroidDownloads: {
-        useDownloadManager: true,
-        notification: true,
-        path: PictureDir + "/Emami/download_" + Math.floor(date.getTime()
-          + date.getSeconds() / 2) + ext,
-        description: 'Image'
-      }
-    }
-    for(var i=0; i<this.state.uploadData.length; i++) {
-      if(this.state.uploadData[i].type == type) {
-        this.state.uploadData[i].action = 'P';
-        break;
-      }
-    }
-    this.setState({
-      refresh: true
-    });
-    config(options).fetch('GET', image_URL)
-    .then((res) => {
-      Alert.alert('The file saved to ', res.path());
-    })
-    .then(()=>{
-      for(i=0; i<this.state.uploadData.length; i++) {
-        if(this.state.uploadData[i].type == type) {
-          this.state.uploadData[i].action = 'C';          
-          this.setState({
-            refresh: true
-          });
-          break;
-        }
-      }
-    });
-  }
- 
-  getExtention = (filename) => {
-    return (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename) :
-      undefined;
   }
 
   setAcrdOneVisible() {
@@ -297,10 +87,37 @@ class AirReqSalesClaimScreen extends Component {
     });
   }
 
-  setAcrdThreeVisible() {
+  setAcrdTwoVisible() {
     this.setState({
-      acrdThreeVisible: this.state.acrdThreeVisible == 0?1:0
+      acrdTwoVisible: this.state.acrdTwoVisible == 0?1:0
     });
+  }
+
+  handleClass = (text) => {
+    this.setState({ 
+      tcktClass: text,
+      tcktClassError: null
+    })
+  }
+
+  handleStatus = (text) => {
+    this.setState({ 
+      tcktStatus: text,
+      tcktStatusError: null
+    })
+  }
+  
+  handleJustification = (text) => {
+    this.setState({ 
+      justification: text,
+      justificationError: null
+    })
+  }
+
+  handleMsg = (text) => {
+    this.setState({ 
+      msg: text,
+    })
   }
 
   submitReq = () => { 
@@ -308,73 +125,22 @@ class AirReqSalesClaimScreen extends Component {
       isLoading: true
     });   
     const {params} = this.props.navigation.state;
-    if(this.props.ticketsSalesList.dataSource.length>0 && !this.state.selectTicketData && 
-      (params.update.sub_status_id == '7.2' || params.update.sub_status_id == '7.4')) {
-      Alert.alert(
-        "Warning",
-        "Please select an option for Ticket",
-        [
-          {
-            text: "Ok",
-            style: 'cancel',
-          }
-        ],
-        { cancelable: false }
-      );
-      this.setState({
-        isLoading: false
-      });
-    }
-    else if (params.claim && (
-        (params.claim && !this.state.flightVendor.Name) || (params.claim && this.state.flightVendor.Name == "Select Vendor") ||
-        (params.claim && !this.state.invoiceAmnt) || (params.claim && !this.state.tcktNo) ||
-        (params.claim && !this.state.cgst) || (params.claim && !this.state.sgst) ||
-        (params.claim && !this.state.igst) || (params.claim && !this.state.hsncode) ||
-        (params.claim && !this.state.invNumber) )
-    ){      
-      if((params.claim && !this.state.flightVendor.Name) || (params.claim && this.state.flightVendor.Name == "Select Vendor")) {
+    if ( !this.state.tcktClass || !this.state.tcktStatus || !this.state.justification ){      
+      if(!this.state.tcktClass) {
         this.setState({
-          flightVendorError: 'Please select a vendor'
+          tcktClassError: 'Please enter Ticket class'
         });
       }
-      if(params.claim && !this.state.invoiceAmnt) {
+      if(!this.state.tcktStatus) {
         this.setState({
-          invoiceAmntError: 'Please enter invoice amount.',
+          tcktStatusError: 'Please enter Ticket status.',
         });
       }
-      if(params.claim && !this.state.tcktNo) {
+      if(!this.state.justification) {
         this.setState({
-          tcktNoError: 'Please enter Ticket Number.',
+          justificationError: 'Please enter proper justification.',
         });
       }
-      if(params.claim && !this.state.cgst) {
-        this.setState({
-          cgstError: 'Please enter CGST.',
-        });
-      }
-      if(params.claim && !this.state.sgst) {
-        this.setState({
-          sgstError: 'Please enter SGST.',
-        });
-      }
-      if(params.claim && !this.state.igst) {
-        this.setState({
-          igstError: 'Please enter IGST.',
-        });
-      }
-      if(params.claim && !this.state.hsncode) {
-        this.setState({
-          hsncodeError: 'Please enter HSN code.',
-        });
-      }
-      if(params.claim && !this.state.invNumber) {
-        this.setState({
-          invNumberError: 'Please enter invoice number.',
-        });
-      }
-      this.setState({
-        isLoading: false
-      });
     } else {      
       this.reqUpdate();
     }
@@ -386,71 +152,21 @@ class AirReqSalesClaimScreen extends Component {
     let newPJP = params.params;
     AsyncStorage.getItem("ASYNC_STORAGE_UPDATE_KEY")
     .then(()=>{
-      newReq.flight_selected = 'Y';
-      newReq.flight = this.state.selectTicketData.airline;
-      newReq.flight_type = this.state.selectTicketData.type;
-      newReq.vendor_comment = this.state.selectTicketData.comment;
-      newReq.is_outof_policy = this.state.selectTicketData.type == 'NO'?'N':'Y';
-      newReq.status_id = 7;
-      newReq.sub_status_id = this.state.selectTicketData.type == 'NO'?'7.4':"7.5";
-      newReq.status = this.state.selectTicketData.type == 'NO'?this.state.statusName:this.state.statusNameOP;
-      newReq.sub_status = this.state.selectTicketData.type == 'NO'?this.state.subStatusName:this.state.subStatusNameOP;
-      newReq.amount_mode = this.state.selectTicketData.price
+      newReq.ticket_class = this.state.tcktClass;
+      newReq.ticket_status = this.state.tcktStatus;
+      newReq.justification = this.state.justification;
+      newReq.comment = this.state.msg;
+      newReq.status_id = '20';
+      newReq.status = this.state.statusName;
     })
     .then(()=>{
-      if((newReq.sub_status_id == '7.2' || newReq.sub_status_id == '7.4') && this.props.ticketsSalesList.dataSource.length>0 && this.state.selectTicketData){
-        let sendVendData = this.props.ticketsSalesList.dataSource;
-        for(var i=0; i<sendVendData.length; i++) {
-          if(sendVendData[i].id == this.state.selectTicketData.id) {
-            sendVendData[i].flight_selected = 'Y';
-          } else {
-            sendVendData[i].flight_selected = '';
-          }
-          this.state.sendVenderData.push(sendVendData[i]);
-        }
-      } else {
-        console.log('Not send to Vendor');
-      }
+      newPJP.status_id = '20';
+      newPJP.status = this.state.statusName;
+      newPJP.sub_status_id = 'NA';
+      newPJP.sub_status = this.state.subStatusName;
     })
     .then(()=>{
-      if((newReq.sub_status_id == '7.2' || newReq.sub_status_id == '7.4') && this.props.ticketsSalesList.dataSource.length>0 
-      && this.state.selectTicketData && this.state.sendVenderData.length>0){
-        this.props.updateVndAirResSales(this.state.sendVenderData)
-        .then(()=>{
-          this.props.updtReqSale([newReq])
-          .then(()=>{
-            //this.atchFiles();
-          })
-          /*.then(()=>{
-            newPJP.status_id = 7;
-            newPJP.sub_status_id = "7.3";
-            newPJP.status = this.state.statusName;
-            newPJP.sub_status = this.state.subStatusName;
-          })*/
-          .then(()=>{
-            this.props.pjpTotal([newPJP])
-            .then(()=>{
-              this.props.getReqSale(params.params.trip_hdr_id)
-              .then(()=>{
-                this.props.getPjp(global.USER.userId)
-                .then(()=>{
-                  this.setState({
-                    isLoading: false,
-                  });
-                })
-                .then(()=>{
-                  this.props.navigation.goBack();
-                  Toast.show('Ticket Send to Agent Successfully', Toast.LONG);
-                });
-              })
-            })
-          })
-        })
-      } else {
         this.props.updtReqSale([newReq])
-        .then(()=>{
-          //this.atchFiles();
-        })
         .then(()=>{
           this.props.pjpTotal([newPJP])
           .then(()=>{
@@ -469,23 +185,23 @@ class AirReqSalesClaimScreen extends Component {
             })
           })
         })
-      }
     });
   }
 
   render() {
     const {params} = this.props.navigation.state;
+    console.log(this.state.selectTicketData)
 
     if(this.state.isLoading ||
-      this.props.statusResult.isLoading ||
-      this.props.attachmentList.isLoading
+      this.props.ticketsSalesList.isLoading ||
+      this.props.statusResult.isLoading
       ){
       return(
         <Loader/>
       )
     } else if(
-      this.props.statusResult.errorStatus ||
-      this.props.attachmentList.errorStatus
+      this.props.ticketsSalesList.errorStatus ||
+      this.props.statusResult.errorStatus
       ) {
       return(
         <Text>URL Error</Text>
@@ -552,13 +268,50 @@ class AirReqSalesClaimScreen extends Component {
             </>:null}
           </Form>
           
-          {(params.update.sub_status_id == '7.3') ? <>
+          <TouchableOpacity style={[styles.accordionHeader,styles.mt]}
+            onPress={()=>{this.setAcrdTwoVisible()}}>
+            <Text style={styles.acrdTitle}>Travel Agent Details</Text>
+            <Icon style={styles.acrdIcon} name={this.state.acrdTwoVisible==0?"add-circle":"remove-circle"} />
+          </TouchableOpacity>
+          <Form style={{marginBottom:16,display:(this.state.acrdTwoVisible==0)?'none':'flex'}}>
+            {params.update.invoice_date ?
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Invoice Date:</Label>
+              <Text style={[styles.formInput,styles.readOnly]}>{moment(params.update.invoice_date).format(global.DATEFORMAT)}</Text>
+            </Item>:null}
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Travel Agent Name:</Label>
+              <Text style={[styles.formInput,styles.readOnly]}>{params.update.vendor_name}</Text>
+            </Item>
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>GSTIN Number:</Label>
+              <Text style={[styles.formInput,styles.readOnly]}>{params.update.gstin}</Text>
+            </Item>
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>CGST:</Label>
+              <Text style={[styles.formInput,styles.readOnly]}>{params.update.vendor_CGST}</Text>
+            </Item>
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>SGST:</Label>
+              <Text style={[styles.formInput,styles.readOnly]}>{params.update.vendor_SGST}</Text>
+            </Item>
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>IGST:</Label>
+              <Text style={[styles.formInput,styles.readOnly]}>{params.update.vendor_IGST}</Text>
+            </Item>
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Processing Charges:</Label>
+              <Text style={[styles.formInput,styles.readOnly]}>&nbsp;</Text>
+            </Item>
+          </Form>
+          
+          {this.state.selectTicketData ?<>
           <View style={[styles.accordionHeader,styles.mt]}>
             <Text style={styles.acrdTitle}>Flight Informations</Text>
           </View>
           <Form style={{marginBottom:16}}>
-            {/*<Item picker fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Flight Name:</Label>
+            <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Flight Vendor:</Label>
               <Text style={[styles.formInput,styles.readOnly]}>{this.state.selectTicketData.airline}</Text>
             </Item>
             <Item fixedLabel style={styles.formRow}>
@@ -578,7 +331,7 @@ class AirReqSalesClaimScreen extends Component {
               <Text style={[styles.formInput,styles.readOnly]}>{this.state.selectTicketData.f_SGST_percent}</Text>
             </Item>
             <Item picker fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>VendorIGST:</Label>
+              <Label style={styles.formLabel}>Vendor IGST:</Label>
               <Text style={[styles.formInput,styles.readOnly]}>{this.state.selectTicketData.f_IGST_percent}</Text>
             </Item>
             <Item picker fixedLabel style={styles.formRow}>
@@ -589,10 +342,11 @@ class AirReqSalesClaimScreen extends Component {
               <Label style={styles.formLabel}>Invoice Number:</Label>
               <Text style={[styles.formInput,styles.readOnly]}>{this.state.selectTicketData.airline_invoice_number}</Text>
             </Item>
+            {this.state.selectTicketData.airline_invoice_date ?
             <Item picker fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Invoice Date:</Label>
               <Text style={[styles.formInput,styles.readOnly]}>{moment(this.state.selectTicketData.airline_invoice_date).format(global.DATEFORMAT)}</Text>
-            </Item>
+            </Item>:null}
             <Item picker fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Flight Vendor:</Label>
               <Text style={[styles.formInput,styles.readOnly]}>{this.state.selectTicketData.airline_vendor}</Text>
@@ -600,40 +354,92 @@ class AirReqSalesClaimScreen extends Component {
             <Item picker fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>GSTIN:</Label>
               <Text style={[styles.formInput,styles.readOnly]}>{this.state.selectTicketData.gstin}</Text>
-            </Item>*/}
+            </Item>
+            <Item fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Ticket Class:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <TextInput 
+                onSubmitEditing={() => this.refs.tcktStatus.focus()}
+                placeholder='Enter ticket class' 
+                style={styles.formInput}
+                underlineColorAndroid= "rgba(0,0,0,0)"
+                value = {this.state.tcktClass}
+                onChangeText={this.handleClass} />
+            </Item>
+            {this.state.tcktClassError &&
+              <Text style={styles.errorText}>{this.state.tcktClassError}</Text>
+            }
+            <Item fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Ticket Status:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <TextInput 
+                ref='tcktStatus'
+                onSubmitEditing={() => this.refs.justification.focus()}
+                placeholder='Enter ticket status' 
+                style={styles.formInput}
+                underlineColorAndroid= "rgba(0,0,0,0)"
+                value = {this.state.tcktStatus}
+                onChangeText={this.handleStatus} />
+            </Item>
+            {this.state.tcktStatusError &&
+              <Text style={styles.errorText}>{this.state.tcktStatusError}</Text>
+            }
+            <Label style={[styles.formLabel,styles.inputLabel]}>Justification:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TextInput 
+              ref='justification'
+              placeholder='Enter your justification' 
+              style={styles.textArea}
+              numberOfLines={4}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.justification}
+              onChangeText={this.handleJustification} />
+            {this.state.justificationError &&
+              <Text style={styles.errorText}>{this.state.justificationError}</Text>
+            }
           </Form>
-          </>:null}
-
-
-          {(!this.state.readOnly && this.state.ticketList) ? <>
+          
           <Text style={styles.flightTitle}>Flight Details</Text>
-          {(params.update.sub_status_id =='7.2')?
-            <Text style={styles.flightSubTitle}>Please select an Option<Text style={{color:'red',fontSize:13}}>*</Text></Text>
-          :null}
-          {this.state.ticketList.map((item, index) => {
-            return (
-            (params.sub_status_id == '11.1' || params.sub_status_id == '7.3' || params.sub_status_id == '11.2') ?
-              <View key={index} style={styles.ticketItemWraper}>
-                {this._ticketItem(item, params.update)}
+          <View style={styles.ticketItem}>
+            <View style={[
+              styles.ticketColumn,
+              styles.ticketLeft,
+              styles.selectedTicket,
+              styles.selectedTicketLeft
+              ]}>
+              <View style={[styles.circle, styles.circleLeft]}></View>
+              <Text style={styles.nameLabel}>Flight Name:</Text>
+              <Text style={styles.flightName}>{this.state.selectTicketData.airline}</Text>
+              <Text style={styles.ticketLabel}>Departure Time &amp; Place:</Text>
+              <Text style={styles.ticketValue}>{this.state.selectTicketData.departure}</Text>
+              <Text style={styles.ticketLabel}>Arival Time &amp; Place</Text>
+              <Text style={styles.ticketValue}>{this.state.selectTicketData.arrival}</Text>
+            </View>
+            <View style={[
+              styles.ticketColumn,
+              styles.ticketRight,          
+              styles.selectedTicket,
+              styles.selectedTicketRight
+              ]}>
+              <View style={[styles.circle, styles.circleRight]}></View>
+              <View style={styles.checkBox}>
+                <Icon name='md-checkmark' style={styles.checkIcon} />
               </View>
-            : Platform.OS === 'Android' ?
-              <TouchableNativeFeedback
-                useForeground={true}
-                onPress={()=>{this.selectTicket(item)}} 
-                key={index}
-                style={styles.ticketItemWraper}>
-                {this._ticketItem(item, params.update)}
-              </TouchableNativeFeedback>
-            :
-              <TouchableOpacity 
-                onPress={()=>{this.selectTicket(item)}} 
-                key={index}
-                style={styles.ticketItemWraper}>
-                {this._ticketItem(item, params.update)}
-              </TouchableOpacity>
-          )
-          })}
+              <Text style={styles.price}>{this.state.selectTicketData.price}</Text>
+              <Text style={styles.currency}>{this.state.selectTicketData.currency}</Text>        
+              <Text style={styles.oop}>Out of Policy:</Text>
+              <Text style={styles.oopValue}>{this.state.selectTicketData.type}</Text>
+            </View>
+          </View>
+          
           </>:null}
+
+          <Text style={[styles.formLabel,styles.inputLabel]}>Comments:</Text>
+          <TextInput 
+            placeholder='Enter comments' 
+            style={styles.textArea}
+            underlineColorAndroid= "rgba(0,0,0,0)"
+            value = {this.state.msg}
+            returnKeyType="next"
+            numberOfLines={4}
+            onChangeText={this.handleMsg} />
 
           {(params.update.sub_status_id != '7.1' && params.update.sub_status_id != '7.3') ?
           <TouchableOpacity onPress={() => this.submitReq()} style={styles.ftrBtn}>
@@ -649,120 +455,9 @@ class AirReqSalesClaimScreen extends Component {
           :null}
 
         </ScrollView>
-
-        <Modal
-          animationType="slide"
-          transparent={false}
-          visible={this.state.modalVisible}
-          onRequestClose={() => {this.setModalVisible(false)}}>
-          <View style={styles.atchMdlHeader}>
-            <Text style={styles.atchMdlHdrTtl}>Upload Document</Text>
-          </View>
-          <ScrollView contentContainerStyle={styles.atchMdlBody}>
-            <Text style={styles.atchMdlLabel}>Select Document Type:</Text>
-            <View style={styles.pickerHolder}>
-              <Picker
-                mode="dropdown"
-                iosIcon={<Icon name="arrow-down" />}
-                style={styles.atchTypeSelect}
-                placeholder="Document Type"
-                placeholderStyle={{ color: "#bfc6ea" }}
-                placeholderIconColor="#007aff"
-                selectedValue={this.state.curUploadType}
-                onValueChange={this.onValueChangeUploadType}
-                >
-                {this.state.uploadData.map((item, index) => {
-                  return (
-                  <Picker.Item label={item.type} value={item.type} key={index} />
-                  );
-                })}
-              </Picker>
-            </View>
-            <TouchableOpacity onPress={this.selectAttachFiles.bind(this)} style={styles.chooseBtn}>                
-              <Icon name='add-circle' style={styles.chooseBtnIcon} />
-              <Text style={styles.chooseBtnText}>Choose File</Text>
-            </TouchableOpacity>
-            
-            {this.state.uploadData.map((item, key) => (
-              (item.type == this.state.curUploadType && item.file) ?
-              <View key={key} style={styles.atchFileRow}>
-                {item.file.type == "image/webp" ||
-                  item.file.type == "image/jpeg" ||
-                  item.file.type == "image/jpg" ||
-                  item.file.type == "image/png" ||
-                  item.file.type == "image/gif" ?
-                <Image
-                  style={{width: 50, height: 50, marginRight:10}}
-                  source={{uri: item.file.uri}}
-                />:null}
-                <Text style={styles.atchFileName}>{item.file.name ? item.file.name : ''}</Text>
-                <Button bordered small rounded danger style={styles.actionBtn}
-                  onPress={()=>this.removeAttach(item.type)}>
-                  <Icon name='close' style={styles.actionBtnIco} />
-                </Button>
-              </View>
-              :null
-            ))}
-          </ScrollView>
-          <View style={styles.atchMdlFtr}>
-            <TouchableOpacity 
-              onPress={() => {this.setModalVisible(!this.state.modalVisible);}} 
-              style={[styles.atchMdlFtrBtn,styles.atchMdlFtrBtnSecondary]}>
-              <Text style={styles.atchMdlFtrBtnText}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              onPress={() => {this.uploadRequest();}} 
-              style={[styles.atchMdlFtrBtn,styles.atchMdlFtrBtnPrimary]}>
-              <Text style={styles.atchMdlFtrBtnText}>Upload</Text>
-            </TouchableOpacity>
-          </View>
-        </Modal>
-      
       </KeyboardAvoidingView>
     );
     }
-  }
-
-  _ticketItem = (data, params) => {
-    return(
-    <View style={styles.ticketItem}>
-      <View style={[
-        styles.ticketColumn,
-        styles.ticketLeft,
-        (data.type == 'YES') && styles.dangerTicket,
-        (data.type == 'YES') && styles.dangerTicketLeft,
-        (this.state.selectTicketData && this.state.selectTicketData.id == data.id) && styles.selectedTicket,
-        (this.state.selectTicketData && this.state.selectTicketData.id == data.id) && styles.selectedTicketLeft
-        ]}>
-        <View style={[styles.circle, styles.circleLeft]}></View>
-        <Text style={styles.nameLabel}>Flight Name:</Text>
-        <Text style={styles.flightName}>{data.airline}</Text>
-        <Text style={styles.ticketLabel}>Departure Time &amp; Place:</Text>
-        <Text style={styles.ticketValue}>{data.departure}</Text>
-        <Text style={styles.ticketLabel}>Arival Time &amp; Place</Text>
-        <Text style={styles.ticketValue}>{data.arrival}</Text>
-      </View>
-      <View style={[
-        styles.ticketColumn,
-        styles.ticketRight,          
-        (data.type == 'YES') && styles.dangerTicket,
-        (data.type == 'YES') && styles.dangerTicketRight,
-        (this.state.selectTicketData && this.state.selectTicketData.id == data.id) && styles.selectedTicket,
-        (this.state.selectTicketData && this.state.selectTicketData.id == data.id) && styles.selectedTicketRight
-        ]}>
-        <View style={[styles.circle, styles.circleRight]}></View>
-        <View style={styles.checkBox}>
-          {this.state.selectTicketData && this.state.selectTicketData.id == data.id &&
-          <Icon name='md-checkmark' style={styles.checkIcon} />
-          }
-        </View>
-        <Text style={styles.price}>{data.price}</Text>
-        <Text style={styles.currency}>{data.currency}</Text>        
-        <Text style={styles.oop}>Out of Policy:</Text>
-        <Text style={styles.oopValue}>{data.type}</Text>
-      </View>
-    </View>
-    )
   }
 
   selectTicket=(data)=>{
@@ -782,6 +477,7 @@ const mapStateToProps = state => {
     statusResult: state.statusResult,
     reqListSales: state.reqListSales,
     generateExpState: state.generateExpState,
+    ticketsSalesList: state.ticketsSalesList,
   };
 };
 
@@ -790,6 +486,7 @@ const mapDispatchToProps = {
   getStatus: Actions.getStatus,
   getReqSale : Actions.getReqSale,
   generateExp: Actions.generateExp,
+  getTicketsSales: Actions.getTicketsSales,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AirReqSalesClaimScreen);

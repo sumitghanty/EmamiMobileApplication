@@ -711,7 +711,7 @@ class SalesClaimReqScreen extends Component {
         newReq.vendor_id = this.state.vendorId;
         newReq.invoice_amount = this.state.invoiceAmnt;
         newReq.invoice_no = this.state.invNumber;
-        newReq.invoice_date = this.state.dateInv;
+        newReq.invoice_date = moment(this.state.dateInv).format("YYYY-MM-DD");
         newReq.invoice_currency = this.state.currency;
         newReq.v_hsn_code = this.state.hsncode;
         newReq.vendor_IGST = this.state.igst;
@@ -741,7 +741,7 @@ class SalesClaimReqScreen extends Component {
       }
 
       if(params.item.category_id == '7'){
-        newReq.travel_date = this.state.dateStart;
+        newReq.travel_date = moment(this.state.dateStart).format("YYYY-MM-DD");
         newReq.travel_time = this.state.time;
         newReq.travel_from = this.state.fromItem.Name;
         newReq.travel_to = this.state.toItem.Name;

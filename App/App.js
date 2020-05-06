@@ -361,11 +361,11 @@ const StackNavigator = createStackNavigator({
       title: 'Air Requisition'
     })
   },
-  AirReqClaimSales: {
+  AirReqSalesClaim: {
     screen:  AirReqSalesClaimScreen,
-    drawerLabel: "Air Requisition",
+    drawerLabel: "Air Travel",
     navigationOptions: ({ navigation }) => ({
-      title: 'Air Requisition'
+      title: 'Air Travel'
     })
   },
 });

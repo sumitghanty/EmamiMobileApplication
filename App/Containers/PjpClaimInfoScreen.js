@@ -393,12 +393,8 @@ class PjpClaimInfoScreen extends Component {
     return <TouchableOpacity 
       key={index} 
       style={styles.cardItem}
-      onPress={
-        (
-          ((parseInt(data.status_id) == 7 && (data.sub_status_id == '7.1' || data.sub_status_id == '7.2') ) ||
-          (parseInt(data.status_id) == 11 && data.sub_status_id == '11.1' )) && parseInt(data.mode) == 7
-        )
-        ?() => this.props.navigation.navigate('AirReqSales',{item, params, 'update':data,'estCost':this.state.estimatedCost,'actAmnt':this.state.actAmnt})
+      onPress={(data.flight_selected == 'Y')
+        ?() => this.props.navigation.navigate('AirReqSalesClaim',{item, params, 'update':data,'estCost':this.state.estimatedCost,'actAmnt':this.state.actAmnt})
         :() => this.props.navigation.navigate('SalesClaimReq',{item, params, 'update':data,'estCost':this.state.estimatedCost,'actAmnt':this.state.actAmnt})
       }>
       <View style={styles.cardItemHeader}>
