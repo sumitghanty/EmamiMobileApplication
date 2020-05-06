@@ -42,20 +42,10 @@ class SalesClaimReqScreen extends Component {
                 "Id": (params.update && params.update.dest_city) ? params.update.dest_city : 0},
       tripFromError: '',
       tripToError: '',
-      flightFromItem: {"Name": (params.update && params.update.travel_from) ? params.update.travel_from : "Select From Location", 
-                  "Value": "", "Code": "", 
-                "Id": (params.update && params.update.source_city) ? params.update.source_city : 0},
-      flightToItem: {"Name": (params.update && params.update.travel_to) ? params.update.travel_to : "Select To Location", 
-                "Value": "", "Code": "", 
-                "Id": (params.update && params.update.dest_city) ? params.update.dest_city : 0},
-      flightFromError: '',
-      flightToError: '',
       curDate: new Date,
       dateStart: new Date,
       mode: 'date',
       show: false,
-      travelDate: new Date,
-      travelDateShow: false,
       isLoading: false,
       hasError: false,
       error: false,
@@ -89,10 +79,6 @@ class SalesClaimReqScreen extends Component {
       cMinDate: new Date(),
       time: (params.update && params.update.travel_time) ? params.update.travel_time : SUIT_TIME[0],
       OOP: 'N',
-      type: (params.update && params.update.travel_type) ? params.update.travel_type : '',
-      email: (params.update && params.update.email) ? params.update.email : null,
-      emailError: false,
-      agent: (params.update && params.update.vendor_name) ? params.update.vendor_name : "",
       vendorId: (params.update && params.update.va_ta_id) ? params.update.va_ta_id :"0",
       aDistance: "0",
       timeCin: (params.update && params.update.claimdeparturetime) ?params.update.claimdeparturetime
@@ -110,11 +96,16 @@ class SalesClaimReqScreen extends Component {
       deductionAmount: '0.0',
       payableAmount: '0.0',
       invoiceAmnt: (params.update && params.update.invoice_amount) ? params.update.invoice_amount :null,
+      invoiceAmntError: null,
       currency: (params.update && params.update.invoice_currency) ? params.update.invoice_currency :null,
       cgst: (params.update && params.update.vendor_CGST) ? params.update.vendor_CGST :null,
       sgst: (params.update && params.update.vendor_SGST) ? params.update.vendor_SGST :null,
       igst: (params.update && params.update.vendor_IGST) ? params.update.vendor_IGST :null,
       hsncode: (params.update && params.update.v_hsn_code) ? params.update.v_hsn_code :null,
+      agntCgst: (params.update && params.update.ta_booking_CGST) ? params.update.ta_booking_CGST :null,
+      agntSgst: (params.update && params.update.ta_booking_IGST) ? params.update.ta_booking_IGST :null,
+      agntIgst: (params.update && params.update.ta_booking_SGST) ? params.update.ta_booking_SGST :null,
+      agntHsncode: (params.update && params.update.ta_hsn_code) ? params.update.ta_hsn_code :null,
       vPan: (params.update && params.update.vendor_pan) ? params.update.vendor_pan : null,
       gstVClassification: (params.update && params.update.gst_vendor_classification) ? params.update.gst_vendor_classification : null,
       vCity: (params.update && params.update.vendor_city) ? params.update.vendor_city : null,
@@ -132,6 +123,7 @@ class SalesClaimReqScreen extends Component {
       showField : (params.item.category_id == '1' || params.item.category_id == '2' || params.item.category_id == '8' || 
                   params.item.category_id == '9' || params.item.category_id == '10' || params.item.category_id == '11' || 
                   params.item.category_id == '12' || params.item.category_id == '18' || params.item.category_id == '19')?false:true,
+      tcktNumb: (params.update && params.update.hotel_address) ? params.update.ticket_number :null,
       uc: 'NA',
       hottelGenrateData: null
     };
@@ -146,7 +138,6 @@ class SalesClaimReqScreen extends Component {
       firstDay: new Date(year, month - 1, 1),
       lastDay: new Date(year, month, 0),
       dateStart: (params.update && params.update.pjp_date) ? params.update.pjp_date : new Date(year, month - 1, 1),
-      travelDate: (params.update && params.update.travel_date) ? params.update.travel_date : new Date(year, month - 1, 1),
       dateCin: (params.update && params.update.check_in_date) ? params.update.check_in_date : new Date(year, month - 1, 1),
       dateCout: (params.update && params.update.check_out_date) ? params.update.check_out_date : new Date(year, month - 1, 1),
       cMinDate: (params.update && params.update.pjp_date) ? params.update.pjp_date : new Date(year, month - 1, 1),
@@ -188,41 +179,31 @@ class SalesClaimReqScreen extends Component {
           this.setState({
             authority: this.props.vendorList.dataSource[0].vendor_name,
             gstin: this.props.vendorList.dataSource[0].gstin,
-            vendorId: this.props.hotelList.dataSource[i].vendor_id,
-            vPan: this.props.hotelList.dataSource[i].vendor_pan,
-            gstVClassification: this.props.hotelList.dataSource[i].gst_vendor_classification,
-            vCity: this.props.hotelList.dataSource[i].vendor_city,
-            vRg: this.props.hotelList.dataSource[i].vendor_rg,
+            vendorId: this.props.vendorList.dataSource[0].vendor_id,
+            vPan: this.props.vendorList.dataSource[0].vendor_pan,
+            gstVClassification: this.props.vendorList.dataSource[0].gst_vendor_classification,
+            vCity: this.props.vendorList.dataSource[0].vendor_city,
+            vRg: this.props.vendorList.dataSource[0].vendor_rg,
           });
         }
       });
     }
 
     if(params.item.category_id == '7'){
-      this.props.getTravelType()
+      this.props.getVendor('Air Travel')
       .then(()=>{
-        this.setState({
-          type: (params.update && params.update.travel_type) 
-                ? params.update.travel_type 
-                : this.props.travelTypeState.dataSource.length>0
-                  ?this.props.travelTypeState.dataSource[0].travel_type:''
-        });
-      })
-      this.props.getVendor("Travel Agent")
-      .then(()=>{
-        this.setState({
-          agent: (params.update && params.update.vendor_name) 
-                    ? params.update.vendor_name 
-                    :this.props.vendorList.dataSource.length>0
-                      ?this.props.vendorList.dataSource[0].vendor_name
-                      :'Not Defined',
-          vendorId: (params.update && params.update.va_ta_id) 
-                    ? params.update.va_ta_id 
-                    :this.props.vendorList.dataSource.length>0
-                      ?this.props.vendorList.dataSource[0].vendor_id
-                      :0
-        });
-      })
+        if(this.props.vendorList.dataSource.length>0) {
+          this.setState({
+            authority: this.props.vendorList.dataSource[0].vendor_name,
+            gstin: this.props.vendorList.dataSource[0].gstin,
+            vendorId: this.props.vendorList.dataSource[0].vendor_id,
+            vPan: this.props.vendorList.dataSource[0].vendor_pan,
+            gstVClassification: this.props.vendorList.dataSource[0].gst_vendor_classification,
+            vCity: this.props.vendorList.dataSource[0].vendor_city,
+            vRg: this.props.vendorList.dataSource[0].vendor_rg,
+          });
+        }
+      });
     }
 
     this.props.navigation.setParams({
@@ -285,50 +266,6 @@ class SalesClaimReqScreen extends Component {
   } 
   datepicker = () => {
     this.show('date');
-  }
-
-  setTravelDate = (event, date) => {
-    const {params} = this.props.navigation.state;
-    if(date != undefined) {
-      date = date || this.state.travelDate; 
-      this.setState({
-        show: Platform.OS === 'ios' ? true : false,
-        travelDate: date,
-      });
-    } else {
-      this.setState({
-        show: Platform.OS === 'ios' ? true : false,
-      });
-    }
-    this.setState({
-      show: Platform.OS === 'ios' ? true : false,
-    });
-  }
-
-  travelDateShow = mode => {
-    this.setTravelDate({
-      show: true,
-      mode,
-    });
-  } 
-  travelDatepicker = () => {
-    this.travelDateShow('date');
-  }
-
-  renderLocationAlert=()=> {
-    return(
-      Alert.alert(
-        "Warning",
-        "From and To can not be same.",
-        [
-          {
-            text: "Cancel",
-            style: 'cancel',
-          },
-        ],
-        { cancelable: false }
-      )
-    )
   }
 
   fromSelected(value){
@@ -471,85 +408,6 @@ class SalesClaimReqScreen extends Component {
     this.setState({modalFormVisible: visible});
   }
 
-  onValueChangeTime = (time) => {
-    this.setState({
-      time: time
-    });
-  } 
-
-  onValueChangeType = (value) => {
-    this.setState({
-      type: value
-    });
-  }
-
-  flightFromSelected(value){
-    AsyncStorage.getItem("ASYNC_STORAGE_FROM_KEY")
-    .then(() => {
-      this.setState({
-        flightFromItem: value,
-        flightFromError: '',
-      })
-    })
-    .then(()=>{
-      if(this.state.flightFromItem.Name == this.state.flightToItem.Name) {
-        this.renderLocationAlert();
-        this.setState({
-          flightFromItem: {"Name": "Select From Location", "Value": "", "Code": "", "Id":0},
-        })
-      }
-    })
-  }
-  
-  flightToSelected(value){
-    AsyncStorage.getItem("ASYNC_STORAGE_TO_KEY")
-    .then(() => {
-      this.setState({
-        flightToItem: value,
-        flightToError: ''
-      })
-    })
-    .then(()=>{
-      if(this.state.flightFromItem.Name == this.state.fightToItem.Name) {
-        this.renderLocationAlert();
-        this.setState({
-          flightToItem: {"Name": "Select To Location", "Value": "", "Code": "", "Id":0},
-        })
-      }
-    })
-  }
-
-  handleChangeEmail = (text) => {
-    let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/ ;
-    if(reg.test(text) === false)
-    {
-      this.setState({
-        email:text,
-        emailError: text.length>0?true: false
-      })
-      return false;
-    }
-    else {
-      this.setState({
-        email:text,
-        emailError: false
-      })
-    }
-  }
-
-  onValueChangeAgent = (value) => {
-    this.setState({
-      agent: value
-    });
-    for (var i=0; i<this.props.vendorList.dataSource.length; i++) {
-      if(this.props.vendorList.dataSource[i].vendor_name == value) {
-        this.setState({
-          vendorId: this.props.vendorList.dataSource[i].vendor_id
-        });
-      }
-    }
-  }
-
   setTimeCin = (event, timeCin) => {
     if(timeCin != undefined) {
       timeCin = timeCin || this.state.timeCin; 
@@ -623,6 +481,7 @@ class SalesClaimReqScreen extends Component {
   handleInvoiceAmnt = (amnt) => {
     this.setState({ 
       invoiceAmnt: amnt,
+      invoiceAmntError: null
     })
   }
 
@@ -656,6 +515,36 @@ class SalesClaimReqScreen extends Component {
     })
   }
 
+  handleAgntCgst = (amnt) => {
+    this.setState({ 
+      agntCcgst: amnt,
+    })
+  }
+
+  handleAgntSgst = (amnt) => {
+    this.setState({ 
+      agntSgst: amnt,
+    })
+  }
+
+  handleAgntIgst = (amnt) => {
+    this.setState({ 
+      agntIgst: amnt,
+    })
+  }
+
+  handleAgntHsnCode = (text) => {
+    this.setState({ 
+      agntHsncode: text,
+    })
+  }
+  
+  handletcktNumb = (text) => {
+    this.setState({ 
+      tcktNumb: text,
+    })
+  }
+
   datepickerInv = () => {
     this.showInvDate('date');
   }
@@ -676,16 +565,16 @@ class SalesClaimReqScreen extends Component {
   }
 
   onValueChangeAuthority = (value) => {
-    for(var i=0; i<this.props.hotelList.dataSource.length; i++) {
-      if(this.props.hotelList.dataSource[i].vendor_name == value){
+    for(var i=0; i<this.props.vendorList.dataSource.length; i++) {
+      if(this.props.vendorList.dataSource[i].vendor_name == value){
         this.setState({
           authority: value,
-          gstin: this.props.hotelList.dataSource[i].gstin,
-          vendorId: this.props.hotelList.dataSource[i].vendor_id,
-          vPan: this.props.hotelList.dataSource[i].vendor_pan,
-          gstVClassification: this.props.hotelList.dataSource[i].gst_vendor_classification,
-          vCity: this.props.hotelList.dataSource[i].vendor_city,
-          vRg: this.props.hotelList.dataSource[i].vendor_rg,
+          gstin: this.props.vendorList.dataSource[i].gstin,
+          vendorId: this.props.vendorList.dataSource[i].vendor_id,
+          vPan: this.props.vendorList.dataSource[i].vendor_pan,
+          gstVClassification: this.props.vendorList.dataSource[i].gst_vendor_classification,
+          vCity: this.props.vendorList.dataSource[i].vendor_city,
+          vRg: this.props.vendorList.dataSource[i].vendor_rg,
         });
       }
     }
@@ -714,8 +603,7 @@ class SalesClaimReqScreen extends Component {
     if((this.state.showField && (!this.state.fromItem.Name || this.state.fromItem.Name == "Select From Location" ||
     !this.state.toItem.Name || this.state.toItem.Name == "Select To Location")) ||
     (params.item.category_id == '3' && !this.state.msg) ||
-    (params.item.category_id == '7' && (!this.state.flightFromItem.Name || this.state.flightFromItem.Name == "Select From Location" ||
-    !this.state.flightToItem.Name || this.state.flightToItem.Name == "Select To Location" || this.state.emailError))    
+    (params.item.category_id == '7' && !this.state.invoiceAmnt)
     ){
       if(!this.state.fromItem.Name || this.state.fromItem.Name == "Select From Location") {
         this.setState({
@@ -732,19 +620,9 @@ class SalesClaimReqScreen extends Component {
           msgError: 'Please enter proper Justification.',
         });
       }
-      if(params.item.category_id == '7' && (!this.state.flightFromItem.Name || this.state.flightFromItem.Name == "Select From Location")) {
+      if(params.item.category_id == '7' && !this.state.invoiceAmnt) {
         this.setState({
-          flightFromError: 'Please select flight From'
-        });
-      }
-      if(params.item.category_id == '7' && (!this.state.flightToItem.Name || this.state.flightToItem.Name == "Select To Location")) {
-        this.setState({
-          flightToError: 'Please select flight To'
-        });
-      }
-      if (params.item.category_id == '7' && this.state.emailError) {
-        this.setState({
-          emailError: 'Email is not valid.',
+          invoiceAmntError: 'Please enter Invoice Amount.',
         });
       }
     } else {
@@ -863,23 +741,30 @@ class SalesClaimReqScreen extends Component {
       }
 
       if(params.item.category_id == '7'){
-        newReq.travel_date = this.state.travelDate;
-        newReq.travel_type = this.state.type;
+        newReq.travel_date = this.state.dateStart;
         newReq.travel_time = this.state.time;
-        newReq.travel_from = this.state.flightFromItem.Name;
-        newReq.travel_to = this.state.flightToItem.Name;
-        newReq.email = this.state.email;
+        newReq.travel_from = this.state.fromItem.Name;
+        newReq.travel_to = this.state.toItem.Name;
         newReq.through = this.state.through;
         newReq.amount_mode = this.state.maxAmount;
         newReq.comment = this.state.msg;          
-        newReq.vendor_name = this.state.through == "Self" ? params.params.name
-                            : this.props.vendorList.dataSource.length>0 ? this.state.agent
-                            :'Not Defined';
-        newReq.va_ta_id = (this.state.through == "Travel Agent" && this.props.vendorList.dataSource.length>0) ? this.state.vendorId
-                            : 0;
-        if(this.state.through == "Self") {
-          newReq.is_outof_policy = "N"
-        }
+        newReq.vendor_name = 'Not Defined';
+        newReq.va_ta_id = 0;
+        newReq.is_outof_policy = "N"
+        newReq.v_hsn_code = this.state.hsncode;
+        newReq.vendor_IGST = this.state.igst;
+        newReq.vendor_SGST = this.state.sgst;
+        newReq.vendor_CGST = this.state.cgst;
+        newReq.ta_hsn_code = this.state.agntHsncode;
+        newReq.ta_booking_SGST = this.state.agntIgst;
+        newReq.ta_booking_IGST = this.state.agntSgst;
+        newReq.ta_booking_CGST = this.state.agntCgst;
+        newReq.invoice_amount = this.state.invoiceAmnt;
+        newReq.invoice_no = this.state.invNumber;
+        newReq.invoice_date = this.state.dateInv;
+        newReq.issuing_authorityName = this.state.authority;
+        newReq.vendor_id = this.state.vendorId;
+        newReq.ticket_number = this.state.tcktNumb;
       }
     })
     .then(()=>{
@@ -1017,17 +902,17 @@ class SalesClaimReqScreen extends Component {
     const {params} = this.props.navigation.state;
     console.log(params)
     if(this.state.isLoading || (this.state.showField && this.props.locations.isLoading) || this.props.statusResult.isLoading 
-      || this.props.maxAmntState.isLoading||
-      (params.item.category_id == '7' && (this.props.vendorList.isLoading || this.props.travelTypeState.isLoading) ) ||
-      (params.item.category_id == '3' && this.props.vendorList.isLoading)
+      || this.props.maxAmntState.isLoading ||
+      (params.item.category_id == '3' && this.props.vendorList.isLoading)||
+      (params.item.category_id == '7' && this.props.vendorList.isLoading)
       ){
       return(
         <Loader/>
       )
     } else if( (this.state.showField && this.props.locations.errorStatus) || this.props.statusResult.errorStatus
       || this.props.maxAmntState.errorStatus ||
-      (params.item.category_id == '7' && (this.props.vendorList.errorStatus || this.props.travelTypeState.errorStatus) ) ||
       (params.item.category_id == '3' && this.props.vendorList.errorStatus) ||
+      (params.item.category_id == '7' && this.props.vendorList.errorStatus) ||
       this.state.hasError
       ) {
       return(
@@ -1394,178 +1279,194 @@ class SalesClaimReqScreen extends Component {
 
           {params.item.category_id == '7' ?<>
           <Item fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Travel Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
-            <TouchableOpacity onPress={this.travelDatepicker} style={styles.datePicker}>
-              <Text style={styles.datePickerLabel}>{moment(this.state.travelDate).format("DD-MM-YYYY")}</Text>
+            <Label style={[styles.formLabel,styles.formLabelLong]}>Eligible Amount @ Flight:</Label>
+            <Text style={[styles.formInput,styles.readOnly,styles.formInputShot]}>
+              {(params.item.upper_limit && params.item.upper_limit != 'On Actual')?params.item.upper_limit:0}
+            </Text>
+          </Item>
+          <Item fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Invoice Amount:</Label>
+            <TextInput 
+              placeholder='0.0' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.invoiceAmnt}
+              keyboardType="decimal-pad"
+              autoCapitalize="words"
+              onSubmitEditing={() => this.refs.tcktNumb.focus()}
+              onChangeText={this.handleInvoiceAmnt} />
+          </Item>
+          {this.state.invoiceAmntError &&
+            <Text style={styles.errorText}>{this.state.invoiceAmntError}</Text>
+          }
+          <Item fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Ticket Number:</Label>
+            <TextInput 
+              ref='tcktNumb'
+              //placeholder='' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.tcktNumb}
+              onSubmitEditing={() => this.refs.invNumberInput.focus()}
+              onChangeText={this.handletcktNumb} />
+          </Item>          
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Invoice Number:</Label>
+            <TextInput 
+              ref='invNumberInput'
+              placeholder='Enter Invoice number' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.invNumber}
+              returnKeyType="next"
+              onChangeText={this.handleInvoiceNumber} />
+          </Item>          
+          <Item fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Invoice Date:</Label>
+            <TouchableOpacity onPress={this.datepickerInv} style={styles.datePicker}>
+              <Text style={styles.datePickerLabel}>{moment(this.state.dateInv).format(global.DATEFORMAT)}</Text>
               <Icon name="calendar" style={styles.datePickerIcon} />
             </TouchableOpacity>
           </Item>
-          { this.state.show && 
-          <DateTimePicker value={new Date(moment(this.state.travelDate).format('YYYY-MM-DD'))}
-            mode="date"
-            minimumDate={this.state.firstDay}
-            maximumDate={this.state.lastDay}
+          { this.state.showInv && 
+          <DateTimePicker value={new Date(moment(this.state.dateInv).format('YYYY-MM-DD'))}
+            mode={this.state.modeDate}
             display="default"
-            onChange={this.setTravelDate} />
-          }
-          <Item fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Eligible Amount @ Flight:</Label>
-            <Text style={[styles.formInput,styles.readOnly]}>
-              {this.state.days * this.state.maxAmount}
-            </Text>
-          </Item>
-          <Item picker fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Suitable Time:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
-            <Picker
-              mode="dropdown"
-              placeholder="Select Travel Time" 
-              selectedValue = {this.state.time} 
-              onValueChange = {this.onValueChangeTime}                
-              style={styles.formInput}
-              prompt="Select Travel Time">
-              {SUIT_TIME.map((item, index) => {
-              return (
-                <Picker.Item label={item} value={item} key={index} />
-              );
-              })}
-            </Picker>
-          </Item>
-          <Item fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Travel Type:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
-            <Picker
-              mode="dropdown"
-              placeholder="Travel Type"
-              selectedValue={this.state.type}
-              onValueChange={this.onValueChangeType}                
-              style={styles.formInput}
-              prompt="Select Travel Type"
-              >
-              {this.props.travelTypeState.dataSource.map((item, index) => {
-              return (
-                <Picker.Item label={item.travel_type} value={item.travel_type} key={index} />
-              );
-              })}
-            </Picker>
-          </Item>
-          <Item picker fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Flight From:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
-            <View style={styles.pickerWraper}>
-              <PickerModal
-                renderSelectView={(disabled, selected, showModal) =>
-                  <TouchableOpacity style={styles.pickerBtn} onPress={showModal}>
-                    <Text style={styles.pickerBtnText}>{this.state.flightFromItem.Name}</Text>
-                    <Icon name="arrow-dropdown" style={styles.pickerBtnIcon} />
-                  </TouchableOpacity>
-                }
-                onSelected={this.flightFromSelected.bind(this)}
-                onClosed={()=>{}}
-                //onBackButtonPressed={()=>{}}
-                items={this.state.locationList}
-                //sortingLanguage={'tr'}
-                showToTopButton={true}
-                selected={this.state.flightFromItem}
-                showAlphabeticalIndex={true}
-                autoGenerateAlphabeticalIndex={true}
-                selectPlaceholderText={'Choose one...'}
-                onEndReached={() => console.log('list ended...')}
-                searchPlaceholderText={'Search...'}
-                requireSelection={false}
-                autoSort={false}
-              />
-            </View>
-          </Item>
-          {this.state.flightFromError.length>0 &&
-            <Text style={styles.errorText}>{this.state.flightFromError}</Text>
+            onChange={this.setDateInv} />
           }
           <Item picker fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Flight To:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
-            <View style={styles.pickerWraper}>
-              <PickerModal
-                renderSelectView={(disabled, selected, showModal) =>
-                  <TouchableOpacity style={styles.pickerBtn} onPress={showModal}>
-                    <Text style={styles.pickerBtnText}>{this.state.flightToItem.Name}</Text>
-                    <Icon name="arrow-dropdown" style={styles.pickerBtnIcon} />
-                  </TouchableOpacity>
-                }
-                onSelected={this.flightToSelected.bind(this)}
-                onClosed={()=>{}}
-                //onBackButtonPressed={()=>{}}
-                items={this.state.locationList}
-                showToTopButton={true}
-                selected={this.state.flightToItem}
-                showAlphabeticalIndex={true}
-                autoGenerateAlphabeticalIndex={true}
-                selectPlaceholderText={'Choose one...'}
-                onEndReached={() => console.log('list ended...')}
-                searchPlaceholderText={'Search...'}
-                requireSelection={false}
-                autoSort={false}
-              />
-            </View>
-          </Item>
-          {this.state.flightToError.length>0 &&
-            <Text style={styles.errorText}>{this.state.flightToError}</Text>
-          }          
-          <Item fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Email:</Label>
-            <TextInput 
-              autoCompleteType="email" 
-              type="email"
-              value={this.state.email}
-              style={[styles.formInput,styles.inputType]} 
-              placeholder="Enter your email"
-              keyboardType="email-address"
-              underlineColorAndroid= "rgba(0,0,0,0)"
-              onChangeText={this.handleChangeEmail} />
-          </Item>
-          {this.state.emailError &&
-            <Text style={styles.errorText}>{this.state.emailError}</Text>
-          }
-          <Item picker fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Through:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <Label style={styles.formLabel}>Issuing Authority:</Label>
             <Picker
-              mode="dropdown"
-              placeholder="Select Through"
-              selectedValue={this.state.through}
-              onValueChange={this.onValueChangeThrough}
+              placeholder="Issuing Authority"
+              selectedValue={this.state.authority}
+              onValueChange={this.onValueChangeAuthority}
               style={styles.formInput}
-              prompt="Select Through"
+              prompt="Select Issuing Authority"
               >
-                <Picker.Item label="Self" value="Self" />
-                <Picker.Item label="Travel Agent" value="Travel Agent" />
-              {/*this.props.travelThroughState.dataSource.map((item, index) => {
-                return (
-                  <Picker.Item label={item.travel_through_type} value={item.travel_through_type} key={index} />
-                );
-              })*/}
-            </Picker>
-          </Item>
-          {this.state.through == "Travel Agent" ?
-          <Item picker fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Travel Agent Name:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
-            <Picker
-              //mode="dropdown"
-              placeholder="Select Travel Agent Name"
-              selectedValue={this.state.agent}
-              onValueChange={this.onValueChangeAgent}
-              style={styles.formInput}
-              prompt="Select Travel Agent Name"
-              >
-              {this.props.vendorList.dataSource.map((item, index) => {
+                {this.props.vendorList.dataSource.map((item, index) => {
                 return (
                   <Picker.Item label={item.vendor_name} value={item.vendor_name} key={index} />
                 );
               })}
             </Picker>
-          </Item>:
-          <Item fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Name:</Label>
-            <Text style={[styles.formInput,styles.readOnly]}>{params.params.name}</Text>
           </Item>
-          }
-          <Text style={[styles.formLabel,styles.inputLabel]}>Justification:<Text style={{color:'red',fontSize:13}}>*</Text></Text>
+
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={[styles.formLabel,styles.formLabelLong]}>Vendor CGST Amount:</Label>
+            <TextInput 
+              ref='cgst'
+              onSubmitEditing={() => this.refs.sgst.focus()}
+              placeholder='0.0' 
+              style={[styles.formInput,styles.formInputShot]}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.cgst}
+              keyboardType="decimal-pad"
+              autoCapitalize="words"
+              returnKeyType="next"
+              onChangeText={this.handleCgst} />
+          </Item>
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={[styles.formLabel,styles.formLabelLong]}>Vendor SGST Amount:</Label>
+            <TextInput 
+              ref='sgst'
+              onSubmitEditing={() => this.refs.igst.focus()}
+              placeholder='0.0' 
+              style={[styles.formInput,styles.formInputShot]}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.sgst}
+              keyboardType="decimal-pad"
+              autoCapitalize="words"
+              returnKeyType="next"
+              onChangeText={this.handleSgst} />
+          </Item>
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={[styles.formLabel,styles.formLabelLong]}>Vendor IGST Amount:</Label>
+            <TextInput 
+              ref='igst'
+              onSubmitEditing={() => this.refs.hsncode.focus()}
+              placeholder='0.0'
+              style={[styles.formInput,styles.formInputShot]}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.igst}
+              keyboardType="decimal-pad"
+              autoCapitalize="words"
+              returnKeyType="next"
+              onChangeText={this.handleIgst} />
+          </Item>
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={[styles.formLabel,styles.formLabelLong]}>Vendor HSN Code:</Label>
+            <TextInput 
+              ref='hsncode'
+              onSubmitEditing={() => this.refs.agntCgst.focus()}
+              placeholder='HSN Code' 
+              style={[styles.formInput,styles.formInputShot]}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.hsncode}
+              returnKeyType="next"
+              //maxLength={6}
+              onChangeText={this.handleHsnCode} />
+          </Item>
+          
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={[styles.formLabel,styles.formLabelLong]}>Travel Agent's CGST Amount:</Label>
+            <TextInput 
+              ref='agntCgst'
+              onSubmitEditing={() => this.refs.agntSgst.focus()}
+              placeholder='0.0' 
+              style={[styles.formInput,styles.formInputShot]}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.agntCgst}
+              keyboardType="decimal-pad"
+              autoCapitalize="words"
+              returnKeyType="next"
+              onChangeText={this.handleAgntCgst} />
+          </Item>
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={[styles.formLabel,styles.formLabelLong]}>Travel Agent's SGST Amount:</Label>
+            <TextInput 
+              ref='agntSgst'
+              onSubmitEditing={() => this.refs.agntIgst.focus()}
+              placeholder='0.0' 
+              style={[styles.formInput,styles.formInputShot]}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.agntSgst}
+              keyboardType="decimal-pad"
+              autoCapitalize="words"
+              returnKeyType="next"
+              onChangeText={this.handleAgntSgst} />
+          </Item>
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={[styles.formLabel,styles.formLabelLong]}>Travel Agent's IGST Amount:</Label>
+            <TextInput 
+              ref='agntIgst'
+              onSubmitEditing={() => this.refs.agntHsncode.focus()}
+              placeholder='0.0'
+              style={[styles.formInput,styles.formInputShot]}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.agntIgst}
+              keyboardType="decimal-pad"
+              autoCapitalize="words"
+              returnKeyType="next"
+              onChangeText={this.handleAgntIgst} />
+          </Item>
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={[styles.formLabel,styles.formLabelLong]}>Travel Agent's HSN Code:</Label>
+            <TextInput 
+              ref='agntHsncode'
+              onSubmitEditing={() => this.refs.msg.focus()}
+              placeholder='HSN Code' 
+              style={[styles.formInput,styles.formInputShot]}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.agntHsncode}
+              returnKeyType="next"
+              //maxLength={6}
+              onChangeText={this.handleAgntHsnCode} />
+          </Item>
+          
+          <Text style={[styles.formLabel,styles.inputLabel]}>Comments:</Text>
           <TextInput 
-            placeholder='Enter your justification' 
+            ref='msg'
+            placeholder='Enter comments' 
             style={styles.textArea}
             underlineColorAndroid= "rgba(0,0,0,0)"
             value = {this.state.msg}
@@ -1582,7 +1483,7 @@ class SalesClaimReqScreen extends Component {
             colors={['#53c55c', '#33b8d6']} 
             style={styles.ftrBtnBg}>
             <Icon name='done-all' style={styles.ftrBtnIcon} />
-            <Text style={styles.ftrBtnTxt}>Save</Text>
+            <Text style={styles.ftrBtnTxt}>Save Requisition</Text>
           </LinearGradient>
         </TouchableOpacity>
         
@@ -1777,7 +1678,7 @@ class SalesClaimReqScreen extends Component {
                 onChangeText={this.handleInvoiceNumber} />
             </Item>
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Invoice Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <Label style={styles.formLabel}>Invoice Date:</Label>
               <TouchableOpacity onPress={this.datepickerInv} style={styles.datePicker}>
                 <Text style={styles.datePickerLabel}>{moment(this.state.dateInv).format(global.DATEFORMAT)}</Text>
                 <Icon name="calendar" style={styles.datePickerIcon} />
@@ -1876,7 +1777,6 @@ const mapStateToProps = state => {
     reqListSales: state.reqListSales,
     generateExpState: state.generateExpState,
     maxAmntState: state.maxAmntState,
-    travelTypeState: state.travelTypeState,
     vendorList: state.vendorList,
     hotelList: state.hotelList,
     pjpClaimTot: state.pjpClaimTot,
@@ -1894,7 +1794,6 @@ const mapDispatchToProps = {
   getReqSale : Actions.getReqSale,
   generateExp: Actions.generateExp,
   getMaxAmnt: Actions.getMaxAmnt,
-  getTravelType: Actions.getTravelType,
   getVendor: Actions.getVendor,  
   getHotels: Actions.getHotels,
   postPjpClaimTot: Actions.postPjpClaimTot,

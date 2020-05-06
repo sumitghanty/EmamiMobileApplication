@@ -44,6 +44,7 @@ import TicketsSalesReducer from './GetTicketsSales'
 import TripEndDateUpdateReducer from './TripEndDateUpdate'
 import PlansSubmitReducer from './PlansSubmit'
 import UpdateVndAirResReducer from './UpdateVndAirRes'
+import UpdateVndAirResSalesReducer from './UpdateVndAirResSales'
 import ExpListReducer from './ExpList'
 import updtReqNSBDReducer from './updtReqNSBD'
 import TrpNSClmDtlUpdtReducer from './TrpNSClmDtlUpdt'
@@ -119,6 +120,7 @@ export default {
 	tripEndDateUpdatePost:TripEndDateUpdateReducer,
 	plansSubmitState:PlansSubmitReducer,
 	updateVndAirResState: UpdateVndAirResReducer,
+	updateVndAirResSalesState: UpdateVndAirResSalesReducer,
 	expenses:ExpListReducer,
 	updtReqNSBDState:updtReqNSBDReducer,
 	trpNSClmDtlUpdtState:TrpNSClmDtlUpdtReducer,

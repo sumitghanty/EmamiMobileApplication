@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
-import { View, Alert, TouchableOpacity, FlatList} from "react-native";
+import { View, Alert, TouchableOpacity, FlatList, Linking} from "react-native";
 import { Container, Content, Button, Text, Icon, Card, CardItem  } from 'native-base';
 import { connect } from 'react-redux'
 import Actions from '../redux/actions'
-import {API_URL} from '../config'
 import Loader from '../Components/Loader'
 import SearchInput, { createFilter } from 'react-native-search-filter'
 import Vicon from 'react-native-vector-icons/Ionicons'
 import LinearGradient from 'react-native-linear-gradient'
 import moment from 'moment'
 import 'moment-precise-range-plugin'
+import Ficon from 'react-native-vector-icons/FontAwesome5'
 
 import styles from './Styles/PjpClaimListScreen'
 
@@ -28,6 +28,16 @@ class PjpClaimListScreen extends Component {
   }
   componentDidMount(){
     this.props.getPjpClaim(global.USER.userId,STATUS_ID);
+  }
+
+  downloadPdf = (file) => {
+    Linking.canOpenURL(file).then(supported => {
+      if (supported) {
+        Linking.openURL(file);
+      } else {
+        console.log("Don't know how to open URI: " + this.props.url);
+      }
+    });
   }
 
   setAge = (date) => {
@@ -73,7 +83,7 @@ class PjpClaimListScreen extends Component {
           :<View>
             {sortList.map((item, index) => {
             return (
-              (parseInt(item.status_id) != 21 && parseInt(item.status_id) != 24)?
+              (parseInt(item.status_id) != 21 && parseInt(item.status_id) != 22 && parseInt(item.status_id) != 24)?
                 <TouchableOpacity key={index} onPress={() => this.props.navigation.navigate('PjpClaimInfo',item)}>
                   {this.renderItem(item)}
                 </TouchableOpacity>
@@ -94,8 +104,13 @@ class PjpClaimListScreen extends Component {
       <CardItem header style={styles.itemHeader}>
         <Text style={styles.headerLabel}>PJP ID:</Text>
         <Text style={styles.headerValue}>{item.trip_no ?item.trip_no:''}</Text>
-        {(parseInt(item.status_id) != 21 && parseInt(item.status_id) != 24)?
+        {(parseInt(item.status_id) != 21 && parseInt(item.status_id) != 22 && parseInt(item.status_id) != 24)?
         <Icon name="md-arrow-round-forward" style={styles.arrowbtn}/>
+        :(parseInt(item.status_id) == 24)?
+        <TouchableOpacity style={styles.fPdfLink} onPress={()=>this.downloadPdf('https://www.google.com/')}>
+          <Ficon name="file-pdf" style={styles.fPdfLinkIcon}/>
+          <Text style={styles.fPdfLinkText}>DOWNLOAD</Text>
+        </TouchableOpacity>
         :null}
       </CardItem>
       <CardItem style={styles.itemBody}>

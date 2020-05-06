@@ -1129,7 +1129,7 @@ class SalesReqScreen extends Component {
             colors={['#53c55c', '#33b8d6']} 
             style={styles.ftrBtnBg}>
             <Icon name='done-all' style={styles.ftrBtnIcon} />
-            <Text style={styles.ftrBtnTxt}>Save</Text>
+            <Text style={styles.ftrBtnTxt}>Save Requisition</Text>
           </LinearGradient>
         </TouchableOpacity>
         

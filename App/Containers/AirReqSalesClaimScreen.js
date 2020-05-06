@@ -19,7 +19,7 @@ import styles from './Styles/AirRequisitionScreen';
 
 const SUIT_TIME = ['Morning', 'Afternoon', 'Evening', 'Night'];
 
-class AirReqSalesScreen extends Component {
+class AirReqSalesClaimScreen extends Component {
 
   static navigationOptions = ({ navigation }) => {
     const handleClearPress = navigation.getParam("handleBackPress", () => {});
@@ -780,26 +780,16 @@ const mapStateToProps = state => {
   return {
     updtReqSaleState: state.updtReqSaleState,
     statusResult: state.statusResult,
-    ticketsSalesList: state.ticketsSalesList,
-    updateVndAirResSalesState: state.updateVndAirResSalesState,
-    attachmentState: state.attachmentState,
-    attachmentList: state.attachmentList,
-    pjpTotalState: state.pjpTotalState,
     reqListSales: state.reqListSales,
-    pjp : state.pjp,
+    generateExpState: state.generateExpState,
   };
 };
 
 const mapDispatchToProps = {
   updtReqSale: Actions.updtReqSale,
   getStatus: Actions.getStatus,
-  getTicketsSales: Actions.getTicketsSales,
-  updateVndAirResSales: Actions.updateVndAirResSales,
-  attachment: Actions.attachment,
-  getAttachments: Actions.getAttachments,
-  pjpTotal: Actions.pjpTotal,
   getReqSale : Actions.getReqSale,
-  getPjp : Actions.getPjp,
+  generateExp: Actions.generateExp,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(AirReqSalesScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(AirReqSalesClaimScreen);

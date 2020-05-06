@@ -25,8 +25,8 @@ export default StyleSheet.create({
   itemHeader: {
     paddingLeft: 16,
     paddingRight: 8,
-    paddingTop: 10,
-    paddingBottom: 10,
+    paddingTop: 6,
+    paddingBottom: 6,
     backgroundColor: '#0066b3',
   },
   headerLabel: {
@@ -34,7 +34,8 @@ export default StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     textTransform: 'uppercase',
-    marginRight: 10
+    marginRight: 10,
+    marginVertical: 6
   },
   headerValue: {
     fontSize: 14,
@@ -136,5 +137,23 @@ export default StyleSheet.create({
       textAlign: 'center',
       margin: 30,
       color: 'rgba(0,0,0,.5)'
+  },
+  fPdfLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 16,
+    backgroundColor: '#ff5726',
+  },
+  fPdfLinkIcon: {
+    fontSize: 18,
+    color: '#fff',
+    marginRight: 8
+  },
+  fPdfLinkText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#fff'
   }
 });

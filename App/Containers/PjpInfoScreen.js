@@ -422,7 +422,8 @@ class PjpInfoScreen extends Component {
       style={styles.cardItem}
       onPress={
         (
-          ((parseInt(data.status_id) == 7 && (data.sub_status_id == '7.1' || data.sub_status_id == '7.2') ) ||
+          ((parseInt(data.status_id) == 7 /*&& (data.sub_status_id == '7.1' || data.sub_status_id == '7.2' || 
+          ((data.sub_status_id == '7.4' || data.sub_status_id == '7.3') && data.flight_selected == 'Y'))*/ ) ||
           (parseInt(data.status_id) == 11 && data.sub_status_id == '11.1' )) && parseInt(data.mode) == 7
         )
         ?() => this.props.navigation.navigate('AirReqSales',{item, params, 'update':data,'estCost':this.state.actAmnt})

@@ -44,6 +44,7 @@ import {getTicketsSales} from './GetTicketsSales'
 import {tripEndDateUpdate} from './TripEndDateUpdate'
 import {plansSubmit} from './PlansSubmit'
 import {updateVndAirRes} from './UpdateVndAirRes'
+import {updateVndAirResSales} from './UpdateVndAirResSales'
 import {getExpenses} from './ExpList'
 import {updtReqNSBD} from  './updtReqNSBD'
 import {trpNSClmDtlUpdt} from  './TrpNSClmDtlUpdt'
@@ -118,6 +119,7 @@ export default {
 	tripEndDateUpdate:tripEndDateUpdate,
 	plansSubmit:plansSubmit,
 	updateVndAirRes:updateVndAirRes,
+	updateVndAirResSales:updateVndAirResSales,
 	getExpenses:getExpenses,
 	getReqClaimType:getReqClaimType,
 	updtReqNSBD:updtReqNSBD,

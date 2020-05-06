@@ -32,7 +32,13 @@ export default StyleSheet.create({
     flex: 1,
     paddingRight: 16,
     fontSize: 16
-  }, 
+  },
+  formLabelLong: {
+    flex: 5
+  },
+  formInputShot: {
+    flex: 2
+  },
   attachType: {
     marginHorizontal: 16,
     fontSize: 12,

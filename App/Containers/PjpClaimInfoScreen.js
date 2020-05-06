@@ -186,10 +186,6 @@ class PjpClaimInfoScreen extends Component {
                 text: 'Cancel',
                 style: 'cancel',
               },
-              {
-                text: 'Yes', 
-                onPress: () => this.removeItem(e)
-              },
             ],
             {cancelable: true},
           )

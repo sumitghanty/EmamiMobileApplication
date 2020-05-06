@@ -12,7 +12,7 @@ import 'moment-precise-range-plugin'
 import styles from './Styles/ExpensesListScreen'
 
 const KEYS_TO_FILTERS = ['trip_no', 'start_date', 'end_date', 'trip_from', 'trip_to', 'status','payment_amount','estimated_cost','actual_claim_amount','currency','actual_claim_currency'];
-const STATUS_ID = ["3","4","9","11","15","17","19","20","23","25","27","29"];
+const STATUS_ID = ["3","4","9","11","15","17","19","20","21","22","23","25","27","29"];
 
 class ExpensesListScreen extends Component {  
   constructor(){ 

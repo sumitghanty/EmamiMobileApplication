@@ -48,6 +48,7 @@ import PjpClaimListScreen from './Containers/PjpClaimListScreen'
 import PjpClaimInfoScreen from './Containers/PjpClaimInfoScreen'
 import SalesClaimReqScreen from './Containers/SalesClaimReqScreen'
 import AirReqSalesScreen from './Containers/AirReqSalesScreen'
+import AirReqSalesClaimScreen from './Containers/AirReqSalesClaimScreen'
 
 class MenuBtn extends Component {
   toggleDrawer = () => {
@@ -352,9 +353,16 @@ const StackNavigator = createStackNavigator({
     navigationOptions: ({ navigation }) => ({
       title: 'Create/Update Line Item'
     })
-  },  
+  },
   AirReqSales: {
     screen:  AirReqSalesScreen,
+    drawerLabel: "Air Requisition",
+    navigationOptions: ({ navigation }) => ({
+      title: 'Air Requisition'
+    })
+  },
+  AirReqClaimSales: {
+    screen:  AirReqSalesClaimScreen,
     drawerLabel: "Air Requisition",
     navigationOptions: ({ navigation }) => ({
       title: 'Air Requisition'
