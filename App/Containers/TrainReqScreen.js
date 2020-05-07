@@ -442,6 +442,10 @@ class TrainReqScreen extends Component {
     })
   }
 
+  onValueChangeUploadType = (value) => {
+    this.setState({ curUploadType: value });
+  }
+
   uploadRequest = ()=> {
     if(this.state.attachFiles.length<=0) {
       Alert.alert(

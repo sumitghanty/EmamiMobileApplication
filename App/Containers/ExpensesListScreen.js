@@ -80,26 +80,26 @@ class ExpensesListScreen extends Component {
             </CardItem>
             <CardItem style={styles.itemBody}>
               <View style={styles.itemInfo}>
-                {item.start_date &&
+                {item.start_date?
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Start Date:</Text>
                   <Text style={styles.itemValue}>{moment(item.start_date).format(global.DATEFORMAT)}</Text>
-                </View>}
-                {item.end_date &&
+                </View>:null}
+                {item.end_date?
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>End Date:</Text>
                   <Text style={styles.itemValue}>{moment(item.end_date).format(global.DATEFORMAT)}</Text>
-                </View>}
-                {item.trip_from &&
+                </View>:null}
+                {item.trip_from?
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Trip From:</Text>
                   <Text style={styles.itemValue}>{item.trip_from}</Text>
-                </View>}
-                {item.trip_to &&
+                </View>:null}
+                {item.trip_to?
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Trip To:</Text>
                   <Text style={styles.itemValue}>{item.trip_to}</Text>
-                </View>}
+                </View>:null}
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Advance Payment amount:</Text>
                   <Text style={styles.itemValue}>
@@ -125,13 +125,13 @@ class ExpensesListScreen extends Component {
                   <Text style={styles.itemLabel}>Ageing:</Text>
                   <Text style={styles.itemValue}>{this.setAge(item.payment_submit_date)}</Text>
                 </View>
-                {item.status &&
+                {item.status?
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Status:</Text>
                   <Text style={[styles.itemValue, styles.statusInitiated]}>
                     {(item.sub_status && item.sub_status!='NA')?item.sub_status:item.status}
                   </Text>
-                </View>}
+                </View>:null}
               </View>
             </CardItem>
           </Card>

@@ -327,7 +327,7 @@ class TripPlanScreen extends Component {
           })
           .then(()=>{
             this.props.plansSubmit(newList)
-            /*.then(()=>{
+            .then(()=>{
               this.props.sendEmail({
                 "mailId": params.pending_with_email,
                 "cc": null,
@@ -335,7 +335,7 @@ class TripPlanScreen extends Component {
                 "tripNonSales": params,
                 "requisitionNonSales": {"sub_status_id":'8.1'}
               })
-            })*/
+            })
             .then(()=>{
               this.props.getTrips(global.USER.userId)
               .then(()=>{

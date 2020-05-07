@@ -496,12 +496,10 @@ class TaxiRequisitionScreen extends Component {
           newReq.travel_to = this.state.toLocation;
           newReq.creation_date = moment(this.state.curDate).format("YYYY-MM-DD");
           newReq.status_id = params.claim?"20":"7";
-          newReq.sub_status_id = params.claim?"NA"
-                                ?params.item.sub_category_id == '11':'7.4'
-                                :"7.5";
-          newReq.status = (params.item.sub_category_id == '11' && !params.claim)?this.state.statusNameNon:this.state.statusName;
-          newReq.sub_status = (params.item.sub_category_id == '11' && !params.claim)?this.state.subStatusNameNon:this.state.subStatusName;
-          newReq.is_outof_policy = params.item.sub_category_id == '11'?'N':this.state.oop;
+          newReq.sub_status_id = params.claim?"NA":"7.4";
+          newReq.status = (!params.claim)?this.state.statusNameNon:this.state.statusName;
+          newReq.sub_status = (!params.claim)?this.state.subStatusNameNon:this.state.subStatusName;
+          newReq.is_outof_policy = this.state.oop;
           newReq.invoice_amount_currency = this.state.currency;
           newReq.extra_amount = this.state.extAmnt;
         })
@@ -563,12 +561,10 @@ class TaxiRequisitionScreen extends Component {
             "travel_to": this.state.toLocation,
             "creation_date": moment(this.state.curDate).format("YYYY-MM-DD"),
             "status_id": params.claim?"20":"7",
-            "sub_status_id": params.claim?"NA"
-                            ?params.item.sub_category_id == '11':'7.4'
-                            :"7.5",
-            "status": (params.item.sub_category_id == '11' && !params.claim)?this.state.statusNameNon:this.state.statusName,
-            "sub_status": (params.item.sub_category_id == '11' && !params.claim)?this.state.subStatusNameNon:this.state.subStatusName,
-            "is_outof_policy": params.item.sub_category_id == '11'?'N':this.state.oop,
+            "sub_status_id": params.claim?"NA":"7.4",
+            "status": (!params.claim)?this.state.statusNameNon:this.state.statusName,
+            "sub_status": (!params.claim)?this.state.subStatusNameNon:this.state.subStatusName,
+            "is_outof_policy": this.state.oop,
             "invoice_amount_currency": this.state.currency,
             "extra_amount": this.state.extAmnt,
           }])
