@@ -49,17 +49,16 @@ class TaxiRequisitionScreen extends Component {
       statusNameNon: '',
       subStatusNameNon: '',
       modalVisible: false,
-      uploadData: [{"type":"Approve Email","file":[],'action':[]},{"type":"Other","file":[],'action':[]}],
+      uploadData: [{"type":"Approve Email","file":[],'action':null},{"type":"Other","file":[],'action':null}],
       curUploadType: 'Approve Email',
       currency: (params.update && params.update.invoice_amount_currency)?params.update.invoice_amount_currency:null,
       currencyError: null,
       oop: 'Y',
       extAmnt: null,
-      flieSizeIssue: false,
       tripNo: params.params.trip_no,
       refresh: false,
       screenReady: params.update ? false : true,
-      goBack: false,
+      uploading: false,
     };
   }
   
@@ -222,7 +221,7 @@ class TaxiRequisitionScreen extends Component {
           }
         }
       }
-      for(a=0; a<this.state.attachFiles.length; a++){
+      for(var a=0; a<this.state.attachFiles.length; a++){
         if(this.state.attachFiles[a].name == name) {
           this.state.attachFiles.splice(a,1);
         }
@@ -231,76 +230,58 @@ class TaxiRequisitionScreen extends Component {
   }
   
   async selectAttachFiles() {
+    let results = null;    
+    let flieSizeIssue = false;
     try {
-      const results = await DocumentPicker.pick({
+      await DocumentPicker.pick({
         type: [DocumentPicker.types.allFiles],
-      });
-      
-      for(var i=0; i<results.length; i++) {
-        if(results[i].size>3000000) {
+      })
+      .then(res =>{
+        results = res;
+      })
+      .then(()=>{      
+        if(results.size>3000000) {
           Alert.alert(
             "File Size issue",
             "You have selected a large file. Please choose the file less then 3MB.",
-            [
-              {
-                text: "Ok",
-                style: 'cancel',
-              },
-            ],
+            [{text: "Ok", style: 'cancel',},],
             { cancelable: true }
           );
-          this.setState({ 
-            flieSizeIssue: true 
-          })
-          break
+          flieSizeIssue= true ;
         }
-        else {
-          this.setState({ 
-            flieSizeIssue: false 
-          })
-        }
-      }
-
-      for(var i=0; i<results.length; i++) {
+        else { flieSizeIssue= false; }
+      })
+      .then(()=>{
         for(var u=0; u<this.state.uploadData.length; u++){
           for(var f=0; f<this.state.uploadData[u].file.length; f++){
-            if(results[i].name == this.state.uploadData[u].file[f].name) {
+            if(results.name == this.state.uploadData[u].file[f].name) {
               Alert.alert(
                 "",
-                "File "+results[i].name +" already exists",
-                [
-                  {
-                    text: "Ok",
-                  },
-                ],
+                "File "+results.name +" already exists",
+                [{text: "Ok"}],
                 { cancelable: true }
               );
-              this.setState({ 
-                flieSizeIssue: true 
-              })
+              flieSizeIssue= true;
               break
             }
-            else {
-              this.setState({ 
-                flieSizeIssue: false 
-              })
+            else {flieSizeIssue= false}
+          }
+        }
+      })
+      .then(()=>{
+        if(flieSizeIssue == false) {
+          alert('File uploaded successfully.');     
+          for(var i=0; i<this.state.uploadData.length; i++) {
+            if(this.state.uploadData[i].type == this.state.curUploadType) {
+              this.state.uploadData[i].file.push(results);
             }
           }
+          this.state.attachFiles.push(results);
+          this.setState({ 
+            refresh: true 
+          })
         }
-      }
-
-      if(!this.state.flieSizeIssue) {
-        alert('File uploaded successfully.');     
-        for(var i=0; i<this.state.uploadData.length; i++) {
-          if(this.state.uploadData[i].type == this.state.curUploadType) {
-            this.state.uploadData[i].file.push(results);
-          }
-        }
-        this.state.attachFiles.push(results);
-        this.setState({ 
-          refresh: true 
-        })
-      }
+      })
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         alert('You have not select any file for attachment');
@@ -309,50 +290,6 @@ class TaxiRequisitionScreen extends Component {
         throw err;
       }
     }
-  }
-
-  async atchFiles() {
-    const {params} = this.props.navigation.state;
-    for(var i=0; i<this.state.uploadData.length; i++){
-      for(var f=0; f<this.state.uploadData[i].file.length; f++){
-        for(var j=0; j<this.state.attachFiles.length; j++){
-          if(this.state.uploadData[i].file[f].name == this.state.attachFiles[j].name){
-            console.log('Attachment')
-            let fileBase64 = null;
-            let filePath = this.state.uploadData[i].file[f].uri;
-            let data = null;
-            await RNFS.readFile(filePath, 'base64')
-            .then(res =>{
-              fileBase64 = res;
-            })
-            .then(()=>{
-              data = {
-                "repositoryId": global.USER.repositoryId,
-                "folderId": global.USER.folderId,
-                "mimeType": this.state.uploadData[i].file[f].type,
-                "tripNo": params.params.trip_no,
-                "lineItem": this.state.lineitem,
-                "docType": this.state.uploadData[i].type,
-                "userId": params.params.userid,
-                "trip_hdr_id_fk": params.params.trip_hdr_id,
-                "name": this.state.uploadData[i].file[f].name,
-                "flow_type": params.claim?'ECR':'PT',
-                "base64Str":fileBase64,
-              }
-            })
-            .then(()=>{
-              this.props.attachment(global.USER.personId,global.PASSWORD,data)
-            })
-            .catch((err) => {
-              console.log(err.message, err.code);
-            })
-          }
-        }
-      }
-    }
-    this.setState({
-      goBack: true
-    });
   }
 
   /*downloadImage = (file,type) => {
@@ -415,7 +352,7 @@ class TaxiRequisitionScreen extends Component {
     AsyncStorage.getItem("ASYNC_STORAGE_DELETE_KEY")
     .then(()=>{
       this.setState({
-        uploadData:  [{"type":"Approve Email","file":[],'action':[]},{"type":"Other","file":[],'action':[]}],
+        uploadData:  [{"type":"Approve Email","file":[],'action':null},{"type":"Other","file":[],'action':null}],
         isLoading: true
       });
     })
@@ -458,6 +395,49 @@ class TaxiRequisitionScreen extends Component {
   getExtention = (filename) => {
     return (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename) :
       undefined;
+  }
+
+  async atchFiles() {
+    const {params} = this.props.navigation.state;
+    this.setState({
+      uploading: true,
+    });
+    for(var i=0; i<this.state.uploadData.length; i++){
+      for(var f=0; f<this.state.uploadData[i].file.length; f++){
+        for(var j=0; j<this.state.attachFiles.length; j++){
+          if(this.state.uploadData[i].file[f].name == this.state.attachFiles[j].name){
+            let fileBase64 = null;
+            let filePath = this.state.uploadData[i].file[f].uri;
+            let data = null;
+            await RNFS.readFile(filePath, 'base64')
+            .then(res =>{
+              fileBase64 = res;
+            })
+            .then(()=>{
+              data = {
+                "repositoryId": global.USER.repositoryId,
+                "folderId": global.USER.folderId,
+                "mimeType": this.state.uploadData[i].file[f].type,
+                "tripNo": params.params.trip_no,
+                "lineItem": this.state.lineitem,
+                "docType": this.state.uploadData[i].type,
+                "userId": params.params.userid,
+                "trip_hdr_id_fk": params.params.trip_hdr_id,
+                "name": this.state.uploadData[i].file[f].name,
+                "flow_type": params.claim?'ECR':'PT',
+                "base64Str":fileBase64,
+              }
+            })
+            .then(()=>{
+              this.props.attachment(global.USER.personId,global.PASSWORD,data)
+            })
+            .catch((err) => {
+              console.log(err.message, err.code);
+            })
+          }
+        }
+      }
+    }
   }
 
   submitReq = () => {
@@ -528,21 +508,20 @@ class TaxiRequisitionScreen extends Component {
         .then(()=>{
           this.props.reqUpdate([newReq])
           .then(()=>{
-            this.atchFiles();
-          })
-          .then(()=>{
-            if(this.state.goBack) {
+            this.atchFiles()
+            .then(()=>{
               this.props.getPlans(params.params.trip_hdr_id)
               .then(()=>{
                 this.setState({
                   isLoading: false,
+                  uploading: false,
                 });
               })
               .then(()=>{
                 this.props.navigation.goBack();
                 Toast.show('Requisition Updated Successfully', Toast.LONG);
               });
-            }
+            })
           });
         });
 
@@ -594,21 +573,20 @@ class TaxiRequisitionScreen extends Component {
             "extra_amount": this.state.extAmnt,
           }])
           .then(()=>{
-            this.atchFiles();
-          })
-          .then(()=>{ 
-            //if(this.state.goBack) {           
+            this.atchFiles()
+            .then(()=>{
               this.props.getPlans(params.params.trip_hdr_id)
               .then(()=>{
                 this.setState({
                   isLoading: false,
+                  uploading: false,
                 });
               })
               .then(()=>{
                 this.props.navigation.goBack();
-                Toast.show('Requisition Created Successfully', Toast.LONG);
-              })
-            //}
+                Toast.show('Requisition Updated Successfully', Toast.LONG);
+              });
+            })
           })
         })
       }
@@ -618,7 +596,7 @@ class TaxiRequisitionScreen extends Component {
 
   render() {
     //console.log(global.PASSWORD)
-    console.log(this.state.attachFiles);
+    //console.log(this.state.attachFiles);
     const {params} = this.props.navigation.state;
     if(this.state.isLoading ||
       this.props.plans.isLoading ||
@@ -627,7 +605,12 @@ class TaxiRequisitionScreen extends Component {
       !this.state.screenReady
       ){
       return(
-        <Loader/>
+        <View style={{flax:1, flexDirection: 'column', alignItems:'center', justifyContent:'center', height:'100%', backgroundColor:'#fff'}}>
+          <ActivityIndicator size="large" color="#0066b3" style={{marginVertical:100}} />
+          {(this.state.uploading && this.state.attachFiles.length > 0) ?
+          <Text style={{marginTop: 30}}>Uploading Attachments</Text>
+          :null}
+        </View>
       )
     } else if(this.props.reqCreateState.errorStatus
       || this.props.reqUpdateState.errorStatus 
@@ -639,8 +622,8 @@ class TaxiRequisitionScreen extends Component {
         <Text>URL Error</Text>
       )
     } else {
-    console.log(this.state.uploadData);
-    console.log(params);
+    //console.log(this.state.uploadData);
+    //console.log(params);
     return (
       <KeyboardAvoidingView style={styles.container} behavior="margin, height, padding">
         <ScrollView contentContainerStyle={styles.scrollView}>

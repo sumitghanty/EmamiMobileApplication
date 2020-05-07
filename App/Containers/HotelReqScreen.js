@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { View, KeyboardAvoidingView, ScrollView, Picker, Platform, TouchableOpacity, Image,
-  TextInput, AsyncStorage, Keyboard, Alert, BackHandler, Modal, ActivityIndicator } from "react-native"
+  TextInput, AsyncStorage, Keyboard, Alert, BackHandler, Modal, ActivityIndicator, Linking } from "react-native"
 import { Button, Icon, Text, Form, Item, Label } from 'native-base'
 import DocumentPicker from 'react-native-document-picker'
 import DateTimePicker from '@react-native-community/datetimepicker'
@@ -12,9 +12,7 @@ import Toast from 'react-native-simple-toast'
 import { HeaderBackButton } from "react-navigation-stack"
 import PickerModal from 'react-native-picker-modal-view'
 import RNFS from 'react-native-fs'
-import RNFetchBlob from 'rn-fetch-blob'
 
-import Loader from '../Components/Loader'
 import styles from './Styles/HotelReqScreen.js'
 
 class HotelReqScreen extends Component {
@@ -71,9 +69,9 @@ class HotelReqScreen extends Component {
       amntError: null,
       days: (params.update && params.update.days) ? params.update.days : 1,
       modalVisible: false,
-      uploadData: [{"type":"Approve Email","file":null,'action':null},
-                    {"type":"Hotel Booking confirmation document","file":null,'action':null},
-                    {"type":"Other","file":null,'action':null},],
+      uploadData: [{"type":"Approve Email","file":[],'action':null},
+                    {"type":"Hotel Booking confirmation document","file":[],'action':null},
+                    {"type":"Other","file":[],'action':null},],
       curUploadType: 'Approve Email',
       statusNameOP: '',
       subStatusNameOP: '',
@@ -113,6 +111,7 @@ class HotelReqScreen extends Component {
       tripNo: params.params.trip_no,
       refresh: false,
       screenReady: params.update ? false : true,
+      uploading: false,
     };
   }
 
@@ -223,13 +222,13 @@ class HotelReqScreen extends Component {
         for(var i=0; i<this.props.attachmentList.dataSource.length; i++) {
           for(var j=0; j<this.state.uploadData.length; j++) {
             if(this.props.attachmentList.dataSource[i].doc_type == this.state.uploadData[j].type) {
-              this.state.uploadData[j].file={
+              this.state.uploadData[j].file.push({
                 'size': null,
                 'name': this.props.attachmentList.dataSource[i].file_name,
                 'type': 'image/'+this.getExtention(this.props.attachmentList.dataSource[i].file_name),
                 'uri': this.props.attachmentList.dataSource[i].file_path
-              }
-            }           
+              })
+            }         
           }
         }
       })
@@ -275,167 +274,6 @@ class HotelReqScreen extends Component {
 
   onValueChangeUploadType = (value) => {
     this.setState({ curUploadType: value });
-  }
-
-  uploadRequest = ()=> {
-    if(this.state.attachFiles.length<=0) {
-      Alert.alert(
-        "",
-        "You have not selected any file. Please choose your file.",
-        [
-          {
-            text: "cancel",
-            style: 'cancel',
-          },
-        ],
-        { cancelable: true }
-      );
-    } else {
-      this.setState({modalVisible: false});
-    }
-  }
-
-  removeAttach(type) {
-    for(var i =0; i<this.state.uploadData.length; i++) {
-      if(this.state.uploadData[i].type == type) {
-        this.state.uploadData[i].file = null;
-        this.state.attachFiles.splice(0,1);
-        this.setState({ 
-          refresh: true 
-        })
-      }
-    }
-  }
-  async selectAttachFiles() {
-    try {
-      const results = await DocumentPicker.pick({
-        type: [DocumentPicker.types.allFiles],
-      });
-      
-      for(var i=0; i<results.length; i++) {
-        if(results[i].size>3000000) {
-          Alert.alert(
-            "File Size issue",
-            "You have selected a large file. Please choose the file less then 3MB.",
-            [
-              {
-                text: "Ok",
-                style: 'cancel',
-              },
-            ],
-            { cancelable: true }
-          );
-          this.setState({ 
-            flieSizeIssue: true 
-          })
-          break
-        }
-        else {
-          this.setState({ 
-            flieSizeIssue: false 
-          })
-        }
-      }
-
-      if(!this.state.flieSizeIssue) {
-        alert('File uploaded successfully.');     
-        for(var i=0; i<this.state.uploadData.length; i++) {
-          if(this.state.uploadData[i].type == this.state.curUploadType) {
-            this.state.uploadData[i].file = results;
-          }
-        }
-        this.state.attachFiles.push(results);
-        this.setState({ 
-          refresh: true 
-        })
-      }
-    } catch (err) {
-      if (DocumentPicker.isCancel(err)) {
-        alert('You have not select any file for attachment');
-      } else {
-        alert('Unknown Error: ' + JSON.stringify(err));
-        throw err;
-      }
-    }
-  }
-
-  async atchFiles() {
-    const {params} = this.props.navigation.state;
-    for(var i=0; i<this.state.uploadData.length; i++){
-      let fileBase64 = null;
-      let filePath = this.state.uploadData[i].file.uri;
-      await RNFS.readFile(filePath, 'base64')
-      .then(res =>{
-        fileBase64 = res;
-      })
-      .then(()=>{
-        this.props.attachment({
-          "mimeType": this.state.uploadData[i].file.type,
-          "tripNo": params.params.trip_no,
-          "lineItem": this.state.lineitem,
-          "docType": this.state.uploadData[i].type,
-          "userId": params.params.userid,
-          "trip_hdr_id_fk": params.params.trip_hdr_id,
-          "name": this.state.uploadData[i].file.name,
-          "flow_type": params.claim?'ECR':'PT',
-          "base64Str":fileBase64,
-          "repositoryId": global.USER.repositoryId,
-          "folderId": global.USER.folderId
-        })
-      })
-      .catch((err) => {
-        console.log(err.message, err.code);
-      })
-    }
-  }
-
-  downloadImage = (file,type) => {
-    console.log(file);
-    var date = new Date();
-    var image_URL = file;
-    var ext = this.getExtention(image_URL);
-    ext = "." + ext[0];
-    const { config, fs } = RNFetchBlob;
-    let PictureDir = fs.dirs.PictureDir
-    let options = {
-      fileCache: true,
-      addAndroidDownloads: {
-        useDownloadManager: true,
-        notification: true,
-        path: PictureDir + "/Emami/download_" + Math.floor(date.getTime()
-          + date.getSeconds() / 2) + ext,
-        description: 'Image'
-      }
-    }
-    for(var i=0; i<this.state.uploadData.length; i++) {
-      if(this.state.uploadData[i].type == type) {
-        this.state.uploadData[i].action = 'P';
-        break;
-      }
-    }
-    this.setState({
-      refresh: true
-    });
-    config(options).fetch('GET', image_URL)
-    .then((res) => {
-      Alert.alert('The file saved to ', res.path());
-    })
-    .then(()=>{
-      for(i=0; i<this.state.uploadData.length; i++) {
-        if(this.state.uploadData[i].type == type) {
-          this.state.uploadData[i].action = 'C';          
-          this.setState({
-            refresh: true
-          });
-          break;
-        }
-      }
-    });
-  }
- 
-  getExtention = (filename) => {
-    return (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename) :
-      undefined;
   }
   
   stateSelected(value){
@@ -663,8 +501,7 @@ class HotelReqScreen extends Component {
       showInv: Platform.OS === 'ios' ? true : false,
       dateInv,
     });
-  } 
-
+  }
   
   handleChangeAmount = (amnt) => {
     const {params} = this.props.navigation.state;
@@ -729,6 +566,213 @@ class HotelReqScreen extends Component {
       htlAdrs: text,
       htlAdrsError:null
     })
+  }
+
+  uploadRequest = ()=> {
+    if(this.state.attachFiles.length<=0) {
+      Alert.alert(
+        "",
+        "You have not selected any file. Please choose your file.",
+        [
+          {
+            text: "cancel",
+            style: 'cancel',
+          },
+        ],
+        { cancelable: true }
+      );
+    } else {
+      this.setState({modalVisible: false});
+    }
+  }
+
+  removeAttach(type,name) {
+    for(var i = 0; i<this.state.uploadData.length; i++) {
+      if(this.state.uploadData[i].type == type) {
+        for(var j=0; j<this.state.uploadData[i].file.length; j++){
+          if(this.state.uploadData[i].file[j].name == name) {
+            this.state.uploadData[i].file.splice(j, 1);
+            this.setState({ 
+              refresh: true 
+            })
+          }
+        }
+      }
+      for(var a=0; a<this.state.attachFiles.length; a++){
+        if(this.state.attachFiles[a].name == name) {
+          this.state.attachFiles.splice(a,1);
+        }
+      }
+    }
+  }
+  
+  async selectAttachFiles() {
+    let results = null;    
+    let flieSizeIssue = false;
+    try {
+      await DocumentPicker.pick({
+        type: [DocumentPicker.types.allFiles],
+      })
+      .then(res =>{
+        results = res;
+      })
+      .then(()=>{      
+        if(results.size>3000000) {
+          Alert.alert(
+            "File Size issue",
+            "You have selected a large file. Please choose the file less then 3MB.",
+            [{text: "Ok", style: 'cancel',},],
+            { cancelable: true }
+          );
+          flieSizeIssue= true ;
+        }
+        else { flieSizeIssue= false; }
+      })
+      .then(()=>{
+        for(var u=0; u<this.state.uploadData.length; u++){
+          for(var f=0; f<this.state.uploadData[u].file.length; f++){
+            if(results.name == this.state.uploadData[u].file[f].name) {
+              Alert.alert(
+                "",
+                "File "+results.name +" already exists",
+                [{text: "Ok"}],
+                { cancelable: true }
+              );
+              flieSizeIssue= true;
+              break
+            }
+            else {flieSizeIssue= false}
+          }
+        }
+      })
+      .then(()=>{
+        if(flieSizeIssue == false) {
+          alert('File uploaded successfully.');     
+          for(var i=0; i<this.state.uploadData.length; i++) {
+            if(this.state.uploadData[i].type == this.state.curUploadType) {
+              this.state.uploadData[i].file.push(results);
+            }
+          }
+          this.state.attachFiles.push(results);
+          this.setState({ 
+            refresh: true 
+          })
+        }
+      })
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        alert('You have not select any file for attachment');
+      } else {
+        alert('Unknown Error: ' + JSON.stringify(err));
+        throw err;
+      }
+    }
+  }
+
+  downloadImage = (file) => {
+    Linking.canOpenURL(file).then(supported => {
+      if (supported) {
+        Linking.openURL(file);
+      } else {
+        console.log("Don't know how to open URI: " + this.props.url);
+      }
+    });
+  }
+
+  deleteAttachemnt = (name) => {
+    const {params} = this.props.navigation.state;
+    let existData = this.props.attachmentList.dataSource;
+    AsyncStorage.getItem("ASYNC_STORAGE_DELETE_KEY")
+    .then(()=>{
+      this.setState({
+        uploadData:  [{"type":"Approve Email","file":[],'action':null},
+                      {"type":"Hotel Booking confirmation document","file":[],'action':null},
+                      {"type":"Other","file":[],'action':null},],
+        isLoading: true
+      });
+    })
+    .then(()=>{
+      for(var i=0; i<existData.length; i++) {
+        if(existData[i].file_name == name) {
+          this.props.attachmentDelete(
+            global.USER.personId,
+            global.PASSWORD,
+            {
+              "id":existData[i].id,
+	            "fileEntryId":existData[i].fileId
+            }
+          )          
+        .then(()=>{
+          this.props.getAttachments(params.params.trip_hdr_id,this.state.tripNo,params.update.lineitem)
+          .then(()=>{
+            for(var i=0; i<this.props.attachmentList.dataSource.length; i++) {
+              for(var j=0; j<this.state.uploadData.length; j++) {
+                if(this.props.attachmentList.dataSource[i].doc_type == this.state.uploadData[j].type) {
+                  this.state.uploadData[j].file.push({
+                    'size': null,
+                    'name': this.props.attachmentList.dataSource[i].file_name,
+                    'type': 'image/'+this.getExtention(this.props.attachmentList.dataSource[i].file_name),
+                    'uri': this.props.attachmentList.dataSource[i].file_path
+                  })
+                }         
+              }
+            }
+          })
+          .then(()=>{
+            this.setState({isLoading: false});
+          })
+        })
+        }
+      }
+    })
+  }
+ 
+  getExtention = (filename) => {
+    return (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename) :
+      undefined;
+  }
+
+  async atchFiles() {
+    const {params} = this.props.navigation.state;
+    this.setState({
+      uploading: true,
+    });
+    for(var i=0; i<this.state.uploadData.length; i++){
+      for(var f=0; f<this.state.uploadData[i].file.length; f++){
+        for(var j=0; j<this.state.attachFiles.length; j++){
+          if(this.state.uploadData[i].file[f].name == this.state.attachFiles[j].name){
+            let fileBase64 = null;
+            let filePath = this.state.uploadData[i].file[f].uri;
+            let data = null;
+            await RNFS.readFile(filePath, 'base64')
+            .then(res =>{
+              fileBase64 = res;
+            })
+            .then(()=>{
+              data = {
+                "repositoryId": global.USER.repositoryId,
+                "folderId": global.USER.folderId,
+                "mimeType": this.state.uploadData[i].file[f].type,
+                "tripNo": params.params.trip_no,
+                "lineItem": this.state.lineitem,
+                "docType": this.state.uploadData[i].type,
+                "userId": params.params.userid,
+                "trip_hdr_id_fk": params.params.trip_hdr_id,
+                "name": this.state.uploadData[i].file[f].name,
+                "flow_type": params.claim?'ECR':'PT',
+                "base64Str":fileBase64,
+              }
+            })
+            .then(()=>{
+              this.props.attachment(global.USER.personId,global.PASSWORD,data)
+            })
+            .catch((err) => {
+              console.log(err.message, err.code);
+            })
+          }
+        }
+      }
+    }
   }
 
   reqCreate =() => {
@@ -799,18 +843,18 @@ class HotelReqScreen extends Component {
                         parseFloat( parseFloat(this.state.amount)-5000000):null
       }])
       .then(()=>{
-        //this.atchFiles();
-      })
-      .then(()=>{
-        this.props.getPlans(params.params.trip_hdr_id)
+        this.atchFiles()        
         .then(()=>{
-          this.setState({
-            isLoading: false,
-          });
-        })
-        .then(()=>{
-          this.props.navigation.goBack();
-          Toast.show(params.claim?'Expense Created Successfully':'Requisition Created Successfully', Toast.LONG);
+          this.props.getPlans(params.params.trip_hdr_id)
+          .then(()=>{
+            this.setState({
+              isLoading: false,
+            });
+          })
+          .then(()=>{
+            this.props.navigation.goBack();
+            Toast.show(params.claim?'Expense Created Successfully':'Requisition Created Successfully', Toast.LONG);
+          })
         })
       })
     });
@@ -862,20 +906,20 @@ class HotelReqScreen extends Component {
     .then(()=>{
       this.props.reqUpdate([newReq])
       .then(()=>{
-        //this.atchFiles();
-      })
-      .then(()=>{
-        this.props.getPlans(params.params.trip_hdr_id)
+        this.atchFiles()
         .then(()=>{
-          this.setState({
-            isLoading: false,
+          this.props.getPlans(params.params.trip_hdr_id)
+          .then(()=>{
+            this.setState({
+              isLoading: false,
+            });
+          })
+          .then(()=>{
+            this.props.navigation.goBack();
+            Toast.show(params.claim?'Expense Updated Successfully':'Requisition Updated Successfully', Toast.LONG);
           });
         })
-        .then(()=>{
-          this.props.navigation.goBack();
-          Toast.show(params.claim?'Expense Updated Successfully':'Requisition Updated Successfully', Toast.LONG);
-        });
-      });
+      })      
     });
   }
 
@@ -974,7 +1018,12 @@ class HotelReqScreen extends Component {
       (params.update && this.props.attachmentList.isLoading) ||
       !this.state.screenReady){
       return(
-        <Loader/>
+        <View style={{flax:1, flexDirection: 'column', alignItems:'center', justifyContent:'center', height:'100%', backgroundColor:'#fff'}}>
+          <ActivityIndicator size="large" color="#0066b3" style={{marginVertical:100}} />
+          {(this.state.uploading && this.state.attachFiles.length > 0) ?
+          <Text style={{marginTop: 30}}>Uploading Attachments</Text>
+          :null}
+        </View>
       )
     } else if(this.props.reqCreateState.errorStatus || 
       this.props.reqUpdateState.errorStatus || 
@@ -1391,36 +1440,32 @@ class HotelReqScreen extends Component {
             </View>
           </Form>
           {this.state.uploadData.map((item, key) => (
-            item.file ? 
+            (item.file.length>0) ?
             <View key={key}>
               <Text style={styles.attachType}>{item.type}</Text>
-              <View style={styles.atchFileRow}>
-                {item.file.type == "image/webp" ||
-                  item.file.type == "image/jpeg" ||
-                  item.file.type == "image/jpg" ||
-                  item.file.type == "image/png" ||
-                  item.file.type == "image/gif" ?
-                <Image
-                  style={{width: 50, height: 50, marginRight:10}}
-                  source={{uri: item.file.uri}}
-                />:null}
-                <Text style={styles.atchFileName} numberOfLines = {1}>{item.file.name ? item.file.name : ''}</Text>
-                {(params.update && item.file.uri.includes('http')) &&
+              {item.file.map((file, index)=>(
+              <View style={styles.atchFileRow} key={index}>
+                <Text style={styles.atchFileName} numberOfLines = {1}>{file.name ? file.name : ''}</Text>
+                {(params.update && file.uri.includes('http')) &&
                 <>
                 {item.action == 'P' ?
                 <ActivityIndicator size="small" color="#0066b3" />:              
                 <Button bordered small rounded primary style={[styles.actionBtn, styles.actionBtnPrimary, item.action == 'C'?{borderColor:'green'}:null]}
-                  onPress={() => {this.downloadImage(item.file.uri,item.type);}}>
-                  {item.action == 'C' ?
-                  <Icon name='md-checkmark' style={[styles.actionBtnIco,{color:'green'}]} />:                
-                  <Icon name='md-download' style={[styles.actionBtnIco,styles.actionBtnIcoPrimary]} />}
+                  onPress={() => {this.downloadImage(file.uri);}}
+                  >
+                  <Icon name='md-download' style={[styles.actionBtnIco,styles.actionBtnIcoPrimary]} />
                 </Button>}
                 </>}
                 <Button bordered small rounded danger style={styles.actionBtn}
-                  onPress={()=>this.removeAttach(item.type)}>
-                  <Icon name='close' style={styles.actionBtnIco} />
+                  onPress={(file.uri.includes('http'))
+                          ?()=>this.deleteAttachemnt(file.name)
+                          :()=>this.removeAttach(item.type,file.name)
+                        }
+                  >
+                  <Icon name={file.uri.includes('http')?'trash':'close'} style={styles.actionBtnIco} />
                 </Button>
               </View>
+              ))}
             </View>:null
           ))}
 
@@ -1459,21 +1504,19 @@ class HotelReqScreen extends Component {
               
               {this.state.uploadData.map((item, key) => (
               (item.type == this.state.curUploadType && item.file) ?
-              <View key={key} style={styles.atchFileRow}>
-                {item.file.type == "image/webp" ||
-                  item.file.type == "image/jpeg" ||
-                  item.file.type == "image/jpg" ||
-                  item.file.type == "image/png" ||
-                  item.file.type == "image/gif" ?
-                <Image
-                  style={{width: 50, height: 50, marginRight:10}}
-                  source={{uri: item.file.uri}}
-                />:null}
-                <Text style={styles.atchFileName}>{item.file.name ? item.file.name : ''}</Text>
-                <Button bordered small rounded danger style={styles.actionBtn}
-                  onPress={()=>this.removeAttach(item.type)}>
-                  <Icon name='close' style={styles.actionBtnIco} />
-                </Button>
+              <View key={key}>
+              {item.file.map((file, index)=>(
+                <View key={index} style={[styles.atchFileRow,{minHeight:32}]}>
+                  <Text style={styles.atchFileName} numberOfLines = {1}>{file.name ? file.name : ''}</Text>
+                  {(!file.uri.includes('http')) ?
+                  <Button bordered small rounded danger style={styles.actionBtn}
+                    onPress={()=>this.removeAttach(item.type,file.name)}>
+                    <Icon name='close' style={styles.actionBtnIco} />
+                  </Button>
+                  :null
+                  }
+                </View>
+              ))}
               </View>
               :null
             ))}
@@ -1528,7 +1571,8 @@ const mapStateToProps = state => {
     statusResult: state.statusResult,
     hotelList: state.hotelList,
     attachmentState: state.attachmentState,
-    attachmentList: state.attachmentList
+    attachmentList: state.attachmentList,
+    attachmentDeleteState: state.attachmentDeleteState
   };
 };
 
@@ -1543,7 +1587,8 @@ const mapDispatchToProps = {
   getStatus: Actions.getStatus,
   getHotels: Actions.getHotels,
   attachment: Actions.attachment,
-  getAttachments: Actions.getAttachments
+  getAttachments: Actions.getAttachments,
+  attachmentDelete: Actions.attachmentDelete
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(HotelReqScreen);
