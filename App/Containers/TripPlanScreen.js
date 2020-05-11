@@ -271,7 +271,7 @@ class TripPlanScreen extends Component {
           })
           .then(()=>{
             for(var i=0; i< newList.length;i++) {
-              if(newList[i].through == "Travel Agent" && newList[i].is_outof_policy == 'N') {
+              if((newList[i].through == "Travel Agent" && newList[i].is_outof_policy == 'N') || newList[i].sub_status_id == '9.1') {
                 this.setState({ 
                   isLoading: false,
                   setGoBack: false
@@ -289,6 +289,9 @@ class TripPlanScreen extends Component {
                 )
                 break
               } else {
+                this.setState({
+                  setGoBack: true
+                });
                 if(newList[i].req_type == '1' && newList[i].amount != null && newList[i].amount != '' 
                   && newList[i].amount != 'NA' && newList[i].amount == 'On Actual') {
                   amountVal = newList[i].amount;
@@ -326,26 +329,28 @@ class TripPlanScreen extends Component {
             }
           })
           .then(()=>{
-            this.props.plansSubmit(newList)
-            .then(()=>{
-              this.props.sendEmail({
-                "mailId": params.pending_with_email,
-                "cc": null,
-                "subject": 'Kindly Approve The Requisition.',
-                "tripNonSales": params,
-                "requisitionNonSales": {"sub_status_id":'8.1'}
-              })
-            })
-            .then(()=>{
-              this.props.getTrips(global.USER.userId)
+            if(this.state.setGoBack){
+              this.props.plansSubmit(newList)
               .then(()=>{
-                this.setState({ isLoading: false });
+                this.props.sendEmail({
+                  "mailId": params.pending_with_email,
+                  "cc": 'chinmaymcc@gmail.com',
+                  "subject": 'Kindly Approve The Requisition.',
+                  "tripNonSales": params,
+                  "requisitionNonSales": {"sub_status_id":'8.1'}
+                })
+                .then(()=>{
+                  this.props.getTrips(global.USER.userId)
+                  .then(()=>{
+                    this.setState({ isLoading: false });
+                  })
+                  .then(()=>{
+                    this.props.navigation.goBack();
+                    Toast.show('Plan Trip Submitted Successfully', Toast.LONG);
+                  })
+                })
               })
-              .then(()=>{
-                this.props.navigation.goBack();
-                Toast.show('Plan Trip Submitted Successfully', Toast.LONG);
-              })
-            })
+            }
           })
         })        
       } else if(action == "Send") {
@@ -362,7 +367,8 @@ class TripPlanScreen extends Component {
           })
           .then(()=>{
             for(var i=0; i< newList.length;i++) {
-              if(newList[i].through != "Travel Agent" || (newList[i].through == "Travel Agent" && newList[i].is_outof_policy == 'Y')) {
+              if(newList[i].through != "Travel Agent" || 
+              (newList[i].through == "Travel Agent" && newList[i].is_outof_policy == 'Y' && newList[i].sub_status_id != '9.1')) {
                 this.setState({ 
                   isLoading: false,
                   setGoBack: false
@@ -379,16 +385,26 @@ class TripPlanScreen extends Component {
                   {cancelable: true},
                 )
                 break
-              } else if(newList[i].sub_status_id == '7.4' && newList[i].through == "Travel Agent"){                
-                newList[i].status_id = '7';
-                if(newList[i].flight && newList[i].flight.length>0){
+              } else if((newList[i].sub_status_id == '7.4' || newList[i].sub_status_id == '9.1') && newList[i].through == "Travel Agent"){                
+                this.setState({
+                  setGoBack: true
+                });
+                if(newList[i].status_id == '7'){
+                  newList[i].status_id = '7';
+                  if(newList[i].flight && newList[i].flight.length>0){
+                    newList[i].sub_status_id = '7.3';
+                    newList[i].status = statusNameWO;
+                    newList[i].sub_status = subStatusNameWO;
+                  } else {
+                    newList[i].sub_status_id = '7.1';
+                    newList[i].status = statusNameSTA;
+                    newList[i].sub_status = subStatusNameSTA;
+                  }
+                } else if (newList[i].sub_status_id == '9.1') {
+                  newList[i].status_id = '7';
                   newList[i].sub_status_id = '7.3';
                   newList[i].status = statusNameWO;
                   newList[i].sub_status = subStatusNameWO;
-                } else {
-                  newList[i].sub_status_id = '7.1';
-                  newList[i].status = statusNameSTA;
-                  newList[i].sub_status = subStatusNameSTA;
                 }
               }
             }
@@ -396,19 +412,19 @@ class TripPlanScreen extends Component {
           .then(()=>{
             if(this.state.setGoBack) {
               this.props.planUpdate(newList)
-              /*.then(()=>{
+              .then(()=>{
                 for(var i=0; i< newList.length;i++) {
                   if(newList[i].sub_status_id == '7.1' || newList[i].sub_status_id == '7.3') {
                     this.props.sendEmail({
-                      "mailId": params.pending_with_email,
-                      "cc": null,
+                      "mailId": newList[i].vendor_email,
+                      "cc": 'chinmaymcc@gmail.com',
                       "subject": newList[i].sub_status_id == '7.1'?'Kindly provide flight options.':'Please book a ticket for selected flight',
                       "tripNonSales": params,
                       "requisitionNonSales": {"sub_status_id":newList[i].sub_status_id}
                     })
                   }
                 }
-              })*/
+              })
               .then(()=>{
                 this.props.getTrips(global.USER.userId)
                 .then(()=>{
@@ -710,20 +726,6 @@ class TripPlanScreen extends Component {
             </LinearGradient>
           </TouchableOpacity>
         </View>}
-        {/*<View style={styles.footer}>
-          <TouchableOpacity style={styles.ftrBtn} onPress={() => {}}>
-            <Ficon name="save" style={[styles.ftrBtnIcon,styles.textPrimary]} />
-            <Text style={[styles.ftrBtnText,styles.textPrimary]}>Save</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.ftrBtn} onPress={() => {}}>
-            <Icon name="md-done-all" style={[styles.ftrBtnIcon,styles.textSuccess]} />
-            <Text style={[styles.ftrBtnText,styles.textSuccess]}>Submit</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.ftrBtn} onPress={() => {}}>
-            <Icon name="md-paper-plane" style={[styles.ftrBtnIcon,styles.textWarning]} />
-            <Text style={[styles.ftrBtnText,styles.textWarning]}>Send to Agent</Text>
-          </TouchableOpacity>
-        </View>*/}
       </Container>
     );
     }
@@ -772,8 +774,9 @@ class TripPlanScreen extends Component {
     }>
     <View style={styles.cardItemHeader}>
       {((data.status_id=='11') || (data.status_id=='7' && data.sub_status_id =="7.1") || (data.status_id=='7' && data.sub_status_id =="7.3")
-       || (data.status_id=='8' && data.sub_status_id == "8.1") || (data.status_id=='9' && data.sub_status_id == "9.1") 
-       || (data.status_id=='6' && data.sub_status_id == '6.1') || (data.status_id=='7' && data.sub_status_id == '7.2') ) 
+       || (data.status_id=='8' && data.sub_status_id == "8.1") || 
+       (data.status_id=='9' && data.sub_status_id == "9.1" && data.through == 'Self') 
+       || (data.status_id=='6' && data.sub_status_id == '6.1') || (data.status_id=='7' && data.sub_status_id == '7.2')) 
       ? null :
       <TouchableOpacity 
         onPress={() => {this.press(data)}}
@@ -851,15 +854,6 @@ class TripPlanScreen extends Component {
           <Text style={styles.cardLabel}>Amount:</Text>
           <Text style={styles.cardValue}>{data.amount?data.amount:'0.0'}</Text>
         </View>
-        { data.status_id == '3' || data.status_id == '4' ?
-        <View style={styles.cardRow}>
-          <Text style={styles.cardLabel}>Attachment:</Text>
-          <TouchableOpacity 
-            style={styles.cardValueBtn}            
-            onPress={() => {this.attachModalVisible(data.status);}}>
-            <Text style={styles.cardValueBtnText}>staticfile.png</Text>
-          </TouchableOpacity>
-        </View>:null}
       </View>
       <View style={styles.itemActions}>
         {(data.sub_status_id=="6.1" || data.sub_status_id=="7.4") ?

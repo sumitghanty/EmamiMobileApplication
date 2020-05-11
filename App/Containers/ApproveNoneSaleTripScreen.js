@@ -75,9 +75,9 @@ class ApproveNoneSaleTripScreen extends Component {
           <Text style={styles.noData}>No Item Found.</Text>
         }
         {sortList.map((item, index) => {
-          if( (this.setAge(item.end_date)>=0 && item.status_id != "3" && item.status_id != "5" && 
+          /*if( (this.setAge(item.end_date)>=0 && item.status_id != "3" && item.status_id != "5" && 
           item.sub_status_id != "9.1" && item.sub_status_id != "10.1" && item.sub_status_id != "11.2" 
-          && item.status_id != "22" && item.status_id != "23" ) || item.date_change_status == 'Y'){
+          && item.status_id != "22" && item.status_id != "23" ) || item.date_change_status == 'Y'){*/
         return (
           <View key={index} style={styles.linkItem}>
             <View style={styles.card}>
@@ -141,7 +141,7 @@ class ApproveNoneSaleTripScreen extends Component {
             </View>
           </View>
           );
-        }
+        //}
         })}
       </ScrollView>
     </View>      

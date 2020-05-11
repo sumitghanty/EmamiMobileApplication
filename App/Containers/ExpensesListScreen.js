@@ -29,8 +29,10 @@ class ExpensesListScreen extends Component {
   }
 
   setAge = (date) => {
-    var m1 = moment(date,'YYYY-MM-DD HH:mm:ss');
-    var m2 = moment(new Date(),'YYYY-MM-DD HH:mm:ss');
+    var newDate = date.includes('/')?date : moment('date').format('DD/MM/YYYY')
+    var curDate = moment(new Date()).format('DD/MM/YYYY')
+    var m1 = moment(newDate,'DD/MM/YYYY');
+    var m2 = moment(curDate,'DD/MM/YYYY');
     var diff = moment.duration(m1.diff(m2)).humanize();
     return(
       diff

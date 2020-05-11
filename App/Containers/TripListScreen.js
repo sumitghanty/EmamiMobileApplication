@@ -88,11 +88,12 @@ class TripListScreen extends Component {
                 {((item.status_id == "3"
                 || item.status_id == "4"
                 || item.status_id == "6"
-                /*|| item.status_id == "7"
-                || item.status_id == "8"*/
-                || item.sub_status_id == '7.2'
+                || item.status_id == "7"
+                || item.status_id == "8"
+                /*|| item.sub_status_id == '7.2'
+                || item.sub_status_id == '7.3'
                 || item.sub_status_id == '7.4'
-                || item.sub_status_id == '7.5'
+                || item.sub_status_id == '7.5'*/
                 || item.status_id == "9" 
                 || item.status_id == "10" 
                 || item.status_id == "11"
@@ -139,7 +140,7 @@ class TripListScreen extends Component {
                   <View style={styles.itemRow}>
                     <Text style={styles.itemLabel}>Status:</Text>
                     <Text style={[styles.itemValue, styles.statusInitiated]}>
-                      {(item.sub_status && item.sub_status != 'NA')?item.sub_status:item.status}
+                      {item.status}
                     </Text>
                   </View>:null}
                 </View>

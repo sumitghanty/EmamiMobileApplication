@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { ScrollView, View, Text} from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity} from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons'
 import Ficon from 'react-native-vector-icons/FontAwesome5'
 import { connect } from 'react-redux'
@@ -15,7 +15,8 @@ class ReqInfoScreen extends Component {
     super(props);
     this.state = {
       reqName: '',
-      elAmnt: 0
+      elAmnt: 0,
+      ticket: null
     }
   }
 
@@ -32,20 +33,49 @@ class ReqInfoScreen extends Component {
         }
       }
     });
+
+    this.props.getAttachments(params.trip_hdr_id_fk,params.trip_no,params.lineitem)
+
+    if(params.req_type=='1') {
+      this.props.getTickets(params.trip_no,params.lineitem,params.trip_hdr_id_fk)
+      .then(()=>{
+        if(this.props.ticketsList.dataSource.length>0){
+          for(var i=0; i<this.props.ticketsList.dataSource.length; i++) {
+            if(this.props.ticketsList.dataSource[i].flight_selected=='Y') {
+              this.setState({
+                ticket: this.props.ticketsList.dataSource[i]
+              });
+            }
+          }
+        }
+      })
+    }
+  }
+
+  downloadImage = (file) => {
+    Linking.canOpenURL(file).then(supported => {
+      if (supported) {
+        Linking.openURL(file);
+      } else {
+        console.log("Don't know how to open URI: " + this.props.url);
+      }
+    });
   }
 
   render() {
-    if(this.props.reqType.isLoading){
+		const {params} = this.props.navigation.state
+    console.log(params);
+    if(this.props.reqType.isLoading || this.props.attachmentList.isLoading ||
+      (params.req_type=='1' && this.props.ticketsList.isLoading)){
       return(
         <Loader/>
       )
-    } else if(this.props.reqType.errorStatus) {
+    } else if(this.props.reqType.errorStatus || this.props.attachmentList.errorStatus ||
+      (params.req_type=='1' && this.props.ticketsList.errorStatus)) {
       return(
         <Text>URL Error</Text>
       )
     } else {
-		const {params} = this.props.navigation.state
-    //console.log(params, this.props.reqType.dataSource);
     return (
       <ScrollView contentContainerStyle={styles.scrollView}>
         <View style={styles.header}>
@@ -110,19 +140,30 @@ class ReqInfoScreen extends Component {
           this.renderHotel(params)
         :params.req_type=='3' ?
           this.renderTrain(params)
-        :<>
+        :params.req_type=='1' ?
+          this.renderAir(params)
+        :null
+        }
         
-        {params.attachment ?
+        {this.props.attachmentList.dataSource.length>0 ?
         <View style={styles.attachInfo}>
-          <Text style={styles.label}>Attachments:</Text>
-          {params.attachment.map((attachItem, sl) => {
-            return <View key={sl} style={styles.attachRow}>
-              <Text style={styles.attachName}>{attachItem.fileName}</Text>
-              <Text style={styles.attachSize}>{attachItem.size}</Text>
+          <Text style={styles.attachmentLabel}>ATTACHMENTS:</Text>
+          {this.props.attachmentList.dataSource.map((item, key) => (
+            <View style={styles.atchFileRow} key={key}>
+              <View style={styles.atchFileRowLeft}>
+                <Text style={styles.atchFileName} numberOfLines = {1}>{item.file_name ? item.file_name : ''}</Text>
+                <Text style={styles.atchType} numberOfLines = {1}>{item.doc_type ? item.doc_type : ''}</Text>
+              </View>
+                <TouchableOpacity 
+                  style={styles.actionBtn}
+                  onPress={() => {this.downloadImage(item.file_path);}}
+                  >
+                  <Icon name='md-download' style={styles.actionBtnIco} />
+                </TouchableOpacity>
             </View>
-          })}
+          ))}
         </View>:null}
-        </>}
+        
       </ScrollView>
     );
     }
@@ -226,16 +267,98 @@ class ReqInfoScreen extends Component {
     </>
   }
 
+  renderAir = (data) => {
+    let ticket = this.state.ticket;
+    return <>
+    <Text style={styles.title}>Trip Details</Text>
+    {data.travel_from ?
+    <View style={styles.row}>
+      <Text style={styles.label}>From:</Text>
+      <Text style={styles.value}>{data.travel_from}</Text>
+    </View>:null}
+    {data.travel_to ?
+    <View style={styles.row}>
+      <Text style={styles.label}>To:</Text>
+      <Text style={styles.value}>{data.travel_to}</Text>
+    </View>:null}
+    {data.travel_date ?
+    <View style={styles.row}>
+      <Text style={styles.label}>Travel Date:</Text>
+      <Text style={styles.value}>{moment(data.travel_date).format(global.DATEFORMAT)}</Text>
+    </View>:null}
+    <View style={styles.row}>
+      <Text style={styles.label}>Eligible Amount/Per Flight:</Text>
+      <Text style={styles.value}>6000</Text>
+    </View>
+    {data.travel_time ?
+    <View style={styles.row}>
+      <Text style={styles.label}>Suitable Time:</Text>
+      <Text style={styles.value}>{data.travel_time}</Text>
+    </View>:null}
+    {data.travel_type ?
+    <View style={styles.row}>
+      <Text style={styles.label}>Travel Type:</Text>
+      <Text style={styles.value}>{data.travel_type}</Text>
+    </View>:null}
+    {data.email ?
+    <View style={styles.row}>
+      <Text style={styles.label}>Email:</Text>
+      <Text style={styles.value}>{data.email}</Text>
+    </View>:null}
+    {(data.vendor_name && data.through == "Travel Agent") ?
+    <View style={styles.row}>
+      <Text style={styles.label}>Travel Agent Name:</Text>
+      <Text style={styles.value}>{data.vendor_name}</Text>
+    </View>:null}
+    
+    {this.state.ticket ?<>
+    <Text style={styles.title}>Flight Details</Text>
+    <View style={styles.ticketItem}>
+      <View style={[
+        styles.ticketColumn,
+        styles.ticketLeft,
+        styles.selectedTicket,
+        styles.selectedTicketLeft
+        ]}>
+        <View style={[styles.circle, styles.circleLeft]}></View>
+        <Text style={styles.nameLabel}>Flight Name:</Text>
+        <Text style={styles.flightName}>{ticket.airline}</Text>
+        <Text style={styles.ticketLabel}>Departure Time &amp; Place:</Text>
+        <Text style={styles.ticketValue}>{ticket.departure}</Text>
+        <Text style={styles.ticketLabel}>Arival Time &amp; Place</Text>
+        <Text style={styles.ticketValue}>{ticket.arrival}</Text>
+      </View>
+      <View style={[
+        styles.ticketColumn,
+        styles.ticketRight,          
+        styles.selectedTicket,
+        styles.selectedTicketRight
+        ]}>
+        <View style={[styles.circle, styles.circleRight]}></View>
+        <Text style={styles.price}>{ticket.price}</Text>
+        <Text style={styles.currency}>{ticket.currency}</Text>        
+        <Text style={styles.oop}>Out of Policy:</Text>
+        <Text style={styles.oopValue}>{ticket.type}</Text>
+      </View>
+    </View>
+    </>:null}
+    </>
+  }
+
 };
 
 const mapStateToProps = state => {
   return {
-    reqType: state.reqType
+    reqType: state.reqType,
+    attachmentList: state.attachmentList,
+    ticketsList: state.ticketsList,
   };
 };
 
 const mapDispatchToProps = {
-  getReqType : Actions.getReqType
+  getReqType : Actions.getReqType,
+  getAttachments: Actions.getAttachments,
+  getTickets: Actions.getTickets,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ReqInfoScreen);

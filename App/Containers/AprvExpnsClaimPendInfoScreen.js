@@ -100,7 +100,7 @@ class AprvExpnsClaimPendInfoScreen extends Component {
       })
       .then(()=>{
         this.props.postExpAprv(newParams)
-        /*.then(()=>{
+        .then(()=>{
           this.props.sendEmail({
             "mailId": global.USER.financerEmail,
             "cc": params.email,
@@ -108,14 +108,14 @@ class AprvExpnsClaimPendInfoScreen extends Component {
             "tripNonSales": newParams,
             "requisitionNonSales": null
           })
-        })*/
-        .then(()=>{
-          this.props.getExpPendApr("21");
-          this.props.getCostCentre(global.USER.costCentre);
-          this.props.navigation.navigate('ApproveNoneSaleExpenses');
-          Toast.show('Expense Claim Approved Successfully', Toast.LONG);
-          console.log('Approve Done');
-        });
+          .then(()=>{
+            this.props.getExpPendApr("21");
+            this.props.getCostCentre(global.USER.costCentre);
+            this.props.navigation.navigate('ApproveNoneSaleExpenses');
+            Toast.show('Expense Claim Approved Successfully', Toast.LONG);
+            console.log('Approve Done');
+          });
+        })
       });
     })
   }
@@ -151,22 +151,22 @@ class AprvExpnsClaimPendInfoScreen extends Component {
       })
       .then(()=>{
         this.props.postExpAprv(newParams)
-        /*.then(()=>{
+        .then(()=>{
           this.props.sendEmail({
             "mailId": params.email,
-            "cc": null,
+            "cc": 'chinmaymcc@gmail.com',
             "subject": 'Expense claim has been rejected.',
             "tripNonSales": newParams,
             "requisitionNonSales": null
           })
-        })*/
-        .then(()=>{
-          this.props.getExpPendApr("21");
-          this.props.getCostCentre(global.USER.costCentre);
-          this.props.navigation.navigate('ApproveNoneSaleExpenses');
-          Toast.show('Expense Claim Rejected Successfully', Toast.LONG);
-          console.log('Reject Done');
-        });
+          .then(()=>{
+            this.props.getExpPendApr("21");
+            this.props.getCostCentre(global.USER.costCentre);
+            this.props.navigation.navigate('ApproveNoneSaleExpenses');
+            Toast.show('Expense Claim Rejected Successfully', Toast.LONG);
+            console.log('Reject Done');
+          });
+        })
       });
     })
   }

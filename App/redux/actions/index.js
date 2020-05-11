@@ -72,6 +72,7 @@ import {sendEmail} from './SendEmail'
 import {ceateClaimReq} from './ClaimReqCreate'
 import {updatePjpTot} from './UpdatePjpTot'
 import {updtClaimReq} from './UpdtClaimReq'
+import {getRefernce} from './GetRefernce'
 
 export default {
 	getReqLocations:getReqLocations,
@@ -147,5 +148,6 @@ export default {
 	sendEmail:sendEmail,
 	ceateClaimReq:ceateClaimReq,
 	updatePjpTot:updatePjpTot,
-	updtClaimReq:updtClaimReq
+	updtClaimReq:updtClaimReq,
+	getRefernce:getRefernce
 }

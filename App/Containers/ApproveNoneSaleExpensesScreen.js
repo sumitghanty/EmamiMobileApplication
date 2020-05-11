@@ -17,7 +17,6 @@ class ApproveNoneSaleExpensesScreen extends Component {
     super();
     this.state ={     
       searchTerm: '',
-      curDate: '',
     }
   };
 
@@ -27,20 +26,13 @@ class ApproveNoneSaleExpensesScreen extends Component {
 
   componentDidMount(){
     this.props.getExpPendApr("21");
-    var date = new Date().getDate();
-    var month = new Date().getMonth() + 1;
-    var year = new Date().getFullYear();
-    var hours = new Date().getHours();
-    var min = new Date().getMinutes();
-    var sec = new Date().getSeconds();
-    this.setState({
-      curDate: year+', '+month+', '+date+' '+hours+':'+min+':'+sec,
-    });
   }
 
   setAge = (date) => {
-    var m1 = moment(date,'YYYY-MM-DD HH:mm:ss');
-    var m2 = moment(this.state.curDate,'YYYY-MM-DD HH:mm:ss');
+    var newDate = date.includes('/')?date : moment('date').format('DD/MM/YYYY')
+    var curDate = moment(new Date()).format('DD/MM/YYYY')
+    var m1 = moment(newDate,'DD/MM/YYYY');
+    var m2 = moment(curDate,'DD/MM/YYYY');
     var diff = moment.duration(m1.diff(m2)).humanize();
     return(
       diff
@@ -93,7 +85,7 @@ class ApproveNoneSaleExpensesScreen extends Component {
                 <View style={styles.itemInfo}>
                   <View style={styles.itemRow}>
                     <Text style={styles.itemLabel}>Creation Date:</Text>
-                    <Text style={styles.itemValue}>{item.creation_date}</Text>
+                    <Text style={styles.itemValue}>{moment(item.creation_date).format(global.DATEFORMAT)}</Text>
                   </View>
                   <View style={styles.itemRow}>
                     <Text style={styles.itemLabel}>Start Date:</Text>

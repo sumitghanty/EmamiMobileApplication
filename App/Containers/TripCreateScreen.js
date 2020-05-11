@@ -234,91 +234,6 @@ class TripCreateScreen extends Component {
     }
   }
 
-  /*submitTrip = (statusId) => {
-    this.setState({
-      isLoading: true
-    });
-    var generatedData= null;
-    this.props.generateId('TRIP')
-    .then(()=>{
-      this.setState({
-        tripNo: this.props.generateIdState.dataSource
-      });
-    })
-    .then(() => {    
-        this.props.tripCreate([{
-          "trip_no": this.state.tripNo,
-          "trip_from": this.state.fromItem.Name,
-          "trip_to": this.state.toItem.Name,
-          "trip_hdr_id": 0,
-          "start_date": moment(this.state.dateStart).format("YYYY-MM-DD"),
-          "end_date": moment(this.state.dateEnd).format("YYYY-MM-DD"),
-          "trip_for": this.state.forId,
-          "purpose": this.state.purposeId,
-          "trip_creator_name": global.USER.userName,
-          "trip_creator_userid": global.USER.userId,
-          "details": this.state.details.length>0?this.state.details:null,
-          "status_id": statusId,
-          "status": statusId == "1"?this.state.saveStatusName:statusId == "2"?this.state.createStatusName:'',
-          "userid": global.USER.userId,
-          "useremail": global.USER.userEmail,
-          "username": global.USER.userName,
-          "delete_status": "false",
-          "pending_with_email": global.USER.supervisorEmail,
-          "pending_with_name": global.USER.supervisorName,
-          "pending_with": global.USER.supervisorId,
-          "name": this.state.forId == "1" ? this.state.name 
-                : this.state.forId == "3" ? this.state.travelsName
-                : this.state.forId == "5" ? ''
-                :'',
-        }])
-        .then(()=>{
-          this.props.getTrips(global.USER.userId)
-          .then(()=>{
-            if(statusId == 2) {
-              for(var i=this.props.trips.dataSource.length; i>0; i--) {
-                if(this.props.trips.dataSource[i-1].trip_no == this.state.tripNo) {
-                  generatedData = this.props.trips.dataSource[i-1];                
-                  break;
-                }
-              }
-            } else {
-              console.log('Trip Saved')
-            }
-          })
-          .then(()=>{
-            if(statusId == 2) {
-            this.props.sendEmail({
-              "mailId": global.USER.supervisorEmail,
-              "cc": null,
-              "subject": 'Kindly provide approval for trip #'+this.state.tripNo,
-              "tripNonSales": generatedData,
-              "requisitionNonSales": null
-            })
-            }
-            else {
-              console.log('Trip Saved');
-            }
-          })
-          .then(()=>{
-            console.log('ready to navygate');
-            this.props.navigation.navigate('TripList');
-            this.setState({ 
-              error: false,
-              isLoading: false
-            });
-            if(statusId == "1") {
-              Toast.show('Trip Saved Successfully', Toast.LONG);
-            }
-            if(statusId == "2") {
-              Toast.show('Trip Submited Successfully', Toast.LONG);
-            }
-        })
-        })
-    })
-    Keyboard.dismiss();
-  }*/
-
   submitTrip = (statusId) => {
     this.setState({
       isLoading: true
@@ -380,34 +295,44 @@ class TripCreateScreen extends Component {
               console.log('Trip Saved')
             }
           })
-          /*.then(()=>{
+          .then(()=>{
             if(statusId == 2) {
-            this.props.sendEmail({
-              "mailId": global.USER.supervisorEmail,
-              "cc": global.USER.userEmail,
-              "subject": '#'+this.state.tripNo+" Trip Subimted.",
-              "tripNonSales": generatedData,
-              "requisitionNonSales": null
-            })
+              this.props.sendEmail({
+                "mailId": global.USER.supervisorEmail,
+                "cc": global.USER.userEmail,
+                "subject": 'Kindly provide approval for trip #'+this.state.tripNo,
+                "tripNonSales": generatedData,
+                "requisitionNonSales": null
+              })
+              .then(()=>{
+                console.log('ready to navygate');
+                this.props.navigation.navigate('TripList');
+                this.setState({ 
+                  error: false,
+                  isLoading: false
+                });
+                if(statusId == "1") {
+                  Toast.show('Trip Saved Successfully', Toast.LONG);
+                }
+                if(statusId == "2") {
+                  Toast.show('Trip Submited Successfully', Toast.LONG);
+                }
+              })
             }
             else {
-              console.log('Trip Saved');
+              this.props.navigation.navigate('TripList');
+              this.setState({ 
+                error: false,
+                isLoading: false
+              });
+              if(statusId == "1") {
+                Toast.show('Trip Saved Successfully', Toast.LONG);
+              }
+              if(statusId == "2") {
+                Toast.show('Trip Submited Successfully', Toast.LONG);
+              }
             }
-          })*/
-          .then(()=>{
-            console.log('ready to navygate');
-            this.props.navigation.navigate('TripList');
-            this.setState({ 
-              error: false,
-              isLoading: false
-            });
-            if(statusId == "1") {
-              Toast.show('Trip Saved Successfully', Toast.LONG);
-            }
-            if(statusId == "2") {
-              Toast.show('Trip Submited Successfully', Toast.LONG);
-            }
-        })
+          })
         })
     })
     .catch((Error) => {

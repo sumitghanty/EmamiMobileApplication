@@ -669,20 +669,14 @@ class AirReqSalesScreen extends Component {
           :null}
           {this.state.ticketList.map((item, index) => {
             return (
-            (params.sub_status_id == '11.1' || params.sub_status_id == '7.3' || params.sub_status_id == '11.2') ?
-              <View key={index} style={styles.ticketItemWraper}>
+            (params.update.sub_status_id == '11.1' || params.update.sub_status_id == '7.3' || params.update.sub_status_id == '11.2') ?
+              <View key={index} style={[
+                styles.ticketItemWraper,
+                {display:((this.state.selectTicketData.id != item.id) && (params.update.sub_status_id == '11.1' || params.update.sub_status_id == '11.2')) ?'none':'flex'}
+              ]}>
                 {this._ticketItem(item, params.update)}
               </View>
-            : Platform.OS === 'Android' ?
-              <TouchableNativeFeedback
-                useForeground={true}
-                onPress={()=>{this.selectTicket(item)}} 
-                key={index}
-                style={styles.ticketItemWraper}>
-                {this._ticketItem(item, params.update)}
-              </TouchableNativeFeedback>
-            :
-              <TouchableOpacity 
+            : <TouchableOpacity 
                 onPress={()=>{this.selectTicket(item)}} 
                 key={index}
                 style={styles.ticketItemWraper}>

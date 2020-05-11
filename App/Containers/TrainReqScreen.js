@@ -60,7 +60,7 @@ class TrainReqScreen extends Component {
       attachFiles: [],
       isLoading: false,
       modalVisible: false,
-      uploadData: [{"type":"Approve Email","file":[],'action':null},{"type":"Other","file":[],'action':null}],
+      uploadData: [],
       curUploadType: 'Approve Email',
       invoiceAmnt: (params.update && params.update.invoice_amount) ? params.update.invoice_amount :null,
       invoiceAmntError: null,
@@ -96,6 +96,7 @@ class TrainReqScreen extends Component {
       refresh: false,
       screenReady: params.update ? false : true,
       uploading: false,
+      trmName: params.claim?'claim_train_list':'ptf_train_list'
     };
   }
 
@@ -167,26 +168,40 @@ class TrainReqScreen extends Component {
       });
     }
 
-    if(params.update){
-      this.props.getAttachments(params.params.trip_hdr_id,this.state.tripNo,params.update.lineitem)
-      .then(()=>{
-        for(var i=0; i<this.props.attachmentList.dataSource.length; i++) {
-          for(var j=0; j<this.state.uploadData.length; j++) {
-            if(this.props.attachmentList.dataSource[i].doc_type == this.state.uploadData[j].type) {
-              this.state.uploadData[j].file.push({
-                'size': null,
-                'name': this.props.attachmentList.dataSource[i].file_name,
-                'type': 'image/'+this.getExtention(this.props.attachmentList.dataSource[i].file_name),
-                'uri': this.props.attachmentList.dataSource[i].file_path
-              })
-            }         
+    this.props.getRefernce(this.state.trmName)
+    .then(()=>{
+      for(var i=0; i<this.props.refernceList.dataSource.length; i++) {
+        this.state.uploadData.push({"type":this.props.refernceList.dataSource[i].trm_value,
+        "file":[],
+        'action':null,
+        'fileRequired':this.props.refernceList.dataSource[i].trm_mandatory})
+      }
+    })
+    .then(()=>{
+      if(params.update){
+        this.props.getAttachments(params.params.trip_hdr_id,this.state.tripNo,params.update.lineitem)
+        .then(()=>{
+          for(var i=0; i<this.props.attachmentList.dataSource.length; i++) {
+            for(var j=0; j<this.state.uploadData.length; j++) {
+              if(this.props.attachmentList.dataSource[i].doc_type == this.state.uploadData[j].type) {
+                this.state.uploadData[j].file.push({
+                  'size': null,
+                  'name': this.props.attachmentList.dataSource[i].file_name,
+                  'type': 'image/'+this.getExtention(this.props.attachmentList.dataSource[i].file_name),
+                  'uri': this.props.attachmentList.dataSource[i].file_path
+                })
+              }         
+            }
           }
-        }
-      })
-      .then(()=>{
+        })
+        .then(()=>{
+          this.setState({screenReady: true});
+        })
+      }
+      else {
         this.setState({screenReady: true});
-      })
-    }
+      }
+    })
 
     this.props.navigation.setParams({
       handleBackPress: this._handleBackPress.bind(this)
@@ -563,9 +578,17 @@ class TrainReqScreen extends Component {
     AsyncStorage.getItem("ASYNC_STORAGE_DELETE_KEY")
     .then(()=>{
       this.setState({
-        uploadData:  [{"type":"Approve Email","file":[],'action':null},{"type":"Other","file":[],'action':null}],
+        uploadData:  [],
         isLoading: true
       });
+    })
+    .then(()=>{
+      for(var i=0; i<this.props.refernceList.dataSource.length; i++) {
+        this.state.uploadData.push({"type":this.props.refernceList.dataSource[i].trm_value,
+        "file":[],
+        'action':null,
+        'fileRequired':this.props.refernceList.dataSource[i].trm_mandatory})
+      }
     })
     .then(()=>{
       for(var i=0; i<existData.length; i++) {
@@ -650,8 +673,26 @@ class TrainReqScreen extends Component {
       }
     }
   }
-
+  
   submitReq = () => {
+    AsyncStorage.getItem("ASYNC_STORAGE_SUBMIT_KEY")
+    .then(()=>{
+      for(var i=0; i<this.state.uploadData.length; i++) {
+        if(this.state.uploadData[i].fileRequired == 'Y' && (this.state.uploadData[i].file.length<1)) {
+          Alert.alert(
+            "Required Attachment",
+            "Please upload file for "+this.state.uploadData[i].type,
+            [{ text: "Ok", style: 'cancel' }],
+            { cancelable: true }
+          );
+          break;
+        }
+      }
+    })
+    .then(()=>{this.submitReqData()})    
+  }
+
+  submitReqData = () => {
     const {params} = this.props.navigation.state;
     if (!this.state.fromItem.Name || this.state.fromItem.Name == "Select From Location" ||
         !this.state.toItem.Name || this.state.toItem.Name == "Select To Location" ||
@@ -1403,7 +1444,8 @@ const mapStateToProps = state => {
     hotelList: state.hotelList,
     attachmentState: state.attachmentState,
     attachmentList: state.attachmentList,
-    attachmentDeleteState: state.attachmentDeleteState
+    attachmentDeleteState: state.attachmentDeleteState,
+    refernceList: state.refernceList
   };
 };
 
@@ -1417,7 +1459,8 @@ const mapDispatchToProps = {
   getHotels: Actions.getHotels,
   attachment: Actions.attachment,
   getAttachments: Actions.getAttachments,
-  attachmentDelete: Actions.attachmentDelete
+  attachmentDelete: Actions.attachmentDelete,
+  getRefernce: Actions.getRefernce
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TrainReqScreen);

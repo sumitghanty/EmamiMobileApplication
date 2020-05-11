@@ -76,7 +76,7 @@ class AdvPmntReqInfoScreen extends Component {
     this.changeStatus();
     if(this.state.changeStatusDone) {
       this.props.postAprAdvPmnt(this.state.updateParams)
-      /*.then(()=>{
+      .then(()=>{
         this.props.sendEmail({
           "mailId": global.USER.financerEmail,
           "cc": params.email,
@@ -84,13 +84,13 @@ class AdvPmntReqInfoScreen extends Component {
           "tripNonSales": this.state.updateParams,
           "requisitionNonSales": null
         })
-      })*/
-      .then(()=>{
-        this.props.getAdvPmntPend(global.USER.personId,"14");
-        this.props.navigation.navigate('ApproveNoneSaleAdvance');
-        Toast.show('Advance Payment Approved Successfully', Toast.LONG);
-        console.log('Approve Done');
-      });
+        .then(()=>{
+          this.props.getAdvPmntPend(global.USER.personId,"14");
+          this.props.navigation.navigate('ApproveNoneSaleAdvance');
+          Toast.show('Advance Payment Approved Successfully', Toast.LONG);
+          console.log('Approve Done');
+        });
+      })
     }
   }
 
@@ -98,21 +98,21 @@ class AdvPmntReqInfoScreen extends Component {
     this.changeRejStatus();
     if(this.state.changeStatusDone) {
       this.props.postAprAdvPmnt(this.state.updateParams)
-      /*.then(()=>{
+      .then(()=>{
         this.props.sendEmail({
           "mailId": params.email,
-          "cc": null,
+          "cc": 'chinmaymcc@gmail.co',
           "subject": 'trip #'+this.state.tripNo+' has been rejected.',
           "tripNonSales": this.state.updateParams,
           "requisitionNonSales": null
         })
-      })*/
-      .then(()=>{
-        this.props.getAdvPmntPend(global.USER.userId,"14");
-        this.props.navigation.navigate('ApproveNoneSaleAdvance');
-        Toast.show('Advance Payment Rejected Successfully', Toast.LONG);
-        console.log('Reject Done');
-      });
+        .then(()=>{
+          this.props.getAdvPmntPend(global.USER.userId,"14");
+          this.props.navigation.navigate('ApproveNoneSaleAdvance');
+          Toast.show('Advance Payment Rejected Successfully', Toast.LONG);
+          console.log('Reject Done');
+        });
+      })
     }
   }
 
@@ -321,7 +321,6 @@ const mapStateToProps = state => {
   return {
     aprAdvPmnt: state.aprAdvPmnt,
     aprvPmntPend: state.aprvPmntPend,
-    sendEmailState: state.sendEmailState,
     sendEmailState: state.sendEmailState,
   };
 };

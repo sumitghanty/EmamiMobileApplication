@@ -100,23 +100,23 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
     .then(()=>{
       this.props.aprvTripNonReq(this.state.updateParams)
       .then(()=>{         
-        /*this.props.sendEmail({
+        this.props.sendEmail({
           "mailId": params.email,
-          "cc": null,
+          "cc": 'chinmaymcc@gmail.com',
           "subject": params.status_id == "2"? 'trip #'+params.trip_no+' has been approved.'
                     : 'Requisition has been approved.',
           "tripNonSales": this.state.updateParams,
           "requisitionNonSales": null
-        })*/
-      })
-      .then(()=>{
-        this.props.getApprovedTripPending(global.USER.personId)
+        })
         .then(()=>{
-          this.props.navigation.goBack();
-          Toast.show('Trip approved Successfully', Toast.LONG);
-          console.log('Approve Done');
-        });
-      })
+          this.props.getApprovedTripPending(global.USER.personId)
+          .then(()=>{
+            this.props.navigation.goBack();
+            Toast.show('Trip approved Successfully', Toast.LONG);
+            console.log('Approve Done');
+          });
+        })
+      })      
     })
   }
 
@@ -146,23 +146,23 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
     })
     .then(()=>{
       this.props.aprvTripNonReq(this.state.updateParams)
-      /*.then(()=>{         
+      .then(()=>{         
         this.props.sendEmail({
           "mailId": params.email,
-          "cc": null,
+          "cc": 'chinmaymcc@gmail.com',
           "subject": params.status_id == "2"? 'trip #'+params.trip_no+' has been rejected.'
                     : 'Requisition has been rejected.',
           "tripNonSales": this.state.updateParams,
           "requisitionNonSales": null
         })
-      })*/
-      .then(()=>{
-        this.props.getApprovedTripPending(global.USER.personId)
         .then(()=>{
-          this.props.navigation.goBack();
-          Toast.show('Trip is rejected successfully', Toast.LONG);
-          console.log('Reject Done');
-        });
+          this.props.getApprovedTripPending(global.USER.personId)
+          .then(()=>{
+            this.props.navigation.goBack();
+            Toast.show('Trip is rejected successfully', Toast.LONG);
+            console.log('Reject Done');
+          });
+        })
       })
     })
   }
@@ -335,17 +335,17 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
     .then(()=>{
       this.props.postAprvTripWithReq(this.state.aprvReqList)
       .then(()=>{         
-        /*for(var i=0; i<this.state.SelectedDataList.length; i++) {
+        for(var i=0; i<this.state.SelectedDataList.length; i++) {
           let newaprvReqList = this.state.SelectedDataList[i];
           this.props.sendEmail({
             "mailId": params.email,
-            "cc": null,
+            "cc": 'chinmaymcc@gmail.com',
             "subject": newaprvReqList.status_id == "8"? 'Requisition has been approved.'
                       : 'Requisition has been completed.',
             "tripNonSales": params,
             "requisitionNonSales": {"sub_status_id":newaprvReqList.status_id == "8"?'9.1':'11.2'}
           })
-        }*/
+        }
       })
       .then(()=> {
         this.props.getApprovedTripPending(global.USER.personId)
@@ -412,17 +412,17 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
     .then(()=>{
       this.props.postAprvTripWithReq(this.state.aprvReqList)
       .then(()=>{         
-        /*for(var i=0; i<this.state.SelectedDataList.length; i++) {
+        for(var i=0; i<this.state.SelectedDataList.length; i++) {
           let newaprvReqList = this.state.SelectedDataList[i];
           this.props.sendEmail({
             "mailId": params.email,
-            "cc": null,
+            "cc": 'chinmaymcc@gmail.com',
             "subject": newaprvReqList.status_id == "8"? 'Requisition has been rejected.'
                       : 'Requisition has been completed.',
             "tripNonSales": params,
             "requisitionNonSales": {"sub_status_id":newaprvReqList.status_id == "8"?'10.1':'11.2'}
           })
-        }*/
+        }
       })
       .then(()=> {
         this.props.getApprovedTripPending(global.USER.personId)
@@ -734,6 +734,16 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
       <Text style={styles.cardTile}>{this.setReqName(data.req_type)}</Text>
     </View>
     <View style={styles.cardBody}>
+      {data.travel_from ?
+      <View style={styles.cardRow}>
+        <Text style={styles.cardLabel}>From:</Text>
+        <Text style={styles.cardValue}>{data.travel_from}</Text>
+      </View>:null}
+      {data.travel_to ?
+      <View style={styles.cardRow}>
+        <Text style={styles.cardLabel}>To:</Text>
+        <Text style={styles.cardValue}>{data.travel_to}</Text>
+      </View>:null}
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Status:</Text>
         <Text style={styles.cardValue}>{data.sub_status?data.sub_status:data.status}</Text>
@@ -752,24 +762,6 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
         <Text style={styles.cardLabel}>Approx Amount:</Text>
         <Text style={styles.cardValue}>{data.amount}</Text>
       </View>
-      {/*data.status_id == '3' || data.status_id == '4' ?
-      <View style={styles.cardRow}>
-        <Text style={styles.cardLabel}>Attachment:</Text>
-        <View style={styles.cardValueCol}>
-          <TouchableOpacity style={styles.atchLink}
-            onPress={() => {this.attachModalVisible(STAT_IMG);}}>
-            {(this.getExtention(STAT_IMG) == 'webp' ||
-              this.getExtention(STAT_IMG) == 'png' ||
-              this.getExtention(STAT_IMG) == 'jpg' ||
-              this.getExtention(STAT_IMG) == 'jpeg' ||
-              this.getExtention(STAT_IMG) == 'bmp' ||
-              this.getExtention(STAT_IMG) == 'gif'
-            ) ?
-            <Image source={{uri:STAT_IMG}} style={styles.atchImg} resizeMode='contain' />
-            :<Icon name="ios-paper" style={styles.atchImgIcon} />}            
-          </TouchableOpacity>
-        </View>
-      </View>:null*/}
     </View>    
   </TouchableOpacity>
     };
@@ -785,7 +777,6 @@ const mapStateToProps = state => {
     aprvTripPend: state.aprvTripPend,
     sendEmailState: state.sendEmailState,
     //statusResult: state.statusResult,
-    attachmentList: state.attachmentList
   };
 };
 
@@ -796,8 +787,7 @@ const mapDispatchToProps = {
   postAprvTripWithReq: Actions.postAprvTripWithReq,
   getApprovedTripPending: Actions.getApprovedTripPending,
   sendEmail: Actions.sendEmail,
-  //getStatus: Actions.getStatus,  
-  getAttachments: Actions.getAttachments
+  //getStatus: Actions.getStatus,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ApproveNoneSaleTripDetailsScreen);

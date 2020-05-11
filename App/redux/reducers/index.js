@@ -72,6 +72,7 @@ import SendEmailReducer from './SendEmail'
 import CeateClaimReqReducer from './ClaimReqCreate'
 import UpdatePjpTotReqReducer from './UpdatePjpTot'
 import UpdtClaimReqReducer from './UpdtClaimReq'
+import RefernceListReducer from './GetRefernce'
 
 export default {
 	locations:LocationsReducer,
@@ -147,5 +148,6 @@ export default {
 	sendEmailState:SendEmailReducer,
 	ceateClaimState:CeateClaimReqReducer,
 	updatePjpTotState:UpdatePjpTotReqReducer,
-	updtClaimReqState:UpdtClaimReqReducer
+	updtClaimReqState:UpdtClaimReqReducer,
+	refernceList:RefernceListReducer
 };

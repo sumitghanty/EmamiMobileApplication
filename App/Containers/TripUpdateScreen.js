@@ -325,36 +325,44 @@ class TripUpdateScreen extends Component {
             console.log('Trip Saved')
           }
         })
-        /*.then(()=>{
+        .then(()=>{
           if(statusId == 2) {
             this.props.sendEmail({
               "mailId": global.USER.supervisorEmail,
-              "cc": null,
+              "cc": 'chinmaymcc@gmail.com',
               "subject": 'Kindly provide approval for trip #'+this.state.tripNo,
               "tripNonSales": generatedData,
               "requisitionNonSales": null
             })
+            .then(()=>{
+              this.props.navigation.navigate('TripList')
+              this.setState({ 
+                error: false,
+                isLoading: false
+              });
+              if(statusId == "1") {
+                Toast.show('Trip Saved Successfully', Toast.LONG);
+              }
+              if(statusId == "2") {
+                Toast.show('Trip Updated Successfully', Toast.LONG);
+              }
+            })
           }
           else {
-            console.log('Trip Saved');
+            this.props.navigation.navigate('TripList')
+            this.setState({ 
+              error: false,
+              isLoading: false
+            });
+            if(statusId == "1") {
+              Toast.show('Trip Saved Successfully', Toast.LONG);
+            }
+            if(statusId == "2") {
+              Toast.show('Trip Updated Successfully', Toast.LONG);
+            }
           }
-        })*/
+        })
       })
-      .then(()=>{
-        this.props.navigation.navigate('TripList')       
-      })
-      .then(()=>{
-        this.setState({ 
-          error: false,
-          isLoading: false
-        });
-        if(statusId == "1") {
-          Toast.show('Trip Saved Successfully', Toast.LONG);
-        }
-        if(statusId == "2") {
-          Toast.show('Trip Updated Successfully', Toast.LONG);
-        }
-      }) ;
     })
     
     Keyboard.dismiss();
