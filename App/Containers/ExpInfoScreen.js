@@ -180,21 +180,35 @@ class ExpInfoScreen extends Component {
   }  
 
   tripSaveConfirmation() {
-    Alert.alert(
-      'Save',
-      'Do you want to Save?',
-      [
-        {
-          text: 'No',
-          style: 'cancel',
-        },
-        {
-          text: 'Yes', 
-          onPress: () => this.tripSave()
-        },
-      ],
-      {cancelable: true},
-    )
+    if(this.props.plans.dataSource.length>0){
+      Alert.alert(
+        'Save',
+        'Do you want to Save?',
+        [
+          {
+            text: 'No',
+            style: 'cancel',
+          },
+          {
+            text: 'Yes', 
+            onPress: () => this.tripSave()
+          },
+        ],
+        {cancelable: true},
+      )
+    } else {
+      Alert.alert(
+        'Warning',
+        'There is no requisition line item in the list to save',
+        [
+          {
+            text: 'Ok',
+            style: 'cancel',
+          },
+        ],
+        {cancelable: true},
+      ) 
+    }
   }
 
   tripSave() {
@@ -236,37 +250,51 @@ class ExpInfoScreen extends Component {
   }
 
   tripSubmitConfirmation() {
-    for(var i=0; i< this.props.plans.dataSource.length; i++) {
-      if(this.props.plans.dataSource[i].status_id == '19' && this.props.plans.dataSource[i].delete_status == 'false') {
-        Alert.alert(
-          'Warning',
-          'One or more Requisition is not complete. Please compleet unsaved requisition',
-          [
-            {
-              text: 'Ok',
-              style: 'cancel',
-            },
-          ],
-          {cancelable: true},
-        )
-        break;
+    if(this.props.plans.dataSource.length>0){
+      for(var i=0; i< this.props.plans.dataSource.length; i++) {
+        if(this.props.plans.dataSource[i].status_id == '19' && this.props.plans.dataSource[i].delete_status == 'false') {
+          Alert.alert(
+            'Warning',
+            'One or more Requisition is not complete. Please compleet unsaved requisition',
+            [
+              {
+                text: 'Ok',
+                style: 'cancel',
+              },
+            ],
+            {cancelable: true},
+          )
+          break;
+        }
       }
+      Alert.alert(
+        'Submit',
+        'Do you want to Submit?',
+        [
+          {
+            text: 'No',
+            style: 'cancel',
+          },
+          {
+            text: 'Yes', 
+            onPress: () => this.tripSubmit()
+          },
+        ],
+        {cancelable: true},
+      )
+    } else {
+      Alert.alert(
+        'Warning',
+        'There is no requisition line item in the list to save',
+        [
+          {
+            text: 'Ok',
+            style: 'cancel',
+          },
+        ],
+        {cancelable: true},
+      ) 
     }
-    Alert.alert(
-      'Submit',
-      'Do you want to Submit?',
-      [
-        {
-          text: 'No',
-          style: 'cancel',
-        },
-        {
-          text: 'Yes', 
-          onPress: () => this.tripSubmit()
-        },
-      ],
-      {cancelable: true},
-    )
   }
 
   tripSubmit() {
