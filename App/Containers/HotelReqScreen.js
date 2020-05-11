@@ -533,11 +533,20 @@ class HotelReqScreen extends Component {
   }
 
   handleCurrency = (text) => {
-    this.setState({ 
-      currency: text,
-      currencyError:null
-    })
-  }
+    var letter = /^[a-zA-Z]+$/; ;
+    if (letter.test(text) === true || text==='') {
+        this.setState({
+            currency: text,
+            currencyError: null,
+        })
+        return true;
+    }
+    else {
+        alert("Letters only!");
+        return false;
+    }
+   
+}
 
   handleCgst = (amnt) => {
     this.setState({ 

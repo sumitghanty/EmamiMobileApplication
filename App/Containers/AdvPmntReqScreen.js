@@ -72,12 +72,23 @@ class AdvPmntReqScreen extends Component {
       acrdVisible: this.state.acrdVisible == 0?1:0
     });
   }
-
+  
   handleChangeAmount = (amnt) => {
-    this.setState({ 
-      advAmount: amnt,
-      advAmntError: '',
-    })
+    var v= Math.sign(amnt);
+     if(v=== 1 || amnt===''){
+         this.setState({
+             advAmount: amnt,
+             advAmntError: '',
+         })
+     }
+     else if (amnt === "0")
+     {
+         alert("Enter Correct Amount");
+         
+     }
+     else {
+         alert("Enter Correct Amount");
+     } 
   }
 
   submitAdv = (statusId) => {

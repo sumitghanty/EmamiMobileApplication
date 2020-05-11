@@ -698,14 +698,14 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
     style={styles.cardItem} 
     onPress={() => this.props.navigation.navigate('ReqInfo',data)}>
     <View style={styles.cardItemHeader}>
-      {data.is_outof_policy=="Y" 
+      {/*data.is_outof_policy=="Y" 
       && data.status_id!="9" 
       && data.sub_status_id!="9.1"
       && data.status_id!="10" 
       && data.sub_status_id!="10.1" 
       && data.status_id!="11"
       && data.sub_status_id!="11.2"
-      && data.sub_status_id!="25"?
+      && data.status_id!="25"*/(data.sub_status_id == '8.1')?
       <TouchableOpacity 
         onPress={() => {this.press(data)}}
         style={[data.check ?styles.checkedBox :styles.unCheckedBox, styles.checkBox]}
