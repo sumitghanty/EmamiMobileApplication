@@ -437,7 +437,8 @@ class AirRequisitionScreen extends Component {
   onValueChangeThrough = (value) => {
     this.setState({
       through: value,
-      flight: value == "Travel Agent" ? "flight": null
+      flight: value == "Travel Agent" ? "flight": null,
+      amount: value=="Travel Agent"?0:amount
     });
   }
 
