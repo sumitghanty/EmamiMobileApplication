@@ -345,23 +345,23 @@ class ExpInfoScreen extends Component {
           this.props.sendEmail({
             "mailId": global.USER.supervisorName,
             "cc": 'chinmaymcc@gmail.com',
-            "subject": 'Kindly provide approval of expense for trip #'+trip_no,
+            "subject": 'Kindly provide approval of expense for trip #'+tripData.trip_no,
             "tripNonSales": tripData,
             "requisitionNonSales": null
           })
-        })
-        .then(()=>{
-          this.props.getExpenses(global.USER.userId,"3",["3","4","9","11","15","17","19","20","21","22","23","25","27","29"])
           .then(()=>{
-            this.setState({
-              isLoading: false,
+            this.props.getExpenses(global.USER.userId,"3",["3","4","9","11","15","17","19","20","21","22","23","25","27","29"])
+            .then(()=>{
+              this.setState({
+                isLoading: false,
+              });
+            })
+            .then(()=>{
+              this.props.navigation.goBack();
+              Toast.show('Expenses Submit Successfully', Toast.LONG);
             });
-          })
-          .then(()=>{
-            this.props.navigation.goBack();
-            Toast.show('Expenses Submit Successfully', Toast.LONG);
           });
-        });
+        })
       })
     });
   }

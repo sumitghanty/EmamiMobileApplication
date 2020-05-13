@@ -110,7 +110,10 @@ class PjpCreateScreen extends Component {
     this.setState({ details: text })
   }
 
-  submit=()=>{
+  submit=()=>{    
+    this.setState({
+      isLoading: true
+    });
     this.props.getPjpByMonth(global.USER.userId,this.state.selectedMonth,this.state.selectedYear)
     .then(()=>{
       if(this.props.getPjpByMonthState.dataSource.length>0) {
@@ -124,11 +127,11 @@ class PjpCreateScreen extends Component {
             },
           ],
           {cancelable: true},
-        )
-      } else {    
+        )    
         this.setState({
-          isLoading: true
-        });  
+          isLoading: false
+        });
+      } else {  
         this.saveData();
       }
     })

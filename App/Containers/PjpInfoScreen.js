@@ -157,7 +157,7 @@ class PjpInfoScreen extends Component {
     AsyncStorage.getItem("ASYNC_STORAGE_SHOULD_SUBMIT")
     .then(()=>{
       for(var i=0; i<dataList.length; i++) {
-        if((dataList[i].status_id == 0 || dataList[i].status_id == '6.1') && dataList[i].delete_status == 'false') {
+        if(dataList[i].mode < 0 && dataList[i].delete_status == 'false') {
           Alert.alert(
             '',
             'One or more Requisition is not complete. Please check and complete that.',
@@ -403,7 +403,7 @@ class PjpInfoScreen extends Component {
 
   renderItem = (data,index,params) => {
     let item = this.getItem(data.mode)
-    if(data.status_id == 0 || data.sub_status_id == '6.1') {
+    if(/*data.status_id == 0 || data.sub_status_id == '6.1'*/ parseInt(data.mode) < 0) {
       return <TouchableOpacity 
         key={index} 
         style={[styles.cardItem,styles.cardItemIntd]}
@@ -424,7 +424,7 @@ class PjpInfoScreen extends Component {
         (
           ((parseInt(data.status_id) == 7 /*&& (data.sub_status_id == '7.1' || data.sub_status_id == '7.2' || 
           ((data.sub_status_id == '7.4' || data.sub_status_id == '7.3') && data.flight_selected == 'Y'))*/ ) ||
-          (parseInt(data.status_id) == 11 && data.sub_status_id == '11.1' )) && parseInt(data.mode) == 7
+          data.sub_status_id == '11.1' || data.sub_status_id == '9.1' || data.sub_status_id == '8.1') && parseInt(data.mode) == 7
         )
         ?() => this.props.navigation.navigate('AirReqSales',{item, params, 'update':data,'estCost':this.state.actAmnt})
         :() => this.props.navigation.navigate('SalesReq',{item, params, 'update':data,'estCost':this.state.actAmnt})

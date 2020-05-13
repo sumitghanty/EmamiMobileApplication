@@ -129,7 +129,7 @@ class OtherRequisitionScreen extends Component {
       });    
       var newDays= moment(this.state.dateEnd, "YYYY-MM-DD").diff(moment(this.state.dateStart, "YYYY-MM-DD"), 'days')
       this.setState({
-        days: newDays+1,
+        days: newDays == 0? 1: newDays,
         aprxAmnt: parseFloat(params.item.upper_limit) * (parseInt(newDays)+1)
       });
     } else {
@@ -162,7 +162,7 @@ class OtherRequisitionScreen extends Component {
       });    
       var newDays= moment(this.state.dateEnd, "YYYY-MM-DD").diff(moment(this.state.dateStart, "YYYY-MM-DD"), 'days')
       this.setState({
-        days: newDays+1,
+        days: newDays == 0? 1: newDays,
         aprxAmnt: parseFloat(params.item.upper_limit) * (parseInt(newDays)+1)
       });
     } else { 

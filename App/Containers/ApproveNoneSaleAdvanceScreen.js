@@ -38,11 +38,11 @@ class ApproveNoneSaleAdvanceScreen extends Component {
   }
 
   setAge = (date) => {
-    var m1 = moment(date,'YYYY-MM-DD HH:mm:ss');
-    var m2 = moment(this.state.curDate,'YYYY-MM-DD HH:mm:ss');
-    var diff = moment.duration(m1.diff(m2)).humanize();
+    var newDate = date.includes('/')?date : moment(date).format('DD/MM/YYYY')
+    var curDate = moment(new Date()).format('DD/MM/YYYY')
+    var diff = moment(curDate, "DD/MM/YYYY").diff(moment(newDate, "DD/MM/YYYY"), 'days');
     return(
-      diff
+      diff<2?diff+' day':diff+' days'
     );
   }
 	

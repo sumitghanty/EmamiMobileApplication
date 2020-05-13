@@ -9,6 +9,7 @@ import Actions from '../redux/actions'
 import Toast from 'react-native-simple-toast'
 
 import Loader from '../Components/Loader'
+import {Purpose, For} from '../Components/GetValue'
 import styles from './Styles/PjpClaimAprvScreen'
 
 const TEMPLIST =[
@@ -283,9 +284,9 @@ class PjpClaimAprvScreen extends Component {
       tripParams.status = this.state.aprvStatusName;
       tripParams.sub_status_id = "NA";
       tripParams.sub_status = this.state.aprvSubStatusName;
-      tripParams.pending_with = global.USER.userId;
-      tripParams.pending_with_email = global.USER.userEmail;
-      tripParams.pending_with_name = global.USER.userName;
+      tripParams.pending_with = global.USER.financerId;
+      tripParams.pending_with_email = global.USER.financerEmail;
+      tripParams.pending_with_name = global.USER.financerName;
       tripParams.claim_justifiaction = this.state.justification;
     })
     .then(()=>{
@@ -325,9 +326,9 @@ class PjpClaimAprvScreen extends Component {
       tripParams.status = this.state.aprvStatusName;
       tripParams.sub_status_id = "NA";
       tripParams.sub_status = this.state.rejSubStatusName;
-      tripParams.pending_with = global.USER.userId;
-      tripParams.pending_with_email = global.USER.userEmail;
-      tripParams.pending_with_name = global.USER.userName;
+      tripParams.pending_with = tripParams.person_id;
+      tripParams.pending_with_email = tripParams.email;
+      tripParams.pending_with_name = tripParams.name;
       tripParams.claim_justifiaction = this.state.justification;
     })
     .then(()=>{
@@ -375,11 +376,11 @@ class PjpClaimAprvScreen extends Component {
         </View>
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>Purpose:</Text>
-          <Text style={styles.itemValue}>{params.purpose}</Text>
+          <Text style={styles.itemValue}><Purpose value={params.purpose} /></Text>
         </View>
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>Trip For:</Text>
-          <Text style={styles.itemValue}>{params.trip_for}</Text>
+          <Text style={styles.itemValue}><For value={params.trip_for} /></Text>
         </View>
         <View style={styles.itemRow}>
           <Text style={styles.itemLabel}>Traveler Name:</Text>

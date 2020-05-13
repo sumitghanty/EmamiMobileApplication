@@ -1,13 +1,51 @@
 import React, { Component } from 'react'
 import { ScrollView, View, Text, Image } from 'react-native'
 import moment from 'moment'
+import { connect } from 'react-redux'
+import Actions from '../redux/actions'
 
+import Loader from '../Components/Loader'
 import styles from './Styles/PjpReqDtlScreen'
 
 class PjpReqDtlScreen extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      ticket: null
+    }
+  }
+
+  componentDidMount(props){
+    const {params} = this.props.navigation.state
+
+    if(params.data.mode=='7') {
+      this.props.getTicketsSales(params.data.trip_no,params.data.lineitem,params.data.trip_hdr_id_fk)
+      .then(()=>{
+        if(this.props.ticketsSalesList.dataSource.length>0){
+          for(var i=0; i<this.props.ticketsSalesList.dataSource.length; i++) {
+            if(this.props.ticketsSalesList.dataSource[i].flight_selected=='Y') {
+              this.setState({
+                ticket: this.props.ticketsSalesList.dataSource[i]
+              });
+            }
+          }
+        }
+      })
+    }
+  }
+
   render() {
   const {params} = this.props.navigation.state;
   console.log(params)
+  if((params.data.mode=='7' && this.props.ticketsSalesList.isLoading)) {
+    return(
+      <Loader/>
+    )
+  } else if ((params.data.mode=='7' && this.props.ticketsSalesList.errorStatus)) {
+    return(
+      <Text>URL Error</Text>
+    )
+  } else {
   return(
   <ScrollView contentContainerStyle={styles.scrollView}>
     <View style={styles.header}>
@@ -22,6 +60,7 @@ class PjpReqDtlScreen extends Component {
     :null}
   </ScrollView>
   );
+  }
   }
 
   renderTrain = (data) => {
@@ -47,14 +86,15 @@ class PjpReqDtlScreen extends Component {
   }
 
   renderAirr = (data) => {
+    let ticket = this.state.ticket;
     return <>
     <View style={styles.row}>
       <Text style={styles.label}>Travel Date:</Text>
-      <Text style={styles.value}>{data.travel_date}</Text>
+      <Text style={styles.value}>{moment(data.travel_date).format(global.DATEFORMAT)}</Text>
     </View>
     <View style={styles.row}>
       <Text style={styles.label}>Eligible Amount/Per Flight:</Text>
-      <Text style={styles.value}>{data.travel_date}</Text>
+      <Text style={styles.value}>{moment(data.travel_date).format(global.DATEFORMAT)}</Text>
     </View>
     <View style={styles.row}>
       <Text style={styles.label}>Suitable Time:</Text>
@@ -91,12 +131,46 @@ class PjpReqDtlScreen extends Component {
         :(data.through == 'Vendor')?data.vendor_name
         :data.username}
       </Text>
-    </View>    
+    </View>  
+
+    {ticket ?<>
+    <Text style={styles.title}>Flight Details</Text>
+    <View style={styles.ticketItem}>
+      <View style={[
+        styles.ticketColumn,
+        styles.ticketLeft,
+        styles.selectedTicket,
+        styles.selectedTicketLeft
+        ]}>
+        <View style={[styles.circle, styles.circleLeft]}></View>
+        <Text style={styles.nameLabel}>Flight Name:</Text>
+        <Text style={styles.flightName}>{ticket.airline}</Text>
+        <Text style={styles.ticketLabel}>Departure Time &amp; Place:</Text>
+        <Text style={styles.ticketValue}>{ticket.departure}</Text>
+        <Text style={styles.ticketLabel}>Arival Time &amp; Place</Text>
+        <Text style={styles.ticketValue}>{ticket.arrival}</Text>
+      </View>
+      <View style={[
+        styles.ticketColumn,
+        styles.ticketRight,          
+        styles.selectedTicket,
+        styles.selectedTicketRight
+        ]}>
+        <View style={[styles.circle, styles.circleRight]}></View>
+        <Text style={styles.price}>{ticket.price}</Text>
+        <Text style={styles.currency}>{ticket.currency}</Text>        
+        <Text style={styles.oop}>Out of Policy:</Text>
+        <Text style={styles.oopValue}>{ticket.type}</Text>
+      </View>
+    </View>
+      </>:null}
+
     <Text style={[styles.label,styles.selfLable]}>Comments:</Text>
-    {(data.justification && data.justification.length>0) ?
-    <View style={styles.selfValueBlock}>
-      <Text style={styles.value}>{data.comment}</Text>
-    </View>:null}
+    <View style={styles.selfValueBlock}>      
+      {(data.justification && data.justification.length>0) ?
+        <Text style={styles.value}>{data.comment}</Text>
+      :null}
+    </View>
     </>
   }
 
@@ -126,4 +200,14 @@ class PjpReqDtlScreen extends Component {
   }
 }
 
-export default PjpReqDtlScreen;
+const mapStateToProps = state => {
+  return {
+    ticketsSalesList: state.ticketsSalesList,
+  };
+};
+
+const mapDispatchToProps = {
+  getTicketsSales: Actions.getTicketsSales,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(PjpReqDtlScreen);

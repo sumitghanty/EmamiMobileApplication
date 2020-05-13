@@ -28,12 +28,9 @@ class TripListScreen extends Component {
     this.props.getTrips(global.USER.userId);
   }
   setAge = (date) => {
-    let cd = moment(new Date(),'YYYY-MM-DD');
-    let nd = moment(cd).format('YYYY-MM-DD');
-    let m2 = (nd.replace('-','')).replace('-','')
-    let td = moment(date).format('YYYY-MM-DD');
-    let m1 = (td.replace('-','')).replace('-','')
-    var diff = parseInt(m1) - parseInt(m2)
+    var newDate = date.includes('/')?date : moment(date).format('DD/MM/YYYY')
+    var curDate = moment(new Date()).format('DD/MM/YYYY')
+    var diff = moment(curDate, "DD/MM/YYYY").diff(moment(newDate, "DD/MM/YYYY"), 'days');
     return(
       diff
     );
@@ -98,7 +95,7 @@ class TripListScreen extends Component {
                 || item.status_id == "10" 
                 || item.status_id == "11"
                 || parseInt(item.status_id) >= 26)
-                && (this.setAge(item.end_date) >= 0)) ?
+                && parseInt(this.setAge(item.end_date) >= 0)) ?
                 <View style={styles.itemHeaderRight}>
                   <TouchableOpacity onPress={() => this.props.navigation.navigate('TripPlan',item)}>
                     <LinearGradient

@@ -300,9 +300,9 @@ const StackNavigator = createStackNavigator({
   },  
   PjpAprvList: {
     screen:  PjpAprvListScreen,
-    drawerLabel: "PJP pending for approval",
+    drawerLabel: "PJP/Claim pending for approval",
     navigationOptions: ({ navigation }) => ({
-      title: 'PJP pending for approval'
+      title: 'PJP/Claim pending for approval'
     })
   },
   PjpTripAprv: {

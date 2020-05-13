@@ -374,7 +374,7 @@ class HotelReqScreen extends Component {
       });    
       var newDays= moment(this.state.dateCout, "YYYY-MM-DD").diff(moment(this.state.dateCin, "YYYY-MM-DD"), 'days')
       this.setState({
-        days: newDays+1
+        days: newDays == 0? 1: newDays
       });
     } else {
       this.setState({
@@ -432,7 +432,7 @@ class HotelReqScreen extends Component {
       });    
       var newDays= moment(this.state.dateCout, "YYYY-MM-DD").diff(moment(this.state.dateCin, "YYYY-MM-DD"), 'days')
       this.setState({
-        days: newDays+1
+        days: newDays == 0? 1: newDays
       });
     } else { 
       this.setState({

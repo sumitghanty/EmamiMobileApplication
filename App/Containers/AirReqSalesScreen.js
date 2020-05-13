@@ -33,7 +33,8 @@ class AirReqSalesScreen extends Component {
     super(props);
     const {params} = this.props.navigation.state;
     this.state = {
-      readOnly: params.update.sub_status_id == '7.3' ? true:false,
+      readOnly: (params.update.sub_status_id == '7.3' || params.update.sub_status_id == '9.1' || 
+      params.update.sub_status_id == '8.1') ? true:false,
       ticketList: null,
       selectTicketData: null,
       acrdOneVisible: params.update.sub_status_id =='7.1'?1:0,
@@ -124,6 +125,46 @@ class AirReqSalesScreen extends Component {
       });
     }
 
+    this.props.navigation.setParams({
+      handleBackPress: this._handleBackPress.bind(this)
+    });
+
+    this.backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      this._handleBackPress();
+      return true;
+    });
+
+  }
+
+  componentWillUnmount() {
+    this.backHandler.remove();
+  }
+
+  _handleBackPress() {
+    const {params} = this.props.navigation.state;
+    if ((params.update && params.update.sub_status_id == '11.1') ||
+        (params.update && params.update.sub_status_id == '7.1') ||
+        (params.update && params.update.sub_status_id == '7.3') ||
+        (params.update && params.update.sub_status_id == '11.2') )
+    {
+      this.props.navigation.goBack();
+    } else {
+      Alert.alert(
+        "Discard changes?",
+        "Are you sure to go back?",
+        [
+          {
+            text: "No",
+            style: 'cancel',
+          },
+          {
+            text: "Yes",
+            onPress: () => this.props.navigation.goBack(),
+          }
+        ],
+        { cancelable: false }
+      );
+    }
   }
 
   handleComment = (text) => {
@@ -478,7 +519,7 @@ class AirReqSalesScreen extends Component {
             newPJP.status = this.state.statusName;
             newPJP.sub_status = this.state.subStatusName;
             })*/
-            .then(()=>{
+            //.then(()=>{
               this.props.pjpTotal([newPJP])
               .then(()=>{
                 this.props.getReqSale(params.params.trip_hdr_id)
@@ -491,18 +532,18 @@ class AirReqSalesScreen extends Component {
                   })
                   .then(()=>{
                     this.props.navigation.goBack();
-                    Toast.show('Ticket Send to Agent Successfully', Toast.LONG);
+                    Toast.show('Requisition Saved Successfully', Toast.LONG);
                   });
                 })
               })
-            })
+            //})
           })          
         })
       } else {
         this.props.updtReqSale([newReq])
         .then(()=>{
-          this.atchFiles()
-          .then(()=>{
+          //this.atchFiles()
+          //.then(()=>{
             this.props.pjpTotal([newPJP])
             .then(()=>{
               this.props.getReqSale(params.params.trip_hdr_id)
@@ -520,7 +561,7 @@ class AirReqSalesScreen extends Component {
               })
             })
           })
-        })
+        //})
       }
     });
   }
@@ -549,6 +590,9 @@ class AirReqSalesScreen extends Component {
       )
     } else {
       console.log(params);
+      console.log(this.state.readOnly?'Y':'N')
+      console.log(this.state.ticketList);
+      console.log(this.state.selectTicketData);
     return (
       <KeyboardAvoidingView style={styles.container} behavior="margin, height, padding">
         <ScrollView contentContainerStyle={styles.scrollView}>
@@ -609,7 +653,7 @@ class AirReqSalesScreen extends Component {
             </>:null}
           </Form>
           
-          {(params.update.sub_status_id == '7.3') ? <>
+          {(params.update.sub_status_id == '11' && this.state.ticketList) ? <>
           <View style={[styles.accordionHeader,styles.mt]}>
             <Text style={styles.acrdTitle}>Flight Informations</Text>
           </View>
@@ -669,11 +713,9 @@ class AirReqSalesScreen extends Component {
           :null}
           {this.state.ticketList.map((item, index) => {
             return (
-            (params.update.sub_status_id == '11.1' || params.update.sub_status_id == '7.3' || params.update.sub_status_id == '11.2') ?
-              <View key={index} style={[
-                styles.ticketItemWraper,
-                {display:((this.state.selectTicketData.id != item.id) && (params.update.sub_status_id == '11.1' || params.update.sub_status_id == '11.2')) ?'none':'flex'}
-              ]}>
+            ( (params.update.sub_status_id == '11.1' || params.update.sub_status_id == '7.3' || 
+              params.update.sub_status_id == '11.2') && this.state.selectTicketData) ?
+              <View key={index} style={styles.ticketItemWraper}>
                 {this._ticketItem(item, params.update)}
               </View>
             : <TouchableOpacity 
@@ -682,6 +724,20 @@ class AirReqSalesScreen extends Component {
                 style={styles.ticketItemWraper}>
                 {this._ticketItem(item, params.update)}
               </TouchableOpacity>
+          )
+          })}
+          </>:null}
+
+          {(this.state.readOnly && this.state.ticketList && this.state.selectTicketData) ? <>
+          <Text style={styles.flightTitle}>Flight Details</Text>
+          {this.state.ticketList.map((item, index) => {
+            return (
+              <View key={index} style={[
+                styles.ticketItemWraper,
+                {display:((this.state.selectTicketData.id != item.id) && (params.update.sub_status_id == '11.1' || params.update.sub_status_id == '11.2')) ?'none':'flex'}
+              ]}>
+                {this._ticketItem(item, params.update)}
+              </View>
           )
           })}
           </>:null}

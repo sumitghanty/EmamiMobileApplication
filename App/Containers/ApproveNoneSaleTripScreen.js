@@ -28,12 +28,9 @@ class ApproveNoneSaleTripScreen extends Component {
   }
 
   setAge = (date) => {
-    let cd = moment(new Date(),'YYYY-MM-DD');
-    let nd = moment(cd).format('YYYY-MM-DD');
-    let m2 = (nd.replace('-','')).replace('-','')
-    let td = moment(date).format('YYYY-MM-DD');
-    let m1 = (td.replace('-','')).replace('-','')
-    var diff = parseInt(m1) - parseInt(m2)
+    var newDate = date.includes('/')?date : moment(date).format('DD/MM/YYYY')
+    var curDate = moment(new Date()).format('DD/MM/YYYY')
+    var diff = moment(curDate, "DD/MM/YYYY").diff(moment(newDate, "DD/MM/YYYY"), 'days');
     return(
       diff
     );
@@ -75,7 +72,7 @@ class ApproveNoneSaleTripScreen extends Component {
           <Text style={styles.noData}>No Item Found.</Text>
         }
         {sortList.map((item, index) => {
-          /*if( (this.setAge(item.end_date)>=0 && item.status_id != "3" && item.status_id != "5" && 
+          /*if( (parseInt(this.setAge(item.end_date))>=0 && item.status_id != "3" && item.status_id != "5" && 
           item.sub_status_id != "9.1" && item.sub_status_id != "10.1" && item.sub_status_id != "11.2" 
           && item.status_id != "22" && item.status_id != "23" ) || item.date_change_status == 'Y'){*/
         return (

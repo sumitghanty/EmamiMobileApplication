@@ -109,11 +109,11 @@ class SalesReqScreen extends Component {
     this.setState({
       firstDay: new Date(year, month - 1, 1),
       lastDay: new Date(year, month, 0),
-      dateStart: (params.update && params.update.pjp_date) ? params.update.pjp_date : new Date(year, month - 1, 1),
-      travelDate: (params.update && params.update.travel_date) ? params.update.travel_date : new Date(year, month - 1, 1),
-      dateCin: (params.update && params.update.check_in_date) ? params.update.check_in_date : new Date(year, month - 1, 1),
-      dateCout: (params.update && params.update.check_out_date) ? params.update.check_out_date : new Date(year, month - 1, 1),
-      cMinDate: (params.update && params.update.pjp_date) ? params.update.pjp_date : new Date(year, month - 1, 1),
+      dateStart: (params.update && params.update.pjp_date) ? new Date(params.update.pjp_date) : new Date(year, month - 1, 1),
+      travelDate: (params.update && params.update.travel_date) ? new Date(params.update.travel_date) : new Date(year, month - 1, 1),
+      dateCin: (params.update && params.update.check_in_date) ? new Date(params.update.check_in_date) : new Date(year, month - 1, 1),
+      dateCout: (params.update && params.update.check_out_date) ? new Date(params.update.check_out_date) : new Date(year, month - 1, 1),
+      cMinDate: (params.update && params.update.pjp_date) ? new Date(params.update.pjp_date) : new Date(year, month - 1, 1),
     });
 
     this.props.getReqLocations()
@@ -376,7 +376,7 @@ class SalesReqScreen extends Component {
       });    
       var newDays= moment(this.state.dateCout, "YYYY-MM-DD").diff(moment(this.state.dateCin, "YYYY-MM-DD"), 'days')
       this.setState({
-        days: newDays+1
+        days: newDays == 0? 1: newDays
       });
     } else {
       this.setState({
@@ -408,7 +408,7 @@ class SalesReqScreen extends Component {
       });    
       var newDays= moment(this.state.dateCout, "YYYY-MM-DD").diff(moment(this.state.dateCin, "YYYY-MM-DD"), 'days')
       this.setState({
-        days: newDays+1
+        days: newDays == 0? 1: newDays
       });
     } else { 
       this.setState({
