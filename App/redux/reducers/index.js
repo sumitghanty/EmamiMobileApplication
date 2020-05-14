@@ -64,7 +64,8 @@ import GetMaxAmntReducer from './GetMaxAmnt'
 import GetYearReducer from './GetYear'
 import GetPjpByMonthReducer from './GetPjpByMonth'
 import AttachmentReducer from './Attachment'
-import AttachmentListReducer from './GetAttachments'	
+import AttachmentListReducer from './GetAttachments'
+import AttachmentListSalesReducer from './GetAttachmentsSales'	
 import AttachmentSalesReducer from './AttachmentSales'
 import AttachmentDeleteReducer from './DeleteAttachment'
 import AttachmentDeleteSalesReducer from './DeleteAttachmentSales'
@@ -142,6 +143,7 @@ export default {
 	getPjpByMonthState:GetPjpByMonthReducer,
 	attachmentState:AttachmentReducer,
 	attachmentList:AttachmentListReducer,
+	attachmentListSales:AttachmentListSalesReducer,
 	attachmentSalesState:AttachmentSalesReducer,
 	attachmentDeleteState:AttachmentDeleteReducer,
 	attachmentDeleteSalesState:AttachmentDeleteSalesReducer,

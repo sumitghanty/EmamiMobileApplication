@@ -65,6 +65,7 @@ import {getYear} from './GetYear'
 import {getPjpByMonth} from './GetPjpByMonth'
 import {attachment} from './Attachment'
 import {getAttachments} from './GetAttachments'
+import {getAttachmentsSales} from './GetAttachmentsSales'
 import {attachmentSales} from './AttachmentSales'
 import {attachmentDelete} from './DeleteAttachment'
 import {attachmentDeleteSales} from './DeleteAttachmentSales'
@@ -142,6 +143,7 @@ export default {
 	getPjpByMonth:getPjpByMonth,
 	attachment:attachment,
 	getAttachments:getAttachments,
+	getAttachmentsSales:getAttachmentsSales,
 	attachmentSales:attachmentSales,
 	attachmentDelete:attachmentDelete,
 	attachmentDeleteSales:attachmentDeleteSales,

@@ -170,6 +170,9 @@ class TrainReqScreen extends Component {
 
     this.props.getRefernce(this.state.trmName)
     .then(()=>{
+      this.setState({
+        curUploadType: this.props.refernceList.dataSource[0].trm_value
+      });
       for(var i=0; i<this.props.refernceList.dataSource.length; i++) {
         this.state.uploadData.push({"type":this.props.refernceList.dataSource[i].trm_value,
         "file":[],
@@ -675,6 +678,7 @@ class TrainReqScreen extends Component {
   }
   
   submitReq = () => {
+    let shouldSubmit = true;
     AsyncStorage.getItem("ASYNC_STORAGE_SUBMIT_KEY")
     .then(()=>{
       for(var i=0; i<this.state.uploadData.length; i++) {
@@ -689,7 +693,11 @@ class TrainReqScreen extends Component {
         }
       }
     })
-    .then(()=>{this.submitReqData()})    
+    .then(()=>{
+      if(shouldSubmit) {
+        this.submitReqData()
+      }
+    })    
   }
 
   submitReqData = () => {
@@ -938,6 +946,7 @@ class TrainReqScreen extends Component {
       this.props.statusResult.isLoading ||
       (params.update && this.props.attachmentList.isLoading) ||
       (params.claim && this.props.hotelList.isLoading) ||
+      this.props.refernceList.isLoading ||
       !this.state.screenReady
       ){
       return(
@@ -955,6 +964,7 @@ class TrainReqScreen extends Component {
       this.props.locations.errorStatus || 
       this.props.statusResult.errorStatus ||
       (params.claim && this.props.hotelList.errorStatus) ||
+      this.props.refernceList.errorStatus ||
       (params.update && this.props.attachmentList.errorStatus)) {
       return(
         <Text>URL Error</Text>

@@ -96,6 +96,9 @@ class TaxiRequisitionScreen extends Component {
 
     this.props.getRefernce(this.state.trmName)
     .then(()=>{
+      this.setState({
+        curUploadType: this.props.refernceList.dataSource[0].trm_value
+      });
       for(var i=0; i<this.props.refernceList.dataSource.length; i++) {
         this.state.uploadData.push({"type":this.props.refernceList.dataSource[i].trm_value,
                                   "file":[],
@@ -467,10 +470,12 @@ class TaxiRequisitionScreen extends Component {
   }
 
   submitReq = () => {
+    let shouldSubmit = true;
     AsyncStorage.getItem("ASYNC_STORAGE_SUBMIT_KEY")
     .then(()=>{
       for(var i=0; i<this.state.uploadData.length; i++) {
         if(this.state.uploadData[i].fileRequired == 'Y' && (this.state.uploadData[i].file.length<1)) {
+          shouldSubmit = false;
           Alert.alert(
             "Required Attachment",
             "Please upload file for "+this.state.uploadData[i].type,
@@ -481,7 +486,11 @@ class TaxiRequisitionScreen extends Component {
         }
       }
     })
-    .then(()=>{this.submitReqData()})    
+    .then(()=>{
+      if(shouldSubmit) {
+        this.submitReqData()
+      }
+    })    
   }
 
   submitReqData = () => {
@@ -642,6 +651,7 @@ class TaxiRequisitionScreen extends Component {
       this.props.plans.isLoading ||
       this.props.statusResult.isLoading ||
       (params.update && this.props.attachmentList.isLoading) ||
+      this.props.refernceList.isLoading ||
       !this.state.screenReady
       ){
       return(
@@ -656,6 +666,7 @@ class TaxiRequisitionScreen extends Component {
       || this.props.reqUpdateState.errorStatus 
       || this.props.plans.errorStatus 
       || this.props.statusResult.errorStatus ||
+      this.props.refernceList.errorStatus ||
       (params.update && this.props.attachmentList.errorStatus)
     ) {
       return(

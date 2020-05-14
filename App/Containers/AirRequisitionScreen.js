@@ -187,6 +187,9 @@ class AirRequisitionScreen extends Component {
 
     this.props.getRefernce(this.state.trmName)
     .then(()=>{
+      this.setState({
+        curUploadType: this.props.refernceList.dataSource[0].trm_value
+      });
       for(var i=0; i<this.props.refernceList.dataSource.length; i++) {
         this.state.uploadData.push({"type":this.props.refernceList.dataSource[i].trm_value,
         "file":[],
@@ -775,6 +778,7 @@ class AirRequisitionScreen extends Component {
   }
 
   submitReq = () => {
+    let shouldSubmit = true;
     AsyncStorage.getItem("ASYNC_STORAGE_SUBMIT_KEY")
     .then(()=>{
       for(var i=0; i<this.state.uploadData.length; i++) {
@@ -789,7 +793,11 @@ class AirRequisitionScreen extends Component {
         }
       }
     })
-    .then(()=>{this.submitReqData()})    
+    .then(()=>{
+      if(shouldSubmit) {
+        this.submitReqData()
+      }
+    })    
   }
 
   submitReqData = () => {    
@@ -1116,6 +1124,7 @@ class AirRequisitionScreen extends Component {
       (params.update && this.props.ticketsList.isLoading) ||
       (params.update && this.props.attachmentList.isLoading) ||
       (params.claim && this.props.hotelList.isLoading) ||
+      this.props.refernceList.isLoading ||
       !this.state.screenReady
       ){
       return(
@@ -1136,6 +1145,7 @@ class AirRequisitionScreen extends Component {
       this.props.vendorList.errorStatus ||
       (params.update && this.props.ticketsList.errorStatus) ||
       (params.update && this.props.attachmentList.errorStatus) ||
+      this.props.refernceList.errorStatus ||
       (params.claim && this.props.hotelList.errorStatus)
       ) {
       return(

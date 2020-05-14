@@ -217,6 +217,9 @@ class HotelReqScreen extends Component {
 
     this.props.getRefernce(this.state.trmName)
     .then(()=>{
+      this.setState({
+        curUploadType: this.props.refernceList.dataSource[0].trm_value
+      });
       for(var i=0; i<this.props.refernceList.dataSource.length; i++) {
         this.state.uploadData.push({"type":this.props.refernceList.dataSource[i].trm_value,
         "file":[],
@@ -952,6 +955,7 @@ class HotelReqScreen extends Component {
   }  
 
   submitReq = () => {
+    let shouldSubmit = true;
     AsyncStorage.getItem("ASYNC_STORAGE_SUBMIT_KEY")
     .then(()=>{
       for(var i=0; i<this.state.uploadData.length; i++) {
@@ -966,7 +970,11 @@ class HotelReqScreen extends Component {
         }
       }
     })
-    .then(()=>{this.submitReqData()})    
+    .then(()=>{
+      if(shouldSubmit) {
+        this.submitReqData()
+      }
+    })    
   }
 
   submitReqData = () => {
@@ -1062,6 +1070,7 @@ class HotelReqScreen extends Component {
       this.props.statusResult.isLoading ||
       this.props.locations.isLoading ||
       (params.update && this.props.attachmentList.isLoading) ||
+      this.props.refernceList.isLoading ||
       !this.state.screenReady){
       return(
         <View style={{flax:1, flexDirection: 'column', alignItems:'center', justifyContent:'center', height:'100%', backgroundColor:'#fff'}}>
@@ -1079,6 +1088,7 @@ class HotelReqScreen extends Component {
       this.props.stateList.errorStatus ||
       this.props.locations.errorStatus || 
       this.props.statusResult.errorStatus ||
+      this.props.refernceList.errorStatus ||
       (params.update && this.props.attachmentList.errorStatus)) {
       return(
         <Text>URL Error</Text>

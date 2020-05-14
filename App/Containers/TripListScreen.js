@@ -95,7 +95,7 @@ class TripListScreen extends Component {
                 || item.status_id == "10" 
                 || item.status_id == "11"
                 || parseInt(item.status_id) >= 26)
-                && parseInt(this.setAge(item.end_date) >= 0)) ?
+                /*&& parseInt(this.setAge(item.end_date) >= 0)*/) ?
                 <View style={styles.itemHeaderRight}>
                   <TouchableOpacity onPress={() => this.props.navigation.navigate('TripPlan',item)}>
                     <LinearGradient
