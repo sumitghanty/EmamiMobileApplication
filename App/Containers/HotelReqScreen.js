@@ -68,6 +68,7 @@ class HotelReqScreen extends Component {
       amount: (params.update && params.update.amount) ? params.update.amount :null,
       amntError: null,
       days: (params.update && params.update.days) ? params.update.days : 1,
+      actualDays: 0,
       modalVisible: false,
       uploadData: [],
       curUploadType: 'Approve Email',
@@ -377,7 +378,8 @@ class HotelReqScreen extends Component {
       });    
       var newDays= moment(this.state.dateCout, "YYYY-MM-DD").diff(moment(this.state.dateCin, "YYYY-MM-DD"), 'days')
       this.setState({
-        days: newDays == 0? 1: newDays
+        days: newDays == 0? 1: newDays,
+        actualDays: newDays,
       });
     } else {
       this.setState({
@@ -435,7 +437,8 @@ class HotelReqScreen extends Component {
       });    
       var newDays= moment(this.state.dateCout, "YYYY-MM-DD").diff(moment(this.state.dateCin, "YYYY-MM-DD"), 'days')
       this.setState({
-        days: newDays == 0? 1: newDays
+        days: newDays == 0? 1: newDays,
+        actualDays: newDays,
       });
     } else { 
       this.setState({
@@ -458,7 +461,7 @@ class HotelReqScreen extends Component {
   setTimeCout = (event, timeCout) => {
     if(timeCout != undefined) {
       timeCout = timeCout || this.state.timeCout;
-      if(this.state.days == 1 && (parseInt(moment(timeCout).format('HH:mm'))<=parseInt(this.state.timeCin))){
+      if(this.state.actualDays == 0 && (parseInt(moment(timeCout).format('HH:mm'))<=parseInt(this.state.timeCin))){
         Alert.alert(
           "",
           "CheckOut time can not be less or equal then CheckIn Time for same day.",
@@ -470,6 +473,9 @@ class HotelReqScreen extends Component {
           ],
           { cancelable: true }
         );
+        this.setState({
+          showTimeCout: Platform.OS === 'ios' ? true : false,
+        });
       } else {
         this.setState({
           showTimeCout: Platform.OS === 'ios' ? true : false,
@@ -524,14 +530,18 @@ class HotelReqScreen extends Component {
     this.setState({ 
       amount: amnt,
       amntError: null,
-      OOP: (((params.item.upper_limit == "NA") && amnt > this.state.maxAmt) || amnt > this.state.maxAmt) ?'Y':'N'
+      OOP: (((params.item.upper_limit == "NA") && parseFloat(amnt) > parseFloat(this.state.maxAmt)) 
+            || parseFloat(amnt) > parseFloat(this.state.maxAmt)) ?'Y':'N'
     })
   }
 
   handleInvoiceAmnt = (amnt) => {
+    const {params} = this.props.navigation.state;
     this.setState({ 
       invoiceAmnt: amnt,
-      invoiceAmntError:null
+      invoiceAmntError:null,
+      OOP: (((params.item.upper_limit == "NA") && parseFloat(amnt) > parseFloat(this.state.maxAmt)) 
+            || parseFloat(amnt) > parseFloat(this.state.maxAmt)) ?'Y':'N'
     })
   }
 
@@ -960,6 +970,7 @@ class HotelReqScreen extends Component {
     .then(()=>{
       for(var i=0; i<this.state.uploadData.length; i++) {
         if(this.state.uploadData[i].fileRequired == 'Y' && (this.state.uploadData[i].file.length<1)) {
+          shouldSubmit = false;
           Alert.alert(
             "Required Attachment",
             "Please upload file for "+this.state.uploadData[i].type,
@@ -967,6 +978,8 @@ class HotelReqScreen extends Component {
             { cancelable: true }
           );
           break;
+        } else {
+          shouldSubmit = true;
         }
       }
     })
@@ -1094,7 +1107,7 @@ class HotelReqScreen extends Component {
         <Text>URL Error</Text>
       )
     } else {
-    //console.log(params);
+    console.log(params);
     return (
       <KeyboardAvoidingView style={styles.container} behavior="margin, height, padding">
         <ScrollView contentContainerStyle={styles.scrollView}>

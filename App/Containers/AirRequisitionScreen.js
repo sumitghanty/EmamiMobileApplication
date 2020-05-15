@@ -783,6 +783,7 @@ class AirRequisitionScreen extends Component {
     .then(()=>{
       for(var i=0; i<this.state.uploadData.length; i++) {
         if(this.state.uploadData[i].fileRequired == 'Y' && (this.state.uploadData[i].file.length<1)) {
+          shouldSubmit = false;
           Alert.alert(
             "Required Attachment",
             "Please upload file for "+this.state.uploadData[i].type,
@@ -790,6 +791,8 @@ class AirRequisitionScreen extends Component {
             { cancelable: true }
           );
           break;
+        } else {
+          shouldSubmit = true;
         }
       }
     })

@@ -49,19 +49,22 @@ class AirReqSalesScreen extends Component {
       statusName: '',
       subStatusName: '',      
       statusClaimName: '',
-      
-      attachFiles: [],
       isLoading: false,
       modalVisible: false,
-      uploadData: [{"type":"Approve Email","file":[],'action':null},{"type":"E-Ticket","file":[],'action':null},{"type":"Other","file":[],'action':null}],
-      curUploadType: 'Approve Email',      
-      flieSizeIssue: false,
+
       uploading: false,
+      uploadData: [],
+      curUploadType: 'Approve Email',
+      attachFiles: [],     
+      flieSizeIssue: false,
+      trmName: 'ptf_airTravel_list',
+      modalAttchVisible: 0,
     };
   }
 
   componentDidMount() {
     const {params} = this.props.navigation.state;
+    console.log(params)
 
     this.props.getStatus("7","7.5")
     .then(()=>{
@@ -95,17 +98,29 @@ class AirReqSalesScreen extends Component {
       }
     })
 
-    if(params.update){
-      this.props.getAttachments(params.params.trip_hdr_id,this.state.tripNo,params.update.lineitem)
+    this.props.getRefernce(this.state.trmName)
+    .then(()=>{
+      this.setState({
+        curUploadType: this.props.refernceList.dataSource[0].trm_value
+      });
+      for(var i=0; i<this.props.refernceList.dataSource.length; i++) {
+        this.state.uploadData.push({"type":this.props.refernceList.dataSource[i].trm_value,
+        "file":[],
+        'action':null,
+        'fileRequired':this.props.refernceList.dataSource[i].trm_mandatory})
+      }
+    })
+    .then(()=>{
+      this.props.getAttachmentsSales(params.params.trip_hdr_id,params.update.trip_no,params.update.lineitem)
       .then(()=>{
-        for(var i=0; i<this.props.attachmentList.dataSource.length; i++) {
+        for(var i=0; i<this.props.attachmentListSales.dataSource.length; i++) {
           for(var j=0; j<this.state.uploadData.length; j++) {
-            if(this.props.attachmentList.dataSource[i].doc_type == this.state.uploadData[j].type) {
+            if(this.props.attachmentListSales.dataSource[i].doc_type == this.state.uploadData[j].type) {
               this.state.uploadData[j].file.push({
                 'size': null,
-                'name': this.props.attachmentList.dataSource[i].file_name,
-                'type': 'image/'+this.getExtention(this.props.attachmentList.dataSource[i].file_name),
-                'uri': this.props.attachmentList.dataSource[i].file_path
+                'name': this.props.attachmentListSales.dataSource[i].file_name,
+                'type': 'image/'+this.getExtention(this.props.attachmentListSales.dataSource[i].file_name),
+                'uri': this.props.attachmentListSales.dataSource[i].file_path
               })
             }         
           }
@@ -114,16 +129,7 @@ class AirReqSalesScreen extends Component {
       .then(()=>{
         this.setState({screenReady: true});
       })
-    }
-
-    if(params.claim){
-      this.props.getStatus("20","NA")
-      .then(()=>{
-        this.setState({
-          statusClaimName: this.props.statusResult.dataSource[0].trip_pjp_status,
-        });
-      });
-    }
+    })
 
     this.props.navigation.setParams({
       handleBackPress: this._handleBackPress.bind(this)
@@ -171,14 +177,6 @@ class AirReqSalesScreen extends Component {
     this.setState({ comments: text })
   }
 
-  setModalVisible(visible) {
-    this.setState({modalVisible: visible});
-  }
-
-  onValueChangeUploadType = (value) => {
-    this.setState({ curUploadType: value });
-  }
-
   setAcrdOneVisible() {
     this.setState({
       acrdOneVisible: this.state.acrdOneVisible == 0?1:0
@@ -189,6 +187,14 @@ class AirReqSalesScreen extends Component {
     this.setState({
       acrdThreeVisible: this.state.acrdThreeVisible == 0?1:0
     });
+  }
+
+  onValueChangeUploadType = (value) => {
+    this.setState({ curUploadType: value });
+  }
+
+  setModalAttchVisible(visible) {
+    this.setState({modalAttchVisible: visible});
   }
 
   uploadRequest = ()=> {
@@ -205,7 +211,7 @@ class AirReqSalesScreen extends Component {
         { cancelable: true }
       );
     } else {
-      this.setState({modalVisible: false});
+      this.setState({modalAttchVisible: false});
     }
   }
 
@@ -304,18 +310,26 @@ class AirReqSalesScreen extends Component {
 
   deleteAttachemnt = (name) => {
     const {params} = this.props.navigation.state;
-    let existData = this.props.attachmentList.dataSource;
+    let existData = this.props.attachmentListSales.dataSource;
     AsyncStorage.getItem("ASYNC_STORAGE_DELETE_KEY")
     .then(()=>{
       this.setState({
-        uploadData:  [{"type":"Approve Email","file":[],'action':null},{"type":"E-Ticket","file":[],'action':null},{"type":"Other","file":[],'action':null}],
+        uploadData:  [],
         isLoading: true
       });
     })
     .then(()=>{
+      for(var i=0; i<this.props.refernceList.dataSource.length; i++) {
+        this.state.uploadData.push({"type":this.props.refernceList.dataSource[i].trm_value,
+        "file":[],
+        'action':null,
+        'fileRequired':this.props.refernceList.dataSource[i].trm_mandatory})
+      }
+    })
+    .then(()=>{
       for(var i=0; i<existData.length; i++) {
         if(existData[i].file_name == name) {
-          this.props.attachmentDelete(
+          this.props.attachmentDeleteSales(
             global.USER.personId,
             global.PASSWORD,
             {
@@ -324,16 +338,16 @@ class AirReqSalesScreen extends Component {
             }
           )          
         .then(()=>{
-          this.props.getAttachments(params.params.trip_hdr_id,this.state.tripNo,params.update.lineitem)
+          this.props.getAttachmentsSales(params.params.trip_hdr_id,this.state.tripNo,params.update.lineitem)
           .then(()=>{
-            for(var i=0; i<this.props.attachmentList.dataSource.length; i++) {
+            for(var i=0; i<this.props.attachmentListSales.dataSource.length; i++) {
               for(var j=0; j<this.state.uploadData.length; j++) {
-                if(this.props.attachmentList.dataSource[i].doc_type == this.state.uploadData[j].type) {
+                if(this.props.attachmentListSales.dataSource[i].doc_type == this.state.uploadData[j].type) {
                   this.state.uploadData[j].file.push({
                     'size': null,
-                    'name': this.props.attachmentList.dataSource[i].file_name,
-                    'type': 'image/'+this.getExtention(this.props.attachmentList.dataSource[i].file_name),
-                    'uri': this.props.attachmentList.dataSource[i].file_path
+                    'name': this.props.attachmentListSales.dataSource[i].file_name,
+                    'type': 'image/'+this.getExtention(this.props.attachmentListSales.dataSource[i].file_name),
+                    'uri': this.props.attachmentListSales.dataSource[i].file_path
                   })
                 }         
               }
@@ -380,12 +394,12 @@ class AirReqSalesScreen extends Component {
                 "userId": params.params.userid,
                 "trip_hdr_id_fk": params.params.trip_hdr_id,
                 "name": this.state.uploadData[i].file[f].name,
-                "flow_type": params.claim?'ECR':'PT',
+                "flow_type": 'PT',
                 "base64Str":fileBase64,
               }
             })
             .then(()=>{
-              this.props.attachment(global.USER.personId,global.PASSWORD,data)
+              this.props.attachmentSales(global.USER.personId,global.PASSWORD,data)
             })
             .catch((err) => {
               console.log(err.message, err.code);
@@ -396,7 +410,36 @@ class AirReqSalesScreen extends Component {
     }
   }
 
-  submitReq = () => { 
+  submitReq = () => {
+    const {params} = this.props.navigation.state;
+    if(params.item.category_id == '7') {
+      let shouldSubmit = true;
+      AsyncStorage.getItem("ASYNC_STORAGE_SUBMIT_KEY")
+      .then(()=>{
+        for(var i=0; i<this.state.uploadData.length; i++) {
+          if(this.state.uploadData[i].fileRequired == 'Y' && (this.state.uploadData[i].file.length<1)) {
+            shouldSubmit = false;
+            Alert.alert(
+              "Required Attachment",
+              "Please upload file for "+this.state.uploadData[i].type,
+              [{ text: "Ok", style: 'cancel' }],
+              { cancelable: true }
+            );
+            break;
+          } else {
+            shouldSubmit = true;
+          }
+        }
+      })
+      .then(()=>{
+        if(shouldSubmit) {
+          this.submitReqData()
+        }
+      })
+    }
+  }
+
+  submitReqData = () => { 
     this.setState({
       isLoading: true
     });   
@@ -519,7 +562,7 @@ class AirReqSalesScreen extends Component {
             newPJP.status = this.state.statusName;
             newPJP.sub_status = this.state.subStatusName;
             })*/
-            //.then(()=>{
+            .then(()=>{
               this.props.pjpTotal([newPJP])
               .then(()=>{
                 this.props.getReqSale(params.params.trip_hdr_id)
@@ -536,14 +579,14 @@ class AirReqSalesScreen extends Component {
                   });
                 })
               })
-            //})
+            })
           })          
         })
       } else {
         this.props.updtReqSale([newReq])
         .then(()=>{
-          //this.atchFiles()
-          //.then(()=>{
+          this.atchFiles()
+          .then(()=>{
             this.props.pjpTotal([newPJP])
             .then(()=>{
               this.props.getReqSale(params.params.trip_hdr_id)
@@ -561,7 +604,7 @@ class AirReqSalesScreen extends Component {
               })
             })
           })
-        //})
+        })
       }
     });
   }
@@ -571,7 +614,7 @@ class AirReqSalesScreen extends Component {
 
     if(this.state.isLoading ||
       this.props.statusResult.isLoading ||
-      this.props.attachmentList.isLoading
+      this.props.attachmentListSales.isLoading
       ){
       return(
         <View style={{flax:1, flexDirection: 'column', alignItems:'center', justifyContent:'center', height:'100%', backgroundColor:'#fff'}}>
@@ -583,7 +626,7 @@ class AirReqSalesScreen extends Component {
       )
     } else if(
       this.props.statusResult.errorStatus ||
-      this.props.attachmentList.errorStatus
+      this.props.attachmentListSales.errorStatus
       ) {
       return(
         <Text>URL Error</Text>
@@ -745,7 +788,7 @@ class AirReqSalesScreen extends Component {
           <View style={styles.attachRow}>
             <Text style={styles.formLabel}>Attachments:</Text>  
             {(params.update.sub_status_id != '7.1' && params.update.sub_status_id != '7.3') ?            
-            <Button rounded bordered info onPress={() => { this.setModalVisible(true); }} style={styles.atchBtn}>                
+            <Button rounded bordered info onPress={() => { this.setModalAttchVisible(true); }} style={styles.atchBtn}>                
               <Icon name='attach' style={{fontSize:16, marginRight:0}} />
               <Text style={{fontSize:12,textAlign:'center'}}>
                 Attach Documents
@@ -801,8 +844,8 @@ class AirReqSalesScreen extends Component {
         <Modal
           animationType="slide"
           transparent={false}
-          visible={this.state.modalVisible}
-          onRequestClose={() => {this.setModalVisible(false)}}>
+          visible={this.state.modalAttchVisible}
+          onRequestClose={() => {this.setModalAttchVisible(false)}}>
           <View style={styles.atchMdlHeader}>
             <Text style={styles.atchMdlHdrTtl}>Upload Document</Text>
           </View>
@@ -852,7 +895,7 @@ class AirReqSalesScreen extends Component {
           </ScrollView>
           <View style={styles.atchMdlFtr}>
             <TouchableOpacity 
-              onPress={() => {this.setModalVisible(!this.state.modalVisible);}} 
+              onPress={() => {this.setModalAttchVisible(!this.state.modalAttchVisible);}} 
               style={[styles.atchMdlFtrBtn,styles.atchMdlFtrBtnSecondary]}>
               <Text style={styles.atchMdlFtrBtnText}>Cancel</Text>
             </TouchableOpacity>
@@ -929,11 +972,13 @@ const mapStateToProps = state => {
     ticketsSalesList: state.ticketsSalesList,
     updateVndAirResSalesState: state.updateVndAirResSalesState,
     attachmentState: state.attachmentState,
-    attachmentList: state.attachmentList,
     pjpTotalState: state.pjpTotalState,
     reqListSales: state.reqListSales,
     pjp : state.pjp,
-    attachmentDeleteState: state.attachmentDeleteState
+    attachmentSalesState: state.attachmentSalesState,
+    attachmentListSales: state.attachmentListSales,
+    attachmentDeleteSalesState: state.attachmentDeleteSalesState,
+    refernceList: state.refernceList
   };
 };
 
@@ -942,12 +987,13 @@ const mapDispatchToProps = {
   getStatus: Actions.getStatus,
   getTicketsSales: Actions.getTicketsSales,
   updateVndAirResSales: Actions.updateVndAirResSales,
-  attachment: Actions.attachment,
-  getAttachments: Actions.getAttachments,
   pjpTotal: Actions.pjpTotal,
   getReqSale : Actions.getReqSale,
   getPjp : Actions.getPjp,
-  attachmentDelete: Actions.attachmentDelete
+  attachmentSales: Actions.attachmentSales,
+  getAttachmentsSales: Actions.getAttachmentsSales,
+  attachmentDeleteSales: Actions.attachmentDeleteSales,
+  getRefernce: Actions.getRefernce
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AirReqSalesScreen);

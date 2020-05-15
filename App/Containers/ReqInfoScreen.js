@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { ScrollView, View, Text, TouchableOpacity} from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity, Linking} from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons'
 import Ficon from 'react-native-vector-icons/FontAwesome5'
 import { connect } from 'react-redux'

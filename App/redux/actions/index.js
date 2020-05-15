@@ -70,6 +70,7 @@ import {attachmentSales} from './AttachmentSales'
 import {attachmentDelete} from './DeleteAttachment'
 import {attachmentDeleteSales} from './DeleteAttachmentSales'
 import {sendEmail} from './SendEmail'
+import {sendEmailSales} from './SendEmailSales'
 import {ceateClaimReq} from './ClaimReqCreate'
 import {updatePjpTot} from './UpdatePjpTot'
 import {updtClaimReq} from './UpdtClaimReq'
@@ -148,6 +149,7 @@ export default {
 	attachmentDelete:attachmentDelete,
 	attachmentDeleteSales:attachmentDeleteSales,
 	sendEmail:sendEmail,
+	sendEmailSales:sendEmailSales,
 	ceateClaimReq:ceateClaimReq,
 	updatePjpTot:updatePjpTot,
 	updtClaimReq:updtClaimReq,

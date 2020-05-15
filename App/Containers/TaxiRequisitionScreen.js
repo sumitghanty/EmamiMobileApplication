@@ -483,6 +483,8 @@ class TaxiRequisitionScreen extends Component {
             { cancelable: true }
           );
           break;
+        } else {
+          shouldSubmit = true;
         }
       }
     })

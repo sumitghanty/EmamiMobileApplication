@@ -620,23 +620,30 @@ class ExpInfoScreen extends Component {
                 (this.state.editModalData && this.state.editModalData[1]==item.sub_category_id) && styles.modalItemActive
               ]}
                 key= {index}
-                onPress={() =>{
-                  this.editModalVisible(null);
-                  this.setState({ reload: true }); 
-                  this.props.navigation.navigate(
-                  item.sub_category_id=='10' ? 'TaxiRequisition'
-                  : item.sub_category_id=='11' ? 'TaxiRequisition'
-                  : item.sub_category_id=='3' ? 'TrainReq'
-                  : item.sub_category_id=='1BH' ? 'HotelReq'
-                  : item.sub_category_id=='1BM' ? 'HotelReq'
-                  : item.sub_category_id=='1BNM' ? 'HotelReq'
-                  : item.id==112 ? 'RailCommision'
-                  : 'OtherRequisition',
-                  {item, params, 
-                    'update':this.state.editModalData?this.state.editModalData[0]:false, 
-                    'claim':true}
-                );
-                }}>
+                onPress={( (this.state.editModalData && this.state.editModalData[1]!=item.sub_category_id && 
+                  (this.state.editModalData[0].sub_status_id!='6.1' && this.state.editModalData[0].sub_status_id!='7.4')) ||
+                  (this.state.editModalData && this.state.editModalData[1]!=item.sub_category_id && 
+                  (this.state.editModalData[0].sub_status_id=='7.4' && this.state.editModalData[0].flight_selected == 'Y')
+                  ))
+                  ?()=>{} :
+                  () =>{
+                    this.editModalVisible(null);
+                    this.setState({ reload: true }); 
+                    this.props.navigation.navigate(
+                    item.sub_category_id=='10' ? 'TaxiRequisition'
+                    : item.sub_category_id=='11' ? 'TaxiRequisition'
+                    : item.sub_category_id=='3' ? 'TrainReq'
+                    : item.sub_category_id=='1BH' ? 'HotelReq'
+                    : item.sub_category_id=='1BM' ? 'HotelReq'
+                    : item.sub_category_id=='1BNM' ? 'HotelReq'
+                    : item.id==112 ? 'RailCommision'
+                    : 'OtherRequisition',
+                    {item, params, 
+                      'update':this.state.editModalData?this.state.editModalData[0]:false, 
+                      'claim':true}
+                  );
+                  }
+                }>
                 {(this.state.editModalData && this.state.editModalData[1]==item.sub_category_id) &&
                   <Icon style={styles.modalItemcarot} name="md-arrow-dropright" />
                 }

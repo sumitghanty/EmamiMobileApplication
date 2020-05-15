@@ -1,6 +1,6 @@
 import React, { Component, } from 'react';
 import { View, KeyboardAvoidingView, ScrollView, TouchableOpacity, TextInput, Platform, Modal, 
-  Keyboard, Alert, AsyncStorage, BackHandler, Switch, Picker } from "react-native";
+  Keyboard, Alert, AsyncStorage, BackHandler, Switch, Picker, ActivityIndicator, Linking } from "react-native";
 import { Button, Icon, Text, Form, Item, Label } from 'native-base';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
@@ -10,6 +10,8 @@ import Actions from '../redux/actions'
 import Toast from 'react-native-simple-toast'
 import { HeaderBackButton } from "react-navigation-stack"
 import PickerModal from 'react-native-picker-modal-view'
+import DocumentPicker from 'react-native-document-picker';
+import RNFS from 'react-native-fs'
 
 import Loader from '../Components/Loader'
 import styles from './Styles/SalesReqScreen'
@@ -87,6 +89,7 @@ class SalesReqScreen extends Component {
       lastDay: new Date(),
       modalVisible: 0,
       modalFormVisible: 0,
+      modalAttchVisible: 0,
       maxAmount: 0,
       cMinDate: new Date(),
       time: (params.update && params.update.travel_time) ? params.update.travel_time : SUIT_TIME[0],
@@ -98,14 +101,22 @@ class SalesReqScreen extends Component {
       vendorId: (params.update && params.update.va_ta_id) ? params.update.va_ta_id :"0",
       uc: 'NA',
       hottelGenrateData: null,
+
+      uploading: false,
+      uploadData: [],
+      curUploadType: 'Approve Email',
+      attachFiles: [],
+      flieSizeIssue: false,
+      trmName: params.item.category_id == '7'?'ptf_airTravel_list'
+              :'ptf_list'
     };
   }
   
   componentDidMount() {
     const {params} = this.props.navigation.state;
+    console.log(params)
     var year = parseInt(params.params.year);
     var month = moment().month(params.params.month).format("M");
-    var pjpDate = 
     this.setState({
       firstDay: new Date(year, month - 1, 1),
       lastDay: new Date(year, month, 0),
@@ -153,6 +164,7 @@ class SalesReqScreen extends Component {
                   ?this.props.travelTypeState.dataSource[0].travel_type:''
         });
       })
+
       this.props.getVendor("Travel Agent")
       .then(()=>{
         this.setState({
@@ -176,6 +188,44 @@ class SalesReqScreen extends Component {
           subStatusNameSTA: this.props.statusResult.dataSource[0].sub_status
         });
       });
+
+      this.props.getRefernce(this.state.trmName)
+      .then(()=>{
+        this.setState({
+          curUploadType: this.props.refernceList.dataSource[0].trm_value
+        });
+        for(var i=0; i<this.props.refernceList.dataSource.length; i++) {
+          this.state.uploadData.push({"type":this.props.refernceList.dataSource[i].trm_value,
+          "file":[],
+          'action':null,
+          'fileRequired':this.props.refernceList.dataSource[i].trm_mandatory})
+        }
+      })
+      .then(()=>{
+        if(params.update){
+          this.props.getAttachmentsSales(params.params.trip_hdr_id,params.update.trip_no,params.update.lineitem)
+          .then(()=>{
+            for(var i=0; i<this.props.attachmentListSales.dataSource.length; i++) {
+              for(var j=0; j<this.state.uploadData.length; j++) {
+                if(this.props.attachmentListSales.dataSource[i].doc_type == this.state.uploadData[j].type) {
+                  this.state.uploadData[j].file.push({
+                    'size': null,
+                    'name': this.props.attachmentListSales.dataSource[i].file_name,
+                    'type': 'image/'+this.getExtention(this.props.attachmentListSales.dataSource[i].file_name),
+                    'uri': this.props.attachmentListSales.dataSource[i].file_path
+                  })
+                }         
+              }
+            }
+          })
+          .then(()=>{
+            this.setState({screenReady: true});
+          })
+        }
+        else {
+          this.setState({screenReady: true});
+        }
+      })
     }
 
     this.props.navigation.setParams({
@@ -436,6 +486,10 @@ class SalesReqScreen extends Component {
     this.setState({modalFormVisible: visible});
   }
 
+  setModalAttchVisible(visible) {
+    this.setState({modalAttchVisible: visible});
+  }
+
   onValueChangeTime = (time) => {
     this.setState({
       time: time
@@ -515,7 +569,256 @@ class SalesReqScreen extends Component {
     }
   }
 
+  onValueChangeUploadType = (value) => {
+    this.setState({ curUploadType: value });
+  }
+
+  uploadRequest = ()=> {
+    if(this.state.attachFiles.length<=0) {
+      Alert.alert(
+        "",
+        "You have not selected any file. Please choose your file.",
+        [
+          {
+            text: "cancel",
+            style: 'cancel',
+          },
+        ],
+        { cancelable: true }
+      );
+    } else {
+      this.setState({modalAttchVisible: false});
+    }
+  }
+
+  removeAttach(type,name) {
+    for(var i = 0; i<this.state.uploadData.length; i++) {
+      if(this.state.uploadData[i].type == type) {
+        for(var j=0; j<this.state.uploadData[i].file.length; j++){
+          if(this.state.uploadData[i].file[j].name == name) {
+            this.state.uploadData[i].file.splice(j, 1);
+            this.setState({ 
+              refresh: true 
+            })
+          }
+        }
+      }
+      for(var a=0; a<this.state.attachFiles.length; a++){
+        if(this.state.attachFiles[a].name == name) {
+          this.state.attachFiles.splice(a,1);
+        }
+      }
+    }
+  }
+  
+  async selectAttachFiles() {
+    let results = null;    
+    let flieSizeIssue = false;
+    try {
+      await DocumentPicker.pick({
+        type: [DocumentPicker.types.allFiles],
+      })
+      .then(res =>{
+        results = res;
+      })
+      .then(()=>{      
+        if(results.size>3000000) {
+          Alert.alert(
+            "File Size issue",
+            "You have selected a large file. Please choose the file less then 3MB.",
+            [{text: "Ok", style: 'cancel',},],
+            { cancelable: true }
+          );
+          flieSizeIssue= true ;
+        }
+        else { flieSizeIssue= false; }
+      })
+      .then(()=>{
+        for(var u=0; u<this.state.uploadData.length; u++){
+          for(var f=0; f<this.state.uploadData[u].file.length; f++){
+            if(results.name == this.state.uploadData[u].file[f].name) {
+              Alert.alert(
+                "",
+                "File "+results.name +" already exists",
+                [{text: "Ok"}],
+                { cancelable: true }
+              );
+              flieSizeIssue= true;
+              break
+            }
+            else {flieSizeIssue= false}
+          }
+        }
+      })
+      .then(()=>{
+        if(flieSizeIssue == false) {
+          alert('File uploaded successfully.');     
+          for(var i=0; i<this.state.uploadData.length; i++) {
+            if(this.state.uploadData[i].type == this.state.curUploadType) {
+              this.state.uploadData[i].file.push(results);
+            }
+          }
+          this.state.attachFiles.push(results);
+          this.setState({ 
+            refresh: true 
+          })
+        }
+      })
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        alert('You have not select any file for attachment');
+      } else {
+        alert('Unknown Error: ' + JSON.stringify(err));
+        throw err;
+      }
+    }
+  }
+
+  downloadImage = (file) => {
+    Linking.canOpenURL(file).then(supported => {
+      if (supported) {
+        Linking.openURL(file);
+      } else {
+        console.log("Don't know how to open URI: " + this.props.url);
+      }
+    });
+  }
+
+  deleteAttachemnt = (name) => {
+    const {params} = this.props.navigation.state;
+    let existData = this.props.attachmentListSales.dataSource;
+    AsyncStorage.getItem("ASYNC_STORAGE_DELETE_KEY")
+    .then(()=>{
+      this.setState({
+        uploadData:  [],
+        isLoading: true
+      });
+    })
+    .then(()=>{
+      for(var i=0; i<this.props.refernceList.dataSource.length; i++) {
+        this.state.uploadData.push({"type":this.props.refernceList.dataSource[i].trm_value,
+        "file":[],
+        'action':null,
+        'fileRequired':this.props.refernceList.dataSource[i].trm_mandatory})
+      }
+    })
+    .then(()=>{
+      for(var i=0; i<existData.length; i++) {
+        if(existData[i].file_name == name) {
+          this.props.attachmentDeleteSales(
+            global.USER.personId,
+            global.PASSWORD,
+            {
+              "id":existData[i].id,
+	            "fileEntryId":existData[i].fileId
+            }
+          )          
+        .then(()=>{
+          this.props.getAttachmentsSales(params.params.trip_hdr_id,this.state.tripNo,params.update.lineitem)
+          .then(()=>{
+            for(var i=0; i<this.props.attachmentListSales.dataSource.length; i++) {
+              for(var j=0; j<this.state.uploadData.length; j++) {
+                if(this.props.attachmentListSales.dataSource[i].doc_type == this.state.uploadData[j].type) {
+                  this.state.uploadData[j].file.push({
+                    'size': null,
+                    'name': this.props.attachmentListSales.dataSource[i].file_name,
+                    'type': 'image/'+this.getExtention(this.props.attachmentListSales.dataSource[i].file_name),
+                    'uri': this.props.attachmentListSales.dataSource[i].file_path
+                  })
+                }         
+              }
+            }
+          })
+          .then(()=>{
+            this.setState({isLoading: false});
+          })
+        })
+        }
+      }
+    })
+  }
+ 
+  getExtention = (filename) => {
+    return (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename) :
+      undefined;
+  }
+
+  async atchFiles() {
+    const {params} = this.props.navigation.state;
+    this.setState({
+      uploading: true,
+    });
+    for(var i=0; i<this.state.uploadData.length; i++){
+      for(var f=0; f<this.state.uploadData[i].file.length; f++){
+        for(var j=0; j<this.state.attachFiles.length; j++){
+          if(this.state.uploadData[i].file[f].name == this.state.attachFiles[j].name){
+            let fileBase64 = null;
+            let filePath = this.state.uploadData[i].file[f].uri;
+            let data = null;
+            await RNFS.readFile(filePath, 'base64')
+            .then(res =>{
+              fileBase64 = res;
+            })
+            .then(()=>{
+              data = {
+                "repositoryId": global.USER.repositoryId,
+                "folderId": global.USER.folderId,
+                "mimeType": this.state.uploadData[i].file[f].type,
+                "tripNo": params.params.trip_no,
+                "lineItem": this.state.lineitem,
+                "docType": this.state.uploadData[i].type,
+                "userId": params.params.userid,
+                "trip_hdr_id_fk": params.params.trip_hdr_id,
+                "name": this.state.uploadData[i].file[f].name,
+                "flow_type": 'PT',
+                "base64Str":fileBase64,
+              }
+            })
+            .then(()=>{
+              console.log(data);
+              this.props.attachmentSales(global.USER.personId,global.PASSWORD,data)
+            })
+            .catch((err) => {
+              console.log(err.message, err.code);
+            })
+          }
+        }
+      }
+    }
+  }
+
   submitReq = () => {
+    const {params} = this.props.navigation.state;
+    if(params.item.category_id == '7') {
+      let shouldSubmit = true;
+      AsyncStorage.getItem("ASYNC_STORAGE_SUBMIT_KEY")
+      .then(()=>{
+        for(var i=0; i<this.state.uploadData.length; i++) {
+          if(this.state.uploadData[i].fileRequired == 'Y' && (this.state.uploadData[i].file.length<1)) {
+            shouldSubmit = false;
+            Alert.alert(
+              "Required Attachment",
+              "Please upload file for "+this.state.uploadData[i].type,
+              [{ text: "Ok", style: 'cancel' }],
+              { cancelable: true }
+            );
+            break;
+          } else {
+            shouldSubmit = true;
+          }
+        }
+      })
+      .then(()=>{
+        if(shouldSubmit) {
+          this.submitReqData()
+        }
+      })
+    } else {
+      this.submitReqData()
+    }
+  }
+
+  submitReqData = () => {
     const {params} = this.props.navigation.state;
     if(!this.state.fromItem.Name || this.state.fromItem.Name == "Select From Location" ||
     !this.state.toItem.Name || this.state.toItem.Name == "Select To Location" ||
@@ -703,18 +1006,21 @@ class SalesReqScreen extends Component {
           .then(()=>{
             this.props.pjpTotal([newPJP])
             .then(()=>{
-              this.props.getReqSale(params.params.trip_hdr_id)
+              this.atchFiles()
               .then(()=>{
-                this.props.getPjp(global.USER.userId)
+                this.props.getReqSale(params.params.trip_hdr_id)
                 .then(()=>{
-                  this.setState({
-                    isLoading: false,
+                  this.props.getPjp(global.USER.userId)
+                  .then(()=>{
+                    this.setState({
+                      isLoading: false,
+                    });
+                  })
+                  .then(()=>{
+                    this.props.navigation.goBack();
+                    Toast.show('Requisition Saved Successfully', Toast.LONG);
                   });
                 })
-                .then(()=>{
-                  this.props.navigation.goBack();
-                  Toast.show('Requisition Saved Successfully', Toast.LONG);
-                });
               })
             })
           })
@@ -741,14 +1047,25 @@ class SalesReqScreen extends Component {
     console.log(params)
     if(this.state.isLoading || this.props.locations.isLoading || this.props.statusResult.isLoading 
       || this.props.maxAmntState.isLoading||
-      (params.item.category_id == '7' && (this.props.vendorList.isLoading || this.props.travelTypeState.isLoading) )
-      ){
+      (params.item.category_id == '7' && (
+        this.props.vendorList.isLoading || this.props.travelTypeState.isLoading||
+        this.props.refernceList.isLoading ||
+        (params.update && this.props.attachmentListSales.isLoading)
+      ) )
+    ){
       return(
-        <Loader/>
+        <View style={{flax:1, flexDirection: 'column', alignItems:'center', justifyContent:'center', height:'100%', backgroundColor:'#fff'}}>
+          <ActivityIndicator size="large" color="#0066b3" style={{marginVertical:100}} />
+          {(this.state.uploading && params.item.category_id == '7' && this.state.attachFiles.length > 0) ?
+          <Text style={{marginTop: 30}}>Uploading Attachments</Text>
+          :null}
+        </View>
       )
     } else if( this.props.locations.errorStatus || this.props.statusResult.errorStatus
       || this.props.maxAmntState.errorStatus ||
-      (params.item.category_id == '7' && (this.props.vendorList.errorStatus || this.props.travelTypeState.errorStatus) )
+      (params.item.category_id == '7' && (this.props.vendorList.errorStatus || this.props.travelTypeState.errorStatus) )||
+      (params.update && this.props.attachmentListSales.errorStatus) ||
+      this.props.refernceList.errorStatus
       ) {
       return(
         <Text>URL Error</Text>
@@ -1119,8 +1436,47 @@ class SalesReqScreen extends Component {
             returnKeyType="next"
             numberOfLines={4}
             onChangeText={this.handleMsg} />
+          <View style={styles.attachRow}>
+            <Text style={styles.formLabel}>Attachments:</Text>
+            <Button rounded bordered info onPress={() => { this.setModalAttchVisible(true); }} style={styles.atchBtn}>                
+              <Icon name='attach' style={{fontSize:16, marginRight:0}} />
+              <Text style={{fontSize:12,textAlign:'center'}}>
+                Attach Documents
+              </Text>
+            </Button>
+          </View>
           </>:null}
         </Form>
+
+        {this.state.uploadData.map((item, key) => (
+          (item.file.length>0) ?
+          <View key={key}>
+            <Text style={styles.attachType}>{item.type}</Text>
+            {item.file.map((file, index)=>(
+            <View style={styles.atchFileRow} key={index}>
+              <Text style={styles.atchFileName} numberOfLines = {1}>{file.name ? file.name : ''}</Text>
+              {(params.update && file.uri.includes('http')) &&
+              <>
+              {item.action == 'P' ?
+              <ActivityIndicator size="small" color="#0066b3" />:              
+              <Button bordered small rounded primary style={[styles.actionBtn, styles.actionBtnPrimary, item.action == 'C'?{borderColor:'green'}:null]}
+                onPress={() => {this.downloadImage(file.uri);}}
+                >
+                <Icon name='md-download' style={[styles.actionBtnIco,styles.actionBtnIcoPrimary]} />
+              </Button>}
+              </>}
+              <Button bordered small rounded danger style={styles.actionBtn}
+                onPress={(file.uri.includes('http'))
+                        ?()=>this.deleteAttachemnt(file.name)
+                        :()=>this.removeAttach(item.type,file.name)
+                      }
+                >
+                <Icon name={file.uri.includes('http')?'trash':'close'} style={styles.actionBtnIco} />
+              </Button>
+            </View>
+            ))}
+          </View>:null
+        ))}
 
         <TouchableOpacity onPress={() => this.submitReq()} style={styles.ftrBtn}>
           <LinearGradient 
@@ -1143,7 +1499,7 @@ class SalesReqScreen extends Component {
           animationType="fade"
           transparent={false}
           visible={this.state.modalFormVisible===1}
-          onRequestClose = {() => {this.setModalVisible(0)}}>
+          onRequestClose = {() => {this.setModalFormVisible(0)}}>
           <>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Require more Information</Text>
@@ -1268,6 +1624,72 @@ class SalesReqScreen extends Component {
           </View>
           </>
         </Modal>
+
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.modalAttchVisible}
+          onRequestClose={() => {this.setModalAttchVisible(false)}}>
+          <View style={styles.atchMdlHeader}>
+            <Text style={styles.atchMdlHdrTtl}>Upload Document</Text>
+          </View>
+          <ScrollView contentContainerStyle={styles.atchMdlBody}>
+            <Text style={styles.atchMdlLabel}>Select Document Type:</Text>
+            <View style={styles.pickerHolder}>
+              <Picker
+                mode="dropdown"
+                iosIcon={<Icon name="arrow-down" />}
+                style={styles.atchTypeSelect}
+                placeholder="Document Type"
+                placeholderStyle={{ color: "#bfc6ea" }}
+                placeholderIconColor="#007aff"
+                selectedValue={this.state.curUploadType}
+                onValueChange={this.onValueChangeUploadType}
+                >
+                {this.state.uploadData.map((item, index) => {
+                  return (
+                  <Picker.Item label={item.type} value={item.type} key={index} />
+                  );
+                })}
+              </Picker>
+            </View>
+            <TouchableOpacity onPress={this.selectAttachFiles.bind(this)} style={styles.chooseBtn}>                
+              <Icon name='add-circle' style={styles.chooseBtnIcon} />
+              <Text style={styles.chooseBtnText}>Choose File</Text>
+            </TouchableOpacity>
+            
+            {this.state.uploadData.map((item, key) => (
+              (item.type == this.state.curUploadType && item.file) ?
+              <View key={key}>
+              {item.file.map((file, index)=>(
+                <View key={index} style={[styles.atchFileRow,{minHeight:32}]}>
+                  <Text style={styles.atchFileName} numberOfLines = {1}>{file.name ? file.name : ''}</Text>
+                  {(!file.uri.includes('http')) ?
+                  <Button bordered small rounded danger style={styles.actionBtn}
+                    onPress={()=>this.removeAttach(item.type,file.name)}>
+                    <Icon name='close' style={styles.actionBtnIco} />
+                  </Button>
+                  :null
+                  }
+                </View>
+              ))}
+              </View>
+              :null
+            ))}
+          </ScrollView>
+          <View style={styles.atchMdlFtr}>
+            <TouchableOpacity 
+              onPress={() => {this.setModalAttchVisible(!this.state.modalAttchVisible);}} 
+              style={[styles.atchMdlFtrBtn,styles.atchMdlFtrBtnSecondary]}>
+              <Text style={styles.atchMdlFtrBtnText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => {this.uploadRequest();}} 
+              style={[styles.atchMdlFtrBtn,styles.atchMdlFtrBtnPrimary]}>
+              <Text style={styles.atchMdlFtrBtnText}>Upload</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
       </KeyboardAvoidingView>
     );
     }
@@ -1288,6 +1710,10 @@ const mapStateToProps = state => {
     travelTypeState: state.travelTypeState,
     vendorList: state.vendorList,
     pjp : state.pjp,
+    attachmentSalesState: state.attachmentSalesState,
+    attachmentListSales: state.attachmentListSales,
+    attachmentDeleteSalesState: state.attachmentDeleteSalesState,
+    refernceList: state.refernceList
   };
 };
 
@@ -1304,6 +1730,10 @@ const mapDispatchToProps = {
   getTravelType: Actions.getTravelType,
   getVendor: Actions.getVendor,
   getPjp : Actions.getPjp,
+  attachmentSales: Actions.attachmentSales,
+  getAttachmentsSales: Actions.getAttachmentsSales,
+  attachmentDeleteSales: Actions.attachmentDeleteSales,
+  getRefernce: Actions.getRefernce
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SalesReqScreen);

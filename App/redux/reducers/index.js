@@ -70,6 +70,7 @@ import AttachmentSalesReducer from './AttachmentSales'
 import AttachmentDeleteReducer from './DeleteAttachment'
 import AttachmentDeleteSalesReducer from './DeleteAttachmentSales'
 import SendEmailReducer from './SendEmail'
+import SendEmailSalesReducer from './SendEmailSales'
 import CeateClaimReqReducer from './ClaimReqCreate'
 import UpdatePjpTotReqReducer from './UpdatePjpTot'
 import UpdtClaimReqReducer from './UpdtClaimReq'
@@ -148,6 +149,7 @@ export default {
 	attachmentDeleteState:AttachmentDeleteReducer,
 	attachmentDeleteSalesState:AttachmentDeleteSalesReducer,
 	sendEmailState:SendEmailReducer,
+	sendEmailSalesState:SendEmailSalesReducer,
 	ceateClaimState:CeateClaimReqReducer,
 	updatePjpTotState:UpdatePjpTotReqReducer,
 	updtClaimReqState:UpdtClaimReqReducer,
