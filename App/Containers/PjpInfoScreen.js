@@ -229,6 +229,9 @@ class PjpInfoScreen extends Component {
       tourData.status = this.state.statusName;
       tourData.sub_status = this.state.subStatusName;
       tourData.estimated_cost = this.state.actAmnt;
+      tourData.pending_with = global.USER.supervisorId;
+      tourData.pending_with_name = global.USER.supervisorName;
+      tourData.pending_with_email = global.USER.supervisorEmail;
     })
     .then(()=>{
       if(this.state.isSubmit) {

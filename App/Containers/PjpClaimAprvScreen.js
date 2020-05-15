@@ -320,26 +320,26 @@ class PjpClaimAprvScreen extends Component {
     })
     .then(()=>{
       this.props.postPjpClaimRej(newParams)
-    })
-    .then(()=>{
-      tripParams.status_id = "23";
-      tripParams.status = this.state.aprvStatusName;
-      tripParams.sub_status_id = "NA";
-      tripParams.sub_status = this.state.rejSubStatusName;
-      tripParams.pending_with = tripParams.person_id;
-      tripParams.pending_with_email = tripParams.email;
-      tripParams.pending_with_name = tripParams.name;
-      tripParams.claim_justifiaction = this.state.justification;
-    })
-    .then(()=>{
-      this.props.postPjpClaimTot([tripParams])
       .then(()=>{
-        this.props.getPjpAprvList(global.USER.userEmail,["21"]);
-        this.props.navigation.navigate('PjpAprvList','claim');
-        Toast.show('Claim Rejected Successfully', Toast.LONG);
-        console.log('Reject Done');
+        tripParams.status_id = "23";
+        tripParams.status = this.state.rejStatusName;
+        tripParams.sub_status_id = "NA";
+        tripParams.sub_status = this.state.rejSubStatusName;
+        tripParams.pending_with = tripParams.person_id;
+        tripParams.pending_with_email = tripParams.email;
+        tripParams.pending_with_name = tripParams.name;
+        tripParams.claim_justifiaction = this.state.justification;
+      })
+      .then(()=>{
+        this.props.postPjpClaimTot([tripParams])
+        .then(()=>{
+          this.props.getPjpAprvList(global.USER.personId,["21"]);
+          this.props.navigation.navigate('PjpAprvList','claim');
+          Toast.show('Claim Rejected Successfully', Toast.LONG);
+          console.log('Reject Done');
+        });
       });
-    });
+    })
   }
 
   render() {

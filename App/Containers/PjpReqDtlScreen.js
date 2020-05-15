@@ -168,7 +168,7 @@ class PjpReqDtlScreen extends Component {
     <Text style={[styles.label,styles.selfLable]}>Comments:</Text>
     <View style={styles.selfValueBlock}>      
       {(data.justification && data.justification.length>0) ?
-        <Text style={styles.value}>{data.comment}</Text>
+        <Text style={styles.value}>{data.justification}</Text>
       :null}
     </View>
     </>
