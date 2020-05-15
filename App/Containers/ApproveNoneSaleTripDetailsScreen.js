@@ -343,7 +343,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
             "subject": newaprvReqList.status_id == "8"? 'Requisition has been approved.'
                       : 'Requisition has been completed.',
             "tripNonSales": params,
-            "requisitionNonSales": {"sub_status_id":newaprvReqList.status_id == "8"?'9.1':'11.2'}
+            "requisitionNonSales": newaprvReqList
           })
         }
       })
@@ -420,7 +420,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
             "subject": newaprvReqList.status_id == "8"? 'Requisition has been rejected.'
                       : 'Requisition has been completed.',
             "tripNonSales": params,
-            "requisitionNonSales": {"sub_status_id":newaprvReqList.status_id == "8"?'10.1':'11.2'}
+            "requisitionNonSales": newaprvReqList
           })
         }
       })

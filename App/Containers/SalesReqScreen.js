@@ -99,6 +99,7 @@ class SalesReqScreen extends Component {
       emailError: false,
       agent: (params.update && params.update.vendor_name) ? params.update.vendor_name : "",
       vendorId: (params.update && params.update.va_ta_id) ? params.update.va_ta_id :"0",
+      vendorEmail: null,
       uc: 'NA',
       hottelGenrateData: null,
 
@@ -177,7 +178,8 @@ class SalesReqScreen extends Component {
                     ? params.update.va_ta_id 
                     :this.props.vendorList.dataSource.length>0
                       ?this.props.vendorList.dataSource[0].vendor_id
-                      :0
+                      :0,
+          vendorEmail: this.props.vendorList.dataSource[0].email
         });
       })
 
@@ -563,7 +565,8 @@ class SalesReqScreen extends Component {
     for (var i=0; i<this.props.vendorList.dataSource.length; i++) {
       if(this.props.vendorList.dataSource[i].vendor_name == value) {
         this.setState({
-          vendorId: this.props.vendorList.dataSource[i].vendor_id
+          vendorId: this.props.vendorList.dataSource[i].vendor_id,
+          vendorEmail: this.props.vendorList.dataSource[i].email
         });
       }
     }
@@ -1008,19 +1011,44 @@ class SalesReqScreen extends Component {
             .then(()=>{
               this.atchFiles()
               .then(()=>{
-                this.props.getReqSale(params.params.trip_hdr_id)
-                .then(()=>{
-                  this.props.getPjp(global.USER.userId)
-                  .then(()=>{
-                    this.setState({
-                      isLoading: false,
-                    });
+                if(this.state.through == "Travel Agent"){
+                  this.props.sendEmailSales({
+                    "mailId": this.state.vendorEmail,
+                    "cc": 'chinmaymcc@gmail.com',
+                    "subject": 'Kindly provide flight options.',
+                    "tripSales": newPJP,
+                    "pjpRequest": afterSetDistance
                   })
                   .then(()=>{
-                    this.props.navigation.goBack();
-                    Toast.show('Requisition Saved Successfully', Toast.LONG);
-                  });
-                })
+                    this.props.getReqSale(params.params.trip_hdr_id)
+                    .then(()=>{
+                      this.props.getPjp(global.USER.userId)
+                      .then(()=>{
+                        this.setState({
+                          isLoading: false,
+                        });
+                      })
+                      .then(()=>{
+                        this.props.navigation.goBack();
+                        Toast.show('Requisition Saved Successfully', Toast.LONG);
+                      });
+                    })
+                  })
+                } else {
+                  this.props.getReqSale(params.params.trip_hdr_id)
+                  .then(()=>{
+                    this.props.getPjp(global.USER.userId)
+                    .then(()=>{
+                      this.setState({
+                        isLoading: false,
+                      });
+                    })
+                    .then(()=>{
+                      this.props.navigation.goBack();
+                      Toast.show('Requisition Saved Successfully', Toast.LONG);
+                    });
+                  })
+                }
               })
             })
           })
@@ -1713,7 +1741,8 @@ const mapStateToProps = state => {
     attachmentSalesState: state.attachmentSalesState,
     attachmentListSales: state.attachmentListSales,
     attachmentDeleteSalesState: state.attachmentDeleteSalesState,
-    refernceList: state.refernceList
+    refernceList: state.refernceList,
+    sendEmailSalesState: state.sendEmailSalesState,
   };
 };
 
@@ -1733,7 +1762,8 @@ const mapDispatchToProps = {
   attachmentSales: Actions.attachmentSales,
   getAttachmentsSales: Actions.getAttachmentsSales,
   attachmentDeleteSales: Actions.attachmentDeleteSales,
-  getRefernce: Actions.getRefernce
+  getRefernce: Actions.getRefernce,
+  sendEmailSales: Actions.sendEmailSales
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SalesReqScreen);

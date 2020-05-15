@@ -332,22 +332,24 @@ class TripPlanScreen extends Component {
             if(this.state.setGoBack){
               this.props.plansSubmit(newList)
               .then(()=>{
-                this.props.sendEmail({
-                  "mailId": params.pending_with_email,
-                  "cc": 'chinmaymcc@gmail.com',
-                  "subject": 'Kindly Approve The Requisition.',
-                  "tripNonSales": params,
-                  "requisitionNonSales": {"sub_status_id":'8.1'}
+                for(var i=0; i< newList.length;i++) {
+                  this.props.sendEmail({
+                    "mailId": params.pending_with_email,
+                    "cc": 'chinmaymcc@gmail.com',
+                    "subject": 'Kindly Approve The Requisition.',
+                    "tripNonSales": params,
+                    "requisitionNonSales": newList[i]
+                  })
+                }
+              })
+              .then(()=>{
+                this.props.getTrips(global.USER.userId)
+                .then(()=>{
+                  this.setState({ isLoading: false });
                 })
                 .then(()=>{
-                  this.props.getTrips(global.USER.userId)
-                  .then(()=>{
-                    this.setState({ isLoading: false });
-                  })
-                  .then(()=>{
-                    this.props.navigation.goBack();
-                    Toast.show('Plan Trip Submitted Successfully', Toast.LONG);
-                  })
+                  this.props.navigation.goBack();
+                  Toast.show('Plan Trip Submitted Successfully', Toast.LONG);
                 })
               })
             }
@@ -420,7 +422,7 @@ class TripPlanScreen extends Component {
                       "cc": 'chinmaymcc@gmail.com',
                       "subject": newList[i].sub_status_id == '7.1'?'Kindly provide flight options.':'Please book a ticket for selected flight',
                       "tripNonSales": params,
-                      "requisitionNonSales": {"sub_status_id":newList[i].sub_status_id}
+                      "requisitionNonSales": newList[i]
                     })
                   }
                 }

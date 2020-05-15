@@ -83,6 +83,7 @@ class SalesClaimReqScreen extends Component {
       time: (params.update && params.update.travel_time) ? params.update.travel_time : SUIT_TIME[0],
       OOP: 'N',
       vendorId: (params.update && params.update.va_ta_id) ? params.update.va_ta_id :"0",
+      vendorEmail: null,
       aDistance: "0",
       timeCin: (params.update && params.update.claimdeparturetime) ?params.update.claimdeparturetime
                 : '00:00',
@@ -1137,19 +1138,44 @@ class SalesClaimReqScreen extends Component {
               .then(()=>{
                 this.atchFiles()
                 .then(()=>{
-                  this.props.getReqSale(params.params.trip_hdr_id)
-                  .then(()=>{
-                    this.props.getPjpClaim(global.USER.userId,[9, 11, 19, 20, 21, 22, 23, 24, 25])
-                    .then(()=>{
-                      this.setState({
-                        isLoading: false,
-                      });
+                  /*if(this.state.through == "Travel Agent"){
+                    this.props.sendEmailSales({
+                      "mailId": this.state.vendorEmail,
+                      "cc": 'chinmaymcc@gmail.com',
+                      "subject": 'Kindly provide flight options.',
+                      "tripSales": newPJP,
+                      "pjpRequest": afterSetDistance
                     })
                     .then(()=>{
-                      this.props.navigation.goBack();
-                      Toast.show('Requisition Saved Successfully', Toast.LONG);
-                    });
-                  })
+                      this.props.getReqSale(params.params.trip_hdr_id)
+                      .then(()=>{
+                        this.props.getPjpClaim(global.USER.userId,[9, 11, 19, 20, 21, 22, 23, 24, 25])
+                        .then(()=>{
+                          this.setState({
+                            isLoading: false,
+                          });
+                        })
+                        .then(()=>{
+                          this.props.navigation.goBack();
+                          Toast.show('Requisition Saved Successfully', Toast.LONG);
+                        });
+                      })
+                    })
+                  } else {*/
+                    this.props.getReqSale(params.params.trip_hdr_id)
+                    .then(()=>{
+                      this.props.getPjpClaim(global.USER.userId,[9, 11, 19, 20, 21, 22, 23, 24, 25])
+                      .then(()=>{
+                        this.setState({
+                          isLoading: false,
+                        });
+                      })
+                      .then(()=>{
+                        this.props.navigation.goBack();
+                        Toast.show('Requisition Saved Successfully', Toast.LONG);
+                      });
+                    })
+                  //}
                 })
               })
             })
@@ -2206,7 +2232,8 @@ const mapStateToProps = state => {
     attachmentSalesState: state.attachmentSalesState,
     attachmentListSales: state.attachmentListSales,
     attachmentDeleteSalesState: state.attachmentDeleteSalesState,
-    refernceList: state.refernceList
+    refernceList: state.refernceList,
+    sendEmailSalesState: state.sendEmailSalesState,
   };
 };
 
@@ -2227,7 +2254,8 @@ const mapDispatchToProps = {
   attachmentSales: Actions.attachmentSales,
   getAttachmentsSales: Actions.getAttachmentsSales,
   attachmentDeleteSales: Actions.attachmentDeleteSales,
-  getRefernce: Actions.getRefernce
+  getRefernce: Actions.getRefernce,
+  sendEmailSales: Actions.sendEmailSales
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SalesClaimReqScreen);

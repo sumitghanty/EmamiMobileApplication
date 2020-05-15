@@ -461,57 +461,7 @@ class AirReqSalesScreen extends Component {
         isLoading: false
       });
     }
-    else if (params.claim && (
-        (params.claim && !this.state.flightVendor.Name) || (params.claim && this.state.flightVendor.Name == "Select Vendor") ||
-        (params.claim && !this.state.invoiceAmnt) || (params.claim && !this.state.tcktNo) ||
-        (params.claim && !this.state.cgst) || (params.claim && !this.state.sgst) ||
-        (params.claim && !this.state.igst) || (params.claim && !this.state.hsncode) ||
-        (params.claim && !this.state.invNumber) )
-    ){      
-      if((params.claim && !this.state.flightVendor.Name) || (params.claim && this.state.flightVendor.Name == "Select Vendor")) {
-        this.setState({
-          flightVendorError: 'Please select a vendor'
-        });
-      }
-      if(params.claim && !this.state.invoiceAmnt) {
-        this.setState({
-          invoiceAmntError: 'Please enter invoice amount.',
-        });
-      }
-      if(params.claim && !this.state.tcktNo) {
-        this.setState({
-          tcktNoError: 'Please enter Ticket Number.',
-        });
-      }
-      if(params.claim && !this.state.cgst) {
-        this.setState({
-          cgstError: 'Please enter CGST.',
-        });
-      }
-      if(params.claim && !this.state.sgst) {
-        this.setState({
-          sgstError: 'Please enter SGST.',
-        });
-      }
-      if(params.claim && !this.state.igst) {
-        this.setState({
-          igstError: 'Please enter IGST.',
-        });
-      }
-      if(params.claim && !this.state.hsncode) {
-        this.setState({
-          hsncodeError: 'Please enter HSN code.',
-        });
-      }
-      if(params.claim && !this.state.invNumber) {
-        this.setState({
-          invNumberError: 'Please enter invoice number.',
-        });
-      }
-      this.setState({
-        isLoading: false
-      });
-    } else {      
+    else {      
       this.reqUpdate();
     }
   }
@@ -540,7 +490,7 @@ class AirReqSalesScreen extends Component {
           if(sendVendData[i].id == this.state.selectTicketData.id) {
             sendVendData[i].flight_selected = 'Y';
           } else {
-            sendVendData[i].flight_selected = '';
+            sendVendData[i].flight_selected = null;
           }
           this.state.sendVenderData.push(sendVendData[i]);
         }
@@ -978,7 +928,8 @@ const mapStateToProps = state => {
     attachmentSalesState: state.attachmentSalesState,
     attachmentListSales: state.attachmentListSales,
     attachmentDeleteSalesState: state.attachmentDeleteSalesState,
-    refernceList: state.refernceList
+    refernceList: state.refernceList,
+    sendEmailSalesState: state.sendEmailSalesState,
   };
 };
 
@@ -993,7 +944,8 @@ const mapDispatchToProps = {
   attachmentSales: Actions.attachmentSales,
   getAttachmentsSales: Actions.getAttachmentsSales,
   attachmentDeleteSales: Actions.attachmentDeleteSales,
-  getRefernce: Actions.getRefernce
+  getRefernce: Actions.getRefernce,
+  sendEmailSales: Actions.sendEmailSales
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AirReqSalesScreen);
