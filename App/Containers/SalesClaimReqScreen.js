@@ -98,7 +98,7 @@ class SalesClaimReqScreen extends Component {
       claimDays: '',
       cAmount: (params.update && params.update.claimamount) ? params.update.claimamount : '0.0',
       deductionAmount: '0.0',
-      payableAmount: '0.0',
+      //payableAmount: '0.0',
       invoiceAmnt: (params.update && params.update.invoice_amount) ? params.update.invoice_amount :null,
       invoiceAmntError: null,
       currency: (params.update && params.update.invoice_currency) ? params.update.invoice_currency :null,
@@ -1432,10 +1432,10 @@ class SalesClaimReqScreen extends Component {
             <Label style={styles.formLabel}>Deduction Amount:</Label>
             <Text style={[styles.value,styles.readOnly]}>{parseFloat(this.state.deductionAmount)}</Text>
           </Item>
-          <Item fixedLabel style={styles.formRow}>
+          {/* <Item fixedLabel style={styles.formRow}> 
             <Label style={styles.formLabel}>Payable Amount:</Label>
             <Text style={[styles.value,styles.readOnly]}>{parseFloat(this.state.payableAmount)}</Text>
-          </Item>
+          </Item>*/}
           <Item fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Out of Policy:</Label>
             <Text style={[styles.value,styles.readOnly]}>{

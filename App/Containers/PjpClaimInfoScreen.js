@@ -94,8 +94,8 @@ class PjpClaimInfoScreen extends Component {
           tot = tot + parseFloat((data[i].claimamount && data[i].amount_mode != '')?parseFloat(data[i].claimamount):0)
           estTot = estTot + parseFloat((data[i].amount_mode && data[i].amount_mode != 'On Actual')
                   ?parseFloat(data[i].amount_mode):0);
-          totPaybleAmnt = totPaybleAmnt + parseFloat((data[i].claimamount && (data[i].claimamount != ''))
-                  ?parseFloat(data[i].claimamount):0);
+          //  totPaybleAmnt = totPaybleAmnt + parseFloat((data[i].claimamount && (data[i].claimamount != ''))
+                  // ?parseFloat(data[i].claimamount):0);
         }
         /*if(data[i].status_id != '20') {
           this.setState({
@@ -109,7 +109,7 @@ class PjpClaimInfoScreen extends Component {
       this.setState({
         actAmnt: tot,
         estimatedCost: estTot,
-        paybleAmnt: totPaybleAmnt
+      //  paybleAmnt: totPaybleAmnt
       });
     });
   }
@@ -289,10 +289,10 @@ class PjpClaimInfoScreen extends Component {
             <Text style={styles.label}>Actual Claim amount:</Text>
             <Text style={styles.value}>{this.state.actAmnt}</Text>
           </View>          
-          <View style={styles.row}>
+          {/* <View style={styles.row}> 
             <Text style={styles.label}>Actual Payable Amount:</Text>
             <Text style={styles.value}>{this.state.paybleAmnt}</Text>
-          </View>
+          </View>*/}
           <View style={styles.row}>
             <Text style={styles.label}>Currency:</Text>
             <Text style={styles.value}>{params.actual_claim_currency?params.actual_claim_currency:'INR'}</Text>
@@ -465,10 +465,10 @@ class PjpClaimInfoScreen extends Component {
           <Text style={styles.cardLabel}>Deduction Amount:</Text>
           <Text style={styles.cardValue}>{ data.claimdeductionamount?data.claimdeductionamount:0 }</Text>
         </View>
-        <View style={styles.cardRow}>
-          <Text style={styles.cardLabel}>Payable Amount:</Text>
-          <Text style={styles.cardValue}>{ data.claimpaybleamount?data.claimpaybleamount:data.claimamount}</Text>
-        </View>
+        {/* <View style={styles.cardRow}> */}
+        {/* <Text style={styles.cardLabel}>Payable Amount:</Text> */} 
+         {/* <Text style={styles.cardValue}>{ data.claimpaybleamount?data.claimpaybleamount:data.claimamount}</Text> */}
+        {/* </View> */}
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>Out of Policy:</Text>
           <Text style={styles.cardValue}>{
