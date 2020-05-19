@@ -23,7 +23,7 @@ class PjpClaimInfoScreen extends Component {
       statusName: '',
       subStatusName: '',
       msg: null,
-      reload: false,
+      reload: true,
       actAmnt: 0,
       estimatedCost: 0,
       paybleAmnt: 0
