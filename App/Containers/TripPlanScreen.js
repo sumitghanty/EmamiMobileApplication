@@ -523,7 +523,7 @@ class TripPlanScreen extends Component {
                 <Text>&nbsp;</Text>
               </TouchableOpacity>
               <View style={styles.modalBody}>
-                <Text style={styles.modalTitle}>Select Requisition Type:</Text>
+                <Text style={styles.modalTitle}>Select Requisition Type</Text>
                 {this.props.reqType.dataSource.map((item, index) => {
                 return (
                 <TouchableOpacity style={styles.modalItem}
@@ -761,7 +761,8 @@ class TripPlanScreen extends Component {
       </Button>
       <Text style={styles.cardTile}>{ data.sub_status }</Text>
       <TouchableOpacity 
-        onPress={() => {this.editModalVisible([data,data.req_type]);}}
+        onPress={() => { this.editModalVisible([data,data.req_type]);}}
+
         style={[styles.editlBtn,styles.cardHrzntlBtnRight]}
         >
         <Icon name="md-create" style={styles.editBtnIcon} />
@@ -823,9 +824,10 @@ class TripPlanScreen extends Component {
         || data.status_id == "25" 
         ? null :
         <TouchableOpacity 
-          onPress={() => {
+          onPress={() => {console.log( "onPress"+ JSON.stringify(data));
             ((data.req_type=='1' && data.sub_status_id == '11.1') 
             || (data.req_type=='1' && data.sub_status_id == '7.1') 
+            || (data.req_type=='1' && data.sub_status_id == '7.4') 
             || (data.req_type=='1' && data.sub_status_id == '7.3')
             || (data.req_type=='1' && data.sub_status_id == '11.2'))
             ? this.props.navigation.navigate('AirRequisition', {item, params, 'update':data})

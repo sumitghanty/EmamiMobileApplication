@@ -34,6 +34,7 @@ class ExpInfoScreen extends Component {
       submitActive: false,
       reload: false,
       airReqData: null,
+      submitVisibility:false,
     };
   }
   componentDidMount(props){
@@ -77,6 +78,11 @@ class ExpInfoScreen extends Component {
         if(data[i].delete_status != 'true') {
           tot = tot + parseFloat(data[i].amount)
         }
+        if(data[i].status_id=='20'){
+         this.setState({
+          submitVisibility:true
+         });
+        }
         /*if(data[i].status_id != '20') {
           this.setState({
             saveActive: true,
@@ -85,11 +91,11 @@ class ExpInfoScreen extends Component {
         }*/
       }
     })
-    .then(()=>{
+    .then(()=>{ 
       this.setState({
         actAmnt: tot,
         saveActive: true,
-        submitActive: false
+        submitActive: this.state.submitVisibility,
       });
     });
   }
@@ -474,7 +480,7 @@ class ExpInfoScreen extends Component {
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Actual Claim amount:</Text>
-            <Text style={styles.value}>{this.state.actAmnt}</Text>
+            <Text style={styles.value}>{params.actual_claim_amount?params.actual_claim_amount:'0.0'}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Actual Claim Currency:</Text>

@@ -72,7 +72,7 @@ class ExpensesListScreen extends Component {
           <FlatList
             data={sortList}
             keyExtractor={item => item.trip_no}
-            renderItem={({ item }) =><TouchableOpacity onPress={() => this.props.navigation.navigate('ExpInfo',item)}>
+            renderItem={({ item }) =><TouchableOpacity onPress={ () =>{console.log("onpress"+JSON.stringify (item));this.props.navigation.navigate('ExpInfo',item)}}>
           <Card style={styles.item}>
             <CardItem header style={styles.itemHeader}>
               <Text style={styles.headerLabel}>Trip ID:</Text>
@@ -129,7 +129,7 @@ class ExpensesListScreen extends Component {
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Status:</Text>
                   <Text style={[styles.itemValue, styles.statusInitiated]}>
-                    {(item.sub_status && item.sub_status!='NA')?item.sub_status:item.status}
+                    {(item.sub_status && item.sub_status!='NA')?item.status:item.status}
                   </Text>
                 </View>:null}
               </View>
