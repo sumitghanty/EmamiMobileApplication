@@ -22,7 +22,7 @@ class ReqInfoScreen extends Component {
 
   componentDidMount(props){
     const {params} = this.props.navigation.state
-    this.props.getReqType(global.USER.designation,global.USER.grade)
+    this.props.getReqType(global.USER.grade)
     .then(()=>{
       for(var i=0; i<this.props.reqType.dataSource.length; i++) {
         if(this.props.reqType.dataSource[i].sub_category_id == params.req_type) {

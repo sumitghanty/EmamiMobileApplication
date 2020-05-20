@@ -42,7 +42,7 @@ class PjpInfoScreen extends Component {
       });
     });
 
-    this.props.getReqTypeSale(global.USER.designation,global.USER.grade) 
+    this.props.getReqTypeSale(global.USER.grade) 
     
     this.props.navigation.addListener(
       'didFocus',

@@ -1,11 +1,11 @@
 export const REQUEST = 'GET_REQ';
 
-export function getReqType(designation,grade) {
+export function getReqType(grade) {
   return {
     type: REQUEST,
     payload: {
       request: {
-        url: `getRequisitionTypeList?designation=${designation}&grade=${grade}`
+        url: `getRequisitionTypeList?grade=${grade}`
       }
     }
   };

@@ -181,7 +181,7 @@ class SalesClaimReqScreen extends Component {
       });
     });
 
-    this.props.getMaxAmnt(global.USER.designation,global.USER.grade,params.item.category_id)
+    this.props.getMaxAmnt(global.USER.grade,params.item.category_id)
     .then(()=>{
       this.setState({
         maxAmount: this.props.maxAmntState.dataSource[0].upper_limit,

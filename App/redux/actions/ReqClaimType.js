@@ -1,11 +1,11 @@
 export const REQUEST = 'GET_CLAIM_REQ';
 
-export function getReqClaimType(designation,grade) {
+export function getReqClaimType(grade) {
   return {
     type: REQUEST,
     payload: {
       request: {
-        url: `getReqTypeListForClaim?designation=${designation}&grade=${grade}`
+        url: `getReqTypeListForClaim?grade=${grade}`
       }
     }
   };
