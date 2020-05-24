@@ -1287,7 +1287,7 @@ class SalesClaimReqScreen extends Component {
           
           {showField ?<>
           <Item fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>From:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <Label style={styles.formLabel}>Form:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
             <View style={styles.pickerWraper}>
               <PickerModal
                 renderSelectView={(disabled, selected, showModal) =>
