@@ -296,9 +296,9 @@ class TripPlanScreen extends Component {
                   && newList[i].amount != 'NA' && newList[i].amount == 'On Actual') {
                   amountVal = newList[i].amount;
                 } else {
-                  if(newList[i].amount == '') {
+                  if(newList[i].amount == '' || newList[i].amount == 'NA') {
                     amountVal = '0.0';
-                  } else if (newList[i].amount == 'NA' || newList[i].amount == 'On Actual'){
+                  } else {
                     amountVal = newList[i].amount;
                   }
                 }
