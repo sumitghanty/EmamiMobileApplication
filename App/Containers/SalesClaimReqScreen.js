@@ -511,6 +511,10 @@ class SalesClaimReqScreen extends Component {
           ],
           { cancelable: true }
         );
+        this.setState({
+          timeTotal: '00:00',
+          showTimeCout: Platform.OS === 'ios' ? true : false,
+        });
       } else {
         this.setState({
           showTimeCout: Platform.OS === 'ios' ? true : false,
