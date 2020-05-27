@@ -158,11 +158,11 @@ class TrainReqScreen extends Component {
           this.setState({
             authority: this.props.hotelList.dataSource[0].vendor_name,
             gstin: this.props.hotelList.dataSource[0].gstin,
-            vendorId: this.props.hotelList.dataSource[i].vendor_id,
-            vPan: this.props.hotelList.dataSource[i].vendor_pan,
-            gstVClassification: this.props.hotelList.dataSource[i].gst_vendor_classification,
-            vCity: this.props.hotelList.dataSource[i].vendor_city,
-            vRg: this.props.hotelList.dataSource[i].vendor_rg,
+            vendorId: this.props.hotelList.dataSource[0].vendor_id,
+            vPan: this.props.hotelList.dataSource[0].vendor_pan,
+            gstVClassification: this.props.hotelList.dataSource[0].gst_vendor_classification,
+            vCity: this.props.hotelList.dataSource[0].vendor_city,
+            vRg: this.props.hotelList.dataSource[0].vendor_rg,
           });
         }
       });

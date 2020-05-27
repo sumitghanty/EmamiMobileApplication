@@ -296,9 +296,9 @@ class TripPlanScreen extends Component {
                   && newList[i].amount != 'NA' && newList[i].amount == 'On Actual') {
                   amountVal = newList[i].amount;
                 } else {
-                  if(newList[i].amount == '') {
+                  if(newList[i].amount == '' || newList[i].amount == 'NA') {
                     amountVal = '0.0';
-                  } else if (newList[i].amount == 'NA' || newList[i].amount == 'On Actual'){
+                  } else {
                     amountVal = newList[i].amount;
                   }
                 }
@@ -787,6 +787,7 @@ class TripPlanScreen extends Component {
        || (data.status_id=='8' && data.sub_status_id == "8.1") || 
        (data.status_id=='9' && data.sub_status_id == "9.1" && data.through == 'Self') 
        || (data.status_id=='6' && data.sub_status_id == '6.1') || (data.status_id=='7' && data.sub_status_id == '7.2')) 
+       || (data.req_type!='1' && data.is_outof_policy == 'N')
       ? null :
       <TouchableOpacity 
         onPress={() => {this.press(data)}}

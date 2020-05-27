@@ -46,8 +46,8 @@ class TaxiRequisitionScreen extends Component {
       toLocation: (params.update && params.update.travel_to)?params.update.travel_to:'',
       statusName: '',
       subStatusName: '',
-      statusNameNon: '',
-      subStatusNameNon: '',
+      statusNameOP: '',
+      subStatusNameOP: '',
       modalVisible: false,
       uploadData: [],
       curUploadType: 'Approve Email',
@@ -78,18 +78,18 @@ class TaxiRequisitionScreen extends Component {
         });
       });
     } else {
-      this.props.getStatus("7","7.5")
+      this.props.getStatus("7","7.4")
       .then(()=>{
         this.setState({
           statusName: this.props.statusResult.dataSource[0].trip_pjp_status,
           subStatusName: this.props.statusResult.dataSource[0].sub_status
         });
       });
-      this.props.getStatus("7","7.4")
+      this.props.getStatus("7","7.5")
       .then(()=>{
         this.setState({
-          statusNameNon: this.props.statusResult.dataSource[0].trip_pjp_status,
-          subStatusNameNon: this.props.statusResult.dataSource[0].sub_status
+          statusNameOP: this.props.statusResult.dataSource[0].trip_pjp_status,
+          subStatusNameOP: this.props.statusResult.dataSource[0].sub_status
         });
       });
     }
@@ -551,9 +551,9 @@ class TaxiRequisitionScreen extends Component {
           newReq.travel_to = this.state.toLocation;
           newReq.creation_date = moment(this.state.curDate).format("YYYY-MM-DD");
           newReq.status_id = params.claim?"20":"7";
-          newReq.sub_status_id = params.claim?"NA":"7.4";
-          newReq.status = (!params.claim)?this.state.statusNameNon:this.state.statusName;
-          newReq.sub_status = (!params.claim)?this.state.subStatusNameNon:this.state.subStatusName;
+          newReq.sub_status_id = params.claim?"NA":this.state.oop=='Y'?'7.5':"7.4";
+          newReq.status = this.state.oop=='Y'?this.state.statusNameOP:this.state.statusName;
+          newReq.sub_status = this.state.oop=='Y'?this.state.subStatusNameOP:this.state.subStatusName;
           newReq.is_outof_policy = this.state.oop;
           newReq.invoice_amount_currency = this.state.currency;
           newReq.extra_amount = this.state.extAmnt;
@@ -616,9 +616,9 @@ class TaxiRequisitionScreen extends Component {
             "travel_to": this.state.toLocation,
             "creation_date": moment(this.state.curDate).format("YYYY-MM-DD"),
             "status_id": params.claim?"20":"7",
-            "sub_status_id": params.claim?"NA":"7.4",
-            "status": (!params.claim)?this.state.statusNameNon:this.state.statusName,
-            "sub_status": (!params.claim)?this.state.subStatusNameNon:this.state.subStatusName,
+            "sub_status_id": params.claim?"NA":this.state.oop=='Y'?'7.5':"7.4",
+            "status": this.state.oop=='Y'?this.state.statusNameOP:this.state.statusName,
+            "sub_status": this.state.oop=='Y'?this.state.subStatusNameOP:this.state.subStatusName,
             "is_outof_policy": this.state.oop,
             "invoice_amount_currency": this.state.currency,
             "extra_amount": this.state.extAmnt,
