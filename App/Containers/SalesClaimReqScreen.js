@@ -495,33 +495,35 @@ class SalesClaimReqScreen extends Component {
   }
 
   setTimeCout = (event, timeCout) => {    
-    let hr = moment(timeCout).diff(this.state.fulltimeIn, 'h')
-    let mn = moment(timeCout).diff(this.state.fulltimeIn, 'm')
+    let hr = moment(timeCout).diff(this.state.fulltimeIn, 'h');
+    let mn = moment(timeCout).diff(this.state.fulltimeIn, 'm');
+    let arrHr=moment(timeCout).hours();     
+    let arrMn=moment(timeCout).minutes();
+    let depHr=moment(this.state.fulltimeIn).hours();
+    let depMn=moment(this.state.fulltimeIn).minutes(); 
+    let totArrMin=(arrHr*60)+arrMn;
+    let totDepMin=(depHr*60)+depMn;
+    let tymDiffMin=totArrMin-totDepMin;
+    if(tymDiffMin<0){
+      let tymCalMin=(1440-totDepMin)+totArrMin;
+      hr=parseInt((parseInt(tymCalMin))/60);
+      mn=tymCalMin-(hr*60);
+    }
+    else{
+      hr=parseInt(parseInt(tymDiffMin)/60);     
+      mn=tymDiffMin-(hr*60);
+    }
+       
     if(timeCout != undefined) {
-      timeCout = timeCout || this.state.timeCout;
-      if(parseInt(mn)<=0 ){
-        Alert.alert(
-          "",
-          "Arrival Time can not be less or equal then Depature Time.",
-          [
-            {
-              text: "Ok",
-              style: 'cancel',
-            },
-          ],
-          { cancelable: true }
-        );
-        this.setState({
-          timeTotal: '00:00',
-          showTimeCout: Platform.OS === 'ios' ? true : false,
-        });
-      } else {
-        this.setState({
-          showTimeCout: Platform.OS === 'ios' ? true : false,
-          timeCout: moment(timeCout).format('HH:mm'),
-          timeTotal: hr+':'+(parseInt(mn))%60
-        });
-      }
+      timeCout = timeCout || this.state.timeCout,
+      this.setState({
+        showTimeCout: Platform.OS === 'ios' ? true : false,
+        timeCout: moment(timeCout).format('HH:mm'),
+        timeTotal: hr+':'+(parseInt(mn))%60
+      });
+      console.log('Result');
+      console.log(hr);
+      console.log(mn);
     } else {
       this.setState({
         showTimeCout: Platform.OS === 'ios' ? true : false,
