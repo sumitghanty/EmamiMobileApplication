@@ -90,12 +90,18 @@ class PjpClaimInfoScreen extends Component {
     AsyncStorage.getItem("ONSCREENLOAD")
     .then(()=>{
       for (var i=0; i<data.length; i++) {
+        console.log(data[i].key+data[i].text+':'+data[i].amount_mode);
         if(data[i].delete_status == 'false') {
-          tot = tot + parseFloat((data[i].claimamount && data[i].amount_mode != '')?parseFloat(data[i].claimamount):0)
+         // tot = tot + parseFloat((data[i].claimamount && data[i].amount_mode != '')?parseFloat(data[i].claimamount):0)
+
+          tot = tot + parseFloat((data[i].claimamount && data[i].amount_mode != '')?parseFloat(data[i].claimamount):(data[i].amount_mode != 'On Actual' && data[i].amount_mode != '')?parseFloat(data[i].amount_mode):0)
+
           estTot = estTot + parseFloat((data[i].amount_mode && data[i].amount_mode != 'On Actual')
                   ?parseFloat(data[i].amount_mode):0);
+         // totPaybleAmnt = totPaybleAmnt + parseFloat((data[i].claimamount && (data[i].claimamount != ''))
+                 // ?parseFloat(data[i].claimamount):0);
           totPaybleAmnt = totPaybleAmnt + parseFloat((data[i].claimamount && (data[i].claimamount != ''))
-                  ?parseFloat(data[i].claimamount):0);
+                  ?parseFloat(data[i].claimamount):(data[i].amount_mode != 'On Actual' && data[i].amount_mode != '')?parseFloat(data[i].amount_mode):0);
         }
         /*if(data[i].status_id != '20') {
           this.setState({
