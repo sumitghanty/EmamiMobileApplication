@@ -825,7 +825,7 @@ class SalesReqScreen extends Component {
     const {params} = this.props.navigation.state;
     if(!this.state.fromItem.Name || this.state.fromItem.Name == "Select From Location" ||
     !this.state.toItem.Name || this.state.toItem.Name == "Select To Location" ||
-    (params.item.category_id == '3' && this.state.through=="Self" && !this.state.amount) ||
+   // (params.item.category_id == '3' && this.state.through=="Self" && !this.state.amount) ||
     (params.item.category_id == '3' && !this.state.msg) ||
     (params.item.category_id == '7' && (!this.state.flightFromItem.Name || this.state.flightFromItem.Name == "Select From Location" ||
     !this.state.flightToItem.Name || this.state.flightToItem.Name == "Select To Location" || this.state.emailError))    
@@ -840,11 +840,11 @@ class SalesReqScreen extends Component {
           tripToError: 'Please select To location'
         });
       }
-      if (params.item.category_id == '3' && this.state.through=="Self" && !this.state.amount) {
-        this.setState({
-          amntError: 'Please enter Approx amount.',
-        });
-      }
+     //if (params.item.category_id == '3' && this.state.through=="Self" && !this.state.amount) {
+      //  this.setState({
+        // amntError: 'Please enter Approx amount.',
+      //  });
+     // }
       if(params.item.category_id == '3' && !this.state.msg) {
         this.setState({
           msgError: 'Please enter proper Justification.',
@@ -1244,14 +1244,14 @@ class SalesReqScreen extends Component {
           {(this.state.through == "Self")?
           <Item fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Approx Amount:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
-            <TextInput 
+            {params.item.category_id=='3'?   <Text style={[styles.value,styles.readOnly]}>{parseFloat(this.state.rqAmnt)}</Text>:<TextInput 
               placeholder='0.00' 
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.amount}
               keyboardType="decimal-pad"
               autoCapitalize="words"
-              onChangeText={this.handleChangeAmount} />
+              onChangeText={this.handleChangeAmount} />}           
           </Item>:null}
           {(this.state.amntError && this.state.through == "Self") &&
             <Text style={styles.errorText}>{this.state.amntError}</Text>

@@ -429,7 +429,8 @@ class HotelReqScreen extends Component {
   }
 
   setDateCout = (event, dateCout) => {
-    if(dateCout != undefined) {
+    const {params} = this.props.navigation.state;
+    if(dateCout != undefined) {      
       dateCout = dateCout || this.state.dateCout; 
       this.setState({
         showCout: Platform.OS === 'ios' ? true : false,
@@ -438,8 +439,10 @@ class HotelReqScreen extends Component {
       var newDays= moment(this.state.dateCout, "YYYY-MM-DD").diff(moment(this.state.dateCin, "YYYY-MM-DD"), 'days')
       this.setState({
         days: newDays == 0? 1: newDays,
-        actualDays: newDays,
+        actualDays: newDays       
       });
+      this.state.OOP=parseFloat(this.state.amount) > (parseFloat(parseFloat(this.state.days) * parseFloat(params.item.upper_limit))) ?'Y':'N'
+
     } else { 
       this.setState({
         showCout: Platform.OS === 'ios' ? true : false,
@@ -530,8 +533,10 @@ class HotelReqScreen extends Component {
     this.setState({ 
       amount: amnt,
       amntError: null,
-      OOP: (((params.item.upper_limit == "NA") && parseFloat(amnt) > parseFloat(this.state.maxAmt)) 
-            || parseFloat(amnt) > parseFloat(this.state.maxAmt)) ?'Y':'N'
+      OOP: (((params.item.upper_limit == "NA") && parseFloat(amnt) >  parseFloat(parseFloat(this.state.days) * parseFloat(params.item.upper_limit))) 
+            || parseFloat(amnt) >  parseFloat(parseFloat(this.state.days) * parseFloat(params.item.upper_limit))) ?'Y':'N'
+      //OOP: (((params.item.upper_limit == "NA") && parseFloat(amnt) > parseFloat(this.state.maxAmt)) 
+            //|| parseFloat(amnt) > parseFloat(this.state.maxAmt)) ?'Y':'N'
     })
   }
 
@@ -540,8 +545,8 @@ class HotelReqScreen extends Component {
     this.setState({ 
       invoiceAmnt: amnt,
       invoiceAmntError:null,
-      OOP: (((params.item.upper_limit == "NA") && parseFloat(amnt) > parseFloat(this.state.maxAmt)) 
-            || parseFloat(amnt) > parseFloat(this.state.maxAmt)) ?'Y':'N'
+      OOP: (((params.item.upper_limit == "NA") && parseFloat(amnt) >  parseFloat(parseFloat(this.state.days) * parseFloat(params.item.upper_limit))) 
+            || parseFloat(amnt) >  parseFloat(parseFloat(this.state.days) * parseFloat(params.item.upper_limit))) ?'Y':'N'
     })
   }
 
@@ -818,6 +823,8 @@ class HotelReqScreen extends Component {
 
   reqCreate =() => {
     const {params} = this.props.navigation.state;
+    console.log('OOP');
+    console.log(this.state.OOP);
     this.props.getPlans(params.params.trip_hdr_id)
     .then(()=>{
       this.setState({
