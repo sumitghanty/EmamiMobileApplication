@@ -521,7 +521,8 @@ class AirReqSalesClaimScreen extends Component {
   render() {
     const {params} = this.props.navigation.state;
     console.log(this.state.selectTicketData)
-
+    console.log(params.item.category_id);
+    console.log(this.props.attachmentSalesState);
     if(this.state.isLoading ||
       this.props.ticketsSalesList.isLoading ||
       this.props.statusResult.isLoading ||
@@ -530,9 +531,9 @@ class AirReqSalesClaimScreen extends Component {
       return(
         <View style={{flax:1, flexDirection: 'column', alignItems:'center', justifyContent:'center', height:'100%', backgroundColor:'#fff'}}>
           <ActivityIndicator size="large" color="#0066b3" style={{marginVertical:100}} />
-          {(this.state.uploading && this.state.attachFiles.length > 0) ?
-          <Text style={{marginTop: 30}}>Uploading Attachments</Text>
-          :null}
+          {(this.state.uploading && this.state.attachFiles.length > 0&&this.props.attachmentSalesState.dataSource=="File Already exists") ?
+          <Text style={{marginTop: 30}}>File could not be uploaded:Filename Already exists</Text>:(this.state.uploading && this.state.attachFiles.length > 0)?<Text style={{marginTop: 30}}>Uploading Attachments</Text>
+          :null}  
         </View>
       )
     } else if(

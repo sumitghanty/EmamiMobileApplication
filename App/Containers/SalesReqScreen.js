@@ -1073,6 +1073,8 @@ class SalesReqScreen extends Component {
     console.log(this.state.twoWay?'Twoday':'Singleway');
     const {params} = this.props.navigation.state;
     console.log(params)
+    console.log('oye oye');
+    console.log(this.props.attachmentSalesState);
     if(this.state.isLoading || this.props.locations.isLoading || this.props.statusResult.isLoading 
       || this.props.maxAmntState.isLoading||
       (params.item.category_id == '7' && (
@@ -1081,10 +1083,14 @@ class SalesReqScreen extends Component {
         (params.update && this.props.attachmentListSales.isLoading)
       ) )
     ){
+      console.log('jasjga');
+    console.log(this.props.attachmentSalesState);
+
       return(
         <View style={{flax:1, flexDirection: 'column', alignItems:'center', justifyContent:'center', height:'100%', backgroundColor:'#fff'}}>
           <ActivityIndicator size="large" color="#0066b3" style={{marginVertical:100}} />
-          {(this.state.uploading && params.item.category_id == '7' && this.state.attachFiles.length > 0) ?
+          {(this.state.uploading && params.item.category_id == '7' && this.state.attachFiles.length > 0&&this.props.attachmentSalesState.dataSource=="File Already exists") ?
+          <Text style={{marginTop: 30}}>File could not be uploaded:Filename Already exists</Text>:(this.state.uploading && params.item.category_id == '7' && this.state.attachFiles.length > 0) ?
           <Text style={{marginTop: 30}}>Uploading Attachments</Text>
           :null}
         </View>

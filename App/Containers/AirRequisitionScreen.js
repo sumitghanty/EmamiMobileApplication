@@ -1133,8 +1133,8 @@ class AirRequisitionScreen extends Component {
       return(
         <View style={{flax:1, flexDirection: 'column', alignItems:'center', justifyContent:'center', height:'100%', backgroundColor:'#fff'}}>
           <ActivityIndicator size="large" color="#0066b3" style={{marginVertical:100}} />
-          {(this.state.uploading && this.state.attachFiles.length > 0) ?
-          <Text style={{marginTop: 30}}>Uploading Attachments</Text>
+          {(this.state.uploading && this.state.attachFiles.length > 0&&this.props.attachmentState.dataSource=="File Already exists") ?
+          <Text style={{marginTop: 30}}>File could not be uploaded:Filename Already exists</Text>:(this.state.uploading && this.state.attachFiles.length > 0)?<Text style={{marginTop: 30}}>Uploading Attachments</Text>
           :null}
         </View>
       )
