@@ -825,7 +825,7 @@ class SalesReqScreen extends Component {
     const {params} = this.props.navigation.state;
     if(!this.state.fromItem.Name || this.state.fromItem.Name == "Select From Location" ||
     !this.state.toItem.Name || this.state.toItem.Name == "Select To Location" ||
-   // (params.item.category_id == '3' && this.state.through=="Self" && !this.state.amount) ||
+    (params.item.category_id == '3' && this.state.through=="Self" && !this.state.amount) ||
     (params.item.category_id == '3' && !this.state.msg) ||
     (params.item.category_id == '7' && (!this.state.flightFromItem.Name || this.state.flightFromItem.Name == "Select From Location" ||
     !this.state.flightToItem.Name || this.state.flightToItem.Name == "Select To Location" || this.state.emailError))    
@@ -840,11 +840,11 @@ class SalesReqScreen extends Component {
           tripToError: 'Please select To location'
         });
       }
-     //if (params.item.category_id == '3' && this.state.through=="Self" && !this.state.amount) {
-      //  this.setState({
-        // amntError: 'Please enter Approx amount.',
-      //  });
-     // }
+     if (params.item.category_id == '3' && this.state.through=="Self" && !this.state.amount) {
+        this.setState({
+         amntError: 'Please enter Approx amount.',
+        });
+      }
       if(params.item.category_id == '3' && !this.state.msg) {
         this.setState({
           msgError: 'Please enter proper Justification.',
@@ -932,13 +932,14 @@ class SalesReqScreen extends Component {
       newReq.cost_center = global.USER.costCentre;
 
       if(params.item.category_id == '3'){
+        console.log(this.state.amount);
         newReq.justification = this.state.msg;
         newReq.ticket_class = (this.state.tclass == 'AC-2 tier') ? 'AC-2'
                               : (this.state.tclass == 'AC-3 tier') ? 'AC-3'
                               : this.state.tclass; 
         newReq.ticket_status = this.state.tStatus;
         newReq.through = this.state.through;
-        newReq.amount_mode = this.state.maxAmount;
+        newReq.amount_mode = this.state.amount;
       }
 
       if((params.item.category_id == '14' || params.item.category_id == '22') && this.state.uc == "UC") {
@@ -1250,14 +1251,14 @@ class SalesReqScreen extends Component {
           {(this.state.through == "Self")?
           <Item fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Approx Amount:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
-            {params.item.category_id=='3'?   <Text style={[styles.value,styles.readOnly]}>{parseFloat(this.state.rqAmnt)}</Text>:<TextInput 
+            <TextInput 
               placeholder='0.00' 
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.amount}
               keyboardType="decimal-pad"
               autoCapitalize="words"
-              onChangeText={this.handleChangeAmount} />}           
+              onChangeText={this.handleChangeAmount} />
           </Item>:null}
           {(this.state.amntError && this.state.through == "Self") &&
             <Text style={styles.errorText}>{this.state.amntError}</Text>
