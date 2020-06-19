@@ -193,6 +193,8 @@ class SalesReqScreen extends Component {
 
       this.props.getRefernce(this.state.trmName)
       .then(()=>{
+        console.log('sdfghj');
+        console.log(this.state.trmName);
         this.setState({
           curUploadType: this.props.refernceList.dataSource[0].trm_value
         });

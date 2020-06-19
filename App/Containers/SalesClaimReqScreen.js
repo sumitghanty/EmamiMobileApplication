@@ -142,6 +142,8 @@ class SalesClaimReqScreen extends Component {
               : params.item.category_id == '24'?'claim_nonAcTaxi_list'
               : params.item.category_id == '3'?'claim_train_list'
               : params.item.category_id == '4'?'claim_DA_list'
+              :params.item.category_id=='1'?'claim_S_mobile_list'
+              :params.item.category_id=='10'?'claim_S_P-S_list'
               :'expense_list'
     };
   }
@@ -224,10 +226,16 @@ class SalesClaimReqScreen extends Component {
 
     this.props.getRefernce(this.state.trmName)
     .then(()=>{
+      console.log('exp1.....');
+      console.log(this.state.trmName);
+      console.log('exp2.....');
+      console.log(this.props.refernceList);
       this.setState({
         curUploadType: this.props.refernceList.dataSource[0].trm_value
       });
       for(var i=0; i<this.props.refernceList.dataSource.length; i++) {
+        console.log('exp4.......');
+        console.log(this.props.refernceList.dataSource);
         this.state.uploadData.push({"type":this.props.refernceList.dataSource[i].trm_value,
         "file":[],
         'action':null,
@@ -884,6 +892,8 @@ class SalesClaimReqScreen extends Component {
     AsyncStorage.getItem("ASYNC_STORAGE_SUBMIT_KEY")
     .then(()=>{
       for(var i=0; i<this.state.uploadData.length; i++) {
+        console.log('exp3.......');
+        console.log(this.state.uploadData);
         if(this.state.uploadData[i].fileRequired == 'Y' && (this.state.uploadData[i].file.length<1)) {
           shouldSubmit = false;
           Alert.alert(
