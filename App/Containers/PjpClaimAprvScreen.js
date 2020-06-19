@@ -7,7 +7,7 @@ import moment from 'moment'
 import { connect } from 'react-redux'
 import Actions from '../redux/actions'
 import Toast from 'react-native-simple-toast'
-
+import { StyleSheet, Button, Linking} from 'react-native';
 import Loader from '../Components/Loader'
 import {Purpose, For} from '../Components/GetValue'
 import styles from './Styles/PjpClaimAprvScreen'
@@ -24,6 +24,7 @@ class PjpClaimAprvScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      attachmentsSalesList:[],
       updateParams: [],
       tempUpdateParams: [],
       acrdVisible: 0,
@@ -94,6 +95,39 @@ class PjpClaimAprvScreen extends Component {
     var date = new Date();
     var image_URL = file;
     var ext = this.getExtention(image_URL);
+    console.log('extension....');
+    console.log(ext[0]);
+    console.log(image_URL);
+    ext = "." + ext[0];
+    const { config, fs } = RNFetchBlob;
+    let PictureDir = fs.dirs.PictureDir
+    let options = {
+      fileCache: true,
+      addAndroidDownloads: {
+        useDownloadManager: true,
+        notification: true,
+        path: PictureDir + "/Emami/image_" + Math.floor(date.getTime()
+          + date.getSeconds() / 2) + ext,
+        description: 'Image'
+      }
+    }
+
+    Linking.openURL(image_URL);
+
+    config(options).fetch('GET', image_URL).then((res) => {
+      Alert.alert("File Downloaded Successfully.");      
+      this.attachModalVisible(null);
+      this.setState({downloadLoading: false});
+    });
+   
+  }
+  downloadImageold = (file) => {
+    var date = new Date();
+    var image_URL = file;
+    var ext = this.getExtention(image_URL);
+    console.log('extension');
+    console.log(ext[0]);
+    console.log(image_URL);
     ext = "." + ext[0];
     const { config, fs } = RNFetchBlob;
     let PictureDir = fs.dirs.PictureDir
@@ -112,8 +146,8 @@ class PjpClaimAprvScreen extends Component {
       this.attachModalVisible(null);
       this.setState({downloadLoading: false});
     });
+    Linking.openURL('http://reactnativecode.com/')
   }
- 
   getExtention = (filename) => {
     return (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename) :
       undefined;
@@ -343,6 +377,7 @@ class PjpClaimAprvScreen extends Component {
   }
 
   render() {
+   // alert('hi');
   if(this.state.isLoading || this.props.reqClaimListSales.isLoading || this.props.statusResult.isLoading){
     return(
       <Loader/>
@@ -441,7 +476,7 @@ class PjpClaimAprvScreen extends Component {
         <Text style={styles.itemLabel}>Currency:</Text>
         <Text style={[styles.itemValue,styles.textRight]}>{params.currency?params.currency:"INR"}</Text>
       </View>
-      <Text style={[styles.itemLabel,styles.selfLabel]}>Justification:</Text>
+      <Text style={[styles.itemLabel,styles.selfLabel]}>Justificationssss:</Text>
       <TextInput 
         multiline
         numberOfLines={4}
@@ -699,6 +734,44 @@ class PjpClaimAprvScreen extends Component {
           }
         </Text>
       </View>
+      <View style={styles.cardRow}>
+        <Text style={styles.cardLabel}>Attachment:</Text>
+        <View style={styles.cardValueCol}>
+          <TouchableOpacity style={styles.atchLink}
+            onPress={() => {console.log(data);
+             // const {params} = this.props.navigation.state;
+            this.props.getAttachmentsSales(data.trip_hdr_id_fk,data.trip_no,data.lineitem)
+            .then(()=>{
+              console.log('responding......');
+              //console.log(this.props.attachmentSales.dataSource);
+              console.log(this.props.attachmentListSales.dataSource[0].file_path);
+              this.downloadAttachment(this.props.attachmentListSales.dataSource[0].file_path)
+              //console.log(this.props);
+              //console.log(this.state);
+             // console.log(this.state.attachmentsSalesList);
+             // console.log(this.state.updateParams);
+              //console.log(this.props.attachmentSales);
+             // console.log(this.props.getAttachmentsSales);
+
+              /*this.state.planList.push({
+                "sl":i,
+                "attachment":this.props.attachmentList.dataSource,
+                "planData": newwPlanData
+              })*/
+            });
+            this.attachModalVisible(data.attachment);}}>
+            {(this.getExtention(data.attachment) == 'webp' ||
+              this.getExtention(data.attachment) == 'png' ||
+              this.getExtention(data.attachData) == 'jpg' ||
+              this.getExtention(data.attachData) == 'jpeg' ||
+              this.getExtention(data.attachData) == 'bmp' ||
+              this.getExtention(data.attachData) == 'gif'
+            ) ?
+            <Image source={{uri:data.attachment}} style={styles.atchImg} resizeMode='contain' />
+            :<Icon name="ios-paper" style={styles.atchImgIcon} />}            
+          </TouchableOpacity>
+        </View>
+      </View>
       {/*data.attachment ?
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Attachment:</Text>
@@ -718,6 +791,25 @@ class PjpClaimAprvScreen extends Component {
         </View>
       </View>
       :null*/}
+          {data.attachment ?
+      <View style={styles.cardRow}>
+        <Text style={styles.cardLabel}>Attachment:</Text>
+        <View style={styles.cardValueCol}>
+          <TouchableOpacity style={styles.atchLink}
+            onPress={() => {this.attachModalVisible(data.attachment);}}>
+            {(this.getExtention(data.attachment) == 'webp' ||
+              this.getExtention(data.attachment) == 'png' ||
+              this.getExtention(data.attachData) == 'jpg' ||
+              this.getExtention(data.attachData) == 'jpeg' ||
+              this.getExtention(data.attachData) == 'bmp' ||
+              this.getExtention(data.attachData) == 'gif'
+            ) ?
+            <Image source={{uri:data.attachment}} style={styles.atchImg} resizeMode='contain' />
+            :<Icon name="ios-paper" style={styles.atchImgIcon} />}            
+          </TouchableOpacity>
+        </View>
+      </View>
+      :null}
       {data.mode == "3" &&
       <TouchableOpacity style={styles.cardFooter} 
         onPress={() => this.props.navigation.navigate('PjpReqDtl',{data,'claim':true})}>
@@ -737,6 +829,7 @@ const mapStateToProps = state => {
     pjpClaimRej: state.pjpClaimRej,
     statusResult: state.statusResult,
     pjpAprvList: state.pjpAprvList,
+    attachmentListSales:state.attachmentListSales
   };
 };
 
@@ -747,6 +840,7 @@ const mapDispatchToProps = {
   postPjpClaimRej: Actions.postPjpClaimRej,
   getStatus: Actions.getStatus,  
   getPjpAprvList : Actions.getPjpAprvList,
+  getAttachmentsSales:Actions.getAttachmentsSales
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(PjpClaimAprvScreen);

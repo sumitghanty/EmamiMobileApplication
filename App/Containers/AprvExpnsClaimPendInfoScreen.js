@@ -8,7 +8,7 @@ import Actions from '../redux/actions'
 import Toast from 'react-native-simple-toast'
 import moment from 'moment'
 import RNFetchBlob from 'rn-fetch-blob'
-
+import { StyleSheet, Button, Linking} from 'react-native';
 import {Purpose, For, ReqType} from '../Components/GetValue'
 import Loader from '../Components/Loader'
 import styles from './Styles/AprvExpnsClaimPendInfoScreen'
@@ -248,6 +248,7 @@ class AprvExpnsClaimPendInfoScreen extends Component {
         description: 'Image'
       }
     }
+    Linking.openURL(image_URL);
     config(options).fetch('GET', image_URL).then((res) => {
       Alert.alert(image_name + "Downloaded Successfully.");
     });
@@ -567,7 +568,7 @@ class AprvExpnsClaimPendInfoScreen extends Component {
           <Text style={styles.cardLabel}>Out Of Policy:</Text>
           <Text style={styles.cardValue}>{data.planData.is_outof_policy=="Y"?"Yes":"No"}</Text>
         </View>
-        {data.attachment.length > 0 ?
+        
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>Attachment:</Text>
           <View style={styles.cardValueCol}>
@@ -576,8 +577,9 @@ class AprvExpnsClaimPendInfoScreen extends Component {
               keyExtractor={(item, index) => index.toString() }
               horizontal= {true}
               renderItem={({ item }) => <TouchableOpacity style={styles.atchLink} key={index}
-                  onPress={() => {this.attachModalVisible(item.file_path);}}>
-                  {(this.getExtention(item.file_name) == 'webp' ||
+                 // onPress={() => {this.attachModalVisible(item.file_path);}}>
+                 // {
+                 /* (this.getExtention(item.file_name) == 'webp' ||
                     this.getExtention(item.file_name) == 'png' ||
                     this.getExtention(item.file_name) == 'jpg' ||
                     this.getExtention(item.file_name) == 'jpeg' ||
@@ -585,11 +587,38 @@ class AprvExpnsClaimPendInfoScreen extends Component {
                     this.getExtention(item.file_name) == 'gif'
                   ) ?
                   <Image source={{uri:item.file_path}} style={styles.atchImg} resizeMode='contain' />
-                  :<Icon name="ios-paper" style={styles.atchImgIcon} />}            
+                  :<Icon name="ios-paper" style={styles.atchImgIcon} />*/
+                 // }   
+                 onPress={() => {console.log(data);console.log('aaa'+data.planData);
+                  // const {params} = this.props.navigation.state;
+                 this.props.getAttachments(data.planData.trip_hdr_id_fk,data.planData.trip_no,data.planData.lineitem)
+                 .then(()=>{
+                   console.log(data.planData.trip_hdr_id_fk);
+                   console.log(data.planData.trip_no);
+                   console.log(data.planData.lineitem);
+                   console.log('responding......');
+                   console.log(this.props.attachmentList);
+                   console.log('jgadgas');
+                   console.log(this.props.attachmentList.dataSource[0]);
+                   console.log(this.props.attachmentList.dataSource[0].file_path);
+                   this.downloadAttachment(this.props.attachmentList.dataSource[0].file_path)            
+                 });
+                 this.attachModalVisible(data.attachment);}}>
+                    {
+                  (this.getExtention(item.file_name) == 'webp' ||
+                    this.getExtention(item.file_name) == 'png' ||
+                    this.getExtention(item.file_name) == 'jpg' ||
+                    this.getExtention(item.file_name) == 'jpeg' ||
+                    this.getExtention(item.file_name) == 'bmp' ||
+                    this.getExtention(item.file_name) == 'gif'
+                  ) ?
+                  <Image source={{uri:item.file_path}} style={styles.atchImg} resizeMode='contain' />
+                  :<Icon name="ios-paper" style={styles.atchImgIcon} />
+                  }  
                 </TouchableOpacity>}
             />
           </View>
-        </View>:null}
+        </View>
       </View>    
     </TouchableOpacity>
     } else {

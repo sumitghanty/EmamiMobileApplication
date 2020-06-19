@@ -91,12 +91,17 @@ class PjpClaimInfoScreen extends Component {
     .then(()=>{
       for (var i=0; i<data.length; i++) {
         if(data[i].delete_status == 'false') {
-          tot = tot + parseFloat((data[i].claimamount && data[i].amount_mode != '')?parseFloat(data[i].claimamount):0)
+          //tot = tot + parseFloat((data[i].claimamount && data[i].amount_mode != '')?parseFloat(data[i].claimamount):0)
+          tot = tot + parseFloat((data[i].claimamount && data[i].amount_mode != '')?parseFloat(data[i].claimamount):(data[i].amount_mode != 'On Actual' && data[i].amount_mode != '')?parseFloat(data[i].amount_mode):0)
+
           estTot = estTot + parseFloat((data[i].amount_mode && data[i].amount_mode != 'On Actual')
                   ?parseFloat(data[i].amount_mode):0);
           //  totPaybleAmnt = totPaybleAmnt + parseFloat((data[i].claimamount && (data[i].claimamount != ''))
                   // ?parseFloat(data[i].claimamount):0);
-        }
+           totPaybleAmnt = totPaybleAmnt + parseFloat((data[i].claimamount && (data[i].claimamount != ''))
+           ?parseFloat(data[i].claimamount):(data[i].amount_mode != 'On Actual' && data[i].amount_mode != '')?parseFloat(data[i].amount_mode):0);
+       
+                }
         /*if(data[i].status_id != '20') {
           this.setState({
             saveActive: true,
@@ -109,7 +114,7 @@ class PjpClaimInfoScreen extends Component {
       this.setState({
         actAmnt: tot,
         estimatedCost: estTot,
-      //  paybleAmnt: totPaybleAmnt
+        paybleAmnt: totPaybleAmnt
       });
     });
   }
@@ -289,10 +294,10 @@ class PjpClaimInfoScreen extends Component {
             <Text style={styles.label}>Actual Claim amount:</Text>
             <Text style={styles.value}>{this.state.actAmnt}</Text>
           </View>          
-          {/* <View style={styles.row}> 
+          { <View style={styles.row}> 
             <Text style={styles.label}>Actual Payable Amount:</Text>
             <Text style={styles.value}>{this.state.paybleAmnt}</Text>
-          </View>*/}
+          </View>}
           <View style={styles.row}>
             <Text style={styles.label}>Currency:</Text>
             <Text style={styles.value}>{params.actual_claim_currency?params.actual_claim_currency:'INR'}</Text>

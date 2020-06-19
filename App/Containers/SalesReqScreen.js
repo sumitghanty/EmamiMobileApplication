@@ -197,6 +197,8 @@ class SalesReqScreen extends Component {
           curUploadType: this.props.refernceList.dataSource[0].trm_value
         });
         for(var i=0; i<this.props.refernceList.dataSource.length; i++) {
+          console.log('mandatory..... check......');
+          console.log(this.props.refernceList);
           this.state.uploadData.push({"type":this.props.refernceList.dataSource[i].trm_value,
           "file":[],
           'action':null,
