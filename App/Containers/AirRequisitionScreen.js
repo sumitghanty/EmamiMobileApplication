@@ -109,7 +109,8 @@ class AirRequisitionScreen extends Component {
       refresh: false,
       screenReady: params.update ? false : true,
       uploading: false,
-      trmName: params.claim?'claim_airTravel_list':'ptf_airTravel_list'
+      trmName: params.claim?'claim_airTravel_list':'ptf_airTravel_list',
+      statusInt:parseInt(params.update.status_id)
     };
   }
 
@@ -224,6 +225,8 @@ class AirRequisitionScreen extends Component {
     })
 
     if(params.update) {
+
+     
       this.props.getTickets(params.update.trip_no,params.update.lineitem,params.update.trip_hdr_id_fk)
       .then(()=>{
         if(this.props.ticketsList.dataSource.length>0){
@@ -239,6 +242,10 @@ class AirRequisitionScreen extends Component {
           }
         }
       })
+
+      
+      
+
     }
 
     this.props.navigation.setParams({
@@ -1116,6 +1123,7 @@ class AirRequisitionScreen extends Component {
   render() {
     const {params} = this.props.navigation.state;
     console.log(params);
+   //alert(JSON.stringify(params));
 
     if(this.state.isLoading ||
       this.props.plans.isLoading ||
@@ -1504,17 +1512,19 @@ class AirRequisitionScreen extends Component {
 
           </>:null}
 
-          {this.state.ticketList && <>
+           {
+          
+           this.state.ticketList && <>
           <Text style={styles.flightTitle}>Flight Details</Text>
-          {(params.update.sub_status_id !='7.3' && params.update.sub_status_id !='11.1') ?
+          {(params.update.sub_status_id !='7.3' && params.update.sub_status_id !='11.1' && this.state.statusInt > 19) ?
           <Text style={styles.flightSubTitle}>Please select an Option<Text style={{color:'red',fontSize:13}}>*</Text></Text>
           :null}
           {this.state.ticketList.map((item, index) => {
             return (
-            (params.update.sub_status_id == '11.1' || params.update.sub_status_id == '7.3' || params.update.sub_status_id == '11.2') ?
+            ( this.state.statusInt > 19  || params.update.sub_status_id == '11.1' || params.update.sub_status_id == '7.3' || params.update.sub_status_id == '11.2') ?
               <View key={index} style={[
                 styles.ticketItemWraper,
-                {display:((this.state.selectTicketData.id != item.id) && (params.update.sub_status_id == '11.1' || params.update.sub_status_id == '11.2')) ?'none':'flex'}
+                {display:((this.state.selectTicketData.id != item.id) && ( this.state.statusInt > 19 || params.update.sub_status_id == '11.1' || params.update.sub_status_id == '11.2')) ?'none':'flex'}
               ]}>
                 {this._ticketItem(item, params.update)}
               </View>
@@ -1526,7 +1536,7 @@ class AirRequisitionScreen extends Component {
               </TouchableOpacity>
           )
           })}
-          </>}
+          </>} 
 
           {params.claim && <Form>
 

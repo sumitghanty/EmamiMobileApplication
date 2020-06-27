@@ -473,6 +473,10 @@ class PjpClaimAprvScreen extends Component {
         <Text style={[styles.itemValue,styles.textRight]}>{params.actual_claim_amount}</Text>
       </View>
       <View style={styles.itemRow}>
+        <Text style={styles.itemLabel}>Actual Payable Amount:</Text>
+        <Text style={[styles.itemValue,styles.textRight]}>{params.claimpaybleamount}</Text>
+      </View>
+      <View style={styles.itemRow}>
         <Text style={styles.itemLabel}>Currency:</Text>
         <Text style={[styles.itemValue,styles.textRight]}>{params.currency?params.currency:"INR"}</Text>
       </View>
@@ -480,7 +484,10 @@ class PjpClaimAprvScreen extends Component {
       <TextInput 
         multiline
         numberOfLines={4}
-        placeholder='Enter your Justification'
+        placeholder='Enter your Justification'     
+
+
+        
         style={styles.selfInput}
         underlineColorAndroid="transparent"
         onChangeText={this.handleJustification}

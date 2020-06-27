@@ -435,6 +435,7 @@ class PjpTripAprvScreen extends Component {
             return (
               <TextInput 
                 key={index}
+                
                 multiline
                 numberOfLines={4}
                 value= {item.claimSupcomment}

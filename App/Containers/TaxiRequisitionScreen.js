@@ -44,6 +44,31 @@ class TaxiRequisitionScreen extends Component {
       aprxAmntError: null,
       fromLocation: (params.update && params.update.travel_from)?params.update.travel_from:'',
       toLocation: (params.update && params.update.travel_to)?params.update.travel_to:'',
+      // added by saumita 22062020 -- GST Details Started
+      showInvVendor: false,
+      nVendorname: (params.update && params.update.issuing_authorityName) ? params.update.issuing_authorityName :null,
+      nVendornameError: null,
+      nVendorID: (params.update && params.update.va_ta_id) ? params.update.va_ta_id :null,
+      nVendorIDError: null,
+      nVendorGSTIN: (params.update && params.update.gstin) ? params.update.gstin :null,
+      nVendorGSTINError: null,
+      nCGST: (params.update && params.update.vendor_CGST) ? params.update.vendor_CGST :null,
+      nCGSTError: null,
+      nSGST: (params.update && params.update.vendor_SGST) ? params.update.vendor_SGST :null,
+      nSGSTError: null,
+      nIGST: (params.update && params.update.vendor_IGST) ? params.update.vendor_IGST :null,
+      nIGSTError: null,
+      nHSN: (params.update && params.update.v_hsn_code) ? params.update.v_hsn_code :null,
+      nHSNError: null,
+      nInvoicenumber: (params.update && params.update.invoice_no) ? params.update.invoice_no :null,
+      nInvoicenumberError: null,
+      //nInvoiceDate: (params.update && params.update.invoice_date) ? params.update.invoice_date :new Date(),
+      //nInvoiceDateError: null,
+      nInvoiceDate: new Date,
+      nInvoiceDate: (params.update && params.update.invoice_date)?params.update.invoice_date:params.params.start_date,
+      mode: 'nInvoiceDate',
+      
+      // added by saumita 22062020 -- GST Details Ended
       statusName: '',
       subStatusName: '',
       statusNameOP: '',
@@ -203,7 +228,81 @@ class TaxiRequisitionScreen extends Component {
       tripToError: null
     })
   }
+  //added by saumita on 22062020 started
+  datepickervInv = () => {
+    this.showInvDate('date');
+  }
 
+  showInvDate = mode => {
+    this.setState({
+      showInvVendor: true,
+      mode,
+    });
+  }
+
+  setnInvoiceDate = (event, dateInv) => {
+    nInvoiceDate = nInvoiceDate || this.state.nInvoiceDate; 
+    this.setState({
+      showInvVendor: Platform.OS === 'ios' ? true : false,
+      nInvoiceDate,
+    });
+  }
+
+  handleNVendorname = (text) => {
+    this.setState({ 
+      nVendorname: text,
+      VendornameError: null
+    })
+  }
+  handleNVendorID = (text) => {
+    this.setState({ 
+      nVendorID: text,
+      nVendorIDError: null
+    })
+  }
+  handleNVendorGSTIN = (text) => {
+    this.setState({ 
+      nVendorGSTIN: text,
+      nVendorGSTINError: null
+    })
+  }
+  handleNCGST = (text) => {
+    this.setState({ 
+      nCGST: text,
+      nCGSTError: null
+    })
+  }
+  handleNSGST = (text) => {
+    this.setState({ 
+      nSGST: text,
+      nSGSTError: null
+    })
+  }
+  handleNIGST = (text) => {
+    this.setState({ 
+      nIGST: text,
+      nIGSTError: null
+    })
+  }
+  handleNHSN = (text) => {
+    this.setState({ 
+      nHSN: text,
+      nHSNError: null
+    })
+  }
+  handleNInvoicenumber = (text) => {
+    this.setState({ 
+      nInvoicenumber: text,
+      nInvoicenumberError: null
+    })
+  }
+  handleNInvoiceDate = (text) => {
+    this.setState({ 
+      nInvoiceDate: text,
+      nInvoiceDate: null
+    })
+  }
+  //added by saumita on 22062020 ended
   setModalVisible(visible) {
     this.setState({modalVisible: visible});
   }
@@ -498,7 +597,11 @@ class TaxiRequisitionScreen extends Component {
   submitReqData = () => {
     const {params} = this.props.navigation.state;
     if( this.state.fromLocation.length < 1 || this.state.toLocation.length < 1 || 
-      this.state.aprxAmnt == null || (!this.state.aprxAmnt) || (params.claim && !this.state.currency) ) {
+      this.state.aprxAmnt == null || (!this.state.aprxAmnt) || (params.claim && !this.state.currency) 
+      || (params.claim && !this.state.nCGST) || (params.claim && !this.state.nSGST) ||
+        (params.claim && !this.state.nIGST) || (params.claim && !this.state.nHSN) ||
+        (params.claim && !this.state.nInvoicenumber)
+      ) {
       if(this.state.fromLocation.length < 1) {
         this.setState({
           tripFromError: 'Please enter Destination From',
@@ -517,6 +620,57 @@ class TaxiRequisitionScreen extends Component {
           error: true,
         });
       }
+      //added by Saumita 22062020 started
+      if(this.state.nVendorname.length < 1) {
+        this.setState({
+          nVendornameError: 'Please enter vendor name To',
+          error: true,
+        });
+      }
+      if(this.state.nVendorID.length < 1) {
+        this.setState({
+          nVendorIDError: 'Please enter vendor name To',
+          error: true,
+        });
+      }      
+      if(this.state.nVendorGSTIN.length < 1) {
+        this.setState({
+          nVendorGSTINError: 'Please enter vendor name To',
+          error: true,
+        });
+      }      
+      if(this.state.nCGST.length < 1) {
+        this.setState({
+          nCGSTError: 'Please enter vendor name To',
+          error: true,
+        });
+      }      
+      if(this.state.nSGST.length < 1) {
+        this.setState({
+          nSGSTError: 'Please enter vendor name To',
+          error: true,
+        });
+      }      
+      if(this.state.nIGST.length < 1) {
+        this.setState({
+          nIGSTError: 'Please enter vendor name To',
+          error: true,
+        });
+      }      
+      if(this.state.nHSN.length < 1) {
+        this.setState({
+          nHSNError: 'Please enter vendor name To',
+          error: true,
+        });
+      }      
+      if(this.state.nInvoicenumber.length < 1) {
+        this.setState({
+          nInvoicenumberError: 'Please enter vendor name To',
+          error: true,
+        });
+      }     
+
+      //added by Saumita 22062020 ended
       if(params.claim && !this.state.currency) {
         this.setState({
           currencyError: 'Please enter Currency',
@@ -557,6 +711,17 @@ class TaxiRequisitionScreen extends Component {
           newReq.is_outof_policy = this.state.oop;
           newReq.invoice_amount_currency = this.state.currency;
           newReq.extra_amount = this.state.extAmnt;
+          //added saumita 22062020 started
+          newReq.issuing_authorityName = this.state.nVendorname;
+          newReq.va_ta_id = this.state.nVendorID;
+          newReq.gstin = this.state.nVendorGSTIN;
+          newReq.vendor_CGST = this.state.nCGST;
+          newReq.vendor_SGST = this.state.nSGST;
+          newReq.vendor_IGST = this.state.nIGST;
+          newReq.v_hsn_code = this.state.nHSN;
+          newReq.invoice_no = this.state.nInvoicenumber;
+          newReq.invoice_date = moment(this.state.nInvoiceDate).format("YYYY-MM-DD");
+          //added saumita 22062020 ended
         })
         .then(()=>{
           this.props.reqUpdate([newReq])
@@ -622,6 +787,23 @@ class TaxiRequisitionScreen extends Component {
             "is_outof_policy": this.state.oop,
             "invoice_amount_currency": this.state.currency,
             "extra_amount": this.state.extAmnt,
+            //added by Saumita 22062020 started
+            'gstin': this.state.nVendorGSTIN,
+            'vendor_CGST': this.state.nCGST,
+            'vendor_SGST': this.state.nSGST,
+            'vendor_IGST': this.state.nIGST,
+            'v_hsn_code': this.state.nHSN,
+            'invoice_no': this.state.nInvoicenumber,
+            'invoice_date': moment(this.state.nInvoiceDate).format("YYYY-MM-DD"),
+            'issuing_authorityName': this.state.nVendorname,
+            'va_ta_id': this.state.nVendorID,
+           // 'vendor_pan': this.state.vPan,
+           // 'gst_vendor_classification': this.state.gstVClassification,
+           // 'vendor_rg': this.state.vRg,
+           // 'vendor_city': this.state.vCity,
+
+           //added by Saumita 22062020 ended
+          
           }])
           .then(()=>{
             this.atchFiles()
@@ -753,6 +935,7 @@ class TaxiRequisitionScreen extends Component {
             <Label style={styles.formLabel}>Destination To:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
             <TextInput 
               ref='toInput'
+              onSubmitEditing={() => this.refs.nVendorname.focus()}
               placeholder='Enter To destination' 
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
@@ -763,6 +946,160 @@ class TaxiRequisitionScreen extends Component {
           {this.state.tripToError &&
             <Text style={styles.errorText}>{this.state.tripToError}</Text>
           }
+          {/* ---------------Saumita/Souvick GST details 22062020-------------- */}
+          
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Vendor Name:</Label>
+            <TextInput 
+              ref='nVendorname'
+              onSubmitEditing={() => this.refs.nVendorID.focus()}
+              placeholder='Enter To vendor name' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {params.update?this.state.nVendorname:null}
+              returnKeyType="next"
+              onChangeText={this.handleNVendorname} />
+          </Item>
+           {this.state.nVendornameError &&
+            <Text style={styles.errorText}>{this.state.nVendornameError}</Text>
+          } 
+
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Vendor ID:</Label>
+            <TextInput 
+              ref='nVendorID'
+              onSubmitEditing={() => this.refs.nVendorGSTIN.focus()}
+              placeholder='Enter To vendor ID' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {params.update?this.state.nVendorID:null}
+              returnKeyType="next"
+              onChangeText={this.handleNVendorID} />
+          </Item>
+           {this.state.nVendorIDError &&
+            <Text style={styles.errorText}>{this.state.nVendorIDError}</Text>
+          } 
+
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Vendor GSTIN:</Label>
+            <TextInput 
+              ref='nVendorGSTIN'
+              onSubmitEditing={() => this.refs.nCGST.focus()}
+              placeholder='Enter To vendor GSTIN' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {params.update?this.state.nVendorGSTIN:null}
+              returnKeyType="next"
+              onChangeText={this.handleNVendorGSTIN} />
+          </Item>
+           {this.state.nVendorGSTINError &&
+            <Text style={styles.errorText}>{this.state.nVendorGSTINError}</Text>
+          } 
+
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>CGST:</Label>
+            <TextInput 
+              ref='nCGST'
+              onSubmitEditing={() => this.refs.nSGST.focus()}
+              placeholder='0.0' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {params.update?this.state.nCGST:null}
+              keyboardType="decimal-pad"
+              autoCapitalize="words"
+              returnKeyType="next"
+              onChangeText={this.handleNCGST} />
+          </Item>
+           {this.state.nCGSTError &&
+            <Text style={styles.errorText}>{this.state.nCGSTError}</Text>
+          } 
+
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>SGST:</Label>
+            <TextInput 
+              ref='nSGST'
+              onSubmitEditing={() => this.refs.nIGST.focus()}
+              placeholder='0.0' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {params.update?this.state.nSGST:null}
+              keyboardType="decimal-pad"
+              autoCapitalize="words"
+              returnKeyType="next"
+              onChangeText={this.handleNSGST} />
+          </Item>
+           {this.state.nSGSTError &&
+            <Text style={styles.errorText}>{this.state.nSGSTError}</Text>
+          } 
+
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>IGST:</Label>
+            <TextInput 
+              ref='nIGST'
+              onSubmitEditing={() => this.refs.nHSN.focus()}
+              placeholder='0.0' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {params.update?this.state.nIGST:null}
+              keyboardType="decimal-pad"
+              autoCapitalize="words"
+              returnKeyType="next"
+              onChangeText={this.handleNIGST} />
+          </Item>
+           {this.state.nIGSTError &&
+            <Text style={styles.errorText}>{this.state.nIGSTError}</Text>
+          } 
+
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>HSN:</Label>
+            <TextInput 
+              ref='nHSN'
+              onSubmitEditing={() => this.refs.toVendorID.focus()}
+              placeholder='Enter To vendor HSN' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {params.update?this.state.nHSN:null}
+              returnKeyType="next"
+              onChangeText={this.handleNHSN} />
+          </Item>
+           {this.state.nHSNError &&
+            <Text style={styles.errorText}>{this.state.nHSNError}</Text>
+          } 
+
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Invoice Number:</Label>
+            <TextInput 
+              ref='nInvoicenumber'
+              onSubmitEditing={() => this.refs.nInvoiceDate.focus()}
+              placeholder='Enter To vendor invoice number' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {params.update?this.state.nInvoicenumber:null}
+              returnKeyType="next"
+              onChangeText={this.handleNInvoicenumber} />
+          </Item>
+          {this.state.nInvoicenumberError &&
+            <Text style={styles.errorText}>{this.state.nInvoicenumberError}</Text>
+          } 
+
+<Item fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Invoice Date:</Label>
+            <TouchableOpacity onPress={this.datepicker} style={styles.datePicker}>
+              <Text style={styles.datePickerLabel}>{moment(this.state.nInvoiceDate).format("DD-MM-YYYY")}</Text>
+              <Icon name="calendar" style={styles.datePickerIcon} />
+            </TouchableOpacity>
+          </Item>
+          { this.state.show && 
+          <DateTimePicker value={new Date(moment(this.state.nInvoiceDate).format('YYYY-MM-DD'))}
+            mode="nInvoiceDate"
+            minimumDate={new Date(moment(params.params.start_date).format('YYYY-MM-DD'))}
+            maximumDate={new Date(moment(params.params.end_date).format('YYYY-MM-DD'))}
+            display="default"
+            onChange={this.setnInvoiceDate} />
+          }
+
+          {/* ---------------Saumita/Souvick GST details 22062020-------------- */}
+
           <View style={styles.attachRow}>
             <Text style={styles.formLabel}>Attachments:</Text>              
             <Button rounded bordered info onPress={() => { this.setModalVisible(true); }} style={styles.atchBtn}>                

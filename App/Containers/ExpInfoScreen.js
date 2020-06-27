@@ -457,12 +457,17 @@ class ExpInfoScreen extends Component {
               <Text uppercase={false} style={styles.btnTxt}>Add Expense</Text>
             </LinearGradient>
           </TouchableOpacity>
+         
+         
           {sortList.map((item, index) => {
+            
             return (
               this.renderItem(item,index,params)
             );
           })}
         </View>
+
+        
 
         <TouchableOpacity style={styles.accordionHeader}
           onPress={()=>{this.setClaimAcrd()}}>
@@ -473,11 +478,13 @@ class ExpInfoScreen extends Component {
           <View style={styles.row}>
             <Text style={styles.label}>Estimated Cost:</Text>
             <Text style={styles.value}>{params.estimated_cost?params.estimated_cost:'0.0'}</Text>
+               {console.log(params)}
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Actual Advance Amount:</Text>
             <Text style={styles.value}>{params.payment_amount?params.payment_amount:'0.0'}</Text>
           </View>
+          
           <View style={styles.row}>
             <Text style={styles.label}>Actual Claim amount:</Text>
             <Text style={styles.value}>{params.actual_claim_amount?params.actual_claim_amount:'0.0'}</Text>

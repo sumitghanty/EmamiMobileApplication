@@ -53,6 +53,12 @@ class PjpReqDtlScreen extends Component {
     </View>
     {params.data.mode == '3'?
       this.renderTrain(params.data)
+     
+     
+
+      :(params.data.mode == '32')?
+      this.renderACTaxi(params.data)
+
     :(params.data.mode == '7')?
       this.renderAirr(params.data)
     :(params.data.mode == '14' || params.data.mode == '22')?
@@ -84,6 +90,25 @@ class PjpReqDtlScreen extends Component {
     </View>:null}
     </>
   }
+
+
+  renderACTaxi= (data) => {
+    return <>
+    <View style={styles.row}>
+      <Text style={styles.label}>Vendor Name:</Text>
+      <Text style={styles.value}>{data.ticket_class}</Text>
+    </View>
+    <View style={styles.row}>
+      <Text style={styles.label}>Vendor Id:</Text>
+      <Text style={styles.value}>{data.through}</Text>
+    </View>
+    <View style={styles.row}>
+      <Text style={styles.label}>Vendor GSTIN:</Text>
+      <Text style={styles.value}>{data.ticket_status}</Text>
+    </View>
+   </>
+  }
+
 
   renderAirr = (data) => {
     let ticket = this.state.ticket;
