@@ -17,6 +17,8 @@ const STATUS_ID = ["3","4","9","11","15","17","19","20","21","22","23","25","27"
 class ExpensesListScreen extends Component {  
   constructor(){ 
     super();
+
+   
     this.state ={
       searchTerm: '',
     }
@@ -38,6 +40,7 @@ class ExpensesListScreen extends Component {
   }
    
   render() {
+  
     if(this.props.expenses.isLoading){
       return(
           <Loader/>

@@ -35,6 +35,7 @@ class ExpInfoScreen extends Component {
       reload: false,
       airReqData: null,
       submitVisibility:false,
+      totalClaimAmount:0
     };
   }
   componentDidMount(props){
@@ -74,9 +75,25 @@ class ExpInfoScreen extends Component {
     let data = this.props.plans.dataSource;
     AsyncStorage.getItem("ONSCREENLOAD")
     .then(()=>{
+    
       for (var i=0; i<data.length; i++) {
+
+
+
+
         if(data[i].delete_status != 'true') {
-          tot = tot + parseFloat(data[i].amount)
+          // tot = tot + parseFloat(data[i].invoice_amount)
+          if(data[i].req_type === "2" || data[i].req_type =="7PS" 
+          || data[i].req_type == "1M" ||  data[i].req_type =="12C"){
+            if(data[i].amount != null && data[i].amount != "")
+            tot = tot+parseFloat(data[i].amount);
+           
+          }else{
+          if(data[i].invoice_amount != null && data[i].invoice_amount != "")
+          tot = tot+parseFloat(data[i].invoice_amount);
+          }
+          
+
         }
         if(data[i].status_id=='20'){
          this.setState({
@@ -238,6 +255,7 @@ class ExpInfoScreen extends Component {
       newTrip.status_id = '20';
       newTrip.status = statusName;
       newTrip.sub_status_id = 'NA';
+      //alert(params.actual_claim_amount);
       newTrip.sub_status = subStatusName;
       newTrip.actual_claim_amount = this.state.actAmnt;
       newTrip.claim_comment = this.state.msg;
@@ -330,7 +348,7 @@ class ExpInfoScreen extends Component {
         submitData[i].sub_status_id = 'NA';
         submitData[i].sub_status = subStatusName;
       }
-    })
+    }) 
     .then(()=>{
       this.props.reqUpdate(submitData)
       .then(()=>{
@@ -338,6 +356,7 @@ class ExpInfoScreen extends Component {
         tripData.status = statusName;
         tripData.sub_status_id = 'NA';
         tripData.sub_status = subStatusName;
+        
         tripData.actual_claim_amount = this.state.actAmnt;
         tripData.claim_comment = this.state.msg;
         tripData.pending_with = global.USER.supervisorId;
@@ -374,6 +393,7 @@ class ExpInfoScreen extends Component {
 	
   render() {
     const {params} = this.props.navigation.state;
+   
     //console.log(params)
     if(this.props.plans.isLoading || this.props.reqClaimType.isLoading || this.props.reqType.isLoading || this.state.isLoading){
       return(
@@ -387,6 +407,25 @@ class ExpInfoScreen extends Component {
     var sortList = this.props.plans.dataSource;
     sortList.sort((a,b) => b.trip_hdr_id - a.trip_hdr_id);
     console.log(sortList)
+    var totalClaimAmountTemp = 0;
+    for (i = 0; i < sortList.length; i++){
+     
+      if(sortList[i].req_type === "2" || sortList[i].req_type =="7PS" 
+      || sortList[i].req_type == "1M" ||  sortList[i].req_type =="12C"){
+        if(sortList[i].amount != null && sortList[i].amount != "")
+        totalClaimAmountTemp = totalClaimAmountTemp+parseInt(sortList[i].amount);
+       
+      }else{
+      if(sortList[i].invoice_amount != null && sortList[i].invoice_amount != "")
+      totalClaimAmountTemp = totalClaimAmountTemp+parseInt(sortList[i].invoice_amount);
+      }
+    }
+     
+    params.actual_claim_amount = totalClaimAmountTemp;
+    //  this.setState({
+    //   totalClaimAmount : totalClaimAmountTemp
+    // });
+   // alert("Hi"+ params.actual_claim_amount);
     return (
       <ScrollView contentContainerStyle={styles.scrollView}>
         <TouchableOpacity style={styles.accordionHeader}
