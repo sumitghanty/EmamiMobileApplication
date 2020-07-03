@@ -85,7 +85,7 @@ class SalesClaimReqScreen extends Component {
       vendorId: (params.update && params.update.va_ta_id) ? params.update.va_ta_id :"0",
       vendorEmail: null,
       aDistance: "0",
-      timeCin: (params.update && params.update.claimdeparturetime) ?params.update.claimdeparturetime
+      timeCin: (params.update && params.update.claimrturetime) ?params.update.claimrturetime
                 : '00:00',
       timeCout: (params.update && params.update.claimarrivaltime) ?params.update.claimarrivaltime
                 : '00:00',
@@ -1000,7 +1000,7 @@ class SalesClaimReqScreen extends Component {
         newReq.dest_city = this.state.toItem.Id;
         newReq.source_city_name = this.state.fromItem.Name;
         newReq.dest_city_name = this.state.toItem.Name;
-        newReq.claimdeparturetime = this.state.timeCin;
+        newReq.claimrturetime = this.state.timeCin;
         newReq.claimarrivaltime = this.state.timeCout;
         newReq.claimactualdistance = this.state.aDistance;
         newReq.claimtotaltime = this.state.timeTotal;
@@ -1247,6 +1247,8 @@ class SalesClaimReqScreen extends Component {
   }
 
   render() {
+   // alert("hello");
+    
     const {params} = this.props.navigation.state;
     console.log(params);
     console.log(params.item.category_id);
@@ -1391,7 +1393,7 @@ class SalesClaimReqScreen extends Component {
           :null}
           {showField ?<>
           <Item fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Depature Time:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <Label style={styles.formLabel}>ture Time:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
             <TouchableOpacity onPress={this.timepickerCin} style={styles.datePicker}>
               <Text style={styles.datePickerLabel}>{this.state.timeCin}</Text>
               <Icon name="time" style={styles.datePickerIcon} />

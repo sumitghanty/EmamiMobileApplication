@@ -35,8 +35,10 @@ class PjpReqDtlScreen extends Component {
   }
 
   render() {
+    
   const {params} = this.props.navigation.state;
   console.log(params)
+  
   if((params.data.mode=='7' && this.props.ticketsSalesList.isLoading)) {
     return(
       <Loader/>
@@ -56,9 +58,11 @@ class PjpReqDtlScreen extends Component {
      
      
 
-      :(params.data.mode == '32')?
-      this.renderACTaxi(params.data)
-
+      :(params.data.mode =='32')?
+      alert(params.data)
+      
+      //this.renderACTaxi(params.data)
+       
     :(params.data.mode == '7')?
       this.renderAirr(params.data)
     :(params.data.mode == '14' || params.data.mode == '22')?
@@ -97,6 +101,7 @@ class PjpReqDtlScreen extends Component {
     <View style={styles.row}>
       <Text style={styles.label}>Vendor Name:</Text>
       <Text style={styles.value}>{data.ticket_class}</Text>
+      
     </View>
     <View style={styles.row}>
       <Text style={styles.label}>Vendor Id:</Text>

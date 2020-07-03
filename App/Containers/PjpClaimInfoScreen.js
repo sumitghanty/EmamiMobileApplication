@@ -234,6 +234,8 @@ class PjpClaimInfoScreen extends Component {
   }
 
   render() {
+   // alert("Alert");
+    
     const {params} = this.props.navigation.state
     if(this.props.reqTypeSale.isLoading || this.props.reqListSales.isLoading || 
       this.props.statusResult.isLoading || this.state.isLoading){
@@ -256,6 +258,7 @@ class PjpClaimInfoScreen extends Component {
           <Icon style={styles.acrdIcon} name={this.state.acrdVisible==0?"md-add-circle":"md-remove-circle"} />
         </TouchableOpacity>
         <View style={{display:this.state.acrdVisible==0?'none':'flex'}}>
+          
           <TouchableOpacity style={styles.addBtn} onPress={() => {this.setModalVisible(1);}}>
             <LinearGradient
               style={styles.addBtnBg}
@@ -264,8 +267,9 @@ class PjpClaimInfoScreen extends Component {
               end={{ x: 1, y: 0 }}
               >
               <Icon name='ios-add-circle-outline' style={styles.addBtnIcon} />
-              <Text uppercase={false} style={styles.addBtnText}>ADD LINE ITEM</Text>
+              <Text uppercase={false} style={styles.addBtnText}>LINE ITEM</Text>
             </LinearGradient>
+         
           </TouchableOpacity>
           {this.props.reqListSales.dataSource.length > 0 ?
             sortList.map((item, index) => {
@@ -380,14 +384,19 @@ class PjpClaimInfoScreen extends Component {
   renderItem = (data,index,params) => {
     let item = this.getItem(data.mode)
     let mode = parseInt(data.mode)
+    //alert(JSON.stringify(data));
     let showField = (mode == 1 || mode == 2 || mode == 8 || mode == 9 || mode == 10 || mode == 11 || mode == 12 || mode == 18 || mode == 19)?false:true;
     if(data.status_id == 0 || data.status_id == 19 || data.sub_status_id == '6.1' || data.mode == '-1') {
       return <TouchableOpacity 
         key={index} 
         style={[styles.cardItem,styles.cardItemIntd]}
-        onPress={() => {this.setModalVisible(1);}}>
+        onPress={() => {
+          
+          
+          this.setModalVisible(1);}}>
         <TouchableOpacity style={styles.cardItemIntdBtn}
-          onPress={()=>this.deleteConfirmation(data)}
+          onPress={()=>{
+            this.deleteConfirmation(data)}}
           >
           <Icon name='md-close-circle' style={styles.cardItemIntdBtnIco} />
         </TouchableOpacity>
@@ -398,10 +407,23 @@ class PjpClaimInfoScreen extends Component {
     return <TouchableOpacity 
       key={index} 
       style={styles.cardItem}
-      onPress={(data.flight_selected == 'Y')
-        ?() => this.props.navigation.navigate('AirReqSalesClaim',{item, params, 'update':data,'estCost':this.state.estimatedCost,'actAmnt':this.state.actAmnt})
-        :() => this.props.navigation.navigate('SalesClaimReq',{item, params, 'update':data,'estCost':this.state.estimatedCost,'actAmnt':this.state.actAmnt})
-      }>
+      onPress={()=>{
+       if(data.mode == "32"){
+        this.props.navigation.navigate('SalesTaxiRequisition',{item, params, 'update':data,'estCost':this.state.estimatedCost,'actAmnt':this.state.actAmnt});
+       }else{
+         if(data.flight_selected == 'Y'){
+          this.props.navigation.navigate('AirReqSalesClaim',{item, params, 'update':data,'estCost':this.state.estimatedCost,'actAmnt':this.state.actAmnt})
+         }else{
+          this.props.navigation.navigate('SalesClaimReq',{item, params, 'update':data,'estCost':this.state.estimatedCost,'actAmnt':this.state.actAmnt});
+     
+         }
+       }
+      }}
+      // onPress={(data.flight_selected == 'Y')
+      //   ?() => this.props.navigation.navigate('AirReqSalesClaim',{item, params, 'update':data,'estCost':this.state.estimatedCost,'actAmnt':this.state.actAmnt})
+      //   :() => this.props.navigation.navigate('SalesClaimReq',{item, params, 'update':data,'estCost':this.state.estimatedCost,'actAmnt':this.state.actAmnt})
+      // }
+      >
       <View style={styles.cardItemHeader}>
         <TouchableOpacity style={styles.actionBtn}  onPress={()=>this.deleteConfirmation(data)}
           >
@@ -470,6 +492,21 @@ class PjpClaimInfoScreen extends Component {
           <Text style={styles.cardLabel}>Deduction Amount:</Text>
           <Text style={styles.cardValue}>{ data.claimdeductionamount?data.claimdeductionamount:0 }</Text>
         </View>
+       
+        {/* { data.vendor_IGST?
+        <View style={styles.cardRow}>
+          <Text style={styles.cardLabel}>VendorIgst souvik:</Text>
+          <Text style={styles.cardValue}>{ data.vendor_IGST }</Text>
+        </View>: null}
+
+        { data.vendor_SGST?
+        <View style={styles.cardRow}>
+          <Text style={styles.cardLabel}>VendorSgst souvik:</Text>
+          <Text style={styles.cardValue}>{ data.vendor_SGST }</Text>
+        </View>: null} */}
+       
+        
+
         {/* <View style={styles.cardRow}> */}
         {/* <Text style={styles.cardLabel}>Payable Amount:</Text> */} 
          {/* <Text style={styles.cardValue}>{ data.claimpaybleamount?data.claimpaybleamount:data.claimamount}</Text> */}
@@ -481,6 +518,8 @@ class PjpClaimInfoScreen extends Component {
           }</Text>
         </View>
         
+
+
         { (data.sub_status && data.sub_status != 'NA') ?
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>Status:</Text>

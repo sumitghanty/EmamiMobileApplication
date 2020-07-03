@@ -5,7 +5,6 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { createAppContainer } from 'react-navigation'
 import { createDrawerNavigator } from 'react-navigation-drawer'
 import { createStackNavigator } from 'react-navigation-stack'
-
 import LoginScreen from './Containers/LoginScreen'
 import HomeScreen from './Containers/HomeScreen'
 import TripListScreen from './Containers/TripListScreen'
@@ -14,7 +13,8 @@ import TripUpdateScreen from './Containers/TripUpdateScreen'
 import TripPlanScreen from './Containers/TripPlanScreen'
 import SplashScreen from './Containers/SplashScreen'
 import ForgotScreen from './Containers/ForgotScreen'
-import TaxiRequisitionScreen from './Containers/SalesTaxiRequisitionScreen'
+import TaxiRequisitionScreen from './Containers/TaxiRequisitionScreen'
+import SalesTaxiRequisitionScreen from './Containers/SalesTaxiRequisitionScreen'
 import AirRequisitionScreen from './Containers/AirRequisitionScreen'
 import TrainReqScreen from './Containers/TrainReqScreen'
 import HotelReqScreen from './Containers/HotelReqScreen'
@@ -143,7 +143,13 @@ const StackNavigator = createStackNavigator({
   TaxiRequisition: {
     screen: TaxiRequisitionScreen,
     navigationOptions: {
-      headerTitle: 'Create Requisition',
+      headerTitle: 'AC Taxi Claim',
+    },
+  },  
+  SalesTaxiRequisition: {
+    screen: SalesTaxiRequisitionScreen,
+    navigationOptions: {
+      headerTitle: 'Sales AC Taxi Claim',
     },
   },  
   AirRequisition: {
@@ -354,6 +360,7 @@ const StackNavigator = createStackNavigator({
       title: 'Create/Update Line Item'
     })
   },
+  
   AirReqSales: {
     screen:  AirReqSalesScreen,
     drawerLabel: "Air Requisition",

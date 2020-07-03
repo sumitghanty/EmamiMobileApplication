@@ -75,30 +75,54 @@ class ExpInfoScreen extends Component {
     let data = this.props.plans.dataSource;
     AsyncStorage.getItem("ONSCREENLOAD")
     .then(()=>{
-    
+    //alert(this.props.reqClaimType.dataSource.length);
       for (var i=0; i<data.length; i++) {
 
+            //newsouvik//
+          
+              if(data[i].req_type == "1"){
+               if(data[i].invoice_amount != null && data[i].invoice_amount != "")
+               tot = tot+parseInt(data[i].invoice_amount);
+              }else{
+             for (j = 0; j < this.props.reqClaimType.dataSource.length; j++){
+              
+               if( data[i].req_type == this.props.reqClaimType.dataSource[j].sub_category_id){
+                 if(this.props.reqClaimType.dataSource[j].bill_required =="Y"){
+                   if(data[i].invoice_amount != null && data[i].invoice_amount != "")
+                   tot = tot+parseInt(data[i].invoice_amount);
+                   
+                 }else{
+                   if(data[i].amount != null && data[i].amount != "")
+                   tot = tot+parseInt(data[i].amount);
+                 
+                 }
+               }
+             }
+           }
+            
+            
+            //completed
 
 
-
-        if(data[i].delete_status != 'true') {
-          // tot = tot + parseFloat(data[i].invoice_amount)
-          if(data[i].req_type === "2" || data[i].req_type =="7PS" 
-          || data[i].req_type == "1M" ||  data[i].req_type =="12C"){
-            if(data[i].amount != null && data[i].amount != "")
-            tot = tot+parseFloat(data[i].amount);
+        // if(data[i].delete_status != 'true') {
+        //   // tot = tot + parseFloat(data[i].invoice_amount)
+        //   if(data[i].req_type === "2" || data[i].req_type =="7PS" 
+        //   || data[i].req_type == "1M" ||  data[i].req_type =="12C"){
+        //     if(data[i].amount != null && data[i].amount != "")
+        //     tot = tot+parseFloat(data[i].amount);
            
-          }else{
-          if(data[i].invoice_amount != null && data[i].invoice_amount != "")
-          tot = tot+parseFloat(data[i].invoice_amount);
-          }
+        //   }else{
+        //   if(data[i].invoice_amount != null && data[i].invoice_amount != "")
+        //   tot = tot+parseFloat(data[i].invoice_amount);
+        //   }
           
 
-        }
+        // }
         if(data[i].status_id=='20'){
          this.setState({
           submitVisibility:true
          });
+
         }
         /*if(data[i].status_id != '20') {
           this.setState({
@@ -106,15 +130,22 @@ class ExpInfoScreen extends Component {
             submitActive: false
           })
         }*/
+
       }
+
+    //  alert(tot);
     })
     .then(()=>{ 
+   //  alert(tot);
       this.setState({
         actAmnt: tot,
         saveActive: true,
         submitActive: this.state.submitVisibility,
       });
+     
     });
+  
+
   }
   
   setAdvAcrd() {
@@ -408,24 +439,49 @@ class ExpInfoScreen extends Component {
     sortList.sort((a,b) => b.trip_hdr_id - a.trip_hdr_id);
     console.log(sortList)
     var totalClaimAmountTemp = 0;
-    for (i = 0; i < sortList.length; i++){
+    // for (i = 0; i < sortList.length; i++){
      
-      if(sortList[i].req_type === "2" || sortList[i].req_type =="7PS" 
-      || sortList[i].req_type == "1M" ||  sortList[i].req_type =="12C"){
-        if(sortList[i].amount != null && sortList[i].amount != "")
-        totalClaimAmountTemp = totalClaimAmountTemp+parseInt(sortList[i].amount);
+    //   if(sortList[i].req_type === "2" || sortList[i].req_type =="7PS" 
+    //   || sortList[i].req_type == "1M" ||  sortList[i].req_type =="12C"){
+    //     if(sortList[i].amount != null && sortList[i].amount != "")
+    //     totalClaimAmountTemp = totalClaimAmountTemp+parseInt(sortList[i].amount);
        
-      }else{
-      if(sortList[i].invoice_amount != null && sortList[i].invoice_amount != "")
-      totalClaimAmountTemp = totalClaimAmountTemp+parseInt(sortList[i].invoice_amount);
+    //   }else{
+    //   if(sortList[i].invoice_amount != null && sortList[i].invoice_amount != "")
+    //   totalClaimAmountTemp = totalClaimAmountTemp+parseInt(sortList[i].invoice_amount);
+    //   }
+    // }
+     
+    // var reqListClaim = this.props.reqClaimType.dataSource;
+     //alert(JSON.stringify())
+    
+     for (i = 0; i < sortList.length; i++){
+       if(sortList[i].req_type == "1"){
+        if(sortList[i].invoice_amount != null && sortList[i].invoice_amount != "")
+        totalClaimAmountTemp = totalClaimAmountTemp+parseInt(sortList[i].invoice_amount);
+       }else{
+      for (j = 0; j < this.props.reqClaimType.dataSource.length; j++){
+       
+        if( sortList[i].req_type == this.props.reqClaimType.dataSource[j].sub_category_id){
+          if(this.props.reqClaimType.dataSource[j].bill_required =="Y"){
+            if(sortList[i].invoice_amount != null && sortList[i].invoice_amount != "")
+            totalClaimAmountTemp = totalClaimAmountTemp+parseInt(sortList[i].invoice_amount);
+            
+          }else{
+            if(sortList[i].amount != null && sortList[i].amount != "")
+            totalClaimAmountTemp = totalClaimAmountTemp+parseInt(sortList[i].amount);
+          
+          }
+        }
       }
     }
-     
+     }
+    
     params.actual_claim_amount = totalClaimAmountTemp;
     //  this.setState({
     //   totalClaimAmount : totalClaimAmountTemp
     // });
-   // alert("Hi"+ params.actual_claim_amount);
+  // alert("Hi"+ this.state.totalClaimAmount);
     return (
       <ScrollView contentContainerStyle={styles.scrollView}>
         <TouchableOpacity style={styles.accordionHeader}
@@ -895,7 +951,9 @@ class ExpInfoScreen extends Component {
         </TouchableOpacity>
         <Text style={styles.cardTile}>{(data.sub_status && data.sub_status !='NA')?data.sub_status:data.status}</Text>
         <TouchableOpacity 
-          onPress={() => {this.editModalVisible([data,data.req_type]);}}
+        
+          onPress={() => {alert(JSON.stringify(data));
+            this.editModalVisible([data,data.req_type]);}}
           style={[styles.editlBtn,styles.cardHrzntlBtnRight]}
           >
           <Icon name="md-create" style={styles.editBtnIcon} />
