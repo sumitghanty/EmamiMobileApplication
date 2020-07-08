@@ -179,7 +179,8 @@ const StackNavigator = createStackNavigator({
 	RailCommision: {
     screen: RailCommisionScreen,
     navigationOptions: {
-      headerTitle: 'Create Requisition',
+      headerTitle: 'Rail comission',
+      //headerTitle: 'Create Requisition',
     },
   },
   Advance: {

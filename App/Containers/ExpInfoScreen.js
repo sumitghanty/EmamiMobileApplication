@@ -423,6 +423,7 @@ class ExpInfoScreen extends Component {
   }
 	
   render() {
+    
     const {params} = this.props.navigation.state;
    
     //console.log(params)
@@ -735,15 +736,20 @@ class ExpInfoScreen extends Component {
                   ))
                   ?()=>{} :
                   () =>{
+                    
                     this.editModalVisible(null);
                     this.setState({ reload: true }); 
+                    //alert('alert1'+JSON.stringify(item))
+                    //alert('alert2'+JSON.stringify(item.sub_category_id))
                     this.props.navigation.navigate(
                     item.sub_category_id=='10' ? 'TaxiRequisition'
                     : item.sub_category_id=='11' ? 'TaxiRequisition'
                     : item.sub_category_id=='3' ? 'TrainReq'
                     : item.sub_category_id=='1BH' ? 'HotelReq'
                     : item.sub_category_id=='1BM' ? 'HotelReq'
-                    : item.sub_category_id=='1BNM' ? 'HotelReq'
+                    : item.sub_category_id=='1BNM' ? 'HotelReq' 
+                    : item.sub_category_id=='4T' ? 'RailCommision' 
+                    :item.id==33 ? 'RailCommision'
                     : item.id==112 ? 'RailCommision'
                     : 'OtherRequisition',
                     {item, params, 
@@ -822,7 +828,8 @@ class ExpInfoScreen extends Component {
               <Text style={styles.modalTitle}>Select Requisition Type:</Text>
               <ScrollView>
               {this.props.reqClaimType.dataSource.map((item, index) => {
-              return (
+              
+              return ( 
               <TouchableOpacity style={styles.modalItem}
                 key= {index}
                 onPress={() => this.setState({reqModal: 0, reload:true}, 
@@ -833,8 +840,13 @@ class ExpInfoScreen extends Component {
                   : item.sub_category_id=='1BH' ? 'HotelReq'
                   : item.sub_category_id=='1BM' ? 'HotelReq'
                   : item.sub_category_id=='1BNM' ? 'HotelReq'
-                  : item.id==112 ? 'RailCommision'
-                  : 'OtherRequisition',
+                  : item.sub_category_id=='4T' ? 'RailCommision'
+                 // :item.sub_category_id=='32' ? 'RailCommision'
+                 
+                 : item.id==112 ? 'RailCommision'
+                 //:'RailCommision',
+                 
+                 : 'OtherRequisition',
                   {item, params, 'update':false, 'actAmnt':this.state.actAmnt, 'claim':true}
                 )
                 )}>

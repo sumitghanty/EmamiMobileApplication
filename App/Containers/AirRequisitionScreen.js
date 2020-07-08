@@ -35,6 +35,7 @@ class AirRequisitionScreen extends Component {
       curDate: new Date(),
       date: params.update?params.update.travel_date:params.params.start_date,
       through: (params.update && params.update.through) ? params.update.through : "Self",
+      ticketStatus: (params.update && params.update.ticket_status) ? params.update.ticket_status:"Availed",
       agent: (params.update && params.update.vendor_name) ? params.update.vendor_name : "",
       vendorId: (params.update && params.update.va_ta_id) ? params.update.va_ta_id :"0",
       vendorEmail: (params.update && params.update.vendor_email) ? params.update.vendor_email : null,
@@ -47,6 +48,11 @@ class AirRequisitionScreen extends Component {
                 "Value": "", "Code": "", "Id":0},
       toItem: {"Name": (params.update && params.update.travel_to) ? params.update.travel_to : "Select To Location", 
                 "Value": "", "Code": "", "Id":0},
+      //souvik//
+      ticketstat: {"Name": (params.update && params.update.ticket_status) ? params.update.ticket_status : "Select TicketStatus", 
+                "Value": "", "Code": "", "Id":0},
+      statusList:['Availed'],
+      ticketstatError:'',
       tripFromError: '',
       tripToError: '',
       time: (params.update && params.update.travel_time) ? params.update.travel_time : SUIT_TIME[0],
@@ -67,7 +73,9 @@ class AirRequisitionScreen extends Component {
       uploadData: [],
       curUploadType: 'Approve Email',      
       flieSizeIssue: false,
-      comments: (params.update && params.update.justification) ? params.update.justification :null,
+      //comments: (params.update && params.update.justification) ? params.update.justification :null,
+      justify:(params.update && params.update.justification) ? params.update.justification :null,
+      justError:null,
       flight: (params.update && params.update.flight) ? params.update.flight :null,
       readOnly: (params.update && (params.update.sub_status_id == '7.2' || 
                   params.update.sub_status_id == '7.3' ||
@@ -94,6 +102,8 @@ class AirRequisitionScreen extends Component {
       igstError:null,
       hsncode: (params.update && params.update.v_hsn_code) ? params.update.v_hsn_code :null,
       hsncodeError:null,
+      tic: (params.update && params.update.ticket_class) ? params.update.ticket_class :null,
+      ticError:null,
       showInv: false,
       authority: null,
       gstin: null,
@@ -364,6 +374,26 @@ class AirRequisitionScreen extends Component {
       }
     })
   }
+
+//souvik//
+  // ticketSelected(value){
+  //   AsyncStorage.getItem("ASYNC_STORAGE_FROM_KEY")
+  //   .then(() => {
+  //     this.setState({
+  //       ticketstat: value,
+  //       ticketstatError: '',
+  //     })
+  //   })
+   
+  // }
+  
+  ticketSelected = (value)=>{
+      this.setState({
+        ticketstat: value,
+        ticketstatError: '',
+      })
+    }
+   
   
   toSelected(value){
     AsyncStorage.getItem("ASYNC_STORAGE_TO_KEY")
@@ -398,8 +428,12 @@ class AirRequisitionScreen extends Component {
   }
 
   handleComment = (text) => {
-    this.setState({ comments: text })
+    this.setState({ comments: text ,
+      justError:null
+    })
   }
+
+
 
   setDate = (event, date) => {
     date = date || this.state.date; 
@@ -450,6 +484,15 @@ class AirRequisitionScreen extends Component {
       flight: value == "Travel Agent" ? "flight": null,
       amount: value=="Travel Agent"?0:amount
     });
+  }
+  onValueChangeTicketStatus = (value) => {
+    //alert('before change'+value);
+    this.setState({
+      ticketStatus:value,
+      //alert(ticketStatus);
+    });
+
+   // alert(ticketStatus);
   }
 
   onValueChangeAgent = (value) => {
@@ -527,6 +570,19 @@ class AirRequisitionScreen extends Component {
       hsncodeError:null
     })
   }
+  handleTiccode = (text) => {
+    this.setState({ 
+       tic: text,
+      ticError:null
+    })
+  }
+  handlejustification = (text) => {
+    this.setState({
+       justify: text ,
+       justError:null
+    })
+  }
+ 
 
   handleInvoiceNumber = (text) => {
     this.setState({ 
@@ -814,6 +870,7 @@ class AirRequisitionScreen extends Component {
     const {params} = this.props.navigation.state;
     if (!this.state.fromItem.Name || this.state.fromItem.Name == "Select From Location" ||
         !this.state.toItem.Name || this.state.toItem.Name == "Select To Location" ||
+        //!this.state.ticketstat.Name || this.state.ticketstat.Name == "Select To TicketStat" ||
         (this.state.emailError) || (this.state.through=="Self" && !this.state.amount) ||
         (this.state.readOnly && this.state.ticketList && !this.state.selectTicketData) ||
         (this.props.ticketsList.dataSource.length>0 && !this.state.selectTicketData && 
@@ -822,6 +879,10 @@ class AirRequisitionScreen extends Component {
         (params.claim && !this.state.invoiceAmnt) || (params.claim && !this.state.tcktNo) ||
         (params.claim && !this.state.cgst) || (params.claim && !this.state.sgst) ||
         (params.claim && !this.state.igst) || (params.claim && !this.state.hsncode) ||
+        (params.claim && !this.state.tic) || (params.claim && !this.state.tic) ||
+        (params.claim && !this.state.justify) || (params.claim && !this.state.justify) ||
+        (params.claim && !this.state.ticketStatus) || (params.claim && !this.state.ticketStatus) ||
+        
         (params.claim && !this.state.invNumber)
     ){
       if(!this.state.fromItem.Name || this.state.fromItem.Name == "Select From Location") {
@@ -832,6 +893,11 @@ class AirRequisitionScreen extends Component {
       if(!this.state.toItem.Name || this.state.toItem.Name == "Select To Location") {
         this.setState({
           tripToError: 'Please select travel To'
+        });
+      }
+      if(!this.state.ticketstat.Name || this.state.ticketstat.Name == "Select From Location") {
+        this.setState({
+          tripFromError: 'Please select ticket status From'
         });
       }
       if (this.state.emailError) {
@@ -905,6 +971,19 @@ class AirRequisitionScreen extends Component {
           hsncodeError: 'Please enter HSN code.',
         });
       }
+    
+      if(params.claim && !this.state.tic) {
+        this.setState({
+          ticError: 'Please enter ticket class.',
+        });
+      }
+
+      if(params.claim && !this.state.justify) {
+        this.setState({
+          justError: 'Please enter ticket justification.',
+        });
+      }
+
       if(params.claim && !this.state.invNumber) {
         this.setState({
           invNumberError: 'Please enter invoice number.',
@@ -1037,13 +1116,22 @@ class AirRequisitionScreen extends Component {
         newReq.vendor_SGST = this.state.sgst;
         newReq.vendor_IGST = this.state.igst;
         newReq.v_hsn_code = this.state.hsncode;
-        newReq.v_hsn_code = this.state.hsncode;
-      } else {
+        //newReq.v_hsn_code = this.state.hsncode;
+        newReq.ticket_class = this.state.tic;
+        newReq.justification = this.state.justify;
+        newReq.ticket_status =  this.state.ticketStatus;
+           //alert('before posting'+this.state.ticketStatus)
+        //alert(this.state.ticketStatus);
+        //newReq.ticket_status = this.state.ticketStatus;
+        //alert(newReq.ticket_status);
+      } 
+      else {
         if(!this.state.selectTicketData) {
           newReq.sub_status_id = this.state.OOP=="Y"?"7.5":"7.4";
           newReq.status = this.state.OOP=="Y"? this.state.statusNameOP :this.state.statusName;
           newReq.sub_status = this.state.OOP=="Y"? this.state.subStatusNameOP :this.state.subStatusName;
         } else {
+          
           newReq.flight = this.state.selectTicketData.airline;
           newReq.flight_type = this.state.selectTicketData.type;
           newReq.vendor_comment = this.state.selectTicketData.comment;
@@ -1123,8 +1211,8 @@ class AirRequisitionScreen extends Component {
   render() {
     const {params} = this.props.navigation.state;
     console.log(params);
-   //alert(JSON.stringify(params));
-
+    //alert(JSON.stringify(params));
+    //alert('air page');
     if(this.state.isLoading ||
       this.props.plans.isLoading ||
       this.props.travelThroughState.isLoading ||
@@ -1437,6 +1525,8 @@ class AirRequisitionScreen extends Component {
               <Label style={styles.formLabel}>GSTIN Number:</Label>
               <Text style={[styles.formInput,styles.readOnly]}>{params.update.gstin}</Text>
             </Item>
+           
+
             <Item picker fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>CGST:</Label>
               <Text style={[styles.formInput,styles.readOnly]}>{params.update.ta_booking_CGST}</Text>
@@ -1453,6 +1543,9 @@ class AirRequisitionScreen extends Component {
               <Label style={styles.formLabel}>Processing Charges:</Label>
               <Text style={[styles.formInput,styles.readOnly]}>{params.update.ta_booking_commission_amount}</Text>
             </Item>
+          
+            
+          
           </Form>
 
           {this.state.selectTicketData && <>
@@ -1693,17 +1786,81 @@ class AirRequisitionScreen extends Component {
             <Text style={styles.errorText}>{this.state.hsncodeError}</Text>
           }
 
-          <Label style={[styles.formLabel,{marginLeft:16, marginBottom:4}]}>Comments:</Label>
+          <Item picker fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Ticket Class:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TextInput 
+              ref='tic'
+              onSubmitEditing={() => this.refs.invNumberInput.focus()}
+              placeholder='TicketClass' 
+              style={styles.formInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.tic}
+              returnKeyType="next"
+              //maxLength={6}
+              
+              onChangeText={this.handleTiccode} />
+          </Item>
+          {this.state.ticError &&
+            <Text style={styles.errorText}>{this.state.ticError}</Text>
+          }
+
+           <Item picker fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Ticket Status:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <Picker
+                mode="dropdown"
+                placeholder="Select Ticket Status"
+                selectedValue={this.state.ticketStatus}
+                onValueChange={this.onValueChangeTicketStatus}
+                style={styles.formInput}
+                prompt="Select Ticket Status"
+                >
+                  {/* <Picker.Item label="Self" value="Self" /> */}
+                  <Picker.Item label="Availed" value="Availed" />
+                {/*this.props.travelThroughState.dataSource.map((item, index) => {
+                  return (
+                    <Picker.Item label={item.travel_through_type} value={item.travel_through_type} key={index} />
+                  );
+                })*/}
+              </Picker>
+            </Item>
+         
+
+     <Label style={[styles.formLabel,{marginLeft:16, marginBottom:4}]}>Justification:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
           <TextInput
             multiline
             numberOfLines={4}
-            placeholder='Enter Comments'
+            onSubmitEditing={() => this.refs.invNumberInput.focus()}
+            placeholder='Enter Justification'
             style={[styles.formInput,{marginHorizontal:16, backgroundColor:'#f8f8f8',borderRadius:4,padding: 8, borderWidth:1,borderColor:'rgba(0,0,0,.1)'}]}
             underlineColorAndroid="transparent"
+            value = {this.state.justify}
+            returnKeyType="next"
+            onChangeText={this.handlejustification} />
+            {this.state.justError &&
+            <Text style={styles.errorText}>{this.state.justError}</Text>
+          } 
+
+         
+         
+         {/* <Label style={[styles.formLabel,{marginLeft:16, marginBottom:4}]}>Justification:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+          <TextInput
+            multiline
+            numberOfLines={4}
+            onSubmitEditing={() => this.refs.invNumberInput.focus()}
+            placeholder='Enter Justification'
+            style={[styles.formInput,{marginHorizontal:16, backgroundColor:'#f8f8f8',borderRadius:4,padding: 8, borderWidth:1,borderColor:'rgba(0,0,0,.1)'}]}
+            underlineColorAndroid="transparent"
+            value = {this.state.comments}
             onChangeText={this.handleComment} />
+            {this.state.justError &&
+            <Text style={styles.errorText}>{this.state.justError}</Text>
+          } */}
+       
+         
 
           </Form>}
-        
+         
+
           {((params.update.sub_status_id !='11.1' && params.update.sub_status_id !='7.1' 
             && params.update.sub_status_id !='7.3' && (params.update.sub_status_id !='11.2')) || params.claim)?<>
           

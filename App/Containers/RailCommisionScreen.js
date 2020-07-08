@@ -21,7 +21,8 @@ class RailCommisionScreen extends Component {
   static navigationOptions = ({ navigation }) => {
     const handleClearPress = navigation.getParam("handleBackPress", () => {});
     return {
-      title: "Create Requisition",
+      title: "Rail comission",
+      // title: "Create Requisition",
       headerLeft: <HeaderBackButton onPress={handleClearPress} />
     };
   };
@@ -610,6 +611,7 @@ class RailCommisionScreen extends Component {
   }
 
   render() {
+    
     const {params} = this.props.navigation.state;
     if(this.state.isLoading ||
       this.props.plans.isLoading ||
