@@ -35,7 +35,7 @@ class AirRequisitionScreen extends Component {
       curDate: new Date(),
       date: params.update?params.update.travel_date:params.params.start_date,
       through: (params.update && params.update.through) ? params.update.through : "Self",
-      ticketStatus: (params.update && params.update.ticket_status) ? params.update.ticket_status:"Availed",
+      ticketStatus: (params.update && params.update.ticket_status) ? params.update.ticket_status:"Select Ticket status",
       agent: (params.update && params.update.vendor_name) ? params.update.vendor_name : "",
       vendorId: (params.update && params.update.va_ta_id) ? params.update.va_ta_id :"0",
       vendorEmail: (params.update && params.update.vendor_email) ? params.update.vendor_email : null,
@@ -49,9 +49,8 @@ class AirRequisitionScreen extends Component {
       toItem: {"Name": (params.update && params.update.travel_to) ? params.update.travel_to : "Select To Location", 
                 "Value": "", "Code": "", "Id":0},
       //souvik//
-      ticketstat: {"Name": (params.update && params.update.ticket_status) ? params.update.ticket_status : "Select TicketStatus", 
-                "Value": "", "Code": "", "Id":0},
-      statusList:['Availed'],
+
+      //statusList:['Availed'],
       ticketstatError:'',
       tripFromError: '',
       tripToError: '',
@@ -103,7 +102,8 @@ class AirRequisitionScreen extends Component {
       hsncode: (params.update && params.update.v_hsn_code) ? params.update.v_hsn_code :null,
       hsncodeError:null,
       tic: (params.update && params.update.ticket_class) ? params.update.ticket_class :null,
-      ticError:null,
+      ticError: null,
+      ticketstatuserror: '',
       showInv: false,
       authority: null,
       gstin: null,
@@ -114,6 +114,10 @@ class AirRequisitionScreen extends Component {
                 "Code": "", 
                 "Id":0,},
       flightVendorError: '',
+      ticketstatusList: [],
+      ticketStatush: {"Name": (params.update && params.update.ticket_statu) ? params.update.statu : "Select status"
+    },
+
       lineitem: (params.update && params.update.lineitem)?params.update.lineitem:null,
       tripNo: params.params.trip_no,
       refresh: false,
@@ -479,6 +483,7 @@ class AirRequisitionScreen extends Component {
   }
 
   onValueChangeThrough = (value) => {
+    //alert('called');
     this.setState({
       through: value,
       flight: value == "Travel Agent" ? "flight": null,
@@ -486,13 +491,14 @@ class AirRequisitionScreen extends Component {
     });
   }
   onValueChangeTicketStatus = (value) => {
-    //alert('before change'+value);
+    //alert('called')
     this.setState({
       ticketStatus:value,
-      //alert(ticketStatus);
+      //alert(ticketStatus)
+      ticketstatuserror: '',
     });
 
-   // alert(ticketStatus);
+    //alert(this.setState.ticketStatus)
   }
 
   onValueChangeAgent = (value) => {
@@ -573,7 +579,7 @@ class AirRequisitionScreen extends Component {
   handleTiccode = (text) => {
     this.setState({ 
        tic: text,
-      ticError:null
+      ticError:null,
     })
   }
   handlejustification = (text) => {
@@ -881,7 +887,7 @@ class AirRequisitionScreen extends Component {
         (params.claim && !this.state.igst) || (params.claim && !this.state.hsncode) ||
         (params.claim && !this.state.tic) || (params.claim && !this.state.tic) ||
         (params.claim && !this.state.justify) || (params.claim && !this.state.justify) ||
-        (params.claim && !this.state.ticketStatus) || (params.claim && !this.state.ticketStatus) ||
+        (params.claim && !this.state.ticketStatus) || (params.claim && !this.state.ticketStatus== "Select Ticket status") ||
         
         (params.claim && !this.state.invNumber)
     ){
@@ -895,11 +901,8 @@ class AirRequisitionScreen extends Component {
           tripToError: 'Please select travel To'
         });
       }
-      if(!this.state.ticketstat.Name || this.state.ticketstat.Name == "Select From Location") {
-        this.setState({
-          tripFromError: 'Please select ticket status From'
-        });
-      }
+     
+
       if (this.state.emailError) {
         this.setState({
           emailError: 'Email is not valid.',
@@ -941,6 +944,12 @@ class AirRequisitionScreen extends Component {
           flightVendorError: 'Please select a vendor'
         });
       }
+       if((params.claim && !this.state.ticketStatus) || (params.claim && this.state.ticketStatus == "Select Ticket status")) {
+         this.setState({
+            ticketstatusError: 'Please select Ticket Status'
+          });
+        }
+
       if(params.claim && !this.state.invoiceAmnt) {
         this.setState({
           invoiceAmntError: 'Please enter invoice amount.',
@@ -1081,6 +1090,7 @@ class AirRequisitionScreen extends Component {
       newReq.req_type = params.item.sub_category_id;
 
       newReq.through = this.state.through;
+      //newReq.ticket_status =  this.state.ticketStatus;
       newReq.amount = this.state.amount?this.state.amount:0;      
       newReq.travel_time = this.state.time;
       newReq.travel_type = this.state.type;
@@ -1398,7 +1408,8 @@ class AirRequisitionScreen extends Component {
                 >
                   <Picker.Item label="Self" value="Self" />
                   <Picker.Item label="Travel Agent" value="Travel Agent" />
-                {/*this.props.travelThroughState.dataSource.map((item, index) => {
+                {/*this.props.travelThroughState.dataS
+                ource.map((item, index) => {
                   return (
                     <Picker.Item label={item.travel_through_type} value={item.travel_through_type} key={index} />
                   );
@@ -1804,7 +1815,8 @@ class AirRequisitionScreen extends Component {
             <Text style={styles.errorText}>{this.state.ticError}</Text>
           }
 
-           <Item picker fixedLabel style={styles.formRow}>
+
+               <Item picker fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Ticket Status:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <Picker
                 mode="dropdown"
@@ -1815,7 +1827,9 @@ class AirRequisitionScreen extends Component {
                 prompt="Select Ticket Status"
                 >
                   {/* <Picker.Item label="Self" value="Self" /> */}
+                  <Picker.Item label="Select Ticket Status" value="Select Ticket status" />
                   <Picker.Item label="Availed" value="Availed" />
+                  
                 {/*this.props.travelThroughState.dataSource.map((item, index) => {
                   return (
                     <Picker.Item label={item.travel_through_type} value={item.travel_through_type} key={index} />
@@ -1823,7 +1837,12 @@ class AirRequisitionScreen extends Component {
                 })*/}
               </Picker>
             </Item>
-         
+              {this.state.ticketstatuserror ? 
+            <Text style={styles.errorText}>{this.state.ticketstatuserror}</Text>:null
+          }  
+
+
+
 
      <Label style={[styles.formLabel,{marginLeft:16, marginBottom:4}]}>Justification:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
           <TextInput

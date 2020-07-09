@@ -268,7 +268,7 @@ class ReqInfoScreen extends Component {
   }
 
   renderAir = (data) => {
-    alert(JSON.stringify(data))
+    //alert(JSON.stringify(data))
     let ticket = this.state.ticket;
     return <>
     <Text style={styles.title}>Trip Details</Text>
@@ -308,12 +308,23 @@ class ReqInfoScreen extends Component {
       <Text style={styles.value}>{data.ticket_class}</Text>
     </View>:null}
     
+
+    {data.justification ?
+    <View style={styles.row}>
+      <Text style={styles.label}>Ticket Status:</Text>
+      <Text style={styles.value}>{data.ticket_status}</Text>
+    </View>:null}
+
+
     {data.justification ?
     <View style={styles.row}>
       <Text style={styles.label}>justification:</Text>
       <Text style={styles.value}>{data.justification}</Text>
     </View>:null}
-    
+
+
+        
+
 
     {data.email ?
     <View style={styles.row}>
