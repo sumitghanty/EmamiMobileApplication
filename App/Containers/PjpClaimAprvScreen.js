@@ -451,11 +451,17 @@ class PjpClaimAprvScreen extends Component {
           </View>
           <View style={styles.totalTableRow}>
             <Text style={styles.totalTableLabel}>Claim Amount:</Text>
-            <Text style={styles.totalTableValue}>{this.state.cAmnt}</Text>
+                     {/* souvik adding */}
+            <Text style={styles.totalTableValue}>{params.actual_claim_amount}</Text>
+
+            {/* <Text style={styles.totalTableValue}>{this.state.cAmnt}</Text> */}
           </View>
           <View style={styles.totalTableRow}>
             <Text style={styles.totalTableLabel}>Payable Amount:</Text>
-            <Text style={styles.totalTableValue}>{this.state.pAmnt}</Text>
+                          {/* Added by souvik */}
+             <Text style={styles.totalTableValue}>{params.claimpaybleamount}</Text> 
+           
+            {/* <Text style={styles.totalTableValue}>{this.state.pAmnt}</Text> */}
           </View>
         </View>
         :null}

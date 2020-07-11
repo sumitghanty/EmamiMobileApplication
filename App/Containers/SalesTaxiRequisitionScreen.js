@@ -110,7 +110,7 @@ class SalesTaxiRequisitionScreen extends Component {
       showTimeCout: false,
       timeTotal: (params.update && params.update.claimtotaltime) ? params.update.claimtotaltime : '00:00',
       claimDays: '',
-      cAmount: (params.update && params.update.claimamount) ? params.update.claimamount : '0.0',
+     // cAmount: (params.update && params.update.claimamount) ? params.update.claimamount : '0.0',
       deductionAmount: '0.0',
       //payableAmount: '0.0',
       invoiceAmnt: (params.update && params.update.invoice_amount) ? params.update.invoice_amount :null,
@@ -125,7 +125,8 @@ class SalesTaxiRequisitionScreen extends Component {
       Tonew: (params.update && params.update.travel_to) ? params.update.travel_to :null,
       Fromnew: (params.update && params.update.travel_from) ? params.update.travel_from :null,
       //souvik
-      claimingnew: (params.update && params.update.claimamount) ? params.update.claimamount :null,
+      claimingnew: (params.update && params.update.invoice_amount) ? params.update.invoice_amount :null,
+      //claimingnew: (params.update && params.update.claimamount) ? params.update.claimamount :null,
       sgst: (params.update && params.update.vendor_SGST) ? params.update.vendor_SGST :null,
       igst: (params.update && params.update.vendor_IGST) ? params.update.vendor_IGST :null,
       hsncode: (params.update && params.update.v_hsn_code) ? params.update.v_hsn_code :null,
@@ -506,12 +507,12 @@ fromSelectednew=(value)=>{
     })
   }
   
-  handleCAmountnew = (value) => {
-    this.setState({ 
-      claimingnew: value,
-      amountNewError:'',
-    })
-  }
+  // handleCAmountnew = (value) => {
+  //   this.setState({ 
+  //     claimingnew: value,
+  //     amountNewError:'',
+  //   })
+  // }
 
   onValueChangeTstatus = (value) => {
     this.setState({
@@ -1114,15 +1115,16 @@ setDateInvnew = (event, date) => {
 
       
     }
-    if(!this.state.claimamount) {
+    else
+    if(!this.state.claimingnew) {
       this.setState({
         amountNewError: 'Please select amount'
       });
 
       
     }
-   
-    if(!this.state.invoice_currency) {
+   else
+    if(!this.state.currency) {
       this.setState({
         currNewError:'Please select Currency'
       });
@@ -1131,7 +1133,7 @@ setDateInvnew = (event, date) => {
     }
 
 
-
+else
     
     if(!this.state.Fromnew) {
       this.setState({
@@ -1406,8 +1408,8 @@ setDateInvnew = (event, date) => {
             afterSetDistance.gstin=this.state.vendorGSTIN;
             afterSetDistance.travel_to=this.state.Tonew;;
             afterSetDistance.travel_from=this.state.Fromnew;
-            afterSetDistance.claimamount=this.state.claimingnew;
-            
+            //afterSetDistance.claimamount=this.state.claimingnew;
+            afterSetDistance.invoice_amount=this.state.claimingnew; 
           
 
               //alert(JSON.stringify(afterSetDistance))
@@ -1474,7 +1476,7 @@ setDateInvnew = (event, date) => {
         })
       } else {
         //sG
-        alert("2"+JSON.stringify(newReq));
+       // alert("2"+JSON.stringify(newReq));
 
         this.props.updtClaimReq([newReq])
           .then(()=>{
