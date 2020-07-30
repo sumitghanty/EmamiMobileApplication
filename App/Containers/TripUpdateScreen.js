@@ -14,7 +14,9 @@ import PickerModal from 'react-native-picker-modal-view'
 import Loader from '../Components/Loader'
 import styles from './Styles/TripCreateScreen';
 import updateStyles from './Styles/TripUpdateScreen';
-
+import SearchInput, { createFilter } from 'react-native-search-filter'
+import Vicon from 'react-native-vector-icons/Ionicons'
+const KEYS_TO_FILTERS = ['trip_no', 'creation_date', 'start_date', 'end_date', 'trip_creator_name', 'status'];
 class TripUpdateScreen extends Component {
   constructor(props) {
     super(props);
@@ -23,6 +25,8 @@ class TripUpdateScreen extends Component {
     var month = new Date().getMonth() + 1;
     var year = new Date().getFullYear();
     this.state = {
+      searchTerm: '',
+      
       curDate: year+'-'+month+'-'+date,
       dateStart: new Date(params.start_date),
       modeStart: 'date',
@@ -46,16 +50,21 @@ class TripUpdateScreen extends Component {
       createStatusName: '',
       createSubStatusName: '',      
       tripFromError: '',
+      dateError:null,
       tripToError: '',
       name: global.USER.userName,
       updateParams: '',
+      error:false,
+      flag:"0"
     };
     this._handleBackPress = this._handleBackPress.bind(this);
   }
-  
+  searchUpdated(term) {
+    this.setState({ searchTerm: term })
+  }
   componentDidMount() {
     const {params} = this.props.navigation.state;
-
+    
     this.props.getReqLocations()
     .then(()=>{
       let fetchLocationList = this.props.locations.dataSource;
@@ -88,7 +97,7 @@ class TripUpdateScreen extends Component {
         }
       }
     });
-
+    this.props.getTrips(global.USER.userId); 
     this.props.getTripFor()
     .then(()=> {
       for(var i=0; i<this.props.tripFor.dataSource.length; i++) {
@@ -146,6 +155,16 @@ class TripUpdateScreen extends Component {
     BackHandler.removeEventListener('hardwareBackPress', this._handleBackPress);
   }
 
+  setAge = (date) => {
+    var newDate = date.includes('/')?date : moment(date).format('DD/MM/YYYY')
+    var curDate = moment(new Date()).format('DD/MM/YYYY')
+    var diff = moment(newDate, "DD/MM/YYYY").diff(moment(curDate, "DD/MM/YYYY"), 'days');
+    return(
+      diff
+    );
+  }
+
+
   _handleBackPress() {
     if (this.props.navigation.isFocused()) {
       Alert.alert(
@@ -195,6 +214,7 @@ class TripUpdateScreen extends Component {
     dateEnd = dateEnd || this.state.dateEnd; 
     this.setState({
       showEnd: Platform.OS === 'ios' ? true : false,
+      dateError:null,
       dateEnd,
     });
   } 
@@ -211,6 +231,7 @@ class TripUpdateScreen extends Component {
     dateStart = dateStart || this.state.dateStart; 
     this.setState({
       showStart: Platform.OS === 'ios' ? true : false,
+      dateError:null,
       dateStart,
     });
   } 
@@ -228,6 +249,153 @@ class TripUpdateScreen extends Component {
   }
  
   confirmation = (statusId) => {
+
+
+
+    if(this.props.trips.isLoading){
+     return(
+         <Loader/>
+     )
+   } else if(this.props.trips.errorStatus){
+     return(
+         <Text>URL Error</Text>
+     )
+   }
+   var flag="0";
+   const listData = this.props.trips.dataSource;
+   const filteredData = listData?listData.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS)):[]
+   var sortList = filteredData;
+   // alert(sortList.length)
+   sortList.sort((a,b) => b.trip_hdr_id - a.trip_hdr_id);
+   //alert(JSON.stringify(sortList[0]))
+   var count=0;
+   var startdatearray=[];
+   var enddatearray=[];
+   var j=0;
+   for(i=0;i<sortList.length;i++)
+   
+   {
+   if((sortList[i].status_id != "0") && (sortList[i].status_id != "1") && (sortList[i].status_id != "2") && (sortList[i].status_id != "5"))
+   //if(sortList[i].status_id=="3")
+   {  // alert(sortList[i].status_id)
+        startdatearray[j]=sortList[i].start_date;
+        enddatearray[j]=sortList[i].end_date;
+        j++;
+      }
+     
+        
+   }
+  // alert(startdatearray.length);
+
+   for(i=0;i<startdatearray.length;i++)
+   {
+   startdatearray[i]= new Date(moment(startdatearray[i]).format("MM/DD/YYYY"));
+   enddatearray[i]= new Date(moment(enddatearray[i]).format("MM/DD/YYYY"));      
+   }
+   
+   var checkstart =  new Date(moment(this.state.dateStart).format("MM/DD/YYYY")); 
+   var checkend=  new Date(moment(this.state.dateEnd).format("MM/DD/YYYY")); 
+
+   alert(startdatearray.length);
+   
+
+
+   for(i=0;i<startdatearray.length;i++)
+   {
+       var dateFrom = startdatearray[i].getTime();
+       var dateTo = enddatearray[i].getTime();
+      // var from = Date.parse(dateFrom);
+      // var to   = Date.parse(dateTo);
+       var from = dateFrom;
+       var to   = dateTo;
+
+       var checks = checkstart.getTime();
+       var checke=checkend.getTime();
+      //var checks = Date.parse(checkstart);
+      // var checke=Date.parse(checkend);
+
+      if(checks >= from && checks < to) {
+        this.setState({
+          dateError: 'Please select correct date',
+          error: true,
+          flag:'1'
+        });
+        //this.state.flag="1"
+        alert("contained")
+        // alert("error"+this.state.error)
+        return;
+        }
+        
+      else  if(checke > from && checke <= to) {
+        this.setState({
+          dateError: 'Please select correct date',
+          flag:"1",
+          error: true,
+        });
+        //this.state.flag="1"
+        alert("contained")
+        return;
+        }
+        else if(from >= checks && from < checke) {
+          this.setState({
+            dateError: 'Please select correct date',
+            error: true,
+            flag:"1"
+          });
+          //this.state.flag="1"
+          alert("contained"+this.state.error)
+        return;
+        }
+        
+       else  if(to > checks && to <= checke) {
+        this.setState({
+          dateError: 'Please select correct date',
+          error: true,
+          flag:"1"
+        });
+        //this.state.flag="1"
+        alert("contained")
+        return;
+        }
+        else if(checks == from && checke == from) {
+          this.setState({
+            dateError: 'Please select correct date',
+            error: true,
+            flag:"1"
+          }); 
+          //this.state.flag="1"         
+        alert("contained")
+        return;
+        }
+
+ }
+    
+   var date1 = new Date(moment(this.state.dateStart).format("MM/DD/YYYY")); 
+   var date2 = new Date(moment(this.state.dateEnd).format("MM/DD/YYYY")); 
+   
+   // To calculate the time difference of two dates 
+    var Difference_In_Time = date2.getTime() - date1.getTime(); 
+   
+   
+     
+   // // To calculate the no. of days between two dates 
+    var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24); 
+    
+   if(Difference_In_Days >90){
+    
+    this.setState({
+       error: true,
+       dateError: 'Please select correct date'
+     });
+     alert("Trip duration cannot be greater than 90 days");
+    return;
+   }
+    
+    
+    
+    
+    
+    
     if( this.state.fromItem.Name == "Select From Location" || this.state.toItem.Name == "Select To Location" ) {
       if(this.state.fromItem.Name == "Select From Location") {
         this.setState({
@@ -241,9 +409,14 @@ class TripUpdateScreen extends Component {
           error: true,
         });
       }
-    } else {
-      if (statusId == '1') {
-        Alert.alert(
+    } 
+    
+    else {
+
+      if (statusId == '1' ) {
+        
+
+      Alert.alert(
           "Update",
           "Do you want to Update this trip?",
           [
@@ -258,7 +431,9 @@ class TripUpdateScreen extends Component {
           ],
           { cancelable: true }
         );
-      } else if(statusId == '2') {
+
+
+      } else if(statusId == '2'  ) {
         Alert.alert(
           "Submit",
           "Do you want to Submit this Trip?",
@@ -281,6 +456,7 @@ class TripUpdateScreen extends Component {
   }
 
   submitTrip = (statusId) => {
+ 
     const {params} = this.props.navigation.state;
     let newParams = params;    
     let generatedData= null;
@@ -340,15 +516,15 @@ class TripUpdateScreen extends Component {
                 error: false,
                 isLoading: false
               });
-              if(statusId == "1") {
+              if(statusId == "1"  ) {
                 Toast.show('Trip Saved Successfully', Toast.LONG);
               }
-              if(statusId == "2") {
+              if(statusId == "2" ) {
                 Toast.show('Trip Updated Successfully', Toast.LONG);
               }
             })
           }
-          else {
+          else { 
             this.props.navigation.navigate('TripList')
             this.setState({ 
               error: false,
@@ -357,11 +533,11 @@ class TripUpdateScreen extends Component {
             if(statusId == "1") {
               Toast.show('Trip Saved Successfully', Toast.LONG);
             }
-            if(statusId == "2") {
+            if(statusId == "2"&& this.state.dateError.length<0) {
               Toast.show('Trip Updated Successfully', Toast.LONG);
             }
-          }
-        })
+          
+        }})
       })
     })
     
@@ -453,21 +629,25 @@ class TripUpdateScreen extends Component {
             <Text style={updateStyles.headerValue}>{params.trip_no}</Text>
           </View>
           <Form>
-            <Item fixedLabel style={styles.formRow}>
+          <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Start Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <TouchableOpacity onPress={this.datepickerStart} style={styles.datePicker}>
                 <Text style={styles.datePickerLabel}>{moment(this.state.dateStart).format(global.DATEFORMAT)}</Text>
                 <Icon name="calendar" style={styles.datePickerIcon} />
               </TouchableOpacity>
             </Item>
-            { this.state.showStart && 
-            <DateTimePicker value={this.state.dateStart}
-              mode={this.state.modeStart}
-              minimumDate={new Date(this.state.curDate)}
-              is24Hour={true}
+           { this.state.showStart && 
+            <DateTimePicker value={new Date()}
+              mode="date"
+              minimumDate={new Date()}
               display="default"
               onChange={this.setDateStart} />
             }
+           {this.state.dateError &&
+           <Text style={styles.errorText}>
+             {this.state.dateError} 
+             </Text>}
+
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>End Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <TouchableOpacity onPress={this.datepickerEnd} style={styles.datePicker}>
@@ -475,6 +655,7 @@ class TripUpdateScreen extends Component {
                 <Icon name="calendar" style={styles.datePickerIcon} />
               </TouchableOpacity>
             </Item>
+           
             { this.state.showEnd && 
             <DateTimePicker value={this.state.dateEnd}
               mode={this.state.modeEnd}
@@ -483,6 +664,11 @@ class TripUpdateScreen extends Component {
               display="default"
               onChange={this.setDateEnd} />
             }
+             {this.state.dateError &&
+             <Text style={styles.errorText}>
+               {this.state.dateError}
+               </Text>}
+               
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Purpose:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <Picker

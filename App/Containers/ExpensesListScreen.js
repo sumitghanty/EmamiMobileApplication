@@ -29,15 +29,26 @@ class ExpensesListScreen extends Component {
   componentDidMount(){
     this.props.getExpenses(global.USER.userId,"3",STATUS_ID);
   }
+//edited souvik 28/07/2020
+  // setAge = (date) => {
+  //   var newDate = date.includes('/')?date : moment(date).format('DD/MM/YYYY')
+  //   var curDate = moment(new Date()).format('DD/MM/YYYY')
+  //   var diff = moment(curDate, "DD/MM/YYYY").diff(moment(newDate, "DD/MM/YYYY"), 'days');
+  //   return(
+  //     diff<2?diff+' day':diff+' days'
+  //   );
+  // }
+
 
   setAge = (date) => {
     var newDate = date.includes('/')?date : moment(date).format('DD/MM/YYYY')
     var curDate = moment(new Date()).format('DD/MM/YYYY')
     var diff = moment(curDate, "DD/MM/YYYY").diff(moment(newDate, "DD/MM/YYYY"), 'days');
     return(
-      diff<2?diff+' day':diff+' days'
+      diff<2?diff:diff
     );
   }
+
    
   render() {
   

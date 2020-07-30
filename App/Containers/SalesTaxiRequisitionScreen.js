@@ -1402,14 +1402,16 @@ else
             afterSetDistance.vendor_id=this.state.vendorIdNew;
             //Invoice_date
             afterSetDistance.travel_date= moment(this.state.dateStart).format("YYYY-MM-DD");
+            
             afterSetDistance.pjp_date=this.state.dateStart;
-          
+           
 
             afterSetDistance.gstin=this.state.vendorGSTIN;
             afterSetDistance.travel_to=this.state.Tonew;;
             afterSetDistance.travel_from=this.state.Fromnew;
             //afterSetDistance.claimamount=this.state.claimingnew;
             afterSetDistance.invoice_amount=this.state.claimingnew; 
+          
           
 
               //alert(JSON.stringify(afterSetDistance))
@@ -1529,7 +1531,7 @@ else
   render() {
     //alert("Hi");
    const {params} = this.props.navigation.state;
-//alert(params.update.invoice_date);
+    //alert(JSON.stringify(params));
     console.log(params);
     console.log(params.item.category_id);
     console.log(this.props.attachmentSalesState);
@@ -1834,7 +1836,7 @@ else
             <TextInput 
               ref='agntCgst'
               onSubmitEditing={() => this.refs.agntSgst.focus()}
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={[styles.formInput,styles.formInputShot]}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.vendorGSTIN}
@@ -1853,7 +1855,7 @@ else
             <TextInput 
               ref='cgst'
               onSubmitEditing={() => this.refs.sgst.focus()}
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.cgst}
@@ -1868,7 +1870,7 @@ else
             <TextInput 
               ref='sgst'
               onSubmitEditing={() => this.refs.igst.focus()}
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.sgst}
@@ -2057,7 +2059,7 @@ else
           <Item fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Invoice Amount:</Label>
             <TextInput 
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.invoiceAmnt}
@@ -2107,7 +2109,7 @@ else
             <TextInput 
               ref='cgst'
               onSubmitEditing={() => this.refs.sgst.focus()}
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.cgst}
@@ -2121,7 +2123,7 @@ else
             <TextInput 
               ref='sgst'
               onSubmitEditing={() => this.refs.igst.focus()}
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.sgst}
@@ -2193,7 +2195,7 @@ else
           <Item fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Invoice Amount:</Label>
             <TextInput 
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.invoiceAmnt}
@@ -2262,7 +2264,7 @@ else
             <TextInput 
               ref='cgst'
               onSubmitEditing={() => this.refs.sgst.focus()}
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={[styles.formInput,styles.formInputShot]}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.cgst}
@@ -2276,7 +2278,7 @@ else
             <TextInput 
               ref='sgst'
               onSubmitEditing={() => this.refs.igst.focus()}
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={[styles.formInput,styles.formInputShot]}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.sgst}
@@ -2318,7 +2320,7 @@ else
             <TextInput 
               ref='agntCgst'
               onSubmitEditing={() => this.refs.agntSgst.focus()}
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={[styles.formInput,styles.formInputShot]}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.agntCgst}
@@ -2332,7 +2334,7 @@ else
             <TextInput 
               ref='agntSgst'
               onSubmitEditing={() => this.refs.agntIgst.focus()}
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={[styles.formInput,styles.formInputShot]}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.agntSgst}
@@ -2538,7 +2540,7 @@ else
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Invoice Amount:</Label>
               <TextInput 
-                placeholder='0.0' 
+                placeholder='0.00' 
                 style={styles.formInput}
                 underlineColorAndroid= "rgba(0,0,0,0)"
                 value = {this.state.invoiceAmnt}
@@ -2565,7 +2567,7 @@ else
               <TextInput 
                 ref='cgst'
                 onSubmitEditing={() => this.refs.sgst.focus()}
-                placeholder='0.0' 
+                placeholder='0.00' 
                 style={styles.formInput}
                 underlineColorAndroid= "rgba(0,0,0,0)"
                 value = {this.state.cgst}
@@ -2579,7 +2581,7 @@ else
               <TextInput 
                 ref='sgst'
                 onSubmitEditing={() => this.refs.igst.focus()}
-                placeholder='0.0' 
+                placeholder='0.00' 
                 style={styles.formInput}
                 underlineColorAndroid= "rgba(0,0,0,0)"
                 value = {this.state.sgst}

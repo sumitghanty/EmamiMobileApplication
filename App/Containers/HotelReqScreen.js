@@ -1368,7 +1368,7 @@ class HotelReqScreen extends Component {
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Invoice Amount:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <TextInput 
-                placeholder='0.0' 
+                placeholder='0.00' 
                 style={styles.formInput}
                 underlineColorAndroid= "rgba(0,0,0,0)"
                 value = {this.state.invoiceAmnt}
@@ -1400,7 +1400,7 @@ class HotelReqScreen extends Component {
               <TextInput 
                 ref='cgst'
                 onSubmitEditing={() => this.refs.sgst.focus()}
-                placeholder='0.0' 
+                placeholder='0.00' 
                 style={styles.formInput}
                 underlineColorAndroid= "rgba(0,0,0,0)"
                 value = {this.state.cgst}
@@ -1417,7 +1417,7 @@ class HotelReqScreen extends Component {
               <TextInput 
                 ref='sgst'
                 onSubmitEditing={() => this.refs.igst.focus()}
-                placeholder='0.0' 
+                placeholder='0.00' 
                 style={styles.formInput}
                 underlineColorAndroid= "rgba(0,0,0,0)"
                 value = {this.state.sgst}

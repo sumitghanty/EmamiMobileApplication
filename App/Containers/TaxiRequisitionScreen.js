@@ -1001,7 +1001,7 @@ class TaxiRequisitionScreen extends Component {
             <TextInput 
               ref='nCGST'
               onSubmitEditing={() => this.refs.nSGST.focus()}
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {params.update?this.state.nCGST:null}
@@ -1019,7 +1019,7 @@ class TaxiRequisitionScreen extends Component {
             <TextInput 
               ref='nSGST'
               onSubmitEditing={() => this.refs.nIGST.focus()}
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {params.update?this.state.nSGST:null}
@@ -1037,7 +1037,7 @@ class TaxiRequisitionScreen extends Component {
             <TextInput 
               ref='nIGST'
               onSubmitEditing={() => this.refs.nHSN.focus()}
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {params.update?this.state.nIGST:null}

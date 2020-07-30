@@ -73,6 +73,7 @@ class ExpInfoScreen extends Component {
   onScreenLoad=()=> {
     let tot = 0;
     let data = this.props.plans.dataSource;
+    
     AsyncStorage.getItem("ONSCREENLOAD")
     .then(()=>{
     //alert(this.props.reqClaimType.dataSource.length);
@@ -423,7 +424,7 @@ class ExpInfoScreen extends Component {
   }
 	
   render() {
-    
+    //alert(JSON.stringify(params))
     const {params} = this.props.navigation.state;
    
     //console.log(params)
@@ -953,6 +954,7 @@ class ExpInfoScreen extends Component {
   }
 
   renderItem = (data,index,params) => {
+   // alert(data.invoice_amount_currency)
     let item=this.state.airReqData;
     if(!data.req_type) {
       return <View key={index} style={[styles.cardItem,styles.cardHrzntl]}>
@@ -964,7 +966,7 @@ class ExpInfoScreen extends Component {
         <Text style={styles.cardTile}>{(data.sub_status && data.sub_status !='NA')?data.sub_status:data.status}</Text>
         <TouchableOpacity 
         
-          onPress={() => {alert(JSON.stringify(data));
+          onPress={() => {
             this.editModalVisible([data,data.req_type]);}}
           style={[styles.editlBtn,styles.cardHrzntlBtnRight]}
           >
@@ -1021,11 +1023,13 @@ class ExpInfoScreen extends Component {
             <Icon name='attach' style={styles.actionBtnIco} />
           </Button>*/}
         </View>
+        
         <View style={styles.cardInfo}>
           <View style={styles.cardRow}>
             <Text style={styles.cardLabel}>Start Date:</Text>
             <Text style={styles.cardValue}>{moment(data.start_date).format(global.DATEFORMAT)}</Text>
           </View>
+          
           <View style={styles.cardRow}>
             <Text style={styles.cardLabel}>End Date:</Text>
             <Text style={styles.cardValue}>{moment(data.end_date).format(global.DATEFORMAT)}</Text>
@@ -1040,11 +1044,11 @@ class ExpInfoScreen extends Component {
           </View>
           <View style={styles.cardRow}>
             <Text style={styles.cardLabel}>Amount:</Text>
-            <Text style={styles.cardValue}>{data.invoice_amount?data.invoice_amount:data.amount}</Text>
+            <Text style={styles.cardValue}>{data.invoice_amount && data.invoice_amount_currency?data.invoice_amount:data.amount}</Text>
           </View>          
           <View style={styles.cardRow}>
             <Text style={styles.cardLabel}>Extra Amount:</Text>
-            <Text style={styles.cardValue}>{data.extra_amount?data.extra_amount:'0.0'}</Text>
+            <Text style={styles.cardValue}>{data.extra_amount?data.extra_amount:'0.00'}</Text>
           </View>          
         </View>
       </View>    

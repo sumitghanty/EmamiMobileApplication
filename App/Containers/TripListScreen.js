@@ -8,7 +8,6 @@ import SearchInput, { createFilter } from 'react-native-search-filter'
 import Vicon from 'react-native-vector-icons/Ionicons'
 import LinearGradient from 'react-native-linear-gradient'
 import moment from 'moment'
-
 import styles from './Styles/TripListScreen'
 
 const KEYS_TO_FILTERS = ['trip_no', 'creation_date', 'start_date', 'end_date', 'trip_creator_name', 'status'];
@@ -153,6 +152,8 @@ class TripListScreen extends Component {
           />}
           </View>
         </Content>
+
+        
         <TouchableOpacity onPress={() => this.props.navigation.navigate('TripCreate')} style={styles.ftrBtn}>
           <LinearGradient 
             start={{x: 0, y: 0}} 
@@ -168,7 +169,7 @@ class TripListScreen extends Component {
   }
   }
 }
-
+//SOUVIK
 const mapStateToProps = state => {
   return {
     trips: state.trips

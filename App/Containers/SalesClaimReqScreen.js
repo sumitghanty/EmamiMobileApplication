@@ -1517,7 +1517,7 @@ class SalesClaimReqScreen extends Component {
           <Item fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Invoice Amount:</Label>
             <TextInput 
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.invoiceAmnt}
@@ -1565,7 +1565,7 @@ class SalesClaimReqScreen extends Component {
             <TextInput 
               ref='cgst'
               onSubmitEditing={() => this.refs.sgst.focus()}
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.cgst}
@@ -1579,7 +1579,7 @@ class SalesClaimReqScreen extends Component {
             <TextInput 
               ref='sgst'
               onSubmitEditing={() => this.refs.igst.focus()}
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.sgst}
@@ -1651,7 +1651,7 @@ class SalesClaimReqScreen extends Component {
           <Item fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Invoice Amount:</Label>
             <TextInput 
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.invoiceAmnt}
@@ -1720,7 +1720,7 @@ class SalesClaimReqScreen extends Component {
             <TextInput 
               ref='cgst'
               onSubmitEditing={() => this.refs.sgst.focus()}
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={[styles.formInput,styles.formInputShot]}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.cgst}
@@ -1734,7 +1734,7 @@ class SalesClaimReqScreen extends Component {
             <TextInput 
               ref='sgst'
               onSubmitEditing={() => this.refs.igst.focus()}
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={[styles.formInput,styles.formInputShot]}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.sgst}
@@ -1776,7 +1776,7 @@ class SalesClaimReqScreen extends Component {
             <TextInput 
               ref='agntCgst'
               onSubmitEditing={() => this.refs.agntSgst.focus()}
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={[styles.formInput,styles.formInputShot]}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.agntCgst}
@@ -1790,7 +1790,7 @@ class SalesClaimReqScreen extends Component {
             <TextInput 
               ref='agntSgst'
               onSubmitEditing={() => this.refs.agntIgst.focus()}
-              placeholder='0.0' 
+              placeholder='0.00' 
               style={[styles.formInput,styles.formInputShot]}
               underlineColorAndroid= "rgba(0,0,0,0)"
               value = {this.state.agntSgst}
@@ -1993,7 +1993,7 @@ class SalesClaimReqScreen extends Component {
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Invoice Amount:</Label>
               <TextInput 
-                placeholder='0.0' 
+                placeholder='0.00' 
                 style={styles.formInput}
                 underlineColorAndroid= "rgba(0,0,0,0)"
                 value = {this.state.invoiceAmnt}
@@ -2019,7 +2019,7 @@ class SalesClaimReqScreen extends Component {
               <TextInput 
                 ref='cgst'
                 onSubmitEditing={() => this.refs.sgst.focus()}
-                placeholder='0.0' 
+                placeholder='0.00' 
                 style={styles.formInput}
                 underlineColorAndroid= "rgba(0,0,0,0)"
                 value = {this.state.cgst}
@@ -2033,7 +2033,7 @@ class SalesClaimReqScreen extends Component {
               <TextInput 
                 ref='sgst'
                 onSubmitEditing={() => this.refs.igst.focus()}
-                placeholder='0.0' 
+                placeholder='0.00' 
                 style={styles.formInput}
                 underlineColorAndroid= "rgba(0,0,0,0)"
                 value = {this.state.sgst}
