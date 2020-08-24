@@ -1,35 +1,58 @@
 import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
-  container: {
-    flex: 1
-  },
   scrollView: {
     paddingBottom: 30
   },
-  header: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+  titleRow:{
     backgroundColor: '#0066b3',
-    marginBottom: 8
+    padding: 16,
   },
   title: {
     fontSize: 16,
-    color: '#fff',    
-    fontWeight: 'bold',    
+    color: '#fff',
+    fontWeight: 'bold',
   },
   formLabel: {
     flex: 1,
-    marginRight: 10,
+    paddingRight: 10,
     fontSize: 16,
     color: 'rgba(0,0,0,.5)',
     marginTop: 16,
     marginBottom: 16
   },
+  readOnly: {
+    color: 'rgba(0,0,0,.5)'
+  },
   formInput: {
     flex: 1,
     paddingRight: 16
-  },  
+  },
+  ftrBtn: {
+    marginHorizontal: 20,
+    marginTop: 30
+  },
+  brdBtn: {
+    borderColor: '#0066b3'
+  },
+  brdBtnTxt: {
+    color: '#0066b3'
+  },
+  ftrBtnBg: {
+    borderRadius: 24,
+    paddingHorizontal: 8,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  ftrBtnTxt: {
+    color: '#fff',
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    marginHorizontal: 8,
+  },
   attachRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -44,7 +67,7 @@ export default StyleSheet.create({
   },
   atchFileName: {
     fontSize: 12,
-    flex: 1
+    flex: 3
   },
   actionBtn: {
     width: 32,
@@ -69,7 +92,7 @@ export default StyleSheet.create({
   datePicker: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1
+    flex: 1,
   },
   datePickerIcon: {
     color: 'rgba(0,0,0,.5)',
@@ -78,24 +101,25 @@ export default StyleSheet.create({
   datePickerLabel: {
     flex: 1
   },
-  ftrBtnBg: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14
+  inputType: {
+    fontSize: 16
   },
-  ftrBtnTxt: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
-    letterSpacing: 1,
-    textTransform: 'uppercase'
+  pickerWraper: {
+    flex: 1
   },
-  ftrBtnIcon: {
-    color: '#fff',
-    marginRight: 16,
-    fontSize: 20
+  pickerBtn: {
+   flexDirection: 'row',
+   alignItems: 'center',
+   paddingVertical: 10,
+   height: 50,
+  },
+  pickerBtnText: {
+    flex: 1
+  },
+  pickerBtnIcon: {
+    marginHorizontal: 12,
+    color: 'rgba(0,0,0,.5)',
+    fontSize: 19
   },
   errorText: {
     fontSize: 12,
@@ -183,5 +207,13 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     color: '#111',
     marginBottom: 6
+  },
+  addressInput: {
+    marginHorizontal: 16,
+    padding: 10,
+    backgroundColor: '#f9f9f9',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.15)',
+    borderRadius: 6
   }
 });

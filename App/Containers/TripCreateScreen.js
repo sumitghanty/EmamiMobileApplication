@@ -175,9 +175,9 @@ class TripCreateScreen extends Component {
       dateEnd,
       }
        ).then(()=>{
-      alert('in then')
+      
       if(this.state.a >'04') {
-        alert('high')
+        
         this.renderDateAlert();
         this.setState({
           dateEnd: dateStart,
@@ -256,6 +256,7 @@ if((sortList[i].status_id !="0") && (sortList[i].status_id != "1") && (sortList[
 {
      startdatearray[j]=sortList[i].start_date;
      enddatearray[j]=sortList[i].end_date;
+   
      j++;
    }
   
@@ -270,7 +271,6 @@ enddatearray[i]= new Date(moment(enddatearray[i]).format("MM/DD/YYYY"));
 
 var checkstart =  new Date(moment(this.state.dateStart).format("MM/DD/YYYY")); 
 var checkend=  new Date(moment(this.state.dateEnd).format("MM/DD/YYYY")); 
-
 
 
 
@@ -318,7 +318,7 @@ for(i=0;i<startdatearray.length;i++)
          flag:"1"
        });
        //this.state.flag="1"
-       alert("contained"+this.state.error)
+       alert("contained")
      return;
      }
      

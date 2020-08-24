@@ -915,8 +915,25 @@ class SalesClaimReqScreen extends Component {
     })    
   }
 
-  submitReq = () => {
+  submitReq = () => {//souvik//
+
+
     const {params} = this.props.navigation.state;
+  
+    var invoicedate = new Date(moment(this.state.dateInv).format("YYYY-MM-DD"));
+    var creationdate=  params.params.creation_date;
+    var arr = params.params.creation_date.split("/");
+    var creationdate1=  new Date(moment(params.params.creation_date).format("YYYY-MM-DD")); 
+   
+   
+      
+     
+     if (invoicedate.getTime()< creationdate1.getTime())
+     { 
+     alert("The invoice date is smaller then trip creation date ")
+     return;
+    }
+   // const {params} = this.props.navigation.state;
     if((this.state.showField && (!this.state.fromItem.Name || this.state.fromItem.Name == "Select From Location" ||
     !this.state.toItem.Name || this.state.toItem.Name == "Select To Location")) ||
     (params.item.category_id == '3' && !this.state.msg) ||
@@ -1247,7 +1264,7 @@ class SalesClaimReqScreen extends Component {
   }
 
   render() {
-   // alert("hello");
+    
     
     const {params} = this.props.navigation.state;
     console.log(params);
@@ -1626,7 +1643,22 @@ class SalesClaimReqScreen extends Component {
               returnKeyType="next"
               onChangeText={this.handleInvoiceNumber} />
           </Item>
+          {/* //souvik// */}
+          <Item fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Invoice Date:</Label>
+            <TouchableOpacity onPress={this.datepickerInv} style={styles.datePicker}>
+              <Text style={styles.datePickerLabel}>{moment(this.state.dateInv).format(global.DATEFORMAT)}</Text>
+              <Icon name="calendar" style={styles.datePickerIcon} />
+            </TouchableOpacity>
+          </Item>
+          { this.state.showInv && 
+          <DateTimePicker value={new Date(moment(this.state.dateInv).format('YYYY-MM-DD'))}
+            mode={this.state.modeDate}
+            display="default"
+            onChange={this.setDateInv} />
+          }
 
+          {/* //souvik// */}
           <Text style={[styles.formLabel,styles.inputLabel]}>Justification:<Text style={{color:'red',fontSize:13}}>*</Text></Text>
           <TextInput 
             placeholder='Enter your justification' 

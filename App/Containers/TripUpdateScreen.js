@@ -280,7 +280,9 @@ class TripUpdateScreen extends Component {
    {  // alert(sortList[i].status_id)
         startdatearray[j]=sortList[i].start_date;
         enddatearray[j]=sortList[i].end_date;
+        alert(startdatearray[j])
         j++;
+    
       }
      
         
@@ -295,8 +297,8 @@ class TripUpdateScreen extends Component {
    
    var checkstart =  new Date(moment(this.state.dateStart).format("MM/DD/YYYY")); 
    var checkend=  new Date(moment(this.state.dateEnd).format("MM/DD/YYYY")); 
-
-   alert(startdatearray.length);
+       
+   //alert(startdatearray.length);
    
 
 

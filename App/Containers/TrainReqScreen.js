@@ -705,7 +705,25 @@ class TrainReqScreen extends Component {
   }
 
   submitReqData = () => {
+
     const {params} = this.props.navigation.state;
+  
+    var invoicedate = new Date(moment(this.state.dateInv).format("YYYY-MM-DD"));
+    var creationdate=  params.params.creation_date;
+    var arr = params.params.creation_date.split("/");
+    var creationdate1=  new Date(moment(arr[2]+"-"+arr[1]+"-"+arr[0]).format("YYYY-MM-DD")); 
+   
+   
+      
+     
+     if (invoicedate.getTime()< creationdate1.getTime())
+     { 
+     alert("The invoice date is smaller then trip creation date ")
+     return;
+    }
+
+
+    //const {params} = this.props.navigation.state;
     if (!this.state.fromItem.Name || this.state.fromItem.Name == "Select From Location" ||
         !this.state.toItem.Name || this.state.toItem.Name == "Select To Location" ||
         (this.state.emailError) || (this.state.through=="Self" && !this.state.amount && !params.claim) ||

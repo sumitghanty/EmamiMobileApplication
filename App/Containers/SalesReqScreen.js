@@ -1087,7 +1087,7 @@ class SalesReqScreen extends Component {
         this.props.refernceList.isLoading ||
         (params.update && this.props.attachmentListSales.isLoading)
       ) )
-    ){
+    ){   
       console.log('jasjga');
     console.log(this.props.attachmentSalesState);
 

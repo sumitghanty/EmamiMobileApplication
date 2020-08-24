@@ -744,7 +744,7 @@ class ExpInfoScreen extends Component {
                     //alert('alert2'+JSON.stringify(item.sub_category_id))
                     this.props.navigation.navigate(
                     item.sub_category_id=='10' ? 'TaxiRequisition'
-                    : item.sub_category_id=='11' ? 'TaxiRequisition'
+                    : item.sub_category_id=='11' ? 'NonActaxiReq'
                     : item.sub_category_id=='3' ? 'TrainReq'
                     : item.sub_category_id=='1BH' ? 'HotelReq'
                     : item.sub_category_id=='1BM' ? 'HotelReq'
@@ -836,7 +836,7 @@ class ExpInfoScreen extends Component {
                 onPress={() => this.setState({reqModal: 0, reload:true}, 
                 () => this.props.navigation.navigate(
                     item.sub_category_id=='10' ? 'TaxiRequisition'
-                  : item.sub_category_id=='11' ? 'TaxiRequisition'
+                  : item.sub_category_id=='11' ? 'NonActaxiReq'
                   : item.sub_category_id=='3' ? 'TrainReq'
                   : item.sub_category_id=='1BH' ? 'HotelReq'
                   : item.sub_category_id=='1BM' ? 'HotelReq'

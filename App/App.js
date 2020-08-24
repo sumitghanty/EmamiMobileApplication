@@ -14,6 +14,7 @@ import TripPlanScreen from './Containers/TripPlanScreen'
 import SplashScreen from './Containers/SplashScreen'
 import ForgotScreen from './Containers/ForgotScreen'
 import TaxiRequisitionScreen from './Containers/TaxiRequisitionScreen'
+import NonActaxiReqScreen from './Containers/NonActaxiReqScreen'
 import SalesTaxiRequisitionScreen from './Containers/SalesTaxiRequisitionScreen'
 import AirRequisitionScreen from './Containers/AirRequisitionScreen'
 import TrainReqScreen from './Containers/TrainReqScreen'
@@ -164,6 +165,13 @@ const StackNavigator = createStackNavigator({
       headerTitle: 'Create Requisition',
     },
   },
+  NonActaxiReq: {
+    screen: NonActaxiReqScreen,
+    navigationOptions: {
+      headerTitle: 'Create Requisition',
+    },
+  },
+
   HotelReq: {
     screen: HotelReqScreen,
     navigationOptions: {

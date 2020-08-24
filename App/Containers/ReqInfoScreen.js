@@ -63,6 +63,7 @@ class ReqInfoScreen extends Component {
   }
 
   render() {
+    
 		const {params} = this.props.navigation.state
     console.log(params);
     if(this.props.reqType.isLoading || this.props.attachmentList.isLoading ||

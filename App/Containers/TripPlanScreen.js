@@ -445,6 +445,7 @@ class TripPlanScreen extends Component {
   }
 	
   render() {
+    //alert("hello")
     const {params} = this.props.navigation.state;
     console.log(this.state.editModalData)
     if(this.props.plans.isLoading || this.props.reqType.isLoading || this.state.isLoading){
@@ -532,7 +533,7 @@ class TripPlanScreen extends Component {
                   () => this.props.navigation.navigate(
                       item.sub_category_id=='1' ? 'AirRequisition'
                     : item.sub_category_id=='10' ? 'TaxiRequisition'
-                    : item.sub_category_id=='11' ? 'TaxiRequisition'
+                    : item.sub_category_id=='11' ? 'NonActaxiReq'
                     : item.sub_category_id=='3' ? 'TrainReq'
                     : item.sub_category_id=='1BH' ? 'HotelReq'
                     : item.sub_category_id=='1BM' ? 'HotelReq'
@@ -592,7 +593,7 @@ class TripPlanScreen extends Component {
               </LinearGradient>
             </TouchableOpacity>
           </View>
-          
+          {/* souvik */}
           {sortList.length > 0 ?
             sortList.map((item, index) => {
             return (
@@ -644,7 +645,7 @@ class TripPlanScreen extends Component {
                     () =>{this.editModalVisible(null); this.props.navigation.navigate(
                         item.sub_category_id=='1' ? 'AirRequisition'
                       : item.sub_category_id=='10' ? 'TaxiRequisition'
-                      : item.sub_category_id=='11' ? 'TaxiRequisition'
+                      : item.sub_category_id=='11' ? 'NonActaxiReq'
                       : item.sub_category_id=='3' ? 'TrainReq'
                       : item.sub_category_id=='1BH' ? 'HotelReq'
                       : item.sub_category_id=='1BM' ? 'HotelReq'
@@ -750,9 +751,9 @@ class TripPlanScreen extends Component {
     }
   }
 
-  renderItem = (data,index,params) => {
+  renderItem = (data,index,params) => {//alert(JSON.stringify(data))
   let item=this.state.airReqData;
-  if(!data.req_type) {
+  if(!data.req_type) { 
     return <View key={index} style={[styles.cardItem,styles.cardHrzntl]}>
       <Button small danger style={[styles.actionBtn,styles.cardHrzntlBtnLeft]}
         onPress={()=>this.deleteConfirmation(data)}
@@ -760,6 +761,7 @@ class TripPlanScreen extends Component {
         <Icon name='trash' style={styles.actionBtnIco} />
       </Button>
       <Text style={styles.cardTile}>{ data.sub_status }</Text>
+     {/* souvik */}
       <TouchableOpacity 
         onPress={() => { this.editModalVisible([data,data.req_type]);}}
 

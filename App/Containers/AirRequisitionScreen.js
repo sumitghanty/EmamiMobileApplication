@@ -33,7 +33,7 @@ class AirRequisitionScreen extends Component {
     const {params} = this.props.navigation.state;
     this.state = {
       curDate: new Date(),
-      date: params.update?params.update.travel_date:params.params.start_date,
+      date: (params.update &&  params.update.travel_date)?params.update.travel_date:params.params.start_date,
       through: (params.update && params.update.through) ? params.update.through : "Self",
       ticketStatus: (params.update && params.update.ticket_status) ? params.update.ticket_status:"Select Ticket status",
       agent: (params.update && params.update.vendor_name) ? params.update.vendor_name : "",
@@ -514,13 +514,14 @@ class AirRequisitionScreen extends Component {
       }
     }
   }
-
+//souvik//
   handleChangeAmount = (amnt) => {
     const {params} = this.props.navigation.state;
+  //  alert(params.item.upper_limit +" "+  this.state.maxAmt)
     this.setState({ 
       amount: amnt,
       amntError: null,
-      OOP: (((params.item.upper_limit == "NA") && amnt > this.state.maxAmt) || amnt > this.state.maxAmt) ?'Y':'N'
+      OOP: (((params.item.upper_limit == "NA") &&  parseFloat( amnt) >  parseFloat(this.state.maxAmt) )||  parseFloat(amnt) >  parseFloat(this.state.maxAmt)) ?'Y':'N'
     })
   }
 
@@ -873,8 +874,24 @@ class AirRequisitionScreen extends Component {
   }
 
   submitReqData = () => {    
+    //const {params} = this.props.navigation.state;
     const {params} = this.props.navigation.state;
-    if (!this.state.fromItem.Name || this.state.fromItem.Name == "Select From Location" ||
+  
+    var invoicedate = new Date(moment(this.state.dateInv).format("YYYY-MM-DD"));
+    var creationdate=  params.params.creation_date;
+    var arr = params.params.creation_date.split("/");
+    var creationdate1=  new Date(moment(arr[2]+"-"+arr[1]+"-"+arr[0]).format("YYYY-MM-DD")); 
+   
+   
+      
+     
+     if (invoicedate.getTime()< creationdate1.getTime())
+     { 
+     alert("The invoice date is smaller then trip creation date ")
+     return;
+    }
+    
+    else if (!this.state.fromItem.Name || this.state.fromItem.Name == "Select From Location" ||
         !this.state.toItem.Name || this.state.toItem.Name == "Select To Location" ||
         //!this.state.ticketstat.Name || this.state.ticketstat.Name == "Select To TicketStat" ||
         (this.state.emailError) || (this.state.through=="Self" && !this.state.amount) ||

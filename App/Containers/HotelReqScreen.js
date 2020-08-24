@@ -13,6 +13,7 @@ import { HeaderBackButton } from "react-navigation-stack"
 import PickerModal from 'react-native-picker-modal-view'
 import RNFS from 'react-native-fs'
 
+
 import styles from './Styles/HotelReqScreen.js'
 
 class HotelReqScreen extends Component {
@@ -29,7 +30,7 @@ class HotelReqScreen extends Component {
     const {params} = this.props.navigation.state;
     this.state = {
       curDate: new Date(),
-      date: params.update?params.update.travel_date:params.params.start_date,
+      date: (params.update  && params.update.travel_date)?params.update.travel_date:params.params.start_date,
       dateCin: (params.update && params.update.check_in_date) ? params.update.check_in_date : params.params.start_date,
       timeCin: (params.update && params.update.check_in_time) ?params.update.check_in_time
                 : moment(new Date()).format('HH:mm'),
@@ -999,7 +1000,22 @@ class HotelReqScreen extends Component {
 
   submitReqData = () => {
     const {params} = this.props.navigation.state;
-    if (!this.state.curState || !this.state.curCity || 
+  
+    var invoicedate = new Date(moment(this.state.dateInv).format("YYYY-MM-DD"));
+    var creationdate=  params.params.creation_date;
+    var arr = params.params.creation_date.split("/");
+    var creationdate1=  new Date(moment(arr[2]+"-"+arr[1]+"-"+arr[0]).format("YYYY-MM-DD")); 
+   
+   
+      
+     
+     if (invoicedate.getTime()< creationdate1.getTime())
+     { 
+     alert("The invoice date is smaller then trip creation date ")
+     return;
+    }
+    //const {params} = this.props.navigation.state;
+   else  if (!this.state.curState || !this.state.curCity || 
       (this.state.through=="Self" && !this.state.amount && !params.claim) ||
       (params.claim && this.state.hotelItem.Name == 'Select Hotel/Guest House') ||
       (params.claim && !this.state.invoiceAmnt) || (params.claim && !this.state.currency) ||
@@ -1080,6 +1096,8 @@ class HotelReqScreen extends Component {
   }
 
   render() {
+    //alert("check"+this.state.dateCin+ " "+this.state.date)
+
     const {params} = this.props.navigation.state;
     
     if(this.state.isLoading ||
@@ -1323,7 +1341,7 @@ class HotelReqScreen extends Component {
               <Text style={[styles.formInput,styles.readOnly]}>{this.state.days}</Text>
             </Item>
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Eligible Amount:</Label>
+              <Label style={styles.formLabel}>Total Eligible Amount: </Label>
               <Text style={[styles.formInput,styles.readOnly]}>
                 {this.state.days * params.item.upper_limit}
               </Text>

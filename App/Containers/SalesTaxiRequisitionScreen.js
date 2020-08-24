@@ -1105,9 +1105,26 @@ setDateInvnew = (event, date) => {
   }
 //added souvik
   submitReq = () => {
-    const {params} = this.props.navigation.state;
+    //const {params} = this.props.navigation.state;
     //alert("in submit"+this.state.dateInv);
-    
+    const {params} = this.props.navigation.state;
+  
+    var invoicedate = new Date(moment(this.state.dateInv).format("YYYY-MM-DD"));
+    var creationdate=  params.params.creation_date;
+    var arr = params.params.creation_date.split("/");
+    var creationdate1=  new Date(moment(params.params.creation_date).format("YYYY-MM-DD"));
+    // var creationdate1=  new Date(moment(arr[2]+"-"+arr[1]+"-"+arr[0]).format("YYYY-MM-DD")); 
+   
+   
+      
+     
+     if (invoicedate.getTime()< creationdate1.getTime())
+     { 
+     alert("The invoice date is smaller then trip creation date ")
+     return;
+    }
+
+
     if(!this.state.Tonew) {
       this.setState({
         toNewError: 'Please select To location'
@@ -1529,7 +1546,7 @@ else
   }
 
   render() {
-    //alert("Hi");
+   // alert("hello")
    const {params} = this.props.navigation.state;
     //alert(JSON.stringify(params));
     console.log(params);
@@ -1590,7 +1607,20 @@ else
             display="default"
             onChange={this.setDate} />
           }
-          
+           {/* <Item fixedLabel style={styles.formRow}>
+            <Label style={styles.formLabel}>Invoice Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <TouchableOpacity onPress={this.datepickerInv} style={styles.datePicker}>
+              <Text style={styles.datePickerLabel}>{moment(this.state.dateInv).format("DD-MM-YYYY")}</Text>
+              <Icon name="calendar" style={styles.datePickerIcon} />
+            </TouchableOpacity>
+          </Item>
+          { this.state.showInv && 
+          <DateTimePicker value={new Date(moment(this.state.dateInv).format('YYYY-MM-DD'))}
+            mode={this.state.modeDate}
+            display="default"
+            onChange={this.setDateInv} />
+          }   */}
+
           { showField ? null:<>
           <Item fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Form:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
@@ -2628,7 +2658,10 @@ else
                 returnKeyType="next"
                 onChangeText={this.handleInvoiceNumber} />
             </Item>
-            <Item fixedLabel style={styles.formRow}>
+
+
+
+    <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Invoice Date:</Label>
               <TouchableOpacity onPress={this.datepickerInv} style={styles.datePicker}>
                 <Text style={styles.datePickerLabel}>{moment(this.state.dateInv).format(global.DATEFORMAT)}</Text>
