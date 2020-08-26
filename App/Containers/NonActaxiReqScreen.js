@@ -1340,10 +1340,12 @@ class NonActaxiReqScreen extends Component {
               <TextInput 
                 ref='curncyInput'
                 onSubmitEditing={() => this.refs.cgst.focus()}
-                placeholder='INR' 
+              //  placeholder='INR' 
                 style={styles.formInput}
                 underlineColorAndroid= "rgba(0,0,0,0)"
-                value = {this.state.currency}
+               // value = {this.state.currency}
+               value = "INR"
+                editable = {false}
                 returnKeyType="next"
                 onChangeText={this.handleCurrency} />
             </Item>
