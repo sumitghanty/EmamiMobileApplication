@@ -101,7 +101,7 @@ class SalesClaimReqScreen extends Component {
       //payableAmount: '0.0',
       invoiceAmnt: (params.update && params.update.invoice_amount) ? params.update.invoice_amount :null,
       invoiceAmntError: null,
-      currency: (params.update && params.update.invoice_currency) ? params.update.invoice_currency :null,
+      currency: (params.update && params.update.invoice_currency) ? params.update.invoice_currency :'INR',
       cgst: (params.update && params.update.vendor_CGST) ? params.update.vendor_CGST :null,
       sgst: (params.update && params.update.vendor_SGST) ? params.update.vendor_SGST :null,
       igst: (params.update && params.update.vendor_IGST) ? params.update.vendor_IGST :null,
@@ -1543,18 +1543,11 @@ class SalesClaimReqScreen extends Component {
               onSubmitEditing={() => this.refs.curncyInput.focus()}
               onChangeText={this.handleInvoiceAmnt} />
           </Item>
-          <Item picker fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Invoice Currency:</Label>
-            <TextInput 
-              ref='curncyInput'
-              onSubmitEditing={() => this.refs.cgst.focus()}
-              placeholder='INR' 
-              style={styles.formInput}
-              underlineColorAndroid= "rgba(0,0,0,0)"
-              value = {this.state.currency}
-              returnKeyType="next"
-              onChangeText={this.handleCurrency} />
-          </Item>
+          <Item fixedLabel style={styles.formRow}>
+              <Label style={[styles.formLabel]}> Invoice Currency:</Label>
+              <Text style={[styles.formInput,styles.readOnly,{textAlign:'left'}]}>{this.state.currency}</Text>
+            </Item>
+
           <Item picker fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Issuing Authority:</Label>
             <Picker
@@ -2034,20 +2027,11 @@ class SalesClaimReqScreen extends Component {
                 onSubmitEditing={() => this.refs.curncyInput.focus()}
                 onChangeText={this.handleInvoiceAmnt} />
             </Item>
-            <Item picker fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Invoice Currency:</Label>
-              <TextInput 
-                ref='curncyInput'
-                onSubmitEditing={() => this.refs.cgst.focus()}
-                //placeholder='INR' 
-                style={styles.formInput}
-                underlineColorAndroid= "rgba(0,0,0,0)"
-               // value = {this.state.currency}
-               value = "INR"
-                editable = {false}
-                returnKeyType="next"
-                onChangeText={this.handleCurrency} />
+            <Item fixedLabel style={styles.formRow}>
+              <Label style={[styles.formLabel]}> Invoice Currency:</Label>
+              <Text style={[styles.formInput,styles.readOnly,{textAlign:'left'}]}>{this.state.currency}</Text>
             </Item>
+
             <Item picker fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>CGST:</Label>
               <TextInput 

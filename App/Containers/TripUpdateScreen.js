@@ -10,7 +10,7 @@ import Actions from '../redux/actions'
 import Toast from 'react-native-simple-toast'
 import { NavigationEvents } from 'react-navigation'
 import PickerModal from 'react-native-picker-modal-view'
-
+import {API_URL_FRONT} from '../config'
 import Loader from '../Components/Loader'
 import styles from './Styles/TripCreateScreen';
 import updateStyles from './Styles/TripUpdateScreen';
@@ -26,7 +26,9 @@ class TripUpdateScreen extends Component {
     var year = new Date().getFullYear();
     this.state = {
       searchTerm: '',
-      
+      retainerData:null,
+      consultantData:null,
+      employeeData:null,
       curDate: year+'-'+month+'-'+date,
       dateStart: new Date(params.start_date),
       modeStart: 'date',
@@ -64,6 +66,10 @@ class TripUpdateScreen extends Component {
   }
   componentDidMount() {
     const {params} = this.props.navigation.state;
+     
+     
+
+
     
     this.props.getReqLocations()
     .then(()=>{
@@ -199,8 +205,12 @@ class TripUpdateScreen extends Component {
     this.props.tripFor.dataSource.map((item) => {
       if (item.tripFor_type == value) {
         this.setState({ forId: item.tripFor_type_id });
-      }      
+      }     
+     
+
     })
+    alert(this.state.forId+ " "+value)
+   
   }
   onValueChangeTraveler = (value) => {
     this.setState({ travelsName: value });
@@ -247,6 +257,47 @@ class TripUpdateScreen extends Component {
   handleChangeDetails = (text) => {
     this.setState({ details: text })
   }
+
+  loginRequest=()=>{
+      //Murchana start
+      var value = "Consultant";
+      this.setState({ isLoading: true }, () => {
+        
+        fetch(API_URL_FRONT+'getEmployeeList?type='+value,{
+          method: "GET",
+          mode: "no-cors",
+          headers: {
+            Accept: 'application/json',
+            'content-type': 'application/json'
+            
+          }
+        })
+        .then((response)=> response.json())
+        .then((res) => {
+          
+         // alert(JSON.stringify(res[0].userName));
+          this.setState({
+            userData: {'userInfo':res}
+          });
+        })
+        .then(() => {
+          this.setState({
+            isLoading: false
+          });
+       
+       alert(JSON.stringify(this.state.userData.userInfo[0].userId));
+        })
+        .catch((Error) => {
+          alert("error"+Error);
+        });
+      })
+      
+
+//Murchana End
+
+
+  }
+
  
   confirmation = (statusId) => {
 
@@ -280,7 +331,7 @@ class TripUpdateScreen extends Component {
    {  // alert(sortList[i].status_id)
         startdatearray[j]=sortList[i].start_date;
         enddatearray[j]=sortList[i].end_date;
-        alert(startdatearray[j])
+        //alert(startdatearray[j])
         j++;
     
       }
@@ -345,7 +396,7 @@ class TripUpdateScreen extends Component {
             flag:"1"
           });
           //this.state.flag="1"
-          alert("contained"+this.state.error)
+          alert("contained")
         return;
         }
         
@@ -670,7 +721,17 @@ class TripUpdateScreen extends Component {
              <Text style={styles.errorText}>
                {this.state.dateError}
                </Text>}
-               
+
+               <TouchableOpacity onPress={() => this.loginRequest()} style={styles.btn}>
+              <LinearGradient 
+                start={{x: 0, y: 0}} 
+                end={{x: 1, y: 0}} 
+                colors={['#008ab3', '#8c3fff']} 
+                style={styles.btnBg}>
+                <Text style={styles.btnTxt}>Sign In</Text>
+              </LinearGradient>
+            </TouchableOpacity >
+
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Purpose:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <Picker
@@ -777,24 +838,26 @@ class TripUpdateScreen extends Component {
               </Label>
               {this.state.forId == "1" ?
               <Text style={[styles.value,styles.readOnly]}>{this.state.name}</Text>
-              : this.state.forId == "3" ?
+              : this.state.forId == "6" ?
               <Picker
                 iosIcon={<Icon name="arrow-down" />}
                 style={[styles.formInput, styles.select]}
                 placeholder="Select Travelers"
                 placeholderStyle={{ color: "#bfc6ea" }}
                 placeholderIconColor="#007aff"
-                selectedValue={this.state.travelsName}
+                 selectedValue={this.state.userData.userInfo[0].userName}
                 onValueChange={this.onValueChangeTraveler}
                 >
-                {this.props.retainer.dataSource.map((item, index) => {
+                 {this.state.userData.userInfo.map((item, index) => {
                   return (
-                  <Picker.Item label={item.name_of_retainers} value={item.name_of_retainers} key={index} />
+                  <Picker.Item label={item.personId} value={item.userName} key={index} />
                   );
-                })}
+                })} 
               </Picker>
               : this.state.forId == "5" ?
               <Text>&nbsp;</Text>
+             
+
               :null}
             </Item>
             <Text style={[styles.formLabel,styles.inputLabel]}>Details:</Text>

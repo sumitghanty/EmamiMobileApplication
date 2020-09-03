@@ -74,7 +74,7 @@ class  TaxiRequisitionScreen extends Component {
       curUploadType: 'Approve Email',
       invoiceAmnt: (params.update && params.update.invoice_amount) ? params.update.invoice_amount :null,
       invoiceAmntError: null,
-      currency: (params.update && params.update.invoice_currency) ? params.update.invoice_currency :null,
+      currency: (params.update && params.update.invoice_currency) ? params.update.invoice_currency :"INR",
       currencyError: null,
       cgst: (params.update && params.update.vendor_CGST) ? params.update.vendor_CGST :null,
       cgstError:null,
@@ -1333,20 +1333,11 @@ class  TaxiRequisitionScreen extends Component {
             {this.state.invoiceAmntError &&
               <Text style={styles.errorText}>{this.state.invoiceAmntError}</Text>
             }
-            <Item picker fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Invoice Currency:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
-              <TextInput 
-                ref='curncyInput'
-                onSubmitEditing={() => this.refs.cgst.focus()}
-               // placeholder='INR' 
-                style={styles.formInput}
-                underlineColorAndroid= "rgba(0,0,0,0)"
-               // value = {this.state.currency}
-               value = "INR"
-                editable = {false}
-                returnKeyType="next"
-                onChangeText={this.handleCurrency} />
+            <Item fixedLabel style={styles.formRow}>
+              <Label style={[styles.formLabel]}> Invoice Currency:</Label>
+              <Text style={[styles.formInput,styles.readOnly,{textAlign:'left'}]}>{this.state.currency}</Text>
             </Item>
+
             {this.state.currencyError &&
               <Text style={styles.errorText}>{this.state.currencyError}</Text>
             }

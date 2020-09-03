@@ -67,6 +67,7 @@ class LoginScreen extends Component {
         });
       }
     } else {
+     
       this.setState({ isLoading: true }, () => {
         fetch(API_URL_FRONT+'login',{
           method: "GET",
@@ -81,6 +82,7 @@ class LoginScreen extends Component {
         .then((response)=> response.json())
         .then((res) => {
           console.log(res);
+          
           this.setState({
             userData: {'userInfo':res,'password':this.state.password}
           });
@@ -101,6 +103,8 @@ class LoginScreen extends Component {
             this.setState({
               isLoading: false
             });
+
+          
             this.props.navigation.navigate('Home');
             Toast.show('Login Successfully.', Toast.LONG);
           }
@@ -109,7 +113,16 @@ class LoginScreen extends Component {
           console.log(Error)
         });
       })
+
+
+
+
+
+
+
     }
+
+
   }
 
   async storeToken(user) {
