@@ -21,6 +21,7 @@
     "react": "16.9.0",
     "react-native": "0.61.5",
     "react-native-autocomplete-input": "4.1.0",
+    "react-native-clean-project": "^3.4.0",
     "react-native-device-info": "5.3.1",
     "react-native-document-picker": "3.2.4",
     "react-native-fs": "2.16.6",
