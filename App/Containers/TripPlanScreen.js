@@ -31,6 +31,7 @@ class TripPlanScreen extends Component {
       endaDateList: [],
       endDateLmt: null,
       airReqData: null,
+      reqData: null,
       setGoBack: true,
     };
   }
@@ -72,12 +73,17 @@ class TripPlanScreen extends Component {
 
     this.props.getReqType(global.USER.grade)
     .then(()=>{
+      
       for(var i=0; i<this.props.reqType.dataSource.length; i++) {
         if(this.props.reqType.dataSource[i].sub_category_id == "1") {
-          this.setState({airReqData: this.props.reqType.dataSource[i]})
+          this.setState({airReqData: this.props.reqType.dataSource[i]});
+          
         }
+        
       }
-    });    
+      /*alert(JSON.stringify(this.state.airReqData));*/
+    });  
+    
   }
   
   setModalVisible(visible) {
@@ -88,7 +94,26 @@ class TripPlanScreen extends Component {
     this.setState({attachData: value});
   }
 
+  navigateToDetails(item,params){
+   
+    //alert("onpress"+JSON.stringify(item));
+    //var item = this.state.airReqData;
+    //alert("onpress1"+JSON.stringify(item.sub_category_id));
+    //this.editModalVisible(null); 
+    this.props.navigation.navigate(
+      item.sub_category_id=='1' ? 'AirRequisition'
+    : item.sub_category_id=='10' ? 'TaxiRequisition'
+    : item.sub_category_id=='11' ? 'NonActaxiReq'
+    : item.sub_category_id=='3' ? 'TrainReq'
+    : item.sub_category_id=='1BH' ? 'HotelReq'
+    : item.sub_category_id=='1BM' ? 'HotelReq'
+    : item.sub_category_id=='1BNM' ? 'HotelReq'
+    : null,
+    {item, params, 'update':this.state.editModalData?this.state.editModalData[0]:false}
+  )
+  }
   editModalVisible(value){
+   
     this.setState({editModalData: value});
   }
 
@@ -642,7 +667,8 @@ class TripPlanScreen extends Component {
                     (this.state.editModalData[0].sub_status_id=='7.4' && this.state.editModalData[0].flight_selected == 'Y')
                     ))
                     ?()=>{} :
-                    () =>{this.editModalVisible(null); this.props.navigation.navigate(
+                    () =>{
+                      alert("onpress"+JSON.stringify(item));this.editModalVisible(null); this.props.navigation.navigate(
                         item.sub_category_id=='1' ? 'AirRequisition'
                       : item.sub_category_id=='10' ? 'TaxiRequisition'
                       : item.sub_category_id=='11' ? 'NonActaxiReq'
@@ -763,7 +789,7 @@ class TripPlanScreen extends Component {
       <Text style={styles.cardTile}>{ data.sub_status }</Text>
      {/* souvik */}
       <TouchableOpacity 
-        onPress={() => { this.editModalVisible([data,data.req_type]);}}
+        onPress={() => {this.editModalVisible([data,data.req_type]);}}
 
         style={[styles.editlBtn,styles.cardHrzntlBtnRight]}
         >
@@ -776,13 +802,14 @@ class TripPlanScreen extends Component {
   return <TouchableOpacity 
     key={index} 
     style={styles.cardItem} 
-    onPress={() => 
+    onPress={() =>
       ((data.req_type=='1' && data.sub_status_id == '11.1') 
       || (data.req_type=='1' && data.sub_status_id == '7.1') 
       || (data.req_type=='1' && data.sub_status_id == '7.3')
       || (data.req_type=='1' && data.sub_status_id == '11.2'))
       ? this.props.navigation.navigate('AirRequisition', {item, params, 'update':data})
       :this.props.navigation.navigate('ReqInfo',data)
+  
     }>
     <View style={styles.cardItemHeader}>
       {((data.status_id=='11') || (data.status_id=='7' && data.sub_status_id =="7.1") || (data.status_id=='7' && data.sub_status_id =="7.3")
@@ -827,14 +854,27 @@ class TripPlanScreen extends Component {
         || data.status_id == "25" 
         ? null :
         <TouchableOpacity 
-          onPress={() => {console.log( "onPress"+ JSON.stringify(data));
+          onPress={() => {
+           //alert( "onPress3"+ JSON.stringify(this.props.reqType.dataSource));
+           //alert( "onPress4"+ JSON.stringify(data.req_type));
+          var selectedItem = {};
+          for(var i=0; i<this.props.reqType.dataSource.length; i++) {
+            if(this.props.reqType.dataSource[i].sub_category_id == data.req_type) {
+            //alert("inside if");
+            //this.setState({reqData: this.props.reqType.dataSource[i]});
+             selectedItem = this.props.reqType.dataSource[i];
+             
+            }
+            
+          }
+           //alert("req"+ JSON.stringify(selectedItem));
             ((data.req_type=='1' && data.sub_status_id == '11.1') 
             || (data.req_type=='1' && data.sub_status_id == '7.1') 
             || (data.req_type=='1' && data.sub_status_id == '7.4') 
             || (data.req_type=='1' && data.sub_status_id == '7.3')
             || (data.req_type=='1' && data.sub_status_id == '11.2'))
             ? this.props.navigation.navigate('AirRequisition', {item, params, 'update':data})
-            :this.editModalVisible([data,data.req_type]);
+            : /*this.editModalVisible([data,data.req_type])*/ this.navigateToDetails(selectedItem,params);
           }}
           style={styles.editlBtn}
           >
