@@ -102,12 +102,12 @@ class TripPlanScreen extends Component {
     this.setState({attachData: value});
   }
 
-  navigateToDetails(item,params){
-   
-    //alert("onpress"+JSON.stringify(item));
-    //var item = this.state.airReqData;
-    //alert("onpress1"+JSON.stringify(item.sub_category_id));
-    //this.editModalVisible(null); 
+  navigateToDetails(item,params,value){
+    this.setState({editModalData: value});
+  //  alert("onpress"+JSON.stringify(item));
+                    //  alert("onpress2"+JSON.stringify(params));
+                     // alert("onpress3"+JSON.stringify(this.state.editModalData));
+                     // alert("onpress4"+JSON.stringify(this.state.editModalData[0]));
     this.props.navigation.navigate(
       item.sub_category_id=='1' ? 'AirRequisition'
     : item.sub_category_id=='10' ? 'TaxiRequisition'
@@ -117,7 +117,7 @@ class TripPlanScreen extends Component {
     : item.sub_category_id=='1BM' ? 'HotelReq'
     : item.sub_category_id=='1BNM' ? 'HotelReq'
     : null,
-    {item, params, 'update':this.state.editModalData?this.state.editModalData[0]:false}
+    {item, params, 'update':value?value[0]:false}
   )
   }
   editModalVisible(value){
@@ -665,7 +665,7 @@ class TripPlanScreen extends Component {
           <Modal
             animationType="fade"
             transparent={true}
-            visible={this.state.editModalData? true : false}
+            visible={this.state.editModalData4? true : false}
             onRequestClose = {() => {this.editModalVisible(null)}}>
             <View style={styles.modalWraper}>
               <TouchableOpacity style={styles.modalOverlay}
@@ -677,7 +677,8 @@ class TripPlanScreen extends Component {
                 {this.props.reqType.dataSource.map((item, index) => {
                 return (
                 <TouchableOpacity style={[styles.modalItem,
-                  (this.state.editModalData && this.state.editModalData[1]==item.sub_category_id) && styles.modalItemActive
+                  (this.state.editModalData && this.state.editModalData[1]==item.sub_category_id) 
+                  && styles.modalItemActive
                 ]}
                   key= {index}
                   onPress={( (this.state.editModalData && this.state.editModalData[1]!=item.sub_category_id && 
@@ -687,7 +688,8 @@ class TripPlanScreen extends Component {
                     ))
                     ?()=>{} :
                     () =>{
-                      alert("onpress"+JSON.stringify(item));this.editModalVisible(null); this.props.navigation.navigate(
+                      this.editModalVisible(null);
+                       this.props.navigation.navigate(
                         item.sub_category_id=='1' ? 'AirRequisition'
                       : item.sub_category_id=='10' ? 'TaxiRequisition'
                       : item.sub_category_id=='11' ? 'NonActaxiReq'
@@ -893,7 +895,7 @@ class TripPlanScreen extends Component {
             || (data.req_type=='1' && data.sub_status_id == '7.3')
             || (data.req_type=='1' && data.sub_status_id == '11.2'))
             ? this.props.navigation.navigate('AirRequisition', {item, params, 'update':data})
-            : /*this.editModalVisible([data,data.req_type])*/ this.navigateToDetails(selectedItem,params);
+            : /*this.editModalVisible([data,data.req_type])*/this.navigateToDetails(selectedItem,params,[data,data.req_type]);
           }}
           style={styles.editlBtn}
           >

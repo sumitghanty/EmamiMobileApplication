@@ -40,12 +40,21 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
     .then(()=>{
       this.setState({dataSource: this.props.plans.dataSource});
       for(var i=0; i<this.props.plans.dataSource.length; i++) {
-        if(this.props.plans.dataSource[i].is_outof_policy=="Y") {
+        if(this.props.plans.dataSource[i].is_outof_policy=="Y" || ((this.props.plans.dataSource[i].scenario == "2" 
+        || this.props.plans.dataSource[i].scenario == "3") 
+        && this.props.plans.dataSource[i].isApproved == null)) {
           this.setState({hasOOP: true});
         }
       }
     });
     this.props.getReqName(global.USER.designation,global.USER.grade);
+  }
+
+  formatAmountForDisplay(value){
+    var num = 0;
+    if(value != "" && value != null && value != 'null')
+    num = parseFloat(value);
+    return num.toFixed(2);
   }
 
   state = {
@@ -77,6 +86,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
   }
 
   approveTripNonReq() {
+    
     const {params} = this.props.navigation.state;
     AsyncStorage.getItem("ASYNC_STORAGE_APRV_TRIP_NON_REQ")
     .then(()=>{
@@ -170,6 +180,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
   }
 
   approveConfirmation(e) {
+    
     Alert.alert(
       'Approve',
       'Do you want to approve the trip?',
@@ -294,6 +305,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
   }
 
   approveWithReq(){
+    alert("hi");
     const {params} = this.props.navigation.state;
     AsyncStorage.getItem(ASYNC_STORAGE_COMMENTS_KEY).then(value => {
       this.setState({ isLoading: true }, () => {  
@@ -310,7 +322,72 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
           } else {
             newSelectedDataList.vendor_comment="Approved";
             newSelectedDataList.trip_hdr_id_fk=params.trip_hdr_id;
+
+           
             if (newSelectedDataList.status_id == "8") {
+
+              if(newSelectedDataList.scenario == "2"  ){
+
+                if(newSelectedDataList.through =="Travel Agent"){
+                newSelectedDataList.status_id="7";
+                newSelectedDataList.status="Plan Trip/PJP";
+                newSelectedDataList.sub_status_id="7.1";
+                newSelectedDataList.sub_status="Send to travel agent for options";
+                newSelectedDataList.email=params.email;
+                newSelectedDataList.pending_with_email=params.pending_with_email;
+                newSelectedDataList.pending_with_name=params.pending_with_name;
+                newSelectedDataList.pending_with=params.pending_with;
+                newSelectedDataList.isApproved = 'yes';
+                }else{
+                  newSelectedDataList.status_id="9";
+                  newSelectedDataList.status="Plan Trip/PJP";
+                  newSelectedDataList.sub_status_id="9.1";
+                  newSelectedDataList.sub_status="Requisition - Approved by Supervisor";
+                  newSelectedDataList.email=params.email;
+                  newSelectedDataList.pending_with_email=params.pending_with_email;
+                  newSelectedDataList.pending_with_name=params.pending_with_name;
+                  newSelectedDataList.pending_with=params.pending_with;
+                  newSelectedDataList.isApproved = 'yes';
+                }
+
+              }else if(newSelectedDataList.scenario == "3"){
+                if(newSelectedDataList.approverLevel == "1"){
+
+                if(newSelectedDataList.through =="Travel Agent"){
+                  newSelectedDataList.status_id="7";
+                  newSelectedDataList.status="Plan Trip/PJP";
+                  newSelectedDataList.sub_status_id="7.1";
+                  newSelectedDataList.sub_status="Send to travel agent for options";
+                  newSelectedDataList.email=params.email;
+                  newSelectedDataList.pending_with_email=params.pending_with_email;
+                  newSelectedDataList.pending_with_name=params.pending_with_name;
+                  newSelectedDataList.pending_with=params.pending_with;
+                  newSelectedDataList.isApproved = 'yes';
+                  }else{
+                    newSelectedDataList.status_id="9";
+                    newSelectedDataList.status="Plan Trip/PJP";
+                    newSelectedDataList.sub_status_id="9.1";
+                    newSelectedDataList.sub_status="Requisition - Approved by Supervisor";
+                    newSelectedDataList.email=params.email;
+                    newSelectedDataList.pending_with_email=params.pending_with_email;
+                    newSelectedDataList.pending_with_name=params.pending_with_name;
+                    newSelectedDataList.pending_with=params.pending_with;
+                    newSelectedDataList.isApproved = 'yes';
+                  }
+
+                }else if(newSelectedDataList.approverLevel == null){
+                  newSelectedDataList.status_id="8";
+                  newSelectedDataList.status="Plan Trip/PJP";
+                  newSelectedDataList.sub_status_id="8.1";
+                  newSelectedDataList.sub_status="Requisition - Pending with Supervisor";
+                  newSelectedDataList.email=params.email;
+                  newSelectedDataList.pending_with_email=params.pending_with_email;
+                  newSelectedDataList.pending_with_name=global.USER.supervisorName;
+                  newSelectedDataList.pending_with= global.USER.supervisorId;
+                  newSelectedDataList.approverLevel = '1';
+                }
+
+              }else{
               newSelectedDataList.status_id="9";
               newSelectedDataList.status="Plan Trip/PJP";
               newSelectedDataList.sub_status_id="9.1";
@@ -319,6 +396,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
               newSelectedDataList.pending_with_email=params.pending_with_email;
               newSelectedDataList.pending_with_name=params.pending_with_name;
               newSelectedDataList.pending_with=params.pending_with;
+              }
             } else {
               newSelectedDataList.status_id="11";
               newSelectedDataList.status="Plan Trip/PJP";
@@ -330,7 +408,11 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
               newSelectedDataList.pending_with=params.userid;
             }
           }
-          this.state.aprvReqList.push(newSelectedDataList);
+        //  this.state.aprvReqList.push(newSelectedDataList);
+          alert(newSelectedDataList.lineitem+ " "+newSelectedDataList.sub_status_id+ " "+newSelectedDataList.scenario);
+         
+          this.state.aprvReqList.push({});
+          
         }
       })      
     })
@@ -407,7 +489,8 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
             newSelectedDataList.pending_with_name=params.pending_with_name;
             newSelectedDataList.pending_with=params.userid;
           }
-          this.state.aprvReqList.push(newSelectedDataList);
+        this.state.aprvReqList.push(newSelectedDataList);
+          
         }
       })      
     })
@@ -795,7 +878,7 @@ if((data.scenario == "2" || data.scenario == "3") && data.req_type == "1"){
       :null}
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Approx Amount:</Text>
-        <Text style={styles.cardValue}>{data.amount}</Text>
+        <Text style={styles.cardValue}>{this.formatAmountForDisplay(data.amount)}</Text>
       </View>
     </View>    
   </TouchableOpacity>

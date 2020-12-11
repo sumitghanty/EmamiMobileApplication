@@ -1248,7 +1248,7 @@ class AirRequisitionScreen extends Component {
     const {params} = this.props.navigation.state;
     console.log(params);
     //alert(JSON.stringify(params));
-    //alert('air page');
+   
     if(this.state.isLoading ||
       this.props.plans.isLoading ||
       this.props.travelThroughState.isLoading ||
