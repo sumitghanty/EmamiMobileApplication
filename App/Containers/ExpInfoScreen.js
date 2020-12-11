@@ -38,6 +38,14 @@ class ExpInfoScreen extends Component {
       totalClaimAmount:0
     };
   }
+
+  formatAmountForDisplay(value){
+    var num = 0;
+    if(value != "" && value != null && value != 'null')
+    num = parseFloat(value);
+    return num.toFixed(2);
+  }
+
   componentDidMount(props){
     this.props.getPlans(this.props.navigation.state.params.trip_hdr_id)
     .then(()=>{
@@ -494,11 +502,11 @@ class ExpInfoScreen extends Component {
         <View style={{display:this.state.advAcrd==0?'none':'flex'}}>
           <View style={styles.row}>
             <Text style={styles.label}>Estimated Cost:</Text>
-            <Text style={styles.value}>{params.estimated_cost?params.estimated_cost:'0.0'}</Text>
+            <Text style={styles.value}>{this.formatAmountForDisplay(params.estimated_cost?params.estimated_cost:'0.0')}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Advanced Required:</Text>
-            <Text style={styles.value}>{params.payment_amount?params.payment_amount:'0.0'}</Text>
+            <Text style={styles.value}>{this.formatAmountForDisplay(params.payment_amount?params.payment_amount:'0.0')}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Purpose:</Text>
@@ -574,17 +582,17 @@ class ExpInfoScreen extends Component {
         <View style={{display:this.state.claimAcrd==0?'none':'flex'}}>
           <View style={styles.row}>
             <Text style={styles.label}>Estimated Cost:</Text>
-            <Text style={styles.value}>{params.estimated_cost?params.estimated_cost:'0.0'}</Text>
+            <Text style={styles.value}>{this.formatAmountForDisplay(params.estimated_cost?params.estimated_cost:'0.0')}</Text>
                {console.log(params)}
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Actual Advance Amount:</Text>
-            <Text style={styles.value}>{params.payment_amount?params.payment_amount:'0.0'}</Text>
+            <Text style={styles.value}>{this.formatAmountForDisplay(params.payment_amount?params.payment_amount:'0.0')}</Text>
           </View>
           
           <View style={styles.row}>
             <Text style={styles.label}>Actual Claim amount:</Text>
-            <Text style={styles.value}>{params.actual_claim_amount?params.actual_claim_amount:'0.0'}</Text>
+            <Text style={styles.value}>{this.formatAmountForDisplay(params.actual_claim_amount?params.actual_claim_amount:'0.0')}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Actual Claim Currency:</Text>
@@ -1044,11 +1052,11 @@ class ExpInfoScreen extends Component {
           </View>
           <View style={styles.cardRow}>
             <Text style={styles.cardLabel}>Amount:</Text>
-            <Text style={styles.cardValue}>{data.invoice_amount && data.invoice_amount_currency?data.invoice_amount:data.amount}</Text>
+            <Text style={styles.cardValue}>{this.formatAmountForDisplay(data.invoice_amount && data.invoice_amount_currency?data.invoice_amount:data.amount)}</Text>
           </View>          
           <View style={styles.cardRow}>
             <Text style={styles.cardLabel}>Extra Amount:</Text>
-            <Text style={styles.cardValue}>{data.extra_amount?data.extra_amount:'0.00'}</Text>
+            <Text style={styles.cardValue}>{this.formatAmountForDisplay(data.extra_amount?data.extra_amount:'0.00')}</Text>
           </View>          
         </View>
       </View>    

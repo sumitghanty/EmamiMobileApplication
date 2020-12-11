@@ -49,6 +49,13 @@ class ExpensesListScreen extends Component {
     );
   }
 
+  formatAmountForDisplay(value){
+    var num = 0;
+    if(value != "" && value != null && value != 'null')
+    num = parseFloat(value);
+    return num.toFixed(2);
+  }
+
    
   render() {
   
@@ -117,21 +124,21 @@ class ExpensesListScreen extends Component {
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Advance Payment amount:</Text>
                   <Text style={styles.itemValue}>
-                    {item.payment_amount ?item.payment_amount: '0.0'} &nbsp;
+                    {this.formatAmountForDisplay(item.payment_amount ?item.payment_amount: '0.0')} &nbsp;
                     {item.currency?item.currency:'INR'}
                   </Text>
                 </View>
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Estimated amount:</Text>
                   <Text style={styles.itemValue}>
-                    {item.estimated_cost ?item.estimated_cost: '0'} &nbsp;
+                    {this.formatAmountForDisplay(item.estimated_cost ?item.estimated_cost: '0')} &nbsp;
                     {item.currency?item.currency:'INR'}
                   </Text>
                 </View>
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Actual amount:</Text>
                   <Text style={styles.itemValue}>
-                    {item.actual_claim_amount ?item.actual_claim_amount: '0.0'} &nbsp; 
+                    {this.formatAmountForDisplay(item.actual_claim_amount ?item.actual_claim_amount: '0.0')} &nbsp; 
                     {item.actual_claim_currency?item.actual_claim_currency:'INR'}
                   </Text>
                 </View>

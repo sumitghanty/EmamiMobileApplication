@@ -34,6 +34,13 @@ class AdvPmntReqInfoScreen extends Component {
     });
   }
 
+  formatAmountForDisplay(value){
+    var num = 0;
+    if(value != "" && value != null && value != 'null')
+    num = parseFloat(value);
+    return num.toFixed(2);
+  }
+
   changeStatus() {
     this.setState({ 
       isLoading: true,
@@ -227,11 +234,11 @@ class AdvPmntReqInfoScreen extends Component {
           <Text style={styles.title}>Advance Payment Details</Text>
           <View style={styles.row}>
             <Text style={styles.label}>Estimated Cost:</Text>
-            <Text style={styles.value}>{params.estimated_cost?params.estimated_cost:'0.0'}</Text>
+            <Text style={styles.value}>{this.formatAmountForDisplay(params.estimated_cost?params.estimated_cost:'0.0')}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Advance Payment:</Text>
-            <Text style={styles.value}>{params.payment_amount}</Text>
+            <Text style={styles.value}>{this.formatAmountForDisplay(params.payment_amount)}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Currency:</Text>

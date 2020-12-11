@@ -24,6 +24,14 @@ class AdvanceScreen extends Component {
   searchUpdated(term) {
     this.setState({ searchTerm: term })
   }
+
+  formatAmountForDisplay(value){
+    var num = 0;
+    if(value != "" && value != null && value != 'null')
+    num = parseFloat(value);
+    return num.toFixed(2);
+  }
+  
   componentDidMount(){
     //this.props.getAdvPmnts(global.USER.userId,"3",["3", "4", "6", "7", "9", "11", "12", "13", "14", "15", "16", "17", "18"]);
     this.props.getAdvPmnts(global.USER.userId,"3",["3", "4", "6", "7", "9", "11", "12", "13", "14", "16", "18"]);
@@ -115,7 +123,7 @@ class AdvanceScreen extends Component {
                 {item.actual_claim_amount ?
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Claim Amount:</Text>
-                  <Text style={styles.itemValue}>{item.actual_claim_currency} {item.actual_claim_amount}</Text>
+                  <Text style={styles.itemValue}>{item.actual_claim_currency} {this.formatAmountForDisplay(item.actual_claim_amount)}</Text>
                 </View>:null}
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Status:</Text>

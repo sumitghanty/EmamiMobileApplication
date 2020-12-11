@@ -38,6 +38,14 @@ class TripPlanScreen extends Component {
   searchUpdated(term) {
     this.setState({ searchTerm: term })
   }
+
+  formatAmountForDisplay(value){
+    var num = 0;
+    if(value != "" && value != null && value != 'null')
+    num = parseFloat(value);
+    return num.toFixed(2);
+  }
+
   componentDidMount(props){
     this.props.getPlans(this.props.navigation.state.params.trip_hdr_id)
     .then(()=>{
@@ -296,7 +304,12 @@ class TripPlanScreen extends Component {
           })
           .then(()=>{
             for(var i=0; i< newList.length;i++) {
-              if((newList[i].through == "Travel Agent" && newList[i].is_outof_policy == 'N') || newList[i].sub_status_id == '9.1') {
+              //alert(newList[i].scenario+" "+newList[i].req_type+" "+newList[i].isApproved);
+              if(((newList[i].through == "Travel Agent" && newList[i].is_outof_policy == 'N') 
+              && ((newList[i].scenario == "1" || newList[i].scenario == null) 
+              ||((newList[i].scenario == "2" || newList[i].scenario == "3" ) && newList[i].isApproved == 'yes'))) 
+              || newList[i].sub_status_id == '9.1') {
+                //alert(newList[i].scenario+" "+ newList[i].isApproved+" "+ newList[i].sub_status_id);
                 this.setState({ 
                   isLoading: false,
                   setGoBack: false
@@ -330,6 +343,7 @@ class TripPlanScreen extends Component {
 
                 if( (newList[i].status_id == '7' && newList[i].sub_status_id == '7.5' && newList[i].is_outof_policy == 'Y')
                   || (newList[i].through == "Travel Agent" && newList[i].is_outof_policy == 'Y')
+                  || ((newList[i].scenario == "2" || newList[i].scenario == "3") && newList[i].req_type == "1"  && newList[i].isApproved == null)
                 ){
                   newList[i].status_id = '8';
                   newList[i].sub_status_id = '8.1';
@@ -393,9 +407,14 @@ class TripPlanScreen extends Component {
             subStatusNameWO = this.props.statusResult.dataSource[0].sub_status
           })
           .then(()=>{
+          
             for(var i=0; i< newList.length;i++) {
               if(newList[i].through != "Travel Agent" || 
-              (newList[i].through == "Travel Agent" && newList[i].is_outof_policy == 'Y' && newList[i].sub_status_id != '9.1')) {
+              (newList[i].through == "Travel Agent" 
+              && newList[i].is_outof_policy == 'Y'
+               && newList[i].sub_status_id != '9.1') || (newList[i].through == "Travel Agent" 
+              &&( newList[i].scenario == '2' || newList[i].scenario == '3')
+               && newList[i].isApproved == null)) {
                 this.setState({ 
                   isLoading: false,
                   setGoBack: false
@@ -906,7 +925,7 @@ class TripPlanScreen extends Component {
         </View>
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>Amount:</Text>
-          <Text style={styles.cardValue}>{data.amount?data.amount:'0.0'}</Text>
+          <Text style={styles.cardValue}>{this.formatAmountForDisplay(data.amount?data.amount:'0.0')}</Text>
         </View>
       </View>
       <View style={styles.itemActions}>

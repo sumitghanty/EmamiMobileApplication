@@ -19,6 +19,14 @@ class ApproveNoneSaleScreen extends Component {
       ]
     }
   }
+
+  formatAmountForDisplay(value){
+    var num = 0;
+    if(value != "" && value != null && value != 'null')
+    num = parseFloat(value);
+    return num.toFixed(2);
+  }
+
   componentDidMount(){
     this.props.getCostCentre(global.USER.costCentre);
   }
@@ -32,7 +40,13 @@ class ApproveNoneSaleScreen extends Component {
         <Text>URL Error</Text>
       )
     } else {
+      var  budgetAmt = 0;
+      var  remainingBudget = 0;
     const cost = this.props.costCentre.dataSource[0];
+    if( cost != null) {
+      budgetAmt = cost.total_budget;
+      remainingBudget = cost.remaining_budget;
+    }
     console.log(cost);
     return (
       <ScrollView contentContainerStyle={styles.scrollView}>
@@ -44,7 +58,7 @@ class ApproveNoneSaleScreen extends Component {
             style={styles.subHeaderCol}
             >
             <Text style={styles.subHeaderLabel}>Budgeted Amount:</Text>
-            <Text style={styles.subHeaderValue}>{cost.total_budget} INR </Text>
+            <Text style={styles.subHeaderValue}>{this.formatAmountForDisplay(budgetAmt)} INR </Text>
           </LinearGradient>
           <LinearGradient 
             start={{x: 0, y: 0}} 
@@ -52,7 +66,7 @@ class ApproveNoneSaleScreen extends Component {
             colors={['#5ba11c', '#92d40a']} 
             style={styles.subHeaderCol}>
             <Text style={styles.subHeaderLabel}>Remaining Amount:</Text>
-            <Text style={styles.subHeaderValue}>{cost.remaining_budget > 0 ? cost.remaining_budget : '0.00'} INR </Text>
+            <Text style={styles.subHeaderValue}>{this.formatAmountForDisplay(remainingBudget > 0 ? remainingBudget: '0.00')} INR </Text>
           </LinearGradient>
         </View>
         {this.state.links.map((item, index) => {

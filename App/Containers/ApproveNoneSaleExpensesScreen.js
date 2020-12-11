@@ -28,6 +28,13 @@ class ApproveNoneSaleExpensesScreen extends Component {
     this.props.getExpPendApr("21");
   }
 
+  formatAmountForDisplay(value){
+    var num = 0;
+    if(value != "" && value != null && value != 'null')
+    num = parseFloat(value);
+    return num.toFixed(2);
+  }
+
   setAge = (date) => {
     var newDate = date.includes('/')?date : moment(date).format('DD/MM/YYYY')
     var curDate = moment(new Date()).format('DD/MM/YYYY')
@@ -108,7 +115,7 @@ class ApproveNoneSaleExpensesScreen extends Component {
                   {item.actual_claim_amount ?
                   <View style={styles.itemRow}>
                     <Text style={styles.itemLabel}>Actual Amount:</Text>
-                    <Text style={styles.itemValue}>{item.actual_claim_currency} {item.actual_claim_amount}</Text>
+                    <Text style={styles.itemValue}>{item.actual_claim_currency} {this.formatAmountForDisplay(item.actual_claim_amount)}</Text>
                   </View>:null}
                   <View style={styles.itemRow}>
                     <Text style={styles.itemLabel}>Aging:</Text>

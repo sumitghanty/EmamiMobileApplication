@@ -722,7 +722,7 @@ class TripUpdateScreen extends Component {
                {this.state.dateError}
                </Text>}
 
-               <TouchableOpacity onPress={() => this.loginRequest()} style={styles.btn}>
+               {/* <TouchableOpacity onPress={() => this.loginRequest()} style={styles.btn}>
               <LinearGradient 
                 start={{x: 0, y: 0}} 
                 end={{x: 1, y: 0}} 
@@ -730,7 +730,7 @@ class TripUpdateScreen extends Component {
                 style={styles.btnBg}>
                 <Text style={styles.btnTxt}>Sign In</Text>
               </LinearGradient>
-            </TouchableOpacity >
+            </TouchableOpacity > */}
 
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Purpose:<Text style={{color:'red',fontSize:13}}>*</Text></Label>

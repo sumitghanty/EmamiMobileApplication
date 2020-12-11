@@ -67,6 +67,13 @@ class AdvPmntReqScreen extends Component {
     });
   }
 
+  formatAmountForDisplay(value){
+    var num = 0;
+    if(value != "" && value != null && value != 'null')
+    num = parseFloat(value);
+    return num.toFixed(2);
+  }
+
   setAcrdVisible() {
     this.setState({
       acrdVisible: this.state.acrdVisible == 0?1:0
@@ -208,12 +215,12 @@ class AdvPmntReqScreen extends Component {
           <Form style={styles.form}>
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Estimated Cost:</Label>
-              <Text style={styles.value}>{params.estimated_cost ? params.estimated_cost : '00.00'}</Text>
+              <Text style={styles.value}>{this.formatAmountForDisplay(params.estimated_cost ? params.estimated_cost : '00.00')}</Text>
             </Item>
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Advance Payment:</Label>
               {params.advancePaymentStatusId == '14' ?
-              <Text style={styles.value}>{this.state.advAmount}</Text>
+              <Text style={styles.value}>{this.formatAmountForDisplay(this.state.advAmount)}</Text>
               :
               <Input 
                 style={styles.formInput} 

@@ -51,6 +51,14 @@ class AprvExpnsClaimPendInfoScreen extends Component {
     });
     this.props.getReqName(global.USER.designation,global.USER.grade);
   }
+
+  formatAmountForDisplay(value){
+    var num = 0;
+    if(value != "" && value != null && value != 'null')
+    num = parseFloat(value);
+    return num.toFixed(2);
+  }
+
   
   setModalVisible(visible) {
     this.setState({modalVisible: visible});
@@ -311,11 +319,11 @@ class AprvExpnsClaimPendInfoScreen extends Component {
           <View style={[styles.accordionBody,{display:this.state.advAcrd==0?'none':'flex'}]}>
             <View style={styles.row}>
               <Text style={styles.label}>Estimated Cost:</Text>
-              <Text style={styles.value}>{params.estimated_cost}</Text>
+              <Text style={styles.value}>{this.formatAmountForDisplay(params.estimated_cost)}</Text>
             </View>
             <View style={styles.row}>
               <Text style={styles.label}>Advance Required:</Text>
-              <Text style={styles.value}>{params.payment_amount?params.payment_amount:'0'}</Text>
+              <Text style={styles.value}>{this.formatAmountForDisplay(params.payment_amount?params.payment_amount:'0')}</Text>
             </View>
             <View style={[styles.row, styles.lastRow]}>
               <Text style={styles.label}>Pupose:</Text>
@@ -393,15 +401,15 @@ class AprvExpnsClaimPendInfoScreen extends Component {
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Estimated Cost:</Text>
-            <Text style={styles.value}>{params.estimated_cost?params.estimated_cost:0}</Text>
+            <Text style={styles.value}>{this.formatAmountForDisplay(params.estimated_cost?params.estimated_cost:0)}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Actual Advance Amount:</Text>
-            <Text style={styles.value}>{params.payment_amount?params.payment_amount:0}</Text>
+            <Text style={styles.value}>{this.formatAmountForDisplay(params.payment_amount?params.payment_amount:0)}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Actual Claim Amount:</Text>
-            <Text style={styles.value}>{params.actual_claim_amount?params.actual_claim_amount:0}</Text>
+            <Text style={styles.value}>{this.formatAmountForDisplay(params.actual_claim_amount?params.actual_claim_amount:0)}</Text>
           </View> 
           <View style={styles.row}>
             <Text style={styles.label}>Actual Claim Currency:</Text>
@@ -558,11 +566,11 @@ class AprvExpnsClaimPendInfoScreen extends Component {
         </View>
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>Amount:</Text>
-          <Text style={styles.cardValue}>{data.planData.amount?data.planData.amount:'0'}</Text>
+          <Text style={styles.cardValue}>{this.formatAmountForDisplay(data.planData.amount?data.planData.amount:'0')}</Text>
         </View>
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>Extra Amount:</Text>
-          <Text style={styles.cardValue}>{data.planData.extra_amount?data.planData.extra_amount:'0'}</Text>
+          <Text style={styles.cardValue}>{this.formatAmountForDisplay(data.planData.extra_amount?data.planData.extra_amount:'0')}</Text>
         </View>
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>Out Of Policy:</Text>

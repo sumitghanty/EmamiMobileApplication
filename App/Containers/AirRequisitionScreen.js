@@ -127,7 +127,15 @@ class AirRequisitionScreen extends Component {
       statusInt:parseInt(params.update.status_id)
     };
   }
+ 
 
+  formatAmountForDisplay(value){
+    var num = 0;
+    if(value != "" && value != null && value != 'null')
+    num = parseFloat(value);
+    return num.toFixed(2);
+  }
+  
   componentDidMount() {
     const {params} = this.props.navigation.state;
 
@@ -1236,6 +1244,7 @@ class AirRequisitionScreen extends Component {
   }
 
   render() {
+    
     const {params} = this.props.navigation.state;
     console.log(params);
     //alert(JSON.stringify(params));
@@ -1289,7 +1298,7 @@ class AirRequisitionScreen extends Component {
           <Form>            
             <Item fixedLabel style={styles.formRow}>
               <Label style={[styles.formLabel,{flex:5}]}>Eligible Amount/Per Trip:</Label>              
-              <Text style={[styles.formInput,styles.readOnly,{textAlign:'right'}]}>{params.item.upper_limit}</Text>
+              <Text style={[styles.formInput,styles.readOnly,{textAlign:'right'}]}>{this.formatAmountForDisplay(params.item.upper_limit)}</Text>
             </Item>
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Travel Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
@@ -1694,7 +1703,7 @@ class AirRequisitionScreen extends Component {
               placeholder='0.00' 
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
-              value = {this.state.invoiceAmnt}
+              value = {this.formatAmountForDisplay(this.state.invoiceAmnt)}
               keyboardType="decimal-pad"
               autoCapitalize="words"
               onSubmitEditing={() => this.refs.curncyInput.focus()}

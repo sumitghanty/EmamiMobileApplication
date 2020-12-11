@@ -826,6 +826,7 @@ class HotelReqScreen extends Component {
     const {params} = this.props.navigation.state;
     console.log('OOP');
     console.log(this.state.OOP);
+    var response = "";
     this.props.getPlans(params.params.trip_hdr_id)
     .then(()=>{
       this.setState({
@@ -892,6 +893,9 @@ class HotelReqScreen extends Component {
                         parseFloat( parseFloat(this.state.amount)-5000000):null
       }])
       .then(()=>{
+        //alert(JSON.stringify(this.props.reqCreateState));
+        //alert(JSON.stringify(this.props.reqCreateState.dataSource));
+        response  = this.props.reqCreateState.dataSource.message;
         this.atchFiles()        
         .then(()=>{
           this.props.getPlans(params.params.trip_hdr_id)
@@ -902,7 +906,9 @@ class HotelReqScreen extends Component {
           })
           .then(()=>{
             this.props.navigation.goBack();
+            if(response == "success")
             Toast.show(params.claim?'Expense Created Successfully':'Requisition Created Successfully', Toast.LONG);
+            else alert(response);
           })
         })
       })
@@ -1000,6 +1006,7 @@ class HotelReqScreen extends Component {
 
   submitReqData = () => {
     const {params} = this.props.navigation.state;
+    var response = "";
   
     var invoicedate = new Date(moment(this.state.dateInv).format("YYYY-MM-DD"));
     var creationdate=  params.params.creation_date;

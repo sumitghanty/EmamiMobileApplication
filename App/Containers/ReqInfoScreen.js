@@ -1,27 +1,33 @@
 import React, { Component } from 'react'
 import { ScrollView, View, Text, TouchableOpacity, Linking} from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons'
+import LinearGradient from 'react-native-linear-gradient'
 import Ficon from 'react-native-vector-icons/FontAwesome5'
 import { connect } from 'react-redux'
 import moment from 'moment'
 import Actions from '../redux/actions'
-
+import {API_URL} from '../config'
 import Loader from '../Components/Loader'
 import styles from './Styles/ReqInfoScreen'
+import { TextInput } from 'react-native-gesture-handler'
 
 class ReqInfoScreen extends Component {
 
   constructor(props) {
     super(props);
+    const {params} = this.props.navigation.state;
     this.state = {
       reqName: '',
       elAmnt: 0,
-      ticket: null
+      ticket: null,
+      emergencyJustification: params.emergencyJustification  ? params.emergencyJustification :''
+     
     }
   }
 
   componentDidMount(props){
     const {params} = this.props.navigation.state
+    
     this.props.getReqType(global.USER.grade)
     .then(()=>{
       for(var i=0; i<this.props.reqType.dataSource.length; i++) {
@@ -33,6 +39,8 @@ class ReqInfoScreen extends Component {
         }
       }
     });
+
+    
 
     this.props.getAttachments(params.trip_hdr_id_fk,params.trip_no,params.lineitem)
 
@@ -52,6 +60,13 @@ class ReqInfoScreen extends Component {
     }
   }
 
+  formatAmountForDisplay(value){
+    var num = 0;
+    if(value != "" && value != null && value != 'null')
+    num = parseFloat(value);
+    return num.toFixed(2);
+  }
+
   downloadImage = (file) => {
     Linking.canOpenURL(file).then(supported => {
       if (supported) {
@@ -59,6 +74,38 @@ class ReqInfoScreen extends Component {
       } else {
         console.log("Don't know how to open URI: " + this.props.url);
       }
+    });
+  }
+  handleHtlAdrs = (text) => {
+    
+    this.setState({ 
+      emergencyJustification: text
+    })
+  }
+
+  submitReq(params) {
+    var str = API_URL+'updateEmergencyJustification?req_hdr_id='+params.req_hdr_id+"&justification="+this.state.emergencyJustification;
+    
+
+
+
+    return fetch(str,{
+      method: "GET",
+      mode: "no-cors",
+      headers: {
+        Accept: 'text/plain',
+        'Content-Type': 'text/plain',
+      }
+    })
+    .then((response)=> response.text() )
+    .then((responseJson)=>{
+      
+    })
+    .then(() => {    
+       alert("Justification Sucessfully Submitted");
+    })
+    .catch((Error) => {
+      console.log(Error)
     });
   }
 
@@ -132,7 +179,7 @@ class ReqInfoScreen extends Component {
         {params.amount ?
         <View style={styles.row}>
           <Text style={styles.label}>Amount:</Text>
-          <Text style={styles.value}>INR {params.amount}</Text>
+          <Text style={styles.value}>INR {this.formatAmountForDisplay(params.amount)}</Text>
         </View>:null}
         
         {params.req_type=='10' || params.req_type=='11' ?
@@ -229,7 +276,7 @@ class ReqInfoScreen extends Component {
     </View>}
     <View style={styles.row}>
       <Text style={styles.label}>Eligible Amount:</Text>
-      <Text style={styles.value}>{data.days * this.state.elAmnt}</Text>
+      <Text style={styles.value}>{this.formatAmountForDisplay(data.days * this.state.elAmnt)}</Text>
     </View>
     </>
   }
@@ -238,7 +285,7 @@ class ReqInfoScreen extends Component {
     return <>
     <View style={styles.row}>
       <Text style={styles.label}>Eligible Amount/Per Trip:</Text>
-      <Text style={styles.value}>{this.state.elAmnt}</Text>
+      <Text style={styles.value}>{this.formatAmountForDisplay(this.state.elAmnt)}</Text>
     </View>
     {data.ticket_class &&
     <View style={styles.row}>
@@ -271,8 +318,28 @@ class ReqInfoScreen extends Component {
   renderAir = (data) => {
     //alert(JSON.stringify(data))
     let ticket = this.state.ticket;
+    let showEmergencyJustification = false;
+    
+   
+    if(data.scenario == "2" || data.scenario == "3" ) showEmergencyJustification =  true;
     return <>
     <Text style={styles.title}>Trip Details</Text>
+    {showEmergencyJustification ?
+    <View style={styles.row}>
+      <Text style={styles.label}>Justification:</Text>
+      <TextInput  value ={this.state.emergencyJustification}  onChangeText={this.handleHtlAdrs}  style={styles.value}></TextInput>
+      
+    </View>:null}
+
+    {/* <Text style={styles.label}>Justification:</Text>
+              <TextInput 
+              placeholder='Enter Hotel/Guest House Address' 
+              style={styles.addressInput}
+              underlineColorAndroid= "rgba(0,0,0,0)"
+              value = {this.state.emergencyJustification}
+              returnKeyType="next"
+              numberOfLines={4}
+              onChangeText={this.handleHtlAdrs} />   */}
     {data.travel_from ?
     <View style={styles.row}>
       <Text style={styles.label}>From:</Text>
@@ -290,7 +357,7 @@ class ReqInfoScreen extends Component {
     </View>:null}
     <View style={styles.row}>
       <Text style={styles.label}>Eligible Amount/Per Flight:</Text>
-      <Text style={styles.value}>6000</Text>
+      <Text style={styles.value}>6000.00</Text>
     </View>
     {data.travel_time ?
     <View style={styles.row}>
@@ -337,6 +404,17 @@ class ReqInfoScreen extends Component {
       <Text style={styles.label}>Travel Agent Name:</Text>
       <Text style={styles.value}>{data.vendor_name}</Text>
     </View>:null}
+
+    <TouchableOpacity onPress={() => this.submitReq(data)} style={styles.ftrBtn}>
+            <LinearGradient 
+              start={{x: 0, y: 0}} 
+              end={{x: 1, y: 0}} 
+              colors={['#53c55c', '#33b8d6']} 
+              style={styles.ftrBtnBg}>
+              <Icon name='md-checkmark-circle-outline' style={styles.ftrBtnTxt} />
+              <Text style={styles.ftrBtnTxt}>Save</Text>
+            </LinearGradient>
+          </TouchableOpacity>
     
     {this.state.ticket ?<>
     <Text style={styles.title}>Flight Details</Text>

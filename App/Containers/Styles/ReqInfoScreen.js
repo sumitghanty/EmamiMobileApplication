@@ -190,6 +190,25 @@ export default StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center'
       },
+      ftrBtnTxt: {
+        color: '#fff',
+        fontWeight: 'bold',
+        letterSpacing: 1,
+        textTransform: 'uppercase',
+        marginHorizontal: 8,
+      },
+      ftrBtn: {
+        marginHorizontal: 20,
+        marginTop: 30
+      },
+      ftrBtnBg: {
+        borderRadius: 24,
+        paddingHorizontal: 8,
+        paddingVertical: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center'
+      },
       oopValue: {
         fontSize: 16,
         color: '#fff',

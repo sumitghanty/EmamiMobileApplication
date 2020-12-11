@@ -24,6 +24,14 @@ class ApproveNoneSaleAdvanceScreen extends Component {
   searchUpdated(term) {
     this.setState({ searchTerm: term })
   }
+
+  formatAmountForDisplay(value){
+    var num = 0;
+    if(value != "" && value != null && value != 'null')
+    num = parseFloat(value);
+    return num.toFixed(2);
+  }
+
   componentDidMount(){
     this.props.getAdvPmntPend(global.USER.personId,"14");
     var date = new Date().getDate();
@@ -117,12 +125,12 @@ class ApproveNoneSaleAdvanceScreen extends Component {
                 {item.actual_claim_amount ?
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Claim Amount:</Text>
-                  <Text style={styles.itemValue}>{item.actual_claim_currency} {item.actual_claim_amount}</Text>
+                  <Text style={styles.itemValue}>{item.actual_claim_currency} {this.formatAmountForDisplay(item.actual_claim_amount)}</Text>
                 </View>:null}
                 {item.payment_amount ?
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Advance Amount:</Text>
-                  <Text style={styles.itemValue}>{item.currency} {item.payment_amount}</Text>
+                  <Text style={styles.itemValue}>{item.currency} {this.formatAmountForDisplay(item.payment_amount)}</Text>
                 </View>:null}
                 <View style={styles.itemRow}>
                   <Text style={styles.itemLabel}>Age:</Text>

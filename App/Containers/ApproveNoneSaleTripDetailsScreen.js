@@ -7,6 +7,7 @@ import moment from 'moment'
 import { connect } from 'react-redux'
 import Actions from '../redux/actions'
 import Toast from 'react-native-simple-toast'
+import {API_URL} from '../config'
 import RNFetchBlob from 'rn-fetch-blob'
 
 import Loader from '../Components/Loader'
@@ -31,6 +32,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
       hasOOP: false,
       aprvReqList: [],
       downloadLoading: false,
+      reqDetails: null
     };
   }
   componentDidMount(props){
@@ -696,7 +698,40 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
     return <TouchableOpacity 
     key={index} 
     style={styles.cardItem} 
-    onPress={() => this.props.navigation.navigate('ReqInfo',data)}>
+    onPress={() => { 
+
+
+      var str = API_URL+'getRequisitionListNonSalesById?req_hdr_id='+data.req_hdr_id;
+    
+if((data.scenario == "2" || data.scenario == "3") && data.req_type == "1"){
+      return fetch(str,{
+        method: "GET",
+        mode: "no-cors",
+        headers: {
+          Accept: 'application/json',
+          'content-type': 'application/json'
+        }
+      })
+      .then((response)=> response.text() )
+      .then((res) => {
+       var arr =  JSON.parse(res)
+       //alert(arr[0]);
+      // 
+      data = arr[0];
+     
+      })
+      .then(() => {   
+        this.props.navigation.navigate('ReqInfo',data); 
+        
+        // alert("Justification Sucessfully Submitted");
+      })
+      .catch((Error) => {
+        console.log(Error)
+      });
+    }else{
+      this.props.navigation.navigate('ReqInfo',data); 
+    }
+     }}>
     <View style={styles.cardItemHeader}>
       {/*data.is_outof_policy=="Y" 
       && data.status_id!="9" 
