@@ -365,7 +365,7 @@ class PjpInfoScreen extends Component {
               return (
               <TouchableOpacity style={styles.modalItem}
                 key= {index}
-                onPress={() => {
+                onPress={() => { 
                   this.setState({modalVisible: 0, reload: true});
                   this.props.navigation.navigate('SalesReq',{item, params, 'update':false,'estCost':this.state.actAmnt})
                 }}>

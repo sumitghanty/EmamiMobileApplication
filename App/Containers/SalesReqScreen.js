@@ -301,7 +301,7 @@ class SalesReqScreen extends Component {
     this.show('date');
   }
 
-  setTravelDate = (event, date) => {
+  setTravelDate = (event, date) => { 
     const {params} = this.props.navigation.state;
     if(date != undefined) {
       date = date || this.state.travelDate; 
@@ -909,14 +909,56 @@ class SalesReqScreen extends Component {
     }
     Keyboard.dismiss();
   }
+   parseDate(str) {
+    
+    var mdy = str.split('-');
+   
+    return new Date(mdy[0], mdy[1]-1, mdy[2]);
+}
+formatCurrntDate() {
+  var d = new Date()
+   var    month = '' + (d.getMonth() + 1);
+   var    day = '' + d.getDate();
+    var   year = d.getFullYear()
 
+  if (month.length < 2) 
+      month = '0' + month;
+  if (day.length < 2) 
+      day = '0' + day;
+
+  return [year, month, day].join('-');
+}
+ datediff(first, second) {
+    // Take the difference between the dates and divide by milliseconds per day.
+    // Round to nearest whole number to deal with DST.
+  var noOfDaysBetween =  Math.round((second-first)/(1000*60*60*24));
+  var scenario = "1";
+  if(noOfDaysBetween > 14) {
+   
+    scenario = "1";
+  }
+  else if (noOfDaysBetween <= 14 && noOfDaysBetween >5) {
+   
+    scenario = "2";
+  }
+  else {
+  
+    scenario = "3";
+  }
+  return scenario;
+}
   saveReq = (data) => {
     const {params} = this.props.navigation.state;
     let newReq = data;
     let newPJP = params.params;
+
+var pjpDay = moment(this.state.dateStart).format("YYYY-MM-DD");
+
+    var scenario  = this.datediff(this.parseDate(this.formatCurrntDate()), this.parseDate(pjpDay));
     AsyncStorage.getItem("ASYNC_STORAGE_SAVE_KEY")
     .then(()=>{
       newReq.trip_no = params.params.trip_no;
+      newReq.scenario = scenario;
       newReq.useremail = params.params.email;
       newReq.username = params.params.name;
       newReq.userid = params.params.userid;
@@ -933,9 +975,22 @@ class SalesReqScreen extends Component {
       newReq.mode = params.item.category_id;
       newReq.mode_name = params.item.category;
       newReq.status_id = 7;
-      newReq.sub_status_id = (params.item.category_id == '7' && this.state.through == "Travel Agent")?"7.1":"7.4";
+      if(params.item.category_id == '7' && this.state.through == "Travel Agent" ){
+        if((scenario == "2" || scenario == "3") && newReq.isApproved == null){
+          newReq.sub_status_id = "7.4";
+          newReq.sub_status =  "Requisition - Emergency Out of Policy";
+        } 
+        else {newReq.sub_status_id = "7.1";
+        newReq.sub_status =   this.state.subStatusNameSTA;
+      }
+      }else{
+        newReq.sub_status_id = "7.4";
+        newReq.sub_status =  this.state.subStatusName;
+      }
+      //newReq.sub_status_id = (params.item.category_id == '7' && this.state.through == "Travel Agent" && scenario != "2" && scenario !="3" && newReq.isApproved == null )?"7.1":"7.4";
       newReq.status = this.state.statusName;
-      newReq.sub_status = (params.item.category_id == '7' && this.state.through == "Travel Agent")?this.state.subStatusNameSTA:this.state.subStatusName;
+     
+     // newReq.sub_status = (params.item.category_id == '7' && this.state.through == "Travel Agent" && (scenario == "2" || scenario =="3") && newReq.isApproved == null )?this.state.subStatusNameSTA:this.state.subStatusName;
       newReq.claimEmpcomment = this.state.comments;
       newReq.twoWay = (this.state.twoWay == true) ? 'true' : 'false';
       newReq.cost_center = global.USER.costCentre;
@@ -960,7 +1015,7 @@ class SalesReqScreen extends Component {
       }
 
       if(params.item.category_id == '7'){
-        newReq.travel_date = this.state.travelDate;
+        newReq.travel_date = (this.state.travelDate);
         newReq.travel_type = this.state.type;
         newReq.travel_time = this.state.time;
         newReq.travel_from = this.state.flightFromItem.Name;
@@ -1079,7 +1134,7 @@ class SalesReqScreen extends Component {
     }) 
   }
 
-  render() {
+  render() { 
     console.log(this.state.twoWay?'Twoday':'Singleway');
     const {params} = this.props.navigation.state;
     console.log(params)

@@ -48,7 +48,14 @@ class PjpClaimListScreen extends Component {
       diff<2?diff+' day':diff+' days'
     );
   }
-   
+  formatYear(year,month){
+    // alert(year);
+     if(month==="January" || month==="February" || month==="March")
+     {
+       return parseInt(year)+1;
+     }else return year;
+      }
+
   render() {
     if(this.props.pjpClaims.isLoading){
       return(
@@ -123,7 +130,8 @@ class PjpClaimListScreen extends Component {
           {item.month ?
           <View style={styles.itemRow}>
             <Text style={styles.itemLabel}>For Month of:</Text>
-            <Text style={styles.itemValue}>{item.month} {item.year}</Text>
+           <Text style={styles.itemValue}>{item.month} {this.formatYear(item.year,item.month)}</Text>
+
           </View>:null}
           {item.status ?
           <View style={styles.itemRow}>

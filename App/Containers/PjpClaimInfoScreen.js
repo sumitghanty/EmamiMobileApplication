@@ -233,6 +233,14 @@ class PjpClaimInfoScreen extends Component {
     })
   }
 
+  formatYear(year,month){
+    // alert(year);
+     if(month==="January" || month==="February" || month==="March")
+     {
+       return parseInt(year)+1;
+     }else return year;
+      }
+
   render() {
    // alert("Alert");
     
