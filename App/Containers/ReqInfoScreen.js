@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import { ScrollView, View, Text, TouchableOpacity, Linking} from 'react-native'
+import { ScrollView, View, Text, Picker, TouchableOpacity, Linking} from 'react-native'
+import { Container, Content, Form, Item, Label,Card,CardItem } from 'native-base'
 import Icon from 'react-native-vector-icons/Ionicons'
 import LinearGradient from 'react-native-linear-gradient'
 import Ficon from 'react-native-vector-icons/FontAwesome5'
@@ -10,6 +11,7 @@ import {API_URL} from '../config'
 import Loader from '../Components/Loader'
 import styles from './Styles/ReqInfoScreen'
 import { TextInput } from 'react-native-gesture-handler'
+import PickerModal from 'react-native-picker-modal-view'
 
 class ReqInfoScreen extends Component {
 
@@ -319,16 +321,36 @@ class ReqInfoScreen extends Component {
     //alert(JSON.stringify(data))
     let ticket = this.state.ticket;
     let showEmergencyJustification = false;
+    let showEmergencyJustificationSave = false;
     
    
-    if(data.scenario == "2" || data.scenario == "3" ) showEmergencyJustification =  true;
+    if(data.scenario == "2" || data.scenario == "3" ) {
+      showEmergencyJustification =  true;
+      if(data.approverLevel == null) showEmergencyJustificationSave = true
+    }
     return <>
     <Text style={styles.title}>Trip Details</Text>
+
+    <Item picker style={styles.row}>
+    <Label style={styles.formLabel}><Text style={styles.formLabel}>Justification:</Text></Label>
+              <Picker
+                mode="dropdown"
+                iosIcon={<Icon name="arrow-down" />}
+                style={[styles.value, styles.select]}
+                placeholder="Select your Location"
+                placeholderStyle={{ color: "#bfc6ea" }}
+                placeholderIconColor="#007aff"
+                selectedValue={this.state.for}
+                onValueChange={this.onValueChangeFor}
+                >
+                  
+                </Picker>
+                </Item>
+
     {showEmergencyJustification ?
     <View style={styles.row}>
       <Text style={styles.label}>Justification:</Text>
-      <TextInput  value ={this.state.emergencyJustification}  onChangeText={this.handleHtlAdrs}  style={styles.value}></TextInput>
-      
+      <TextInput  value ={this.state.emergencyJustification}  onChangeText={this.handleHtlAdrs}  style={styles.Justifvalue}></TextInput> 
     </View>:null}
 
     {/* <Text style={styles.label}>Justification:</Text>
@@ -386,7 +408,7 @@ class ReqInfoScreen extends Component {
 
     {data.justification ?
     <View style={styles.row}>
-      <Text style={styles.label}>justification:</Text>
+      <Text style={styles.label}>Justification:</Text>
       <Text style={styles.value}>{data.justification}</Text>
     </View>:null}
 
@@ -405,6 +427,8 @@ class ReqInfoScreen extends Component {
       <Text style={styles.value}>{data.vendor_name}</Text>
     </View>:null}
 
+   
+    {showEmergencyJustificationSave ?
     <TouchableOpacity onPress={() => this.submitReq(data)} style={styles.ftrBtn}>
             <LinearGradient 
               start={{x: 0, y: 0}} 
@@ -414,7 +438,7 @@ class ReqInfoScreen extends Component {
               <Icon name='md-checkmark-circle-outline' style={styles.ftrBtnTxt} />
               <Text style={styles.ftrBtnTxt}>Save</Text>
             </LinearGradient>
-          </TouchableOpacity>
+          </TouchableOpacity>:null}
     
     {this.state.ticket ?<>
     <Text style={styles.title}>Flight Details</Text>

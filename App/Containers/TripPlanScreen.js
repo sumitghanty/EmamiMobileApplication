@@ -365,7 +365,11 @@ class TripPlanScreen extends Component {
                 newList[i].userid = global.USER.userId;
                 newList[i].amount = amountVal;
               }
+
+              //alert(newList[i].sub_status_id+" "+newList[i].pending_with)
             }
+
+           
           })
           .then(()=>{
             if(this.state.setGoBack){

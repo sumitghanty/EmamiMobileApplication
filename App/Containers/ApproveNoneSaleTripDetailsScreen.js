@@ -305,7 +305,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
   }
 
   approveWithReq(){
-    alert("hi");
+    //alert("hi");
     const {params} = this.props.navigation.state;
     AsyncStorage.getItem(ASYNC_STORAGE_COMMENTS_KEY).then(value => {
       this.setState({ isLoading: true }, () => {  
@@ -328,7 +328,8 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
 
               if(newSelectedDataList.scenario == "2"  ){
 
-                if(newSelectedDataList.through =="Travel Agent"){
+                if(newSelectedDataList.through =="Travel Agent" && newSelectedDataList.isApproved == null){
+
                 newSelectedDataList.status_id="7";
                 newSelectedDataList.status="Plan Trip/PJP";
                 newSelectedDataList.sub_status_id="7.1";
@@ -353,7 +354,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
               }else if(newSelectedDataList.scenario == "3"){
                 if(newSelectedDataList.approverLevel == "1"){
 
-                if(newSelectedDataList.through =="Travel Agent"){
+                if(newSelectedDataList.through =="Travel Agent"  && newSelectedDataList.isApproved == null){
                   newSelectedDataList.status_id="7";
                   newSelectedDataList.status="Plan Trip/PJP";
                   newSelectedDataList.sub_status_id="7.1";
@@ -408,10 +409,11 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
               newSelectedDataList.pending_with=params.userid;
             }
           }
-        //  this.state.aprvReqList.push(newSelectedDataList);
-          alert(newSelectedDataList.lineitem+ " "+newSelectedDataList.sub_status_id+ " "+newSelectedDataList.scenario);
+      this.state.aprvReqList.push(newSelectedDataList);
+          /*alert(newSelectedDataList.approverLevel+ "   "+newSelectedDataList.isApproved+ " "
+          +newSelectedDataList.sub_status_id+ "   "+newSelectedDataList.pending_with_name);*/
          
-          this.state.aprvReqList.push({});
+         //this.state.aprvReqList.push({});
           
         }
       })      

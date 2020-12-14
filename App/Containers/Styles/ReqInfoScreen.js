@@ -47,6 +47,12 @@ export default StyleSheet.create({
         color: 'rgba(0,0,0,.5)',
         paddingRight: 16
     },
+    Justifvalue: {
+      flex: 3,
+      color: 'rgba(0,0,0,.5)',
+      paddingRight: 16,
+      paddingVertical: 0.5
+   },
     attachInfo: {
         marginVertical: 16,
         marginLeft: 16,
@@ -189,6 +195,17 @@ export default StyleSheet.create({
         fontSize: 11,
         fontWeight: 'bold',
         textAlign: 'center'
+      },
+      formLabel: {
+        flex: 1,
+        paddingRight: 10,
+        fontSize: 14,
+        marginTop: 16,
+        marginBottom: 16
+      },
+      formInput: {
+        flex: 1,
+        paddingRight: 16
       },
       ftrBtnTxt: {
         color: '#fff',
