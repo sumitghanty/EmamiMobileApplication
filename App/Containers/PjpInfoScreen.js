@@ -6,7 +6,6 @@ import LinearGradient from 'react-native-linear-gradient'
 import moment from 'moment'
 import Actions from '../redux/actions'
 import Toast from 'react-native-simple-toast'
-
 import Loader from '../Components/Loader'
 import styles from './Styles/PjpInfoScreen'
 import { connect } from 'react-redux'
@@ -252,11 +251,17 @@ class PjpInfoScreen extends Component {
           });
         })
       } else {
-        console.log('one or more requisition sended to travel agent.')
+        console.log('one or more requisition sent to travel agent.')
       }
     })
   }
-
+  formatYear(year,month){
+   // alert(year);
+    if(month==="January" || month==="February" || month==="March")
+    {
+      return parseInt(year)+1;
+    }else return year;
+     }
   render() {
     const {params} = this.props.navigation.state
     if(this.props.reqTypeSale.isLoading || this.props.reqListSales.isLoading || 
@@ -283,7 +288,8 @@ class PjpInfoScreen extends Component {
           {params.year ?
           <View style={styles.row}>
             <Text style={styles.label}>PJP Year</Text>
-            <Text style={[styles.value,styles.readonly]}>{params.year}</Text>
+            <Text style={[styles.value,styles.readonly]}>{this.formatYear(params.year, params.month)}</Text>
+
           </View>: null}
           {params.month ?
           <View style={styles.row}>

@@ -526,11 +526,22 @@ class AirRequisitionScreen extends Component {
   handleChangeAmount = (amnt) => {
     const {params} = this.props.navigation.state;
   //  alert(params.item.upper_limit +" "+  this.state.maxAmt)
+     var v= Math.sign(amnt);
+     if(v=== 1 || amnt===''){
     this.setState({ 
       amount: amnt,
       amntError: null,
       OOP: (((params.item.upper_limit == "NA") &&  parseFloat( amnt) >  parseFloat(this.state.maxAmt) )||  parseFloat(amnt) >  parseFloat(this.state.maxAmt)) ?'Y':'N'
     })
+  }
+  else if (amnt === "0")
+     {
+         alert("Enter Correct Amount");
+         
+     }
+     else {
+         alert("Enter Correct Amount");
+     } 
   }
 
   setAcrdOneVisible() {

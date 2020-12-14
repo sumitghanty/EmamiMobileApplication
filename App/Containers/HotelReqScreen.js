@@ -68,7 +68,7 @@ class HotelReqScreen extends Component {
               : '0.0',
       amount: (params.update && params.update.amount) ? params.update.amount :null,
       amntError: null,
-      days: (params.update && params.update.days) ? params.update.days : 1,
+      days: (params.update && params.update.days) ? params.update.days : 0,
       actualDays: 0,
       modalVisible: false,
       uploadData: [],
@@ -531,6 +531,8 @@ class HotelReqScreen extends Component {
   
   handleChangeAmount = (amnt) => {
     const {params} = this.props.navigation.state;
+    var v= Math.sign(amnt);
+     if(v=== 1 || amnt===''){
     this.setState({ 
       amount: amnt,
       amntError: null,
@@ -540,6 +542,15 @@ class HotelReqScreen extends Component {
             //|| parseFloat(amnt) > parseFloat(this.state.maxAmt)) ?'Y':'N'
     })
   }
+  else if (amnt === "0")
+  {
+      alert("Enter Correct Amount");
+      
+  }
+  else {
+      alert("Enter Correct Amount");
+  } 
+}
 
   handleInvoiceAmnt = (amnt) => {
     const {params} = this.props.navigation.state;

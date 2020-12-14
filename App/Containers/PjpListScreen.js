@@ -101,7 +101,12 @@ class PjpListScreen extends Component {
       {cancelable: true},
     )
   };
-
+   formatYear(year,month){
+  if(month==="January" || month==="February" || month==="March")
+  {
+    return parseInt(year)+1;
+  }else return year;
+   }
   render() {
     if(this.props.pjp.isLoading){
       return(
@@ -187,7 +192,11 @@ class PjpListScreen extends Component {
           {item.month ?
           <View style={styles.itemRow}>
             <Text style={styles.itemLabel}>For Month of:</Text>
-            <Text style={styles.itemValue}>{item.month} {item.year}</Text>
+            <Text style={styles.itemValue}>{item.month} {this.formatYear(item.year,item.month)}</Text>
+           {/* if({item.month}=== "January", "February", "March" )
+            {
+               <Text style= {styles.itemValue}>{''+((parseInt(item.year)+1)+"").substring(2,4)} </Text
+            } */}
           </View>:null}
           <View style={styles.itemRow}>
             <Text style={styles.itemLabel}>Status:</Text>

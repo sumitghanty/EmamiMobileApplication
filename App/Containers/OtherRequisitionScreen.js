@@ -43,7 +43,7 @@ class OtherRequisitionScreen extends Component {
       statusName: '',
       subStatusName: '',
       lineitem: (params.update && params.update.lineitem)?params.update.lineitem:null,
-      days: 1,
+      days: 2,
       modalVisible: false,    
       attachFiles: [],
       uploadData: [{"type":"Approve Email","file":null,'action':null},{"type":"Other","file":null,'action':null}],
@@ -182,11 +182,21 @@ class OtherRequisitionScreen extends Component {
   }
 
   handleChangeAmount = (amount) => {
+    var v= Math.sign(amount);
+     if(v=== 1 || amount===''){
     this.setState({ 
       aprxAmnt: amount
     })
   }
-
+  else if (amount === "0")
+  {
+      alert("Enter Correct Amount");
+      
+  }
+  else {
+      alert("Enter Correct Amount");
+  } 
+}
   setModalVisible(visible) {
     this.setState({modalVisible: visible});
   }

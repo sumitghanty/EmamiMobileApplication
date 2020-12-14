@@ -401,6 +401,8 @@ class NonActaxiReqScreen extends Component {
   handleChangeAmount = (amnt) => {
     const {params} = this.props.navigation.state;
     //alert()
+    var v= Math.sign(amnt);
+     if(v=== 1 || amnt===''){
     this.setState({ 
       amount: amnt,
       amntError: null,
@@ -408,7 +410,15 @@ class NonActaxiReqScreen extends Component {
           (parseFloat(amnt) > parseFloat(this.state.maxAmt))) ?'Y':'N'
     })
   }
-
+  else if (amnt === "0")
+  {
+      alert("Enter Correct Amount");
+      
+  }
+  else {
+      alert("Enter Correct Amount");
+  } 
+}
   handleInvoiceAmnt = (amnt) => {
     this.setState({ 
       invoiceAmnt: amnt,

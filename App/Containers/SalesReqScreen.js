@@ -112,20 +112,25 @@ class SalesReqScreen extends Component {
               :'ptf_list'
     };
   }
-  
+  formatYear(year,month){
+    if(month==="January" || month==="February" || month==="March")
+    {
+      return parseInt(year)+1;
+    }else return year;
+     }
   componentDidMount() {
     const {params} = this.props.navigation.state;
     console.log(params)
     var year = parseInt(params.params.year);
     var month = moment().month(params.params.month).format("M");
     this.setState({
-      firstDay: new Date(year, month - 1, 1),
-      lastDay: new Date(year, month, 0),
-      dateStart: (params.update && params.update.pjp_date) ? new Date(params.update.pjp_date) : new Date(year, month - 1, 1),
-      travelDate: (params.update && params.update.travel_date) ? new Date(params.update.travel_date) : new Date(year, month - 1, 1),
-      dateCin: (params.update && params.update.check_in_date) ? new Date(params.update.check_in_date) : new Date(year, month - 1, 1),
-      dateCout: (params.update && params.update.check_out_date) ? new Date(params.update.check_out_date) : new Date(year, month - 1, 1),
-      cMinDate: (params.update && params.update.pjp_date) ? new Date(params.update.pjp_date) : new Date(year, month - 1, 1),
+      firstDay: new Date(this.formatYear(year,params.params.month), month - 1, 1),
+      lastDay: new Date(this.formatYear(year,params.params.month), month, 0),
+      dateStart: (params.update && params.update.pjp_date) ? new Date(params.update.pjp_date) : new Date(this.formatYear(year,params.params.month), month - 1, 1),
+      travelDate: (params.update && params.update.travel_date) ? new Date(params.update.travel_date) : new Date(this.formatYear(year,params.params.month), month - 1, 1),
+      dateCin: (params.update && params.update.check_in_date) ? new Date(params.update.check_in_date) : new Date(this.formatYear(year,params.params.month), month - 1, 1),
+      dateCout: (params.update && params.update.check_out_date) ? new Date(params.update.check_out_date) : new Date(this.formatYear(year,params.params.month), month - 1, 1),
+      cMinDate: (params.update && params.update.pjp_date) ? new Date(params.update.pjp_date) : new Date(this.formatYear(year,params.params.month), month - 1, 1),
     });
 
     this.props.getReqLocations()
@@ -1120,7 +1125,7 @@ class SalesReqScreen extends Component {
           <Item fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
             <TouchableOpacity onPress={this.datepicker} style={styles.datePicker}>
-              <Text style={styles.datePickerLabel}>{moment(this.state.dateStart).format("DD-MM-YYYY")}</Text>
+              <Text style={styles.datePickerLabel}>{moment(this.state.dateStart).format("DD/MM/YYYY")}</Text>
               <Icon name="calendar" style={styles.datePickerIcon} />
             </TouchableOpacity>
           </Item>
@@ -1299,7 +1304,7 @@ class SalesReqScreen extends Component {
           <Item fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Travel Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
             <TouchableOpacity onPress={this.travelDatepicker} style={styles.datePicker}>
-              <Text style={styles.datePickerLabel}>{moment(this.state.travelDate).format("DD-MM-YYYY")}</Text>
+              <Text style={styles.datePickerLabel}>{moment(this.state.travelDate).format("DD/MM/YYYY")}</Text>
               <Icon name="calendar" style={styles.datePickerIcon} />
             </TouchableOpacity>
           </Item>

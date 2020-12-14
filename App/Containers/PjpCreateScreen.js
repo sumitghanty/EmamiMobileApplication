@@ -10,7 +10,8 @@ import Toast from 'react-native-simple-toast'
 
 import styles from './Styles/PjpCreateScreen';
 
-const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
+const MONTHSLIST = ['January','February','March','April','May','June','July','August','September','October','November','December']
+const MONTHS = ['April','May','June','July','August','September','October','November','December','January','February','March']
 
 class PjpCreateScreen extends Component {
   UNSAFE_componentWillMount() {
@@ -95,10 +96,22 @@ class PjpCreateScreen extends Component {
   }
   onValueChangeYear = (value) => {
     this.setState({ selectedYear: value });
+   // alert(value)
     var newMotnhList = Array.from(MONTHS);
     if(value == ''+new Date().getFullYear()){
-      newMotnhList.splice(0, new Date().getMonth());
+   //   alert(new Date().getFullYear()+" "+new Date().getMonth())
+      var currentMonth = MONTHSLIST[new Date().getMonth()];
+      var currentMonthIndex = 0;
+      for(var i=0; i<newMotnhList.length; i++) {
+        if(newMotnhList[i] == currentMonth) currentMonthIndex = i;
+      }
+      //alert(currentMonth+" "+currentMonthIndex);
+      newMotnhList.splice(0, currentMonthIndex);
+      
+   // alert(JSON.stringify(newMotnhList));
+    
     }
+    //alert(JSON.stringify(newMotnhList));
     this.setState({monthList: newMotnhList});
     console.log('hi');
   }
@@ -242,7 +255,7 @@ class PjpCreateScreen extends Component {
                 >
                 {this.props.yearList.dataSource.map((item, index) => {
                 return (
-                <Picker.Item label={''+parseInt(item)} value={''+parseInt(item)} key={index} />
+                <Picker.Item label={''+parseInt(item)+"-"+((parseInt(item)+1)+"").substring(2,4)} value={''+parseInt(item)} key={index} />
                 );
                 })}
               </Picker>

@@ -390,6 +390,8 @@ class TrainReqScreen extends Component {
 
   handleChangeAmount = (amnt) => {
     const {params} = this.props.navigation.state;
+    var v= Math.sign(amnt);
+   if(v=== 1 || amnt===''){
     this.setState({ 
       amount: amnt,
       amntError: null,
@@ -397,7 +399,15 @@ class TrainReqScreen extends Component {
           (parseFloat(amnt) > parseFloat(this.state.maxAmt))) ?'Y':'N'
     })
   }
-
+  else if (amnt === "0")
+  {
+      alert("Enter Correct Amount");
+      
+  }
+  else {
+      alert("Enter Correct Amount");
+  } 
+}
   handleInvoiceAmnt = (amnt) => {
     this.setState({ 
       invoiceAmnt: amnt,
