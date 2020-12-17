@@ -202,15 +202,15 @@ class ExpInfoScreen extends Component {
       for (const res of results) {
       }
       if (results.length>1) {
-        alert(results.length + ' fils are uploade successfully.');
+        alert(results.length + ' fils are uploaded successfully.');
       } else {
-        alert(results.length + ' fil is uploade successfully.');
+        alert(results.length + ' fil is uploaded successfully.');
       }        
       this.setState({uploadError: 0});
       this.setState({ attachFiles: results });
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
-        alert('You have not select any file for attachment');
+        alert('You have not selected any file for attachment');
       } else {
         alert('Unknown Error: ' + JSON.stringify(err));
         throw err;
@@ -319,7 +319,7 @@ class ExpInfoScreen extends Component {
         if(this.props.plans.dataSource[i].status_id == '19' && this.props.plans.dataSource[i].delete_status == 'false') {
           Alert.alert(
             'Warning',
-            'One or more Requisition is not complete. Please compleet unsaved requisition',
+            'One or more Requisition is not complete. Please complete unsaved requisition',
             [
               {
                 text: 'Ok',

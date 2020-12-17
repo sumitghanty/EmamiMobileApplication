@@ -318,7 +318,7 @@ class TripPlanScreen extends Component {
                 });
                 Alert.alert(
                   'Warning',
-                  'Please choose proper options as per the requisition Status and Through ! ',
+                  'Please choose proper options as per the requisition Status and Through! ',
                   [
                     {
                       text: 'Ok',
@@ -345,7 +345,7 @@ class TripPlanScreen extends Component {
                 });
                 Alert.alert(
                   'Warning',
-                  'Please choose proper options as per the requisition Status and Through ! ',
+                  'Please choose proper options as per the requisition Status and Through! ',
                   [
                     {
                       text: 'Ok',

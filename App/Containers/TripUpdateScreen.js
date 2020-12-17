@@ -440,7 +440,7 @@ class TripUpdateScreen extends Component {
        error: true,
        dateError: 'Please select correct date'
      });
-     alert("Trip duration cannot be greater than 90 days");
+     alert("Trip duration cannot be more than 90 days");
     return;
    }
     
@@ -601,7 +601,7 @@ class TripUpdateScreen extends Component {
     return(
       Alert.alert(
         "Warning",
-        "From location and To location can not be same.",
+        "From location and To location cannot be same.",
         [
           {
             text: "Cancel",

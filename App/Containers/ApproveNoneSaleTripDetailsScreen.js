@@ -239,7 +239,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
   rejectConfirmation() {
     if(this.state.rejComment.length<1) {
       Alert.alert(
-        'Feild Required',
+        'Field Required',
         'Please enter rejection reason.',
         [
           {

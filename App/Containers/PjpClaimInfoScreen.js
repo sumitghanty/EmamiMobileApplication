@@ -185,7 +185,7 @@ class PjpClaimInfoScreen extends Component {
           });
           Alert.alert(
             'Warning',
-            'You cannot submit tour plan until you did not choose any flight given by travel agent',
+            'You cannot submit tour plan until you choose any flight given by travel agent',
             [
               {
                 text: 'Cancel',

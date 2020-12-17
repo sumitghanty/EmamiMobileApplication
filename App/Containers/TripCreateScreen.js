@@ -362,7 +362,7 @@ if(Difference_In_Days >90){
     error: true,
     dateErrorh: 'Please select correct date'
   });
-  alert("Trip duration cannot be greater than 90 days");
+  alert("Trip duration cannot be more than 90 days");
  return;
 }
  
@@ -424,7 +424,7 @@ if(Difference_In_Days >90){
       } else if(statusId == '2') {
         Alert.alert(
           "Submit",
-          "Do you want to Submit tis Trip?",
+          "Do you want to Submit this Trip?",
           [
             {
               text: "No",

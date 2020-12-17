@@ -42,9 +42,9 @@ class AdvPmntReqScreen extends Component {
       for (const res of results) {
       }
       if (results.length>1) {
-        alert(results.length + ' fils are uploade successfully.');
+        alert(results.length + ' files are uploaded successfully.');
       } else {
-        alert(results.length + ' fil is uploade successfully.');
+        alert(results.length + ' file is uploaded successfully.');
       }
       //Setting the state to show multiple file attributes
       this.setState({ attachFiles: results });
@@ -52,7 +52,7 @@ class AdvPmntReqScreen extends Component {
       //Handling any exception (If any)
       if (DocumentPicker.isCancel(err)) {
         //If user canceled the document selection
-        alert('You have not select any file for attachment');
+        alert('You have not selected any file for attachment');
       } else {
         //For Unknown Error
         alert('Unknown Error: ' + JSON.stringify(err));

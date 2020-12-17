@@ -43,7 +43,7 @@ class LoginScreen extends Component {
   loginFail = () => {
     Alert.alert(
       "Login failed!",
-      "User Id or Password is not match.",
+      "User Id or Password does not match.",
       [
         {
           text: "Try Again",

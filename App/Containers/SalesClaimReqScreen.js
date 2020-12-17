@@ -732,7 +732,7 @@ class SalesClaimReqScreen extends Component {
         if(results.size>3000000) {
           Alert.alert(
             "File Size issue",
-            "You have selected a large file. Please choose the file less then 3MB.",
+            "You have selected a large file. Please choose a file less than 3MB.",
             [{text: "Ok", style: 'cancel',},],
             { cancelable: true }
           );
@@ -773,7 +773,7 @@ class SalesClaimReqScreen extends Component {
       })
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
-        alert('You have not select any file for attachment');
+        alert('You have not selected any file for attachment');
       } else {
         alert('Unknown Error: ' + JSON.stringify(err));
         throw err;

@@ -118,7 +118,7 @@ class ReqInfoScreen extends Component {
       });  
       if(JSON.parse(this.state.res).message == "success")
       alert("Justification Sucessfully Submitted");
-      else  alert("Justification  not submitted .Please try again");
+      else  alert("Justification not submitted .Please try again");
       
     })
     .catch((Error) => {

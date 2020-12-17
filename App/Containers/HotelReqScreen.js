@@ -468,7 +468,7 @@ class HotelReqScreen extends Component {
       if(this.state.actualDays == 0 && (parseInt(moment(timeCout).format('HH:mm'))<=parseInt(this.state.timeCin))){
         Alert.alert(
           "",
-          "CheckOut time can not be less or equal then CheckIn Time for same day.",
+          "CheckOut time cannot be less or same as CheckIn Time for same day.",
           [
             {
               text: "Ok",
@@ -672,7 +672,7 @@ class HotelReqScreen extends Component {
         if(results.size>3000000) {
           Alert.alert(
             "File Size issue",
-            "You have selected a large file. Please choose the file less then 3MB.",
+            "You have selected a large file. Please choose a file less than 3MB.",
             [{text: "Ok", style: 'cancel',},],
             { cancelable: true }
           );
@@ -713,7 +713,7 @@ class HotelReqScreen extends Component {
       })
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
-        alert('You have not select any file for attachment');
+        alert('You have not selected any file for attachment');
       } else {
         alert('Unknown Error: ' + JSON.stringify(err));
         throw err;
