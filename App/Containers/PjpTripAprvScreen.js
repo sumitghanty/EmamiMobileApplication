@@ -4,6 +4,7 @@ import LinearGradient from 'react-native-linear-gradient'
 import Icon from 'react-native-vector-icons/Ionicons'
 import RNFetchBlob from 'rn-fetch-blob';
 import moment from 'moment'
+import {API_URL} from '../config'
 import { connect } from 'react-redux'
 import Actions from '../redux/actions'
 import Toast from 'react-native-simple-toast'
@@ -14,6 +15,7 @@ import styles from './Styles/PjpTripAprvScreen'
 
 class PjpTripAprvScreen extends Component {
   constructor(props) {
+    const {params} = props.navigation.state;
     super(props);
     this.state = {
       acrdVisible: 0,
@@ -23,6 +25,7 @@ class PjpTripAprvScreen extends Component {
       rejComment: null,
       updateParams: [],
       tempUpdateParams: [],
+      tripDetails: params,
       isLoading: false,
       acrdCmntFirstVisible: 0,
       acrdCmntSecondVisible: 0,
@@ -224,19 +227,108 @@ class PjpTripAprvScreen extends Component {
 
   submitForm=(value)=> {
     let newParams = this.state.updateParams;
+    let doesScenario3Exist = false;
+    let workFlowEnd = false;
+    var payload = {};
+    var trip = null;
     AsyncStorage.getItem('ANYTHING_UNIQUE_STRING')
     .then(()=>{
       this.setState({
         isLoading: true,
         modalVisible: false
       });
+     
       if (value == "A") {
+
         for(var i=0; i<newParams.length; i++) {
+          if( newParams[i].mode == "7" &&  newParams[i].scenario == "3" ){
+
+            if(newParams[i].approverLevel == null){
+              newParams[i].status_id = "8";
+              newParams[i].status = "Plan Trip/PJP";
+              newParams[i].sub_status_id = "8.1";
+              newParams[i].sub_status = "Requisition - Pending with Supervisor";
+              newParams[i].approverLevel = "1";
+              doesScenario3Exist = true;
+
+            }else if(newParams[i].approverLevel == "1"){
+              if(newParams[i].through == "Travel Agent"){
+
+                newParams[i].status_id = "7";
+                newParams[i].status = "Plan Trip/PJP";
+                newParams[i].sub_status_id = "7.1";
+                newParams[i].sub_status = "Send to travel agent for options";
+                newParams[i].isApproved = "yes";
+                workFlowEnd = true;
+  
+              }else{
+                newParams[i].status_id = "9";
+                newParams[i].status = this.state.aprvStatusName;
+                newParams[i].sub_status_id = "9.1";
+                newParams[i].sub_status = this.state.aprvSubStatusName;
+                newParams[i].isApproved = "yes";
+              }
+            }
+
+
+          }else if(newParams[i].mode == "7" &&  newParams[i].scenario == "2"){
+
+            if(newParams[i].through == "Travel Agent"){
+                  if( newParams[i].sub_status_id = "8.1"){
+              newParams[i].status_id = "7";
+              newParams[i].status = "Plan Trip/PJP";
+              newParams[i].sub_status_id = "7.1";
+              newParams[i].sub_status = "Send to travel agent for options";
+              newParams[i].isApproved = "yes";
+}
+
+            }else{
+              newParams[i].status_id = "9";
+              newParams[i].status = this.state.aprvStatusName;
+              newParams[i].sub_status_id = "9.1";
+              newParams[i].sub_status = this.state.aprvSubStatusName;
+              newParams[i].isApproved = "yes";
+            }
+          } else{
           newParams[i].status_id = "9";
           newParams[i].status = this.state.aprvStatusName;
           newParams[i].sub_status_id = "9.1";
           newParams[i].sub_status = this.state.aprvSubStatusName;
+         }
+
+
+         if((newParams[i].scenario == "2" || newParams[i].scenario == "3") && newParams[i].mode == "7"
+ && newParams[i].emergencyJustification == ""){
+  alert("Please enter justification for approving emergency Air Travel");
+  return false;
+ }
         }
+
+       
+        payload.list = newParams;
+        
+      if(doesScenario3Exist == true){
+        trip = this.state.tripDetails;
+        trip.status_id = "8";
+        trip.status = "Plan Trip/PJP";
+        trip.sub_status_id = "8.1";
+        trip.sub_status = "Requisition - Pending with Supervisor";
+        trip.pending_with = global.USER.supervisorId;
+        trip.pending_with_name = global.USER.supervisorName;
+        trip.pending_with_email = global.USER.supervisorEmail;
+      }
+      if(workFlowEnd == true){
+        trip = this.state.tripDetails;
+        trip.status_id = "7";
+        trip.status = "Plan Trip/PJP";
+        trip.sub_status_id = "7.4";
+        trip.sub_status = "Requisition Saved";
+        
+      }
+        payload.trip = trip;
+      //  alert(JSON.stringify(trip));
+
+
       } else if (value == "R") {
         for(var i=0; i<newParams.length; i++) {
           newParams[i].status_id = "10";
@@ -248,6 +340,19 @@ class PjpTripAprvScreen extends Component {
       }
     })
     .then(()=>{
+
+      if( (doesScenario3Exist == true || workFlowEnd == true) && value == "A"){
+        alert("1:"+ JSON.stringify(payload));
+        this.props.postPjpAprvMaster(payload)
+        .then(()=>{
+          this.props.getPjpAprvList(global.USER.personId,[2,3,4,8]);
+          //this.props.navigation.navigate('PjpAprvList','tour');
+          this.props.navigation.goBack();
+          Toast.show(value == "A"?'Tour Approved Successfully':'Tour Rejected Successfully', Toast.LONG);
+          console.log(value == "A"?'Approve Done':'Reject Done');
+        });
+      }else{
+        alert("2:"+ JSON.stringify(newParams));
       this.props.postPjpAprv(newParams)
       .then(()=>{
         this.props.getPjpAprvList(global.USER.personId,[2,3,4,8]);
@@ -256,6 +361,8 @@ class PjpTripAprvScreen extends Component {
         Toast.show(value == "A"?'Tour Approved Successfully':'Tour Rejected Successfully', Toast.LONG);
         console.log(value == "A"?'Approve Done':'Reject Done');
       });
+
+    }
     });
   }
 
@@ -556,7 +663,43 @@ class PjpTripAprvScreen extends Component {
       :null}
       {(data.mode == "3" || data.mode == "7" || ((data.mode == "14" || data.mode == "22") && params.place_of_work == "UC")) &&
       <TouchableOpacity style={styles.cardFooter} 
-        onPress={() => this.props.navigation.navigate('PjpReqDtl',{data,'claim':false})}>
+        onPress={() => { 
+          
+          var str = API_URL+'getRequisitionListSalesById?req_hdr_id='+data.req_hdr_id;
+    
+if((data.scenario == "2" || data.scenario == "3") && data.mode == "7"){
+      return fetch(str,{
+        method: "GET",
+        mode: "no-cors",
+        headers: {
+          Accept: 'application/json',
+          'content-type': 'application/json'
+        }
+      })
+      .then((response)=> response.text() )
+      .then((res) => {
+       var arr =  JSON.parse(res)
+       //alert(res);
+       if(arr.length != 0)
+             data = arr[0];
+     
+      })
+      .then(() => {   
+        this.props.navigation.navigate('PjpReqDtl',{data,'claim':false}); 
+        
+        // alert("Justification Sucessfully Submitted");
+      })
+      .catch((Error) => {
+        console.log(Error)
+      });
+    }else{
+      this.props.navigation.navigate('PjpReqDtl',{data,'claim':false}); 
+    }
+          
+         // this.props.navigation.navigate('PjpReqDtl',{data,'claim':false})
+          
+          
+          }}>
         <Icon name="ios-eye" style={styles.cardFooterIcon} />
         <Text style={styles.cardFooterText}>DETAILS</Text>
       </TouchableOpacity>}
@@ -568,6 +711,7 @@ class PjpTripAprvScreen extends Component {
 
 const mapStateToProps = state => {
   return {
+    pjpAprvMaster: state.pjpAprvMaster,
     pjpAprv: state.pjpAprv,
     reqListSales: state.reqListSales,
     pjpAprvList: state.pjpAprvList,
@@ -576,6 +720,7 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = {
+  postPjpAprvMaster : Actions.postPjpAprvMaster,
   postPjpAprv : Actions.postPjpAprv,
   getReqSale: Actions.getReqSale,
   getPjpAprvList : Actions.getPjpAprvList,

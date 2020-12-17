@@ -20,6 +20,25 @@ export default StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,.15)'
   },
+  ftrBtnTxt: {
+    color: '#fff',
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    marginHorizontal: 8,
+  },
+  ftrBtn: {
+    marginHorizontal: 20,
+    marginTop: 30
+  },
+  ftrBtnBg: {
+    borderRadius: 24,
+    paddingHorizontal: 8,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
   label: {
     flex: 2,
     fontSize: 14,
@@ -31,6 +50,12 @@ export default StyleSheet.create({
     color: '#111',
     marginLeft: 10
   },
+  Justifvalue: {
+    flex: 3,
+    color: 'rgba(0,0,0,.5)',
+    paddingRight: 16,
+    paddingVertical: 0.5
+ },
   selfLable: {
     marginHorizontal: 16,
     marginTop: 12,

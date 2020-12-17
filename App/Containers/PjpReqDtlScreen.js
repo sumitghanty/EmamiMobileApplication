@@ -1,8 +1,12 @@
 import React, { Component } from 'react'
-import { ScrollView, View, Text, Image } from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity, Image } from 'react-native'
 import moment from 'moment'
+import LinearGradient from 'react-native-linear-gradient'
 import { connect } from 'react-redux'
+import { TextInput } from 'react-native-gesture-handler'
 import Actions from '../redux/actions'
+import Icon from 'react-native-vector-icons/Ionicons'
+import {API_URL} from '../config'
 
 import Loader from '../Components/Loader'
 import styles from './Styles/PjpReqDtlScreen'
@@ -10,11 +14,24 @@ import styles from './Styles/PjpReqDtlScreen'
 class PjpReqDtlScreen extends Component {
   constructor(props) {
     super(props);
+    const {params} = this.props.navigation.state;
+    
     this.state = {
-      ticket: null
+      ticket: null,
+      res:null,
+      isLoading: false,
+      emergencyJustification: params.data.emergencyJustification  ? params.data.emergencyJustification :''
+     
     }
+    
+   
   }
-
+  handleHtlAdrs = (text) => {
+    
+    this.setState({ 
+      emergencyJustification: text
+    })
+  }
   componentDidMount(props){
     const {params} = this.props.navigation.state
 
@@ -38,7 +55,11 @@ class PjpReqDtlScreen extends Component {
     
   const {params} = this.props.navigation.state;
   console.log(params)
-  
+  if(this.state.isLoading){
+    return(
+      <Loader/>
+    )
+  }
   if((params.data.mode=='7' && this.props.ticketsSalesList.isLoading)) {
     return(
       <Loader/>
@@ -114,10 +135,67 @@ class PjpReqDtlScreen extends Component {
    </>
   }
 
+  submitReq(params) {
+
+    if(this.state.emergencyJustification == "") {
+      alert("Please enter justification for approving emergency Air Travel");
+      return false;
+    }
+    var str = API_URL+'updateEmergencyJustificationSales?req_hdr_id='+params.req_hdr_id+"&justification="+this.state.emergencyJustification;
+    
+
+
+    this.setState({ isLoading: true }, () => {
+    return fetch(str,{
+      method: "GET",
+      mode: "no-cors",
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      }
+    })
+    .then((response)=> response.text()) 
+    .then((responseJson)=>{
+      
+      this.setState({ 
+        res: responseJson
+      })
+     
+    })
+    .then(() => {   
+      this.setState({
+        isLoading: false
+      }); 
+      if(JSON.parse(this.state.res).message == "success")
+       alert("Justification Sucessfully Submitted");
+       else  alert("Justification  not submitted .Please try again");
+       
+    })
+    .catch((Error) => {
+      console.log(Error)
+    });
+  })
+  }
 
   renderAirr = (data) => {
-    let ticket = this.state.ticket;
+     let ticket = this.state.ticket;
+
+    let showEmergencyJustification = false;
+    let showEmergencyJustificationSave = false;
+    
+   
+    if(data.scenario == "2" || data.scenario == "3" ) {
+      showEmergencyJustification =  true;
+      if(data.approverLevel == null && data.isApproved == null) showEmergencyJustificationSave = true
+    }
     return <>
+
+{showEmergencyJustification ?
+    <View style={styles.row}>
+      <Text style={styles.label}>Emergency Justification:</Text>
+      <TextInput  value ={this.state.emergencyJustification}  onChangeText={this.handleHtlAdrs}  style={styles.Justifvalue}></TextInput> 
+    </View>:null}
+
     <View style={styles.row}>
       <Text style={styles.label}>Travel Date:</Text>
       <Text style={styles.value}>{moment(data.travel_date).format(global.DATEFORMAT)}</Text>
@@ -201,6 +279,19 @@ class PjpReqDtlScreen extends Component {
         <Text style={styles.value}>{data.justification}</Text>
       :null}
     </View>
+
+
+    {showEmergencyJustificationSave ?
+    <TouchableOpacity onPress={() => this.submitReq(data)} style={styles.ftrBtn}>
+            <LinearGradient 
+              start={{x: 0, y: 0}} 
+              end={{x: 1, y: 0}} 
+              colors={['#53c55c', '#33b8d6']} 
+              style={styles.ftrBtnBg}>
+              <Icon name='md-checkmark-circle-outline' style={styles.ftrBtnTxt} />
+              <Text style={styles.ftrBtnTxt}>Save</Text>
+            </LinearGradient>
+          </TouchableOpacity>:null}
     </>
   }
 

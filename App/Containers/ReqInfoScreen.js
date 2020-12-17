@@ -22,6 +22,8 @@ class ReqInfoScreen extends Component {
       reqName: '',
       elAmnt: 0,
       ticket: null,
+      res:null,
+      isLoading: false,
       emergencyJustification: params.emergencyJustification  ? params.emergencyJustification :''
      
     }
@@ -86,35 +88,54 @@ class ReqInfoScreen extends Component {
   }
 
   submitReq(params) {
+
+    if(this.state.emergencyJustification == "") {
+      alert("Please enter justification for approving emergency Air Travel");
+      return false;
+    }
     var str = API_URL+'updateEmergencyJustification?req_hdr_id='+params.req_hdr_id+"&justification="+this.state.emergencyJustification;
     
 
 
-
+    this.setState({ isLoading: true }, () => {
     return fetch(str,{
       method: "GET",
       mode: "no-cors",
       headers: {
-        Accept: 'text/plain',
-        'Content-Type': 'text/plain',
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       }
     })
     .then((response)=> response.text() )
     .then((responseJson)=>{
-      
+      this.setState({ 
+        res: responseJson
+      })
     })
-    .then(() => {    
-       alert("Justification Sucessfully Submitted");
+    .then(() => {   
+      this.setState({
+        isLoading: false
+      });  
+      if(JSON.parse(this.state.res).message == "success")
+      alert("Justification Sucessfully Submitted");
+      else  alert("Justification  not submitted .Please try again");
+      
     })
     .catch((Error) => {
       console.log(Error)
     });
+  })
   }
 
   render() {
     
 		const {params} = this.props.navigation.state
     console.log(params);
+    if(this.state.isLoading){
+      return(
+        <Loader/>
+      )
+    }
     if(this.props.reqType.isLoading || this.props.attachmentList.isLoading ||
       (params.req_type=='1' && this.props.ticketsList.isLoading)){
       return(
@@ -318,21 +339,22 @@ class ReqInfoScreen extends Component {
   }
 
   renderAir = (data) => {
+
     //alert(JSON.stringify(data))
     let ticket = this.state.ticket;
     let showEmergencyJustification = false;
     let showEmergencyJustificationSave = false;
     
    
-    if(data.scenario == "2" || data.scenario == "3" ) {
+    if((data.scenario == "2" || data.scenario == "3") && (data.status_id  == "8" && data.sub_status_id == "8.1") ){
       showEmergencyJustification =  true;
-      if(data.approverLevel == null) showEmergencyJustificationSave = true
+      if(data.approverLevel == null && data.isApproved == null) showEmergencyJustificationSave = true
     }
     return <>
     <Text style={styles.title}>Trip Details</Text>
 
     <Item picker style={styles.row}>
-    <Label style={styles.formLabel}><Text style={styles.formLabel}>Justification:</Text></Label>
+    <Label style={styles.formLabel}><Text style={styles.formLabel}>Emergency Justification:</Text></Label>
               <Picker
                 mode="dropdown"
                 iosIcon={<Icon name="arrow-down" />}

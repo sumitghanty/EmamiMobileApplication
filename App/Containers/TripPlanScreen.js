@@ -290,6 +290,7 @@ class TripPlanScreen extends Component {
       let subStatusNameWO = '';
       let amountVal = '0.0';
 
+     
       if(action == "Save") {
         this.props.getStatus('8','8.1')
         .then(()=>{
@@ -303,6 +304,34 @@ class TripPlanScreen extends Component {
             subStatusNameComp = this.props.statusResult.dataSource[0].sub_status
           })
           .then(()=>{
+
+            for(var i=0; i< newList.length;i++) {
+              //alert(newList[i].scenario+" "+newList[i].req_type+" "+newList[i].isApproved);
+              if(((newList[i].through == "Travel Agent" && newList[i].is_outof_policy == 'N') 
+              && ((newList[i].scenario == "1" || newList[i].scenario == null) 
+              ||((newList[i].scenario == "2" || newList[i].scenario == "3" ) && newList[i].isApproved == 'yes'))) 
+              || newList[i].sub_status_id == '9.1') {
+                //alert(newList[i].scenario+" "+ newList[i].isApproved+" "+ newList[i].sub_status_id);
+                this.setState({ 
+                  isLoading: false,
+                  setGoBack: false
+                });
+                Alert.alert(
+                  'Warning',
+                  'Please choose proper options as per the requisition Status and Through ! ',
+                  [
+                    {
+                      text: 'Ok',
+                      style: 'cancel',
+                    },
+                  ],
+                  {cancelable: true},
+                )
+                return false;
+              } 
+            }
+
+
             for(var i=0; i< newList.length;i++) {
               //alert(newList[i].scenario+" "+newList[i].req_type+" "+newList[i].isApproved);
               if(((newList[i].through == "Travel Agent" && newList[i].is_outof_policy == 'N') 
@@ -457,11 +486,13 @@ class TripPlanScreen extends Component {
                   newList[i].sub_status = subStatusNameWO;
                 }
               }
+             // alert(i+" "+newList[i].sub_status_id+" "+newList[i].flight.length);
             }
           })
           .then(()=>{
             if(this.state.setGoBack) {
-              this.props.planUpdate(newList)
+             this.props.planUpdate(newList)
+              //this.props.planUpdate([])
               .then(()=>{
                 for(var i=0; i< newList.length;i++) {
                   if(newList[i].sub_status_id == '7.1' || newList[i].sub_status_id == '7.3') {
@@ -491,7 +522,13 @@ class TripPlanScreen extends Component {
       }
     }
   }
-	
+	emergencyStatus(data){
+    if(data.req_type == "1" && data.status_id == "7" && data.sub_status_id == "7.4" && (data.scenario == "2" || data.scenario == "3") && data.isApproved ==null){
+      return "Ëmergency - Out Of policy";
+    }else if(data.sub_status_id == null ||  data.sub_status_id == "") return data.status;
+    else return data.sub_status;
+
+  } 
   render() {
     //alert("hello")
     const {params} = this.props.navigation.state;
@@ -919,7 +956,7 @@ class TripPlanScreen extends Component {
       <View style={styles.cardInfo}>
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>Status:</Text>
-          <Text style={styles.cardValue}>{ data.sub_status ? data.sub_status :  data.status }</Text>
+          <Text style={styles.cardValue}>{ this.emergencyStatus(data)}</Text>
         </View>
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>Through:</Text>

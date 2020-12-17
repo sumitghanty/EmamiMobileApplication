@@ -33,6 +33,7 @@ import {getPjp} from './PJPList'
 import {getPjpClaim} from './PjpClaimList'
 import {getPjpAprvList} from './PJPAprvList'
 import {postPjpAprv} from './PjpAprv'
+import {postPjpAprvMaster} from './PjpAprvMaster'
 import {postPjpClaimAprv} from './PjpClaimAprv'
 import {getReqSale} from './ReqListSales'
 import {getReqClaimSale} from './ReqClaimListSales'
@@ -111,6 +112,7 @@ export default {
 	getPjpClaim:getPjpClaim,
 	getPjpAprvList:getPjpAprvList,
 	postPjpAprv:postPjpAprv,
+	postPjpAprvMaster:postPjpAprvMaster,
 	postPjpClaimAprv:postPjpClaimAprv,
 	getReqSale:getReqSale,
 	getReqClaimSale:getReqClaimSale,

@@ -307,8 +307,21 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
   approveWithReq(){
     //alert("hi");
     const {params} = this.props.navigation.state;
+    let emergencyJustificationEntered = true;
     AsyncStorage.getItem(ASYNC_STORAGE_COMMENTS_KEY).then(value => {
-      this.setState({ isLoading: true }, () => {  
+      this.setState({ isLoading: true ,aprvReqList :[]}, () => {  
+
+        // for(var i=0; i<this.state.SelectedDataList.length; i++) {
+        //   if((this.state.SelectedDataList[i].scenario == "2" || this.state.SelectedDataList[i].scenario == "3") && this.state.SelectedDataList[i].req_type == "1"
+        //  &&( this.state.SelectedDataList[i].emergencyJustification ==  null || this.state.SelectedDataList[i].emergencyJustification == "")){
+       
+        //   emergencyJustificationEntered = false;
+
+
+        //  }
+        // }
+
+        if(emergencyJustificationEntered == true){
         for(var i=0; i<this.state.SelectedDataList.length; i++) {
           let newSelectedDataList = this.state.SelectedDataList[i];
           if (params.status_id == "24") {
@@ -326,7 +339,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
            
             if (newSelectedDataList.status_id == "8") {
 
-              if(newSelectedDataList.scenario == "2"  ){
+              if(newSelectedDataList.scenario == "2"  && newSelectedDataList.req_type == "1"){
 
                 if(newSelectedDataList.through =="Travel Agent" && newSelectedDataList.isApproved == null){
 
@@ -351,7 +364,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
                   newSelectedDataList.isApproved = 'yes';
                 }
 
-              }else if(newSelectedDataList.scenario == "3"){
+              }else if(newSelectedDataList.scenario == "3"   && newSelectedDataList.req_type == "1"){
                 if(newSelectedDataList.approverLevel == "1"){
 
                 if(newSelectedDataList.through =="Travel Agent"  && newSelectedDataList.isApproved == null){
@@ -409,18 +422,25 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
               newSelectedDataList.pending_with=params.userid;
             }
           }
-      this.state.aprvReqList.push(newSelectedDataList);
-          /*alert(newSelectedDataList.approverLevel+ "   "+newSelectedDataList.isApproved+ " "
-          +newSelectedDataList.sub_status_id+ "   "+newSelectedDataList.pending_with_name);*/
+        this.state.aprvReqList.push(newSelectedDataList);
+          // alert(newSelectedDataList.approverLevel+ "   "+newSelectedDataList.isApproved+ " "
+          // +newSelectedDataList.sub_status_id+ "   "+newSelectedDataList.emergencyJustification);
          
          //this.state.aprvReqList.push({});
-          
+        
+                
         }
+      }
       })      
     })
     .then(()=>{
       this.props.postAprvTripWithReq(this.state.aprvReqList)
-      .then(()=>{         
+      .then(()=>{  
+        
+      if(emergencyJustificationEntered == false){
+        alert("Please enter justification for approving emergency Air Travel");
+          
+      }else{
         for(var i=0; i<this.state.SelectedDataList.length; i++) {
           let newaprvReqList = this.state.SelectedDataList[i];
           this.props.sendEmail({
@@ -432,8 +452,15 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
             "requisitionNonSales": newaprvReqList
           })
         }
+      }
       })
       .then(()=> {
+
+        if(emergencyJustificationEntered == false){
+          this.setState({
+            isLoading: false
+          });
+        }else{
         this.props.getApprovedTripPending(global.USER.personId)
         .then(()=>{          
           this.props.navigation.goBack();
@@ -442,6 +469,8 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
           });
           Toast.show('Requisition Approved Successfully', Toast.LONG);
         })
+      }
+
       });
     })
   }
@@ -559,7 +588,13 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
   endDateAction=(value)=>{
 
   }
+  emergencyStatus(data){
+    if(data.req_type == "1" && data.status_id == "8" && data.sub_status_id == "8.1" && (data.scenario == "2" || data.scenario == "3") && data.isApproved ==null){
+      return "Requisition - Pending with Supervisor for Emergency";
+    }else if(data.sub_status_id == null ||  data.sub_status_id == "") return data.status;
+    else return data.sub_status;
 
+  } 
   render(){
     console.log(this.props.aprvTripPend.Actions);
     const {params} = this.props.navigation.state;
@@ -800,9 +835,8 @@ if((data.scenario == "2" || data.scenario == "3") && data.req_type == "1"){
       .then((response)=> response.text() )
       .then((res) => {
        var arr =  JSON.parse(res)
-       //alert(arr[0]);
-      // 
-      data = arr[0];
+       if(arr.length != 0)
+              data = arr[0];
      
       })
       .then(() => {   
@@ -825,7 +859,7 @@ if((data.scenario == "2" || data.scenario == "3") && data.req_type == "1"){
       && data.sub_status_id!="10.1" 
       && data.status_id!="11"
       && data.sub_status_id!="11.2"
-      && data.status_id!="25"*/(data.sub_status_id == '8.1')?
+      && data.status_id!="25"*/(data.sub_status_id == '8.1' && data.pending_with == global.USER.personId)?
       <TouchableOpacity 
         onPress={() => {this.press(data)}}
         style={[data.check ?styles.checkedBox :styles.unCheckedBox, styles.checkBox]}
@@ -866,7 +900,7 @@ if((data.scenario == "2" || data.scenario == "3") && data.req_type == "1"){
       </View>:null}
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Status:</Text>
-        <Text style={styles.cardValue}>{data.sub_status?data.sub_status:data.status}</Text>
+        <Text style={styles.cardValue}>{this.emergencyStatus(data)}</Text>
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Through:</Text>
