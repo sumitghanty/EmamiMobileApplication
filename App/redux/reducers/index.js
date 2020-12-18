@@ -7,6 +7,7 @@ import RetainerReducer from './GetRetainer'
 import ReqClaimNameReducer from './GetReqClaimName'
 import StatusReducer from './GetStatus'
 import TravelThroughReducer from './GetTravelThrough'
+import JustificationListReducer from './GetJustificationList'
 import TravelTypeReducer from './GetTravelType'
 import TripListReducer from './TripList'
 import GenerateIdReducer from './GenerateId'
@@ -87,6 +88,7 @@ export default {
 	reqName:ReqNameReducer,
 	statusResult:StatusReducer,
 	travelThroughState:TravelThroughReducer,
+	justificationList:JustificationListReducer,
 	travelTypeState:TravelTypeReducer,
 	trips:TripListReducer,
 	generateIdState:GenerateIdReducer,

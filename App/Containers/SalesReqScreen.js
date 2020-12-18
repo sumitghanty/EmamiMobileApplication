@@ -884,7 +884,10 @@ class SalesReqScreen extends Component {
     this.setState({
       isLoading: true,
     });
+
+  
     if(params.update){
+      //alert("1:"+params.update);
       this.saveReq(params.update)
     }
     else if(this.state.hottelGenrateData) {
@@ -894,6 +897,7 @@ class SalesReqScreen extends Component {
       });
     }
     else {
+      //alert("2:"+params.update);
       let newReq = null;
       let index = 0
       this.props.createReqSale(1,params.params.trip_hdr_id)
@@ -975,22 +979,23 @@ var pjpDay = moment(this.state.dateStart).format("YYYY-MM-DD");
       newReq.mode = params.item.category_id;
       newReq.mode_name = params.item.category;
       newReq.status_id = 7;
-      if(params.item.category_id == '7' && this.state.through == "Travel Agent" ){
-        if((scenario == "2" || scenario == "3") && newReq.isApproved == null){
-          newReq.sub_status_id = "7.4";
-          newReq.sub_status =  "Requisition - Emergency Out of Policy";
-        } 
-        else {newReq.sub_status_id = "7.1";
-        newReq.sub_status =   this.state.subStatusNameSTA;
-      }
-      }else{
-        newReq.sub_status_id = "7.4";
-        newReq.sub_status =  this.state.subStatusName;
-      }
-      //newReq.sub_status_id = (params.item.category_id == '7' && this.state.through == "Travel Agent" && scenario != "2" && scenario !="3" && newReq.isApproved == null )?"7.1":"7.4";
       newReq.status = this.state.statusName;
-     
-     // newReq.sub_status = (params.item.category_id == '7' && this.state.through == "Travel Agent" && (scenario == "2" || scenario =="3") && newReq.isApproved == null )?this.state.subStatusNameSTA:this.state.subStatusName;
+    
+      if(params.item.category_id == '7' && this.state.through == "Travel Agent" ){
+         if((scenario == "2" || scenario == "3") && newReq.isApproved == null){
+           newReq.sub_status_id = "7.4";
+           newReq.sub_status =  "Requisition - Emergency Out of Policy";
+         } 
+         else {n
+           newReq.sub_status_id = "7.1";
+         newReq.sub_status =   this.state.subStatusNameSTA;
+       }
+       }else{
+         newReq.sub_status_id = "7.4";
+         newReq.sub_status =  this.state.subStatusName;
+       }
+      //newReq.sub_status_id = (params.item.category_id == '7' && this.state.through == "Travel Agent" && scenario != "2" && scenario !="3" && newReq.isApproved == null )?"7.1":"7.4";
+      //newReq.sub_status = (params.item.category_id == '7' && this.state.through == "Travel Agent" && (scenario == "2" || scenario =="3") && newReq.isApproved == null )?this.state.subStatusNameSTA:this.state.subStatusName;
       newReq.claimEmpcomment = this.state.comments;
       newReq.twoWay = (this.state.twoWay == true) ? 'true' : 'false';
       newReq.cost_center = global.USER.costCentre;
@@ -1062,7 +1067,9 @@ var pjpDay = moment(this.state.dateStart).format("YYYY-MM-DD");
             isLoading: false,
           });
         } else {
-          this.props.updtReqSale([afterSetDistance])
+          //alert(JSON.stringify(afterSetDistance));
+         this.props.updtReqSale([afterSetDistance])
+         // this.props.updtReqSale([])
           .then(()=>{
             newPJP.status_id = 7;
             newPJP.sub_status_id = "7.4";

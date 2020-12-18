@@ -186,6 +186,7 @@ class PjpInfoScreen extends Component {
   }
 
   submitData() {
+    //alert('submitData');
     const {params} = this.props.navigation.state
     this.setState({
       isLoading: true
@@ -234,9 +235,13 @@ class PjpInfoScreen extends Component {
     })
     .then(()=>{
       if(this.state.isSubmit) {
+
+        //alert(JSON.stringify(dataList));
+      //this.props.updtReqSale([])
       this.props.updtReqSale(dataList)
         .then(()=>{
-          this.props.updatePjpTot([tourData])
+         this.props.updatePjpTot([tourData])
+         //this.props.updatePjpTot([])
           .then(()=>{
             this.props.getPjp(global.USER.userId);
           })

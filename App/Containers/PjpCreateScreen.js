@@ -132,7 +132,7 @@ class PjpCreateScreen extends Component {
       if(this.props.getPjpByMonthState.dataSource.length>0) {
         Alert.alert(
           'Duplicate entry',
-          'Tour for '+this.state.selectedMonth+'-'+this.state.selectedYear+' already exists. Please chose another month',
+          'Tour for '+this.state.selectedMonth+'-'+this.state.selectedYear+' already exists. Please choose another month',
           [
             {
               text: 'Ok',

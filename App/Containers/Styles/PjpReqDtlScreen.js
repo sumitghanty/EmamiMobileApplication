@@ -20,6 +20,17 @@ export default StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,.15)'
   },
+  formInput: {
+    flex: 1,
+    paddingRight: 16
+  },
+  EJustifvalue: {
+    flex: 3,
+    color: '#111',
+    fontSize: 14,
+    paddingRight: 16,
+    paddingVertical: 0.5
+  },
   ftrBtnTxt: {
     color: '#fff',
     fontWeight: 'bold',
@@ -42,7 +53,13 @@ export default StyleSheet.create({
   label: {
     flex: 2,
     fontSize: 14,
-    color: 'rgba(0,0,0,.5)',
+    color: 'rgba(0,0,0,.5)'
+  },
+  Justiflabel: {
+    flex: 2,
+    fontSize: 14,
+    marginTop: 12,
+    color: 'rgba(0,0,0,.5)'
   },
   value: {
     flex: 3,
@@ -52,15 +69,15 @@ export default StyleSheet.create({
   },
   Justifvalue: {
     flex: 3,
-    color: 'rgba(0,0,0,.5)',
-    paddingRight: 16,
-    paddingVertical: 0.5
+    fontSize: 14,
+    color: '#111',
+    marginLeft: 10
  },
   selfLable: {
     marginHorizontal: 16,
     marginTop: 12,
     marginBottom: 6
-  },
+ },
   selfValueBlock: {
     marginHorizontal: 16,
     marginBottom: 20,

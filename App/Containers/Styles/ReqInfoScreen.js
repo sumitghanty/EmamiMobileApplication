@@ -40,12 +40,18 @@ export default StyleSheet.create({
     },
     label: {
         paddingRight: 16,
+        color: '#111',
         flex: 2
     },
     value: {
         flex: 3,
         color: 'rgba(0,0,0,.5)',
         paddingRight: 16
+    },
+    EJustifvalue: {
+      flex: 3,
+        color: 'rgba(0,0,0,.5)',
+        paddingRight: 30
     },
     Justifvalue: {
       flex: 3,

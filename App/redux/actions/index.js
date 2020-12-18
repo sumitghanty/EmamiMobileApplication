@@ -7,6 +7,7 @@ import {getRetainer} from './GetRetainer'
 import {getReqClaimName} from './GetReqClaimName'
 import {getStatus} from './GetStatus'
 import {getTravelThrough} from './GetTravelThrough'
+import {getJustificationList} from './GetJustificationList'
 import {getTravelType} from './GetTravelType'
 import {getTrips} from './TripList'
 import {generateId} from './GenerateId'
@@ -87,6 +88,7 @@ export default {
 	getReqClaimName:getReqClaimName,
 	getStatus:getStatus,
 	getTravelThrough:getTravelThrough,
+	getJustificationList:getJustificationList,
 	getTravelType:getTravelType,
 	getTrips:getTrips,
 	generateId:generateId,

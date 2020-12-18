@@ -42,6 +42,13 @@ class PjpTripAprvScreen extends Component {
     };
   }
 
+  formatAmountForDisplay(value){
+    var num = 0;
+    if(value != "" && value != null && value != 'null')
+    num = parseFloat(value);
+    return num.toFixed(2);
+  }
+
   componentDidMount(props){
     this.props.getReqSale(this.props.navigation.state.params.trip_hdr_id)
     .then(()=>{
@@ -250,9 +257,12 @@ class PjpTripAprvScreen extends Component {
               newParams[i].sub_status = "Requisition - Pending with Supervisor";
               newParams[i].approverLevel = "1";
               doesScenario3Exist = true;
+             
 
             }else if(newParams[i].approverLevel == "1"){
-              if(newParams[i].through == "Travel Agent"){
+              if(newParams[i].through == "Travel Agent"  ){
+
+                if(newParams[i].isApproved == null){
 
                 newParams[i].status_id = "7";
                 newParams[i].status = "Plan Trip/PJP";
@@ -260,8 +270,17 @@ class PjpTripAprvScreen extends Component {
                 newParams[i].sub_status = "Send to travel agent for options";
                 newParams[i].isApproved = "yes";
                 workFlowEnd = true;
+               
+                }else{
+                  newParams[i].status_id = "9";
+                  newParams[i].status = this.state.aprvStatusName;
+                  newParams[i].sub_status_id = "9.1";
+                  newParams[i].sub_status = this.state.aprvSubStatusName;
+                  newParams[i].isApproved = "yes";
+                }
   
               }else{
+               
                 newParams[i].status_id = "9";
                 newParams[i].status = this.state.aprvStatusName;
                 newParams[i].sub_status_id = "9.1";
@@ -274,15 +293,23 @@ class PjpTripAprvScreen extends Component {
           }else if(newParams[i].mode == "7" &&  newParams[i].scenario == "2"){
 
             if(newParams[i].through == "Travel Agent"){
-                  if( newParams[i].sub_status_id = "8.1"){
+                 // if( newParams[i].sub_status_id = "8.1"){
+                   if(newParams[i].isApproved == null &&  newParams[i].sub_status_id != "7.2"  && newParams[i].sub_status_id != "7.3" && newParams[i].sub_status_id != "7.1"){
               newParams[i].status_id = "7";
               newParams[i].status = "Plan Trip/PJP";
               newParams[i].sub_status_id = "7.1";
               newParams[i].sub_status = "Send to travel agent for options";
               newParams[i].isApproved = "yes";
-}
+                   }else if(newParams[i].sub_status_id != "7.2"  && newParams[i].sub_status_id != "7.3" && newParams[i].sub_status_id != "7.1"){
+                    newParams[i].status_id = "9";
+                    newParams[i].status = this.state.aprvStatusName;
+                    newParams[i].sub_status_id = "9.1";
+                    newParams[i].sub_status = this.state.aprvSubStatusName;
+                   }
+                 // }
 
             }else{
+             
               newParams[i].status_id = "9";
               newParams[i].status = this.state.aprvStatusName;
               newParams[i].sub_status_id = "9.1";
@@ -298,10 +325,10 @@ class PjpTripAprvScreen extends Component {
 
 
          if((newParams[i].scenario == "2" || newParams[i].scenario == "3") && newParams[i].mode == "7"
- && newParams[i].emergencyJustification == ""){
-  alert("Please enter justification for approving emergency Air Travel");
-  return false;
- }
+         && newParams[i].emergencyJustification == ""){
+         alert("Please enter justification for approving emergency Air Travel");
+         return false;
+       } 
         }
 
        
@@ -342,7 +369,10 @@ class PjpTripAprvScreen extends Component {
     .then(()=>{
 
       if( (doesScenario3Exist == true || workFlowEnd == true) && value == "A"){
-        alert("1:"+ JSON.stringify(payload));
+        //alert("1:"+ payload.list[0].sub_status_id+ " "+ payload.list[0].lineitem+" "+ payload.list[0].approverLevel);
+        //alert("2:"+ payload.list[1].sub_status_id+ " "+ payload.list[1].lineitem+" "+ payload.list[1].approverLevel);
+        //alert("3:"+ payload.list[2].sub_status_id+ " "+ payload.list[2].lineitem+" "+ payload.list[2].approverLevel);
+        //this.props.postPjpAprvMaster()
         this.props.postPjpAprvMaster(payload)
         .then(()=>{
           this.props.getPjpAprvList(global.USER.personId,[2,3,4,8]);
@@ -352,8 +382,12 @@ class PjpTripAprvScreen extends Component {
           console.log(value == "A"?'Approve Done':'Reject Done');
         });
       }else{
-        alert("2:"+ JSON.stringify(newParams));
-      this.props.postPjpAprv(newParams)
+        //alert("1x:"+ newParams[0].sub_status_id+ " "+ newParams[0].lineitem+" "+ newParams[0].approverLevel);
+        //alert("2x:"+ newParams[1].sub_status_id+ " "+ newParams[1].lineitem+" "+ newParams[1].approverLevel);
+        //alert("3x:"+ newParams[2].sub_status_id+ " "+ newParams[2].lineitem+" "+ newParams[2].approverLevel);
+        //this.props.postPjpAprv([])
+        this.props.postPjpAprv(newParams)
+      
       .then(()=>{
         this.props.getPjpAprvList(global.USER.personId,[2,3,4,8]);
         //this.props.navigation.navigate('PjpAprvList','tour');

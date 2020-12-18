@@ -24,13 +24,80 @@ class ReqInfoScreen extends Component {
       ticket: null,
       res:null,
       isLoading: false,
-      emergencyJustification: params.emergencyJustification  ? params.emergencyJustification :''
+      emergencyJustification: params.emergencyJustification  ? params.emergencyJustification :'',
+      emergencyJustificationDropdown: '',
+      emergencyJustificationInput:'',
+      showEmergencyJustification:false,
+      showEmergencyJustificationInput:false,
+      showEmergencyJustificationSave:false
+
      
     }
   }
 
   componentDidMount(props){
     const {params} = this.props.navigation.state
+  
+    this.props.getJustificationList()
+    .then(()=>{
+   if(params.req_type == "1"){
+  
+    let chosenFromDropdown = false;
+    
+    let justNotEntered = false;
+  
+    let just =  this.state.emergencyJustification;
+    //alert(params.emergencyJustification+" ");
+   
+    if((params.scenario == "2" || params.scenario == "3") && (params.status_id  == "8" && params.sub_status_id == "8.1") ){
+      
+      this.setState({
+        showEmergencyJustification: true
+      });
+      if(just ==null || just == "")  justNotEntered = true;
+      else{
+      for(var i=0; i<this.props.justificationList.dataSource.length; i++) {
+        if(just == this.props.justificationList.dataSource[i].just_type){
+          chosenFromDropdown = true;
+        
+        }
+      }
+    }
+       //alert(chosenFromDropdown);
+
+if(justNotEntered == true) {
+      
+ 
+}
+      else if(chosenFromDropdown == false) {
+      
+        this.setState({
+          emergencyJustificationDropdown: "Others",
+          emergencyJustificationInput:just,
+          showEmergencyJustificationInput: true
+          
+        });
+        
+      }else{
+        this.setState({
+          emergencyJustificationDropdown: just,
+          emergencyJustificationInput:""
+        });
+      }
+
+      if(params.approverLevel == null && params.isApproved == null && params.pending_with  == global.USER.personId) {
+        
+        this.setState({
+          
+          showEmergencyJustificationSave: true
+          
+        });
+      }
+    }
+
+
+   }
+    })
     
     this.props.getReqType(global.USER.grade)
     .then(()=>{
@@ -83,17 +150,20 @@ class ReqInfoScreen extends Component {
   handleHtlAdrs = (text) => {
     
     this.setState({ 
-      emergencyJustification: text
+      emergencyJustificationInput: text
     })
   }
 
   submitReq(params) {
 
-    if(this.state.emergencyJustification == "") {
+    let just = this.state.emergencyJustificationDropdown;
+    if(just == "Others") just = this.state.emergencyJustificationInput
+    if(just == "") {
       alert("Please enter justification for approving emergency Air Travel");
       return false;
     }
-    var str = API_URL+'updateEmergencyJustification?req_hdr_id='+params.req_hdr_id+"&justification="+this.state.emergencyJustification;
+    
+    var str = API_URL+'updateEmergencyJustification?req_hdr_id='+params.req_hdr_id+"&justification="+just;
     
 
 
@@ -125,6 +195,22 @@ class ReqInfoScreen extends Component {
       console.log(Error)
     });
   })
+  } onValueChangeJustification = (value) => {
+    //alert('called');
+    if(value == "Others"){
+      this.setState({
+        emergencyJustificationDropdown: value,
+       
+        showEmergencyJustificationInput: true
+        
+      });
+    }else{
+    this.setState({
+      emergencyJustificationDropdown: value,
+      showEmergencyJustificationInput: false
+    });
+
+  }
   }
 
   render() {
@@ -342,37 +428,41 @@ class ReqInfoScreen extends Component {
 
     //alert(JSON.stringify(data))
     let ticket = this.state.ticket;
-    let showEmergencyJustification = false;
-    let showEmergencyJustificationSave = false;
-    
+    // let showEmergencyJustification = false;
+    // let showEmergencyJustificationSave = false;
    
-    if((data.scenario == "2" || data.scenario == "3") && (data.status_id  == "8" && data.sub_status_id == "8.1") ){
-      showEmergencyJustification =  true;
-      if(data.approverLevel == null && data.isApproved == null) showEmergencyJustificationSave = true
-    }
+    // if((data.scenario == "2" || data.scenario == "3") && (data.status_id  == "8" && data.sub_status_id == "8.1") ){
+    //   showEmergencyJustification =  true;
+    //   if(data.approverLevel == null && data.isApproved == null) showEmergencyJustificationSave = true
+    // }
     return <>
+
     <Text style={styles.title}>Trip Details</Text>
 
+    {this.state.showEmergencyJustification ?
     <Item picker style={styles.row}>
-    <Label style={styles.formLabel}><Text style={styles.formLabel}>Emergency Justification:</Text></Label>
+    <Label style={styles.label}><Text style={styles.formLabel}>Emergency Justification:</Text></Label>
               <Picker
-                mode="dropdown"
-                iosIcon={<Icon name="arrow-down" />}
-                style={[styles.value, styles.select]}
-                placeholder="Select your Location"
-                placeholderStyle={{ color: "#bfc6ea" }}
-                placeholderIconColor="#007aff"
-                selectedValue={this.state.for}
-                onValueChange={this.onValueChangeFor}
-                >
-                  
+                 mode="dropdown"
+                 placeholder="Select Through"
+                  selectedValue={this.state.emergencyJustificationDropdown}
+                  onValueChange={this.onValueChangeJustification}
+                 style={styles.EJustifvalue}
+                 prompt="Select Through"
+                  >
+                 { this.props.justificationList.dataSource.map((item, index) => {
+                  return (
+                    <Picker.Item label={item.just_type} value={item.just_type} key={index} />
+                  );
+                })
+              }
                 </Picker>
-                </Item>
+                </Item>:null}
 
-    {showEmergencyJustification ?
+    {this.state.showEmergencyJustificationInput ?
     <View style={styles.row}>
-      <Text style={styles.label}>Justification:</Text>
-      <TextInput  value ={this.state.emergencyJustification}  onChangeText={this.handleHtlAdrs}  style={styles.Justifvalue}></TextInput> 
+      <Text style={styles.label}></Text>
+      { <TextInput  value ={this.state.emergencyJustificationInput}  onChangeText={this.handleHtlAdrs}  style={styles.Justifvalue}></TextInput>  }
     </View>:null}
 
     {/* <Text style={styles.label}>Justification:</Text>
@@ -450,7 +540,7 @@ class ReqInfoScreen extends Component {
     </View>:null}
 
    
-    {showEmergencyJustificationSave ?
+    {this.state.showEmergencyJustificationSave ?
     <TouchableOpacity onPress={() => this.submitReq(data)} style={styles.ftrBtn}>
             <LinearGradient 
               start={{x: 0, y: 0}} 
@@ -502,12 +592,14 @@ const mapStateToProps = state => {
   return {
     reqType: state.reqType,
     attachmentList: state.attachmentList,
+    justificationList: state.justificationList,
     ticketsList: state.ticketsList,
   };
 };
 
 const mapDispatchToProps = {
   getReqType : Actions.getReqType,
+  getJustificationList: Actions.getJustificationList,
   getAttachments: Actions.getAttachments,
   getTickets: Actions.getTickets,
 };

@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import { ScrollView, View, Text, TouchableOpacity, Image } from 'react-native'
+import { ScrollView, View, Text, Picker, TouchableOpacity, Image } from 'react-native'
+import { Container, Content, Form, Item, Label,Card,CardItem } from 'native-base'
 import moment from 'moment'
 import LinearGradient from 'react-native-linear-gradient'
 import { connect } from 'react-redux'
@@ -7,7 +8,6 @@ import { TextInput } from 'react-native-gesture-handler'
 import Actions from '../redux/actions'
 import Icon from 'react-native-vector-icons/Ionicons'
 import {API_URL} from '../config'
-
 import Loader from '../Components/Loader'
 import styles from './Styles/PjpReqDtlScreen'
 
@@ -20,20 +20,91 @@ class PjpReqDtlScreen extends Component {
       ticket: null,
       res:null,
       isLoading: false,
-      emergencyJustification: params.data.emergencyJustification  ? params.data.emergencyJustification :''
+      emergencyJustification: params.data.emergencyJustification  ? params.data.emergencyJustification :'',
+      emergencyJustificationDropdown: '',
+      emergencyJustificationInput:'',
+      showEmergencyJustification:false,
+      showEmergencyJustificationInput:false,
+      showEmergencyJustificationSave:false
      
     }
-    
-   
   }
+
   handleHtlAdrs = (text) => {
     
     this.setState({ 
-      emergencyJustification: text
+      emergencyJustificationInput: text
     })
   }
+
   componentDidMount(props){
     const {params} = this.props.navigation.state
+    //alert(JSON.stringify(params));
+    this.props.getJustificationList()
+    
+    .then(()=>{
+      
+   if(params.data.mode == "7"){
+  
+    let chosenFromDropdown = false;
+    
+    let justNotEntered = false;
+  
+    let just =  this.state.emergencyJustification;
+    //alert(params.emergencyJustification+" ");
+   
+    if((params.data.scenario == "2" || params.data.scenario == "3") && ((params.data.status_id  == "8" && params.data.sub_status_id == "8.1") || (params.data.status_id  == "7" && params.data.sub_status_id == "7.1") || params.data.status_id  == "22") ){
+      
+      this.setState({
+        showEmergencyJustification: true
+      });
+      if(just ==null || just == "")  justNotEntered = true;
+      else{
+      for(var i=0; i<this.props.justificationList.dataSource.length; i++) {
+        if(just == this.props.justificationList.dataSource[i].just_type){
+          chosenFromDropdown = true;
+        
+        }
+      }
+    }
+     //alert(chosenFromDropdown);
+
+if(justNotEntered == true) {
+      
+ 
+}
+      else if(chosenFromDropdown == false) {
+      
+        this.setState({
+          emergencyJustificationDropdown: "Others",
+          emergencyJustificationInput:just,
+          showEmergencyJustificationInput: true
+          
+        });
+        
+      }else{
+        this.setState({
+          emergencyJustificationDropdown: just,
+          emergencyJustificationInput:""
+        });
+      }
+
+      if(params.data.approverLevel == null && params.data.isApproved == null && params.data.userid  != global.USER.userId) {
+        
+        this.setState({
+          
+          showEmergencyJustificationSave: true
+          
+        });
+      }
+    }
+
+
+   }
+    })
+
+
+
 
     if(params.data.mode=='7') {
       this.props.getTicketsSales(params.data.trip_no,params.data.lineitem,params.data.trip_hdr_id_fk)
@@ -50,6 +121,8 @@ class PjpReqDtlScreen extends Component {
       })
     }
   }
+
+ 
 
   render() {
     
@@ -136,12 +209,14 @@ class PjpReqDtlScreen extends Component {
   }
 
   submitReq(params) {
-
-    if(this.state.emergencyJustification == "") {
+    let just = this.state.emergencyJustificationDropdown;
+    if(just == "Others") just = this.state.emergencyJustificationInput
+    if(just == "") {
       alert("Please enter justification for approving emergency Air Travel");
       return false;
     }
-    var str = API_URL+'updateEmergencyJustificationSales?req_hdr_id='+params.req_hdr_id+"&justification="+this.state.emergencyJustification;
+    
+    var str = API_URL+'updateEmergencyJustificationSales?req_hdr_id='+params.req_hdr_id+"&justification="+just;
     
 
 
@@ -175,25 +250,60 @@ class PjpReqDtlScreen extends Component {
       console.log(Error)
     });
   })
+  } onValueChangeJustification = (value) => {
+    //alert('called');
+    if(value == "Others"){
+      this.setState({
+        emergencyJustificationDropdown: value,
+       
+        showEmergencyJustificationInput: true
+        
+      });
+    }else{
+    this.setState({
+      emergencyJustificationDropdown: value,
+      showEmergencyJustificationInput: false
+    });
+
+  }
   }
 
   renderAirr = (data) => {
      let ticket = this.state.ticket;
 
-    let showEmergencyJustification = false;
-    let showEmergencyJustificationSave = false;
-    
+    // let showEmergencyJustification = false;
+    // let showEmergencyJustificationSave = false;
    
-    if(data.scenario == "2" || data.scenario == "3" ) {
-      showEmergencyJustification =  true;
-      if(data.approverLevel == null && data.isApproved == null) showEmergencyJustificationSave = true
-    }
+    // if(data.scenario == "2" || data.scenario == "3" ) {
+    //   showEmergencyJustification =  true;
+    //   if(data.approverLevel == null && data.isApproved == null) showEmergencyJustificationSave = true
+    // }
     return <>
 
-{showEmergencyJustification ?
+    {this.state.showEmergencyJustification ?
+    <Item picker style={styles.row}>
+    <Label style={styles.label}><Text style={styles.formLabel}>Emergency Justification:</Text></Label>
+              <Picker
+                 mode="dropdown"
+                 placeholder="Select Through"
+                  selectedValue={this.state.emergencyJustificationDropdown}
+                  onValueChange={this.onValueChangeJustification}
+                 style={styles.EJustifvalue}
+                 prompt="Select Through"
+                  >
+                 { this.props.justificationList.dataSource.map((item, index) => {
+                  return (
+                    <Picker.Item label={item.just_type} value={item.just_type} key={index} />
+                  );
+                })
+              }
+                </Picker>
+                </Item>:null}
+
+                {this.state.showEmergencyJustificationInput ?
     <View style={styles.row}>
-      <Text style={styles.label}>Emergency Justification:</Text>
-      <TextInput  value ={this.state.emergencyJustification}  onChangeText={this.handleHtlAdrs}  style={styles.Justifvalue}></TextInput> 
+      <Text style={styles.label}></Text>
+      { <TextInput  value ={this.state.emergencyJustificationInput}  onChangeText={this.handleHtlAdrs}  style={styles.Justifvalue}></TextInput>  }
     </View>:null}
 
     <View style={styles.row}>
@@ -281,7 +391,7 @@ class PjpReqDtlScreen extends Component {
     </View>
 
 
-    {showEmergencyJustificationSave ?
+    {this.state.showEmergencyJustificationSave ?
     <TouchableOpacity onPress={() => this.submitReq(data)} style={styles.ftrBtn}>
             <LinearGradient 
               start={{x: 0, y: 0}} 
@@ -324,11 +434,13 @@ class PjpReqDtlScreen extends Component {
 const mapStateToProps = state => {
   return {
     ticketsSalesList: state.ticketsSalesList,
+    justificationList: state.justificationList
   };
 };
 
 const mapDispatchToProps = {
   getTicketsSales: Actions.getTicketsSales,
+  getJustificationList: Actions.getJustificationList
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(PjpReqDtlScreen);
