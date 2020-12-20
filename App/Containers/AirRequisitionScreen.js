@@ -32,6 +32,7 @@ class AirRequisitionScreen extends Component {
     super(props);
     const {params} = this.props.navigation.state;
     this.state = {
+      attachementDownloaded: false,
       curDate: new Date(),
       date: (params.update &&  params.update.travel_date)?params.update.travel_date:params.params.start_date,
       through: (params.update && params.update.through) ? params.update.through : "Self",
@@ -213,33 +214,51 @@ class AirRequisitionScreen extends Component {
       this.setState({
         curUploadType: this.props.refernceList.dataSource[0].trm_value
       });
+    
       for(var i=0; i<this.props.refernceList.dataSource.length; i++) {
         this.state.uploadData.push({"type":this.props.refernceList.dataSource[i].trm_value,
         "file":[],
         'action':null,
         fileRequired:this.props.refernceList.dataSource[i].trm_mandatory})
       }
+      //alert(JSON.stringify(this.props.refernceList.dataSource));
     })
     .then(()=>{
+     
       if(params.update){
-        this.props.getAttachments(params.params.trip_hdr_id,this.state.tripNo,params.update.lineitem)
-        .then(()=>{
-          for(var i=0; i<this.props.attachmentList.dataSource.length; i++) {
-            for(var j=0; j<this.state.uploadData.length; j++) {
-              if(this.props.attachmentList.dataSource[i].doc_type == this.state.uploadData[j].type) {
-                this.state.uploadData[j].file.push({
-                  'size': null,
-                  'name': this.props.attachmentList.dataSource[i].file_name,
-                  'type': 'image/'+this.getExtention(this.props.attachmentList.dataSource[i].file_name),
-                  'uri': this.props.attachmentList.dataSource[i].file_path
-                })
-              }         
-            }
-          }
-        })
-        .then(()=>{
-          this.setState({screenReady: true});
-        })
+        
+        
+       // this.props.getAttachments(params.params.trip_hdr_id,this.state.tripNo,params.update.lineitem)
+       // .then(()=>{
+          
+        //alert(this.state.attachementDownloaded);
+               
+               // if(this.state.attachementDownloaded == false){
+                 
+          //  for(var i=0; i<this.props.attachmentList.dataSource.length; i++) {
+           
+          //   for(var j=0; j<this.state.uploadData.length; j++) {
+          //     if(this.props.attachmentList.dataSource[i].doc_type == this.state.uploadData[j].type) {
+          //       this.state.uploadData[j].file.push({
+          //         'size': null,
+          //         'name': this.props.attachmentList.dataSource[i].file_name,
+          //         'type': 'image/'+this.getExtention(this.props.attachmentList.dataSource[i].file_name),
+          //         'uri': this.props.attachmentList.dataSource[i].file_path
+          //       })
+          //     }         
+          //   }
+          // } 
+          
+        //   this.setState({
+        //     attachementDownloaded: true
+        //   });
+        // }
+         // alert(JSON.stringify(this.state.uploadData));
+
+      //  })
+        // .then(()=>{
+        //   this.setState({screenReady: true});
+        // })
       }
       else {
         this.setState({screenReady: true});
@@ -296,6 +315,7 @@ class AirRequisitionScreen extends Component {
     }
 
     if(params.update){
+      //alert("ravi");
       this.props.getAttachments(params.params.trip_hdr_id,this.state.tripNo,params.update.lineitem)
       .then(()=>{
         for(var i=0; i<this.props.attachmentList.dataSource.length; i++) {
@@ -808,12 +828,13 @@ class AirRequisitionScreen extends Component {
                 }         
               }
             }
+           
           })
           .then(()=>{
             this.setState({isLoading: false});
           })
         })
-        }
+       }
       }
     })
   }
@@ -870,6 +891,8 @@ class AirRequisitionScreen extends Component {
     let shouldSubmit = true;
     AsyncStorage.getItem("ASYNC_STORAGE_SUBMIT_KEY")
     .then(()=>{
+      //alert(JSON.stringify(this.state.uploadData));
+     
       for(var i=0; i<this.state.uploadData.length; i++) {
         if(this.state.uploadData[i].fileRequired == 'Y' && (this.state.uploadData[i].file.length<1)) {
           shouldSubmit = false;
@@ -1216,6 +1239,7 @@ class AirRequisitionScreen extends Component {
       && this.state.selectTicketData && this.state.sendVenderData.length>0){
         this.props.updateVndAirRes(this.state.sendVenderData)
         .then(()=>{
+          newReq.invoice_total_amount = this.addInvoice (newReq);
           this.props.reqUpdate([newReq])
           .then(()=>{
             this.atchFiles()
@@ -1234,6 +1258,10 @@ class AirRequisitionScreen extends Component {
           })
         })
       } else {
+        
+        
+        newReq.invoice_total_amount = this.addInvoice (newReq);
+       
         this.props.reqUpdate([newReq])
         .then(()=>{
           this.atchFiles()
@@ -1252,6 +1280,42 @@ class AirRequisitionScreen extends Component {
         })
       }
     });
+  }
+  addInvoice(newReq){
+    let total = 0;
+        let processing = 0;
+        let cgst = 0;
+        let sgst = 0;
+        let igst = 0;
+       
+        try{
+                   processing = parseFloat(newReq.ta_booking_commission_amount);
+        }catch(error){
+          
+        }
+        try{
+          cgst = parseFloat(newReq.ta_booking_CGST);
+}catch(error){
+ 
+}
+try{
+  sgst = parseFloat(newReq.ta_booking_SGST);
+}catch(error){
+
+}
+try{
+  igst = parseFloat(newReq.ta_booking_IGST);
+}catch(error){
+
+}
+
+try{
+  total = parseFloat(newReq.invoice_amount);
+}catch(error){
+
+}
+
+return total+processing+cgst+igst+sgst;
   }
 
   render() {
@@ -1554,7 +1618,7 @@ class AirRequisitionScreen extends Component {
             </>}
           </Form>
           
-          {(params.update.sub_status_id =='11.1' || params.update.sub_status_id =='11.2') ? <>
+          {(params.update.sub_status_id =='11.1' || params.update.sub_status_id =='11.2' || params.update.status_id =='20') ? <>
           <TouchableOpacity style={[styles.accordionHeader,styles.mt]}
             onPress={()=>{this.setAcrdTwoVisible()}}>
             <Text style={styles.acrdTitle}>Travel Agent Details</Text>
@@ -1714,7 +1778,7 @@ class AirRequisitionScreen extends Component {
               placeholder='0.00' 
               style={styles.formInput}
               underlineColorAndroid= "rgba(0,0,0,0)"
-              value = {this.formatAmountForDisplay(this.state.invoiceAmnt)}
+              value = {this.state.invoiceAmnt}
               keyboardType="decimal-pad"
               autoCapitalize="words"
               onSubmitEditing={() => this.refs.curncyInput.focus()}
@@ -1948,6 +2012,7 @@ class AirRequisitionScreen extends Component {
                   </>}
                   <Button bordered small rounded danger style={styles.actionBtn}
                     onPress={(file.uri.includes('http'))
+                  
                             ?()=>this.deleteAttachemnt(file.name)
                             :()=>this.removeAttach(item.type,file.name)
                           }
@@ -2109,6 +2174,7 @@ const mapStateToProps = state => {
     ticketsList: state.ticketsList,
     updateVndAirResState: state.updateVndAirResState,
     hotelList: state.hotelList,
+    attachmentDeleteState: state.attachmentDeleteState,
     attachmentState: state.attachmentState,
     attachmentList: state.attachmentList,
     refernceList: state.refernceList
@@ -2129,6 +2195,7 @@ const mapDispatchToProps = {
   getHotels: Actions.getHotels,
   attachment: Actions.attachment,
   getAttachments: Actions.getAttachments,
+  attachmentDelete: Actions.attachmentDelete,
   getRefernce: Actions.getRefernce
 };
 

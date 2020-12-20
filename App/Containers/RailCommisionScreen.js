@@ -995,6 +995,7 @@ class RailCommision extends Component {
                       parseFloat( parseFloat(this.state.amount)-5000000):null
     })
     .then(()=>{
+     newReq.invoice_total_amount =  this.addInvoice(newReq);
       this.props.reqUpdate([newReq])
       .then(()=>{
         this.atchFiles()
@@ -1012,6 +1013,39 @@ class RailCommision extends Component {
         });
       })
     });
+  }
+
+  addInvoice(newReq){
+   
+        let processing = 0;
+        let cgst = 0;
+        let sgst = 0;
+        let igst = 0;
+       
+        try{
+                   processing = parseFloat(newReq.ta_booking_commission_amount);
+        }catch(error){
+          
+        }
+        try{
+          cgst = parseFloat(newReq.ta_booking_CGST);
+}catch(error){
+ 
+}
+try{
+  sgst = parseFloat(newReq.ta_booking_SGST);
+}catch(error){
+
+}
+try{
+  igst = parseFloat(newReq.ta_booking_IGST);
+}catch(error){
+
+}
+
+
+
+return processing+cgst+igst+sgst;
   }
 
   render() {

@@ -153,6 +153,7 @@ class PjpInfoScreen extends Component {
   submitRequest() {
     let dataList = this.props.reqListSales.dataSource;
     let shouldSubmit = true;
+    let msg = "";
     AsyncStorage.getItem("ASYNC_STORAGE_SHOULD_SUBMIT")
     .then(()=>{
       for(var i=0; i<dataList.length; i++) {
@@ -173,11 +174,15 @@ class PjpInfoScreen extends Component {
         } else {
           shouldSubmit = true
         }
+        if( (dataList[i].scenario == "2" || dataList[i].scenario == "3") && dataList[i].mode == "7" && dataList[i].isApproved ==  null)
+                 msg = "emergency";
       }
+      if(msg == "emergency") msg ="One or more of Air Travel requests belong to Emergency category.Requests raised 5-14 days before travel will require approval from immediate supervisor. Requests raised 0-5 days before travel will require further approval from supervisor's supervisor"
+
     })
     .then(()=>{
       if(shouldSubmit) {
-        this.submitData();
+        this.submitData(msg);
       } else {
 
       }
@@ -185,7 +190,7 @@ class PjpInfoScreen extends Component {
     
   }
 
-  submitData() {
+  submitData(msg) {
     //alert('submitData');
     const {params} = this.props.navigation.state
     this.setState({
@@ -252,7 +257,9 @@ class PjpInfoScreen extends Component {
           })
           .then(()=>{
             this.props.navigation.goBack();
-            Toast.show('Tour Submit Successfully', Toast.LONG);
+            if(msg == "")
+            Toast.show('Tour Submitted Successfully', Toast.LONG);
+             else Toast.show('Tour Submitted Successfully.'+msg, Toast.LONG);
           });
         })
       } else {

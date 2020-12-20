@@ -265,6 +265,7 @@ class TripPlanScreen extends Component {
 
   submit = (action)=> {
     const {params} = this.props.navigation.state;
+    let msg = "";
     if(this.state.SelectedDataList.length<1) {
       Alert.alert(
         'Warning',
@@ -396,8 +397,11 @@ class TripPlanScreen extends Component {
               }
 
               //alert(newList[i].sub_status_id+" "+newList[i].pending_with)
-            }
 
+              if( (newList[i].scenario == "2" || newList[i].scenario == "3") && newList[i].req_type == "1" && newList[i].isApproved ==  null)
+                 msg = "emergency";
+            }
+if(msg == "emergency") msg ="One or more of Air Travel requests belong to Emergency category.Requests raised 5-14 days before travel will require approval from immediate supervisor. Requests raised 0-5 days before travel will require further approval from supervisor's supervisor"
            
           })
           .then(()=>{
@@ -421,7 +425,9 @@ class TripPlanScreen extends Component {
                 })
                 .then(()=>{
                   this.props.navigation.goBack();
+                  if(msg == "")
                   Toast.show('Plan Trip Submitted Successfully', Toast.LONG);
+                  else Toast.show('Plan Trip Submitted Successfully.'+msg, Toast.LONG);
                 })
               })
             }

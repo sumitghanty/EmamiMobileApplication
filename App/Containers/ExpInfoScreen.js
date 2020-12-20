@@ -430,7 +430,13 @@ class ExpInfoScreen extends Component {
       })
     });
   }
-	
+	findAmount(data){
+    if(data.invoice_total_amount != null) return data.invoice_total_amount;
+    else{
+      if(data.invoice_amount != null) return data.invoice_amount;
+      else return data.amount;
+    } 
+  }
   render() {
     //alert(JSON.stringify(params))
     const {params} = this.props.navigation.state;
@@ -1052,7 +1058,7 @@ class ExpInfoScreen extends Component {
           </View>
           <View style={styles.cardRow}>
             <Text style={styles.cardLabel}>Amount:</Text>
-            <Text style={styles.cardValue}>{this.formatAmountForDisplay(data.invoice_amount && data.invoice_amount_currency?data.invoice_amount:data.amount)}</Text>
+            <Text style={styles.cardValue}>{this.formatAmountForDisplay(this.findAmount(data))}</Text>
           </View>          
           <View style={styles.cardRow}>
             <Text style={styles.cardLabel}>Extra Amount:</Text>

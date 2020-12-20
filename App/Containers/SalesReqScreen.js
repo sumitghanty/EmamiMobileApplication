@@ -986,7 +986,7 @@ var pjpDay = moment(this.state.dateStart).format("YYYY-MM-DD");
            newReq.sub_status_id = "7.4";
            newReq.sub_status =  "Requisition - Emergency Out of Policy";
          } 
-         else {n
+         else {
            newReq.sub_status_id = "7.1";
          newReq.sub_status =   this.state.subStatusNameSTA;
        }
