@@ -545,7 +545,7 @@ class AirRequisitionScreen extends Component {
 //souvik//
   handleChangeAmount = (amnt) => {
     const {params} = this.props.navigation.state;
-  //  alert(params.item.upper_limit +" "+  this.state.maxAmt)
+   //alert(params.item.upper_limit +" "+  this.state.maxAmt)
      var v= Math.sign(amnt);
      if(v=== 1 || amnt===''){
     this.setState({ 
@@ -2149,18 +2149,28 @@ return total+processing+cgst+igst+sgst;
     </View>
     )
   }
-
-  selectTicket=(data)=>{
+  myFunction(data) {
     this.setState({ 
       selectTicketData: data,
       amount: data.price,
       OOP: data.type == 'YES'?'Y':'N'
     })
-    console.log(this.state.selectTicketData);
-    console.log(this.state.OOP);
+    alert(this.state.amount);
+  }
+  selectTicket=(data)=>{
+   // alert(JSON.stringify(data.price));
+    this.setState({ 
+     selectTicketData: data,
+      amount: data.price,
+      OOP: data.type == 'YES'?'Y':'N'
+    })
+  // setTimeout(this.myFunction, 3000,data)
+    
+   // alert("kkk"+JSON.stringify(this.state.amount));
+    //ert(this.state.OOP);
   }
 }
-
+ 
 const mapStateToProps = state => {
   return {
     reqCreateState: state.reqCreateState,
