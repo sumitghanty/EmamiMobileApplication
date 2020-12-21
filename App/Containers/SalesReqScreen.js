@@ -118,6 +118,14 @@ class SalesReqScreen extends Component {
       return parseInt(year)+1;
     }else return year;
      }
+
+     formatAmountForDisplay(value){
+      var num = 0;
+      if(value != "" && value != null && value != 'null')
+      num = parseFloat(value);
+      return num.toFixed(2);
+    }
+
   componentDidMount() {
     const {params} = this.props.navigation.state;
     console.log(params)
@@ -1282,7 +1290,7 @@ var pjpDay = moment(this.state.dateStart).format("YYYY-MM-DD");
           </Item>:null}
           <Item fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Requisition Amount:</Label>
-            <Text style={[styles.value,styles.readOnly]}>{parseFloat(this.state.rqAmnt)}</Text>
+            <Text style={[styles.value,styles.readOnly]}>{this.formatAmountForDisplay(parseFloat(this.state.rqAmnt))}</Text>
           </Item>
           
           {params.item.category_id == '3' ?<>

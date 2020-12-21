@@ -104,7 +104,7 @@ class ApproveNoneSaleAdvanceScreen extends Component {
               <View style={styles.itemInfo}>
                 {item.trip_creator_name ?
                 <View style={styles.itemRow}>
-                  <Text style={styles.itemLabel}>Employee:</Text>
+                  <Text style={styles.itemLabel}>Traveler Name:</Text>
                   <Text style={styles.itemValue}>{item.trip_creator_name}</Text>
                 </View>:null}
                 {item.creation_date ?

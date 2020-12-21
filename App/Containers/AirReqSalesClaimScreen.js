@@ -673,7 +673,7 @@ class AirReqSalesClaimScreen extends Component {
               <Text style={[styles.formInput,styles.readOnly]}>{this.state.selectTicketData.f_IGST_percent}</Text>
             </Item>
             <Item picker fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Ticket Number:</Label>
+              <Label style={styles.formLabel}>Ticket Number/PNR Number:</Label>
               <Text style={[styles.formInput,styles.readOnly]}>{this.state.selectTicketData.ticket_number}</Text>
             </Item>
             <Item picker fixedLabel style={styles.formRow}>

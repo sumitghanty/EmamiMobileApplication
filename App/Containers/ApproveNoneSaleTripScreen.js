@@ -106,11 +106,11 @@ class ApproveNoneSaleTripScreen extends Component {
                   <Text style={styles.itemValue}>{item.trip_to}</Text>
                 </View>
                 <View style={styles.itemRow}>
-                  <Text style={styles.itemLabel}>Employee</Text>
+                  <Text style={styles.itemLabel}>Traveler Name:</Text>
                   <Text style={styles.itemValue}>{item.name}</Text>
                 </View>
                 <View style={[styles.itemRow,styles.mb]}>
-                  <Text style={styles.itemLabel}>Status</Text>
+                  <Text style={styles.itemLabel}>Status:</Text>
                   <Text style={styles.itemValue}>{(item.sub_status && item.sub_status != 'NA') ?item.sub_status:item.status}</Text>
                 </View>
               </View>

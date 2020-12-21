@@ -25,6 +25,14 @@ class PjpInfoScreen extends Component {
       isSubmit: true
     };
   }
+
+  formatAmountForDisplay(value){
+    var num = 0;
+    if(value != "" && value != null && value != 'null')
+    num = parseFloat(value);
+    return num.toFixed(2);
+  }
+
   componentDidMount(props){
     const {params} = this.props.navigation.state
     this.props.getReqSale(params.trip_hdr_id)
@@ -400,7 +408,7 @@ class PjpInfoScreen extends Component {
           >
           <View style={styles.estAmntWraper}>
             <Text style={styles.estAmntLabel}>Estimated Amount</Text>
-            <Text style={styles.estAmntValue}>{this.state.actAmnt}</Text>
+            <Text style={styles.estAmntValue}>{this.formatAmountForDisplay(this.state.actAmnt)}</Text>
           </View>
           <Text uppercase={false} style={styles.ftrBtnText}>
             <Icon name='md-done-all' style={styles.ftrBtnIcon} />&nbsp;&nbsp;
@@ -484,7 +492,7 @@ class PjpInfoScreen extends Component {
           { data.amount_mode ?
           <View style={styles.cardRow}>
             <Text style={styles.cardLabel}>Requisition Amount:</Text>
-            <Text style={styles.cardValue}>{ data.amount_mode }</Text>
+            <Text style={styles.cardValue}>{data.amount_mode }</Text>
           </View>: null}
           { (data.sub_status && data.sub_status != 'NA') ?
           <View style={styles.cardRow}>

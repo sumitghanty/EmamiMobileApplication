@@ -109,7 +109,7 @@ class ApproveNoneSaleExpensesScreen extends Component {
                     <Text style={styles.itemValue}>{item.trip_to}</Text>
                   </View>
                   <View style={styles.itemRow}>
-                    <Text style={styles.itemLabel}>Employee:</Text>
+                    <Text style={styles.itemLabel}>Traveler Name:</Text>
                     <Text style={styles.itemValue}>{item.trip_creator_name}</Text>
                   </View>
                   {item.actual_claim_amount ?
@@ -118,7 +118,7 @@ class ApproveNoneSaleExpensesScreen extends Component {
                     <Text style={styles.itemValue}>{item.actual_claim_currency} {this.formatAmountForDisplay(item.actual_claim_amount)}</Text>
                   </View>:null}
                   <View style={styles.itemRow}>
-                    <Text style={styles.itemLabel}>Aging:</Text>
+                    <Text style={styles.itemLabel}>Ageing:</Text>
                     <Text style={styles.itemValue}>{this.setAge(item.claim_submit_date)}</Text>
                   </View>
                   <View style={styles.itemRow}>

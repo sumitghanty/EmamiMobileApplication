@@ -29,6 +29,14 @@ class PjpClaimInfoScreen extends Component {
       paybleAmnt: 0
     };
   }
+
+  formatAmountForDisplay(value){
+    var num = 0;
+    if(value != "" && value != null && value != 'null')
+    num = parseFloat(value);
+    return num.toFixed(2);
+  }
+
   componentDidMount(props){
     const {params} = this.props.navigation.state
     this.props.getReqSale(params.trip_hdr_id)
@@ -300,15 +308,15 @@ class PjpClaimInfoScreen extends Component {
         <View style={{display:this.state.claimAcrd==0?'none':'flex'}}>
           <View style={styles.row}>
             <Text style={styles.label}>Estimated Cost:</Text>
-            <Text style={styles.value}>{this.state.estimatedCost}</Text>
+            <Text style={styles.value}>{this.formatAmountForDisplay(this.state.estimatedCost)}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Actual Claim amount:</Text>
-            <Text style={styles.value}>{this.state.actAmnt}</Text>
+            <Text style={styles.value}>{this.formatAmountForDisplay(this.state.actAmnt)}</Text>
           </View>          
           { <View style={styles.row}> 
             <Text style={styles.label}>Actual Payable Amount:</Text>
-            <Text style={styles.value}>{this.state.paybleAmnt}</Text>
+            <Text style={styles.value}>{this.formatAmountForDisplay(this.state.paybleAmnt)}</Text>
           </View>}
           <View style={styles.row}>
             <Text style={styles.label}>Currency:</Text>
@@ -498,7 +506,7 @@ class PjpClaimInfoScreen extends Component {
         </View>: null}
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>Deduction Amount:</Text>
-          <Text style={styles.cardValue}>{ data.claimdeductionamount?data.claimdeductionamount:0 }</Text>
+          <Text style={styles.cardValue}>{this.formatAmountForDisplay(data.claimdeductionamount?data.claimdeductionamount:0 )}</Text>
         </View>
        
         {/* { data.vendor_IGST?

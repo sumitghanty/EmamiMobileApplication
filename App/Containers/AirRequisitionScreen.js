@@ -1746,7 +1746,7 @@ return total+processing+cgst+igst+sgst;
           {params.claim && <Form>
 
           <Item picker fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Ticket Number:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <Label style={styles.formLabel}>Ticket Number/PNR Number:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
             <TextInput
               placeholder='Enter Ticket Numbaer' 
               style={styles.formInput}
