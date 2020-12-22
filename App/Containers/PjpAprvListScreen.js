@@ -89,7 +89,7 @@ class PjpAprvListScreen extends Component {
                     </View>:null}
                     {item.name ?
                     <View style={styles.itemRow}>
-                      <Text style={styles.itemLabel}>Employee:</Text>
+                      <Text style={styles.itemLabel}>Traveler Name:</Text>
                       <Text style={styles.itemValue}>{item.name}</Text>
                     </View>:null}
                     {item.status ?

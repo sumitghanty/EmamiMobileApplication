@@ -201,6 +201,36 @@ class AirReqSalesClaimScreen extends Component {
     })
   }
 
+  setColor(item){
+    if(item.fileRequired == 'Y' && item.file.length == 0)
+    return "red";
+    else return "black";
+  }
+
+  onValueChangeUploadType = (value) => {
+    this.setState({ curUploadType: value });
+  }
+
+  onValueChangeTicketStatus = (value) => {
+    //alert('called')
+    this.setState({
+      tcktStatus:value,
+      //alert(ticketStatus)
+      tcktStatusError: null,
+    });
+
+    //alert(this.setState.ticketStatus)
+  }
+
+  onValueChangeTicketClass = (value) => {
+    //alert('called')
+    this.setState({
+      tcktClass:value,
+      //alert(ticketStatus)
+      tcktClassError: null,
+    });
+  }
+
   setModalAttchVisible(visible) {
     this.setState({modalAttchVisible: visible});
   }
@@ -695,27 +725,38 @@ class AirReqSalesClaimScreen extends Component {
             </Item>
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Ticket Class:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
-              <TextInput 
-                onSubmitEditing={() => this.refs.tcktStatus.focus()}
-                placeholder='Enter ticket class' 
+              <Picker 
+                mode="dropdown"
+                placeholder='Enter Ticket class' 
+                selectedValue={this.state.tcktClass}
                 style={styles.formInput}
-                underlineColorAndroid= "rgba(0,0,0,0)"
-                value = {this.state.tcktClass}
-                onChangeText={this.handleClass} />
+                onValueChange={this.onValueChangeTicketClass}
+                prompt="Select Ticket Class"
+                //onChangeText={this.handleClass}
+                 >
+                   <Picker.Item label="Economy" value="Economy" />
+                  <Picker.Item label="Business" value="Business" />
+              </Picker>
             </Item>
             {this.state.tcktClassError &&
               <Text style={styles.errorText}>{this.state.tcktClassError}</Text>
             }
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Ticket Status:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
-              <TextInput 
-                ref='tcktStatus'
-                onSubmitEditing={() => this.refs.justification.focus()}
+              <Picker
+                //ref='tcktStatus'
+               // onSubmitEditing={() => this.refs.justification.focus()}
+                mode="dropdown"
                 placeholder='Enter ticket status' 
+                selectedValue={this.state.tcktStatus}
+                onValueChange={this.onValueChangeTicketStatus}
                 style={styles.formInput}
                 underlineColorAndroid= "rgba(0,0,0,0)"
-                value = {this.state.tcktStatus}
-                onChangeText={this.handleStatus} />
+                //onChangeText={this.handleStatus} 
+                >
+                  <Picker.Item label="Select Ticket Status" value="Select Ticket status" />
+                  <Picker.Item label="Availed" value="Availed" />
+              </Picker>
             </Item>
             {this.state.tcktStatusError &&
               <Text style={styles.errorText}>{this.state.tcktStatusError}</Text>
@@ -857,7 +898,7 @@ class AirReqSalesClaimScreen extends Component {
                 >
                 {this.state.uploadData.map((item, index) => {
                   return (
-                  <Picker.Item label={item.type} value={item.type} key={index} />
+                  <Picker.Item label={item.type} value={item.type} key={index} color={this.setColor(item)} />
                   );
                 })}
               </Picker>

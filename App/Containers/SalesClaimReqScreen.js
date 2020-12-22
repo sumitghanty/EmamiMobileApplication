@@ -356,6 +356,12 @@ class SalesClaimReqScreen extends Component {
     })
   }
 
+  setColor(item){
+    if(item.fileRequired == 'Y' && item.file.length == 0)
+    return "red";
+    else return "black";
+  }
+
   handleChangeComments = (text) => {
     this.setState({ commentsFk: text })
   }
@@ -2212,7 +2218,7 @@ class SalesClaimReqScreen extends Component {
                 >
                 {this.state.uploadData.map((item, index) => {
                   return (
-                  <Picker.Item label={item.type} value={item.type} key={index} />
+                  <Picker.Item label={item.type} value={item.type} key={index} color={this.setColor(item)} />
                   );
                 })}
               </Picker>

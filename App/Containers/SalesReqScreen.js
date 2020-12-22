@@ -1289,7 +1289,7 @@ var pjpDay = moment(this.state.dateStart).format("YYYY-MM-DD");
             />
           </Item>:null}
           <Item fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Requisition Amount:</Label>
+            <Label style={styles.formLabel}>Approx Amount:</Label>
             <Text style={[styles.value,styles.readOnly]}>{this.formatAmountForDisplay(parseFloat(this.state.rqAmnt))}</Text>
           </Item>
           

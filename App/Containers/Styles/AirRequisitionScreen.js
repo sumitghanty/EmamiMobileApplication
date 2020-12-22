@@ -13,6 +13,11 @@ export default StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
+  redtext: {
+    fontSize: 16,
+    color: '#463f3c',
+    fontWeight: 'bold',
+  },
   formLabel: {
     flex: 2,
     paddingRight: 10,

@@ -847,6 +847,12 @@ setDateInvnew = (event, date) => {
     })
   }
 
+  setColor(item){
+    if(item.fileRequired == 'Y' && item.file.length == 0)
+    return "red";
+    else return "black";
+  }
+
   hotelSelected(value){
     this.setState({
       hotelItem: value,
@@ -2778,7 +2784,7 @@ else
                 >
                 {this.state.uploadData.map((item, index) => {
                   return (
-                  <Picker.Item label={item.type} value={item.type} key={index} />
+                  <Picker.Item label={item.type} value={item.type} key={index} color={this.setColor(item)} />
                   );
                 })}
               </Picker>

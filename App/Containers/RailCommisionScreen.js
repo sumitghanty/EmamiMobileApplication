@@ -317,6 +317,12 @@ class RailCommision extends Component {
     });
   }
 
+  setColor(item){
+    if(item.fileRequired == 'Y' && item.file.length == 0)
+    return "red";
+    else return "black";
+  }
+
   setDateInv = (event, dateInv) => {
     dateInv = dateInv || this.state.dateInv; 
     this.setState({
@@ -468,6 +474,8 @@ class RailCommision extends Component {
       invNumberError:null
     })
   }
+
+
 
   handleMsg = (text) => {
     this.setState({ 
@@ -1555,7 +1563,7 @@ return processing+cgst+igst+sgst;
                 >
                 {this.state.uploadData.map((item, index) => {
                   return (
-                  <Picker.Item label={item.type} value={item.type} key={index} />
+                  <Picker.Item label={item.type} value={item.type} key={index} color={this.setColor(item)} />
                   );
                 })}
               </Picker>

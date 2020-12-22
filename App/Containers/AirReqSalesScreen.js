@@ -627,7 +627,7 @@ class AirReqSalesScreen extends Component {
             </Item>:null}
             {params.update.email?
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Email:</Label>
+              <Label style={styles.formLabel}>Alternate Email:</Label>
               <Text style={[styles.formInput,styles.readOnly]}>{params.update.email}</Text>
             </Item>:null}
             {params.update.through?

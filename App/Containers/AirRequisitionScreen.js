@@ -330,6 +330,8 @@ class AirRequisitionScreen extends Component {
             }         
           }
         }
+
+       
       })
       .then(()=>{
         this.setState({screenReady: true});
@@ -372,7 +374,11 @@ class AirRequisitionScreen extends Component {
       );
     }
   }
-
+setColor(item){
+  if(item.fileRequired == 'Y' && item.file.length == 0)
+  return "red";
+  else return "black";
+}
   renderLocationAlert=()=> {
     return(
       Alert.alert(
@@ -527,6 +533,15 @@ class AirRequisitionScreen extends Component {
     });
 
     //alert(this.setState.ticketStatus)
+  }
+
+  onValueChangeTicketClass = (value) => {
+    //alert('called')
+    this.setState({
+      tic:value,
+      //alert(ticketStatus)
+      ticError:null,
+    });
   }
 
   onValueChangeAgent = (value) => {
@@ -1372,7 +1387,7 @@ return total+processing+cgst+igst+sgst;
           </View>
           <Form>            
             <Item fixedLabel style={styles.formRow}>
-              <Label style={[styles.formLabel,{flex:5}]}>Eligible Amount/Per Trip:</Label>              
+              <Label style={[styles.formLabel,{flex:5}]}>Eligible Amount/Per Flight:</Label>              
               <Text style={[styles.formInput,styles.readOnly,{textAlign:'right'}]}>{this.formatAmountForDisplay(params.item.upper_limit)}</Text>
             </Item>
             <Item fixedLabel style={styles.formRow}>
@@ -1576,7 +1591,7 @@ return total+processing+cgst+igst+sgst;
           </TouchableOpacity>
           <Form style={{marginBottom:16,display:(this.state.acrdOneVisible==0)?'none':'flex'}}>
             <Item fixedLabel style={styles.formRow}>
-              <Label style={[styles.formLabel,{flex:5}]}>Eligible Amount/Per Trip:</Label>              
+              <Label style={[styles.formLabel,{flex:5}]}>Eligible Amount/Per Flight:</Label>              
               <Text style={[styles.formInput,styles.readOnly,{textAlign:'right'}]}>{params.item.upper_limit}</Text>
             </Item>
             <Item fixedLabel style={styles.formRow}>
@@ -1900,17 +1915,23 @@ return total+processing+cgst+igst+sgst;
 
           <Item picker fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Ticket Class:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
-            <TextInput 
-              ref='tic'
-              onSubmitEditing={() => this.refs.invNumberInput.focus()}
-              placeholder='TicketClass' 
+            <Picker
+              //ref='tic'
+              //onSubmitEditing={() => this.refs.invNumberInput.focus()}
+              mode="dropdown"
+              placeholder='Select Ticket Class' 
+              selectedValue={this.state.tic}
+              onValueChange={this.onValueChangeTicketClass}
               style={styles.formInput}
-              underlineColorAndroid= "rgba(0,0,0,0)"
-              value = {this.state.tic}
-              returnKeyType="next"
+              prompt="Select Ticket Class"
+              //underlineColorAndroid= "rgba(0,0,0,0)"
+              //returnKeyType="next"
               //maxLength={6}
-              
-              onChangeText={this.handleTiccode} />
+             >
+               {/* <Picker.Item label="Self" value="Self" /> */}
+               <Picker.Item label="Economy" value="Economy" />
+                  <Picker.Item label="Business" value="Business" />
+             </Picker>
           </Item>
           {this.state.ticError &&
             <Text style={styles.errorText}>{this.state.ticError}</Text>
@@ -2061,7 +2082,7 @@ return total+processing+cgst+igst+sgst;
                 >
                 {this.state.uploadData.map((item, index) => {
                   return (
-                  <Picker.Item label={item.type} value={item.type} key={index} />
+                  <Picker.Item label={item.type} value={item.type} key={index}  color={this.setColor(item)} />
                   );
                 })}
               </Picker>

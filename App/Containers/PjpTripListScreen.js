@@ -80,7 +80,7 @@ class PjpTripListScreen extends Component {
                   <Text style={styles.itemValue}>xxx</Text>
                 </View>
                 <View style={styles.itemRow}>
-                  <Text style={styles.itemLabel}>Employee:</Text>
+                  <Text style={styles.itemLabel}>Traveler Name:</Text>
                   <Text style={styles.itemValue}>xxx</Text>
                 </View>
                 <View style={[styles.itemRow,styles.mb]}>

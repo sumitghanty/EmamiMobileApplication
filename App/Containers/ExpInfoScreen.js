@@ -472,10 +472,23 @@ class ExpInfoScreen extends Component {
      //alert(JSON.stringify())
     
      for (i = 0; i < sortList.length; i++){
-       if(sortList[i].req_type == "1"){
-        if(sortList[i].invoice_amount != null && sortList[i].invoice_amount != "")
+      //  if(sortList[i].req_type == "1"){
+      //   if(sortList[i].invoice_amount != null && sortList[i].invoice_amount != "")
+      //   totalClaimAmountTemp = totalClaimAmountTemp+parseInt(sortList[i].invoice_amount);
+      //  }
+      if(sortList[i].req_type == "1"){
+        if(sortList[i].invoice_total_amount != null && sortList[i].invoice_total_amount != ""){
+          totalClaimAmountTemp = totalClaimAmountTemp+parseInt(sortList[i].invoice_total_amount);
+        }
+       else if(sortList[i].invoice_amount != null && sortList[i].invoice_amount != ""){
         totalClaimAmountTemp = totalClaimAmountTemp+parseInt(sortList[i].invoice_amount);
-       }else{
+       }
+      }
+       else if(sortList[i].req_type == "4T"){
+        if(sortList[i].invoice_total_amount != null && sortList[i].invoice_total_amount != "")
+        totalClaimAmountTemp = totalClaimAmountTemp+parseInt(sortList[i].invoice_total_amount);
+       }
+       else{
       for (j = 0; j < this.props.reqClaimType.dataSource.length; j++){
        
         if( sortList[i].req_type == this.props.reqClaimType.dataSource[j].sub_category_id){

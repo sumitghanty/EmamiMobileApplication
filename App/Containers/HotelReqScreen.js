@@ -613,6 +613,12 @@ class HotelReqScreen extends Component {
     })
   }
 
+  setColor(item){
+    if(item.fileRequired == 'Y' && item.file.length == 0)
+    return "red";
+    else return "black";
+  }
+
   handleHtlAdrs = (text) => {
     this.setState({ 
       htlAdrs: text,
@@ -1597,7 +1603,7 @@ class HotelReqScreen extends Component {
                   >
                   {this.state.uploadData.map((item, index) => {
                     return (
-                    <Picker.Item label={item.type} value={item.type} key={index} />
+                    <Picker.Item label={item.type} value={item.type} key={index} color={this.setColor(item)} />
                     );
                   })}
                 </Picker>
