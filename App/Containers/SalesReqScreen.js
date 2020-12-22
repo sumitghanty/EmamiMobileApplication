@@ -916,6 +916,7 @@ class SalesReqScreen extends Component {
         newReq = this.props.createReqSaleState.dataSource[index]
       })
       .then(()=>{
+        
         this.saveReq(newReq)
       })      
     }
@@ -1049,9 +1050,20 @@ var pjpDay = moment(this.state.dateStart).format("YYYY-MM-DD");
     })
     .then(()=>{
       let afterSetDistance = null;
+     console.log(JSON.stringify(newReq));
+    //  this.setState({
+    //   msg: JSON.stringify(newReq)
+    // })
       this.props.generateExp([newReq])
       .then(()=>{
+
         afterSetDistance = this.props.generateExpState.dataSource[0];
+        if(afterSetDistance == null || newReq.tripNo != afterSetDistance.tripNo ){
+          alert("please check if the User has been assigned the correct Headquater as per the city Master")
+          afterSetDistance = newReq;
+        }
+        
+        //alert("2"+JSON.stringify(this.props.generateExpState.dataSource));
         this.setState({
           hottelGenrateData: this.props.generateExpState.dataSource[0],
         })
@@ -1291,7 +1303,7 @@ var pjpDay = moment(this.state.dateStart).format("YYYY-MM-DD");
           <Item fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Approx Amount:</Label>
             <Text style={[styles.value,styles.readOnly]}>{this.formatAmountForDisplay(parseFloat(this.state.rqAmnt))}</Text>
-          </Item>
+            </Item>
           
           {params.item.category_id == '3' ?<>
           <Item picker fixedLabel style={styles.formRow}>

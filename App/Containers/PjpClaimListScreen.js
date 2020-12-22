@@ -30,14 +30,23 @@ class PjpClaimListScreen extends Component {
     this.props.getPjpClaim(global.USER.userId,STATUS_ID);
   }
 
-  downloadPdf = (file) => {
-    Linking.canOpenURL(file).then(supported => {
-      if (supported) {
-        Linking.openURL(file);
-      } else {
-        console.log("Don't know how to open URI: " + this.props.url);
-      }
-    });
+  downloadPdf = (trip_no,trip_hdr_id) => {
+
+    this.props.pdf(global.USER.personId,global.PASSWORD,"S",global.USER.userId,"20126",trip_hdr_id,trip_no)
+    .then(()=>{
+    if( this.props.pdfState.dataSource.message != null || this.props.pdfState.dataSource.message != "")
+      {Linking.canOpenURL(this.props.pdfState.dataSource.message).then(supported => {
+        if (supported) {
+          Linking.openURL(file);
+        } else {
+          console.log("Don't know how to open URI: " + this.props.url);
+        }
+      });
+    }else{
+      alert('Unable to generate PDF.Please try later')
+    }
+    })
+   
   }
 
   setAge = (date) => {
@@ -48,6 +57,10 @@ class PjpClaimListScreen extends Component {
       diff<2?diff+' day':diff+' days'
     );
   }
+
+
+  
+
   formatYear(year,month){
     // alert(year);
      if(month==="January" || month==="February" || month==="March")
@@ -114,7 +127,7 @@ class PjpClaimListScreen extends Component {
         {(parseInt(item.status_id) != 21 && parseInt(item.status_id) != 22 && parseInt(item.status_id) != 24)?
         <Icon name="md-arrow-round-forward" style={styles.arrowbtn}/>
         :(parseInt(item.status_id) == 24)?
-        <TouchableOpacity style={styles.fPdfLink} onPress={()=>this.downloadPdf('https://www.google.com/')}>
+        <TouchableOpacity style={styles.fPdfLink} onPress={()=>this.downloadPdf(item.trip_no,item.trip_hdr_id)}>
           <Ficon name="file-pdf" style={styles.fPdfLinkIcon}/>
           <Text style={styles.fPdfLinkText}>DOWNLOAD</Text>
         </TouchableOpacity>
@@ -159,12 +172,14 @@ class PjpClaimListScreen extends Component {
 
 const mapStateToProps = state => {
   return {
-    pjpClaims: state.pjpClaims
+    pjpClaims: state.pjpClaims,
+    pdfState: state.pdfState
   };
 };
 
 const mapDispatchToProps = {
-  getPjpClaim : Actions.getPjpClaim
+  getPjpClaim : Actions.getPjpClaim,
+  pdf: Actions.pdf
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(PjpClaimListScreen);

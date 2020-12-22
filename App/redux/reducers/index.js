@@ -65,6 +65,7 @@ import PJPDeleteReducer from './PJPDelete'
 import GetMaxAmntReducer from './GetMaxAmnt'
 import GetYearReducer from './GetYear'
 import GetPjpByMonthReducer from './GetPjpByMonth'
+import PdfReducer from './Pdf'
 import AttachmentReducer from './Attachment'
 import AttachmentListReducer from './GetAttachments'
 import AttachmentListSalesReducer from './GetAttachmentsSales'	
@@ -146,6 +147,7 @@ export default {
 	maxAmntState:GetMaxAmntReducer,
 	yearList:GetYearReducer,
 	getPjpByMonthState:GetPjpByMonthReducer,
+	pdfState:PdfReducer,
 	attachmentState:AttachmentReducer,
 	attachmentList:AttachmentListReducer,
 	attachmentListSales:AttachmentListSalesReducer,

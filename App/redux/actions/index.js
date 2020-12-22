@@ -65,6 +65,7 @@ import {pjpDelete} from './PJPDelete'
 import {getMaxAmnt} from './GetMaxAmnt'
 import {getYear} from './GetYear'
 import {getPjpByMonth} from './GetPjpByMonth'
+import {pdf} from './Pdf'
 import {attachment} from './Attachment'
 import {getAttachments} from './GetAttachments'
 import {getAttachmentsSales} from './GetAttachmentsSales'
@@ -146,6 +147,7 @@ export default {
 	getMaxAmnt:getMaxAmnt,
 	getYear:getYear,
 	getPjpByMonth:getPjpByMonth,
+	pdf:pdf,
 	attachment:attachment,
 	getAttachments:getAttachments,
 	getAttachmentsSales:getAttachmentsSales,

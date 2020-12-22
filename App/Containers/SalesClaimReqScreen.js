@@ -1422,7 +1422,7 @@ class SalesClaimReqScreen extends Component {
           :null}
           {showField ?<>
           <Item fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>ture Time:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <Label style={styles.formLabel}>Departure Time:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
             <TouchableOpacity onPress={this.timepickerCin} style={styles.datePicker}>
               <Text style={styles.datePickerLabel}>{this.state.timeCin}</Text>
               <Icon name="time" style={styles.datePickerIcon} />

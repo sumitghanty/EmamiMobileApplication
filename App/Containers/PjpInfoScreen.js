@@ -34,7 +34,9 @@ class PjpInfoScreen extends Component {
   }
 
   componentDidMount(props){
+    
     const {params} = this.props.navigation.state
+    //alert(JSON.stringify(params));
     this.props.getReqSale(params.trip_hdr_id)
     .then(()=>{
       console.log('firsttime')
@@ -340,7 +342,9 @@ class PjpInfoScreen extends Component {
         
         <View style={styles.titleHeader}>
           <Text style={styles.listTitle}>Requisition Details</Text>
-          <TouchableOpacity style={styles.addBtn} onPress={() => {this.setModalVisible(1);}}>
+          <TouchableOpacity style={styles.addBtn} onPress={() => {
+            //alert(JSON.stringify(params));
+            this.setModalVisible(1);}}>
             <LinearGradient
               style={styles.addBtnBg}
               colors={["#ff4813", "#fd6337"]}

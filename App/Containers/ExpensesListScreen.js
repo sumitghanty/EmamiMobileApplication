@@ -50,16 +50,23 @@ class ExpensesListScreen extends Component {
     );
   }
 
-  downloadPdf = (file) => {
+  downloadPdf = (trip_no,trip_hdr_id) => {
 
-    
-    Linking.canOpenURL(file).then(supported => {
-      if (supported) {
-        Linking.openURL(file);
-      } else {
-        console.log("Don't know how to open URI: " + this.props.url);
-      }
-    });
+    this.props.pdf(global.USER.personId,global.PASSWORD,"N",global.USER.userId,"20126",trip_hdr_id,trip_no)
+    .then(()=>{
+    if( this.props.pdfState.dataSource.message != null || this.props.pdfState.dataSource.message != "")
+      {Linking.canOpenURL(this.props.pdfState.dataSource.message).then(supported => {
+        if (supported) {
+          Linking.openURL(file);
+        } else {
+          console.log("Don't know how to open URI: " + this.props.url);
+        }
+      });
+    }else{
+      alert('Unable to generate PDF.Please try later')
+    }
+    })
+   
   }
 
   formatAmountForDisplay(value){
@@ -112,7 +119,7 @@ class ExpensesListScreen extends Component {
               <Text style={styles.headerLabel}>Trip ID:</Text>
               <Text style={styles.headerValue}>{item.trip_no}</Text>
               {parseInt(item.status_id) == 24?
-                <TouchableOpacity style={styles.fPdfLink} onPress={()=>this.downloadPdf('https://www.google.com/')}>
+                <TouchableOpacity style={styles.fPdfLink} onPress={()=>this.downloadPdf(item.trip_no,item.trip_hdr_id)}>
                 <Ficon name="file-pdf" style={styles.fPdfLinkIcon}/>
                 <Text style={styles.fPdfLinkText}>DOWNLOAD</Text>
               </TouchableOpacity>:null}
@@ -187,12 +194,14 @@ class ExpensesListScreen extends Component {
 
 const mapStateToProps = state => {
   return {
-    expenses: state.expenses
+    expenses: state.expenses,
+    pdfState: state.pdfState
   };
 };
 
 const mapDispatchToProps = {
-  getExpenses : Actions.getExpenses
+  getExpenses : Actions.getExpenses,
+  pdf: Actions.pdf
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ExpensesListScreen);
