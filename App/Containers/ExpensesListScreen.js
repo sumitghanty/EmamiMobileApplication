@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Alert, TouchableOpacity, FlatList} from "react-native";
+import { View, Alert, TouchableOpacity, FlatList, Linking} from "react-native";
 import { Container, Content, Button, Text, Icon, Card, CardItem  } from 'native-base';
 import { connect } from 'react-redux'
 import Actions from '../redux/actions'
@@ -8,11 +8,12 @@ import SearchInput, { createFilter } from 'react-native-search-filter'
 import Vicon from 'react-native-vector-icons/Ionicons'
 import moment from 'moment'
 import 'moment-precise-range-plugin'
+import Ficon from 'react-native-vector-icons/FontAwesome5'
 
 import styles from './Styles/ExpensesListScreen'
 
 const KEYS_TO_FILTERS = ['trip_no', 'start_date', 'end_date', 'trip_from', 'trip_to', 'status','payment_amount','estimated_cost','actual_claim_amount','currency','actual_claim_currency'];
-const STATUS_ID = ["3","4","9","11","15","17","19","20","21","22","23","25","27","29"];
+const STATUS_ID = ["3","4","9","11","15","17","19","20","21","22","23","24","25","27","29"];
 
 class ExpensesListScreen extends Component {  
   constructor(){ 
@@ -47,6 +48,18 @@ class ExpensesListScreen extends Component {
     return(
       diff<2?diff:diff
     );
+  }
+
+  downloadPdf = (file) => {
+
+    
+    Linking.canOpenURL(file).then(supported => {
+      if (supported) {
+        Linking.openURL(file);
+      } else {
+        console.log("Don't know how to open URI: " + this.props.url);
+      }
+    });
   }
 
   formatAmountForDisplay(value){
@@ -98,6 +111,11 @@ class ExpensesListScreen extends Component {
             <CardItem header style={styles.itemHeader}>
               <Text style={styles.headerLabel}>Trip ID:</Text>
               <Text style={styles.headerValue}>{item.trip_no}</Text>
+              {parseInt(item.status_id) == 24?
+                <TouchableOpacity style={styles.fPdfLink} onPress={()=>this.downloadPdf('https://www.google.com/')}>
+                <Ficon name="file-pdf" style={styles.fPdfLinkIcon}/>
+                <Text style={styles.fPdfLinkText}>DOWNLOAD</Text>
+              </TouchableOpacity>:null}
             </CardItem>
             <CardItem style={styles.itemBody}>
               <View style={styles.itemInfo}>
@@ -153,6 +171,7 @@ class ExpensesListScreen extends Component {
                     {(item.sub_status && item.sub_status!='NA')?item.status:item.status}
                   </Text>
                 </View>:null}
+               
               </View>
             </CardItem>
           </Card>

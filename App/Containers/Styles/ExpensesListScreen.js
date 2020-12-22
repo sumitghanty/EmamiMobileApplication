@@ -12,6 +12,24 @@ export default StyleSheet.create({
     marginBottom: 16,
     marginRight: 16
   },
+  fPdfLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 16,
+    backgroundColor: '#ff5726',
+  },
+  fPdfLinkIcon: {
+    fontSize: 18,
+    color: '#fff',
+    marginRight: 8
+  },
+  fPdfLinkText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#fff'
+  },
   itemHeader: {
     paddingHorizontal: 16,
     paddingTop: 12,

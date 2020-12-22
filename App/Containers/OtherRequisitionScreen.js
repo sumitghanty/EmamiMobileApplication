@@ -438,6 +438,7 @@ class OtherRequisitionScreen extends Component {
           "travel_heads": params.item.travel_heads,
           "creation_date": moment(this.state.curDate).format("YYYY-MM-DD"),          
         }]
+        //alert(JSON.stringify(postData));
         this.props.reqCreate(postData)
         .then(()=>{
           //this.atchFiles();
@@ -472,15 +473,18 @@ class OtherRequisitionScreen extends Component {
       return(
         <Loader/>
       )
-    } else if(this.props.reqCreateState.errorStatus
-      || this.props.reqUpdateState.errorStatus 
-      || this.props.plans.errorStatus 
+    } 
+    else if(
+    ///  this.props.reqCreateState.errorStatus
+    //  || this.props.reqUpdateState.errorStatus 
+       this.props.plans.errorStatus 
       || this.props.statusResult.errorStatus ||
       (params.update && this.props.attachmentList.errorStatus)) {
       return(
         <Text>URL Error</Text>
       )
-    } else {
+    } 
+    else {
     console.log(params);
     return (
       <KeyboardAvoidingView style={styles.container} behavior="margin, height, padding">

@@ -861,7 +861,9 @@ class ExpInfoScreen extends Component {
               <TouchableOpacity style={styles.modalItem}
                 key= {index}
                 onPress={() => this.setState({reqModal: 0, reload:true}, 
-                () => this.props.navigation.navigate(
+                () => {
+                  //alert(item.sub_category_id);
+                  this.props.navigation.navigate(
                     item.sub_category_id=='10' ? 'TaxiRequisition'
                   : item.sub_category_id=='11' ? 'NonActaxiReq'
                   : item.sub_category_id=='3' ? 'TrainReq'
@@ -876,7 +878,7 @@ class ExpInfoScreen extends Component {
                  
                  : 'OtherRequisition',
                   {item, params, 'update':false, 'actAmnt':this.state.actAmnt, 'claim':true}
-                )
+                )}
                 )}>
                 <View style={[styles.modalItemIconHolder,{ backgroundColor:
                   item.sub_category_id=='10' ? '#3ba03f'
