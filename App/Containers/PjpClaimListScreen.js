@@ -18,8 +18,10 @@ const STATUS_ID = [9, 11, 19, 20, 21, 22, 23, 24, 25];
 
 class PjpClaimListScreen extends Component {  
   constructor(){ 
+    
     super();
     this.state ={
+      isLoading: false,
       searchTerm: '',
     }
   }; 
@@ -31,15 +33,22 @@ class PjpClaimListScreen extends Component {
   }
 
   downloadPdf = (trip_no,trip_hdr_id) => {
+    this.setState({
+       
+      isLoading: true
+    });
 
-    this.props.pdf(global.USER.personId,global.PASSWORD,"S",global.USER.userId,"20126",trip_hdr_id,trip_no)
+    this.props.pdf(global.USER.userId,global.PASSWORD,global.USER.department,"S",global.USER.folderId,"20126",trip_hdr_id,trip_no,global.USER.personId)
     .then(()=>{
+      this.setState({
+        isLoading: false
+      });
     if( this.props.pdfState.dataSource.message != null || this.props.pdfState.dataSource.message != "")
       {Linking.canOpenURL(this.props.pdfState.dataSource.message).then(supported => {
         if (supported) {
-          Linking.openURL(file);
+          Linking.openURL(this.props.pdfState.dataSource.message);
         } else {
-          console.log("Don't know how to open URI: " + this.props.url);
+          console.log("Don't know how to open URI: " + this.props.pdfState.dataSource.message);
         }
       });
     }else{
@@ -71,6 +80,11 @@ class PjpClaimListScreen extends Component {
 
   render() {
     if(this.props.pjpClaims.isLoading){
+      return(
+          <Loader/>
+      )
+    } 
+    if(this.state.isLoading){
       return(
           <Loader/>
       )

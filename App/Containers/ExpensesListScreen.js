@@ -9,8 +9,8 @@ import Vicon from 'react-native-vector-icons/Ionicons'
 import moment from 'moment'
 import 'moment-precise-range-plugin'
 import Ficon from 'react-native-vector-icons/FontAwesome5'
-
 import styles from './Styles/ExpensesListScreen'
+import { getAllExternalFilesDirs } from 'react-native-fs';
 
 const KEYS_TO_FILTERS = ['trip_no', 'start_date', 'end_date', 'trip_from', 'trip_to', 'status','payment_amount','estimated_cost','actual_claim_amount','currency','actual_claim_currency'];
 const STATUS_ID = ["3","4","9","11","15","17","19","20","21","22","23","24","25","27","29"];
@@ -21,6 +21,7 @@ class ExpensesListScreen extends Component {
 
    
     this.state ={
+      isLoading: false,
       searchTerm: '',
     }
   }; 
@@ -52,14 +53,24 @@ class ExpensesListScreen extends Component {
 
   downloadPdf = (trip_no,trip_hdr_id) => {
 
-    this.props.pdf(global.USER.personId,global.PASSWORD,"N",global.USER.userId,"20126",trip_hdr_id,trip_no)
+    this.setState({
+       
+      isLoading: true
+    });
+    
+    this.props.pdf(global.USER.userId,global.PASSWORD,global.USER.department,"N",global.USER.folderId,"20126",trip_hdr_id,trip_no,global.USER.personId)
+    
     .then(()=>{
-    if( this.props.pdfState.dataSource.message != null || this.props.pdfState.dataSource.message != "")
+
+      this.setState({
+        isLoading: false
+      });
+      if( this.props.pdfState.dataSource.message != null || this.props.pdfState.dataSource.message != "")
       {Linking.canOpenURL(this.props.pdfState.dataSource.message).then(supported => {
         if (supported) {
-          Linking.openURL(file);
+          Linking.openURL(this.props.pdfState.dataSource.message);
         } else {
-          console.log("Don't know how to open URI: " + this.props.url);
+          console.log("Don't know how to open URI: " + this.props.pdfState.dataSource.message);
         }
       });
     }else{
@@ -79,7 +90,7 @@ class ExpensesListScreen extends Component {
    
   render() {
   
-    if(this.props.expenses.isLoading){
+    if(this.state.isLoading){
       return(
           <Loader/>
       )
