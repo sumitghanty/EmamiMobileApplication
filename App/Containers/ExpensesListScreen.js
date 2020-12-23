@@ -89,7 +89,11 @@ class ExpensesListScreen extends Component {
 
    
   render() {
-  
+   if(this.props.expenses.isLoading){
+    return(
+        <Loader/>
+    )
+  }
     if(this.state.isLoading){
       return(
           <Loader/>
