@@ -125,14 +125,14 @@ const StackNavigator = createStackNavigator({
   TripUpdate: {
     screen: TripUpdateScreen,
     navigationOptions: {
-      headerTitle: 'Update Trip',
+      headerTitle: 'Modified Trip',
     }
   },
   TripPlan: {
     screen: TripPlanScreen,
     drawerLabel: "Plan Your Trip",
     navigationOptions: {
-      headerTitle: 'Plan Your Trip',
+      headerTitle: 'Plan Trip',
     },
   },  
   ReqInfo: {
@@ -359,7 +359,7 @@ const StackNavigator = createStackNavigator({
     screen:  PjpClaimInfoScreen,
     drawerLabel: "Claim Details",
     navigationOptions: ({ navigation }) => ({
-      title: 'Claim Details'
+      title: 'Expense Details'
     })
   },
   SalesClaimReq: {

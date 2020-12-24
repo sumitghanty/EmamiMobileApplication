@@ -312,7 +312,7 @@ if(justNotEntered == true) {
     </View>
     <View style={styles.row}>
       <Text style={styles.label}>Eligible Amount/Per Flight:</Text>
-      <Text style={styles.value}>{moment(data.travel_date).format(global.DATEFORMAT)}</Text>
+      <Text style={styles.value}>{data.eligible_amount}</Text>
     </View>
     <View style={styles.row}>
       <Text style={styles.label}>Suitable Time:</Text>
@@ -331,7 +331,7 @@ if(justNotEntered == true) {
       <Text style={styles.value}>{data.travel_to}</Text>
     </View>
     <View style={styles.row}>
-      <Text style={styles.label}>Email:</Text>
+      <Text style={styles.label}>Alternate Email:</Text>
       <Text style={styles.value}>{data.email}</Text>
     </View>
     <View style={styles.row}>

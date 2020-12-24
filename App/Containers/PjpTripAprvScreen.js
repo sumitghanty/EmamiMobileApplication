@@ -676,7 +676,7 @@ class PjpTripAprvScreen extends Component {
         <Text style={styles.cardLabel}>Requisition Amount:</Text>
         <Text style={[styles.cardValue, styles.reqAmnt]}>{data.amount_mode}</Text>
       </View>
-      {data.attachment ?
+      {/* {data.attachment ?
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Attachment:</Text>
         <View style={styles.cardValueCol}>
@@ -692,9 +692,9 @@ class PjpTripAprvScreen extends Component {
             <Image source={{uri:data.attachment}} style={styles.atchImg} resizeMode='contain' />
             :<Icon name="ios-paper" style={styles.atchImgIcon} />}            
           </TouchableOpacity>
-        </View>
+        </View> }
       </View>
-      :null}
+      :null*/}
       {(data.mode == "3" || data.mode == "7" || ((data.mode == "14" || data.mode == "22") && params.place_of_work == "UC")) &&
       <TouchableOpacity style={styles.cardFooter} 
         onPress={() => { 

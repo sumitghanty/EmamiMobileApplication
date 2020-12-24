@@ -1262,7 +1262,7 @@ class NonActaxiReqScreen extends Component {
               <Text style={styles.errorText}>{this.state.tripToError}</Text>
             } */}
             {/* <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Personal Email:</Label>
+              <Label style={styles.formLabel}>Alternate Email:</Label>
               <TextInput 
                 autoCompleteType="email" 
                 type="email"

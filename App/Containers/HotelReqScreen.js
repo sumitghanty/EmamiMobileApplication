@@ -116,6 +116,14 @@ class HotelReqScreen extends Component {
     };
   }
 
+  formatDateForDisplay(date){
+    try{
+      return  date.split('/')[2] +"-"+date.split('/')[1] +"-"+date.split('/')[0];
+    }catch(error){
+    return "2020-05-01";
+    }
+    } 
+
   componentDidMount() {    
     const {params} = this.props.navigation.state;
     let cityType = params.item.sub_category_id == "1BM" ? "Metro"
@@ -1522,6 +1530,7 @@ class HotelReqScreen extends Component {
             <DateTimePicker value={new Date(moment(this.state.dateInv).format('YYYY-MM-DD'))}
               mode={this.state.modeDate}
               display="default"
+              minimumDate={new Date(moment(this.formatDateForDisplay(params.params.creation_date)).format('YYYY-MM-DD'))}
               onChange={this.setDateInv} />
             }
 

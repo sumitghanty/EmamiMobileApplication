@@ -14,6 +14,49 @@ export default StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center'
   },
+  actionBtn: {
+    width: 32,
+    height: 32,
+    marginLeft: 10,
+    borderColor: '#d9534f'
+  },
+  actionBtnIco: {
+    marginLeft: 0,
+    marginRight: 0,
+    textAlign: 'center',
+    width: 32,
+    color: '#d9534f',
+    fontSize: 16
+  },
+  actionBtnPrimary: {
+    borderColor: '#0066b3'
+  },
+  actionBtnIcoPrimary: {
+    color: '#0066b3'
+  },
+  attachRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginTop: 16
+  },
+  atchFileRow: {
+    marginBottom: 6,
+    marginHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  atchFileName: {
+    fontSize: 12,
+    flex: 3
+  },
+  attachType: {
+    marginHorizontal: 16,
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#111',
+    marginBottom: 6
+  },
   acrdTitle: {
     flex: 1,
     fontSize: 15,

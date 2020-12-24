@@ -136,8 +136,15 @@ class AirRequisitionScreen extends Component {
     num = parseFloat(value);
     return num.toFixed(2);
   }
-  
-  componentDidMount() {
+
+  formatDateForDisplay(date){
+try{
+  return  date.split('/')[2] +"-"+date.split('/')[1] +"-"+date.split('/')[0];
+}catch(error){
+return "2020-05-01";
+}
+}  
+componentDidMount() {
     const {params} = this.props.navigation.state;
 
     this.props.getReqLocations()
@@ -1498,7 +1505,7 @@ return total+processing+cgst+igst+sgst;
               <Text style={styles.errorText}>{this.state.tripToError}</Text>
             }
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Personal Email:</Label>
+              <Label style={styles.formLabel}>Alternate Email:</Label>
               <TextInput 
                 autoCompleteType="email" 
                 type="email"
@@ -1615,7 +1622,7 @@ return total+processing+cgst+igst+sgst;
               <Text style={[styles.formInput,styles.readOnly]}>{params.update.travel_to}</Text>
             </Item>
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Personal Email:</Label>
+              <Label style={styles.formLabel}>Alternate Email:</Label>
               <Text style={[styles.formInput,styles.readOnly]}>{params.update.email}</Text>
             </Item>
             <Item picker fixedLabel style={styles.formRow}>
@@ -1813,6 +1820,8 @@ return total+processing+cgst+igst+sgst;
           <DateTimePicker value={new Date(moment(this.state.dateInv).format('YYYY-MM-DD'))}
             mode={this.state.modeDate}
             display="default"
+            minimumDate={new Date(moment(this.formatDateForDisplay(params.params.creation_date)).format('YYYY-MM-DD'))}
+           
             onChange={this.setDateInv} />
           }
           <Item picker fixedLabel style={styles.formRow}>

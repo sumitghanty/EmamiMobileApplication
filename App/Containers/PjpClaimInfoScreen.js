@@ -270,7 +270,7 @@ class PjpClaimInfoScreen extends Component {
       <>
       <ScrollView contentContainerStyle={styles.scrollView}>
         <TouchableOpacity style={styles.title} onPress={()=>{this.setAcrdVisible()}}>
-          <Text style={styles.titleText}>Tour Plan</Text>
+          <Text style={styles.titleText}>Create Expense Details</Text>
           <Icon style={styles.acrdIcon} name={this.state.acrdVisible==0?"md-add-circle":"md-remove-circle"} />
         </TouchableOpacity>
         <View style={{display:this.state.acrdVisible==0?'none':'flex'}}>
@@ -283,7 +283,7 @@ class PjpClaimInfoScreen extends Component {
               end={{ x: 1, y: 0 }}
               >
               <Icon name='ios-add-circle-outline' style={styles.addBtnIcon} />
-              <Text uppercase={false} style={styles.addBtnText}>LINE ITEM</Text>
+              <Text uppercase={false} style={styles.addBtnText}>ADD LINE ITEM</Text>
             </LinearGradient>
          
           </TouchableOpacity>

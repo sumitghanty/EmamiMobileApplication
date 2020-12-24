@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { ScrollView, View, Text, TouchableOpacity, Modal, TextInput, AsyncStorage, Alert, Keyboard, Image } from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity, Modal, TextInput, AsyncStorage, Alert,ActivityIndicator, Keyboard, Image } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 import Icon from 'react-native-vector-icons/Ionicons'
 import RNFetchBlob from 'rn-fetch-blob';
@@ -526,22 +526,47 @@ class PjpClaimAprvScreen extends Component {
             <TouchableOpacity
               style={[styles.modalBtn,styles.modalBtnPrimary]}
               onPress={() => {this.cmntSubmit(); }}>
-              <Text style={[styles.mBtntxt,styles.mBtntxtPrimary]}>Submit</Text>
+              <Text style={[styles.mBtntxt,styles.mBtntxtPrimary]}>ubmit</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
     </ScrollView>
     
-    <Modal
+    { <Modal
       animationType="fade"
       transparent={false}
       visible={this.state.attachData? true : false}
+     
       onRequestClose = {() => {this.attachModalVisible(null)}}>
       <View style={styles.modalHeader}>
         <Text style={styles.modalTitle}>Attachment</Text>
       </View>
-      <ScrollView contentContainerStyle={styles.modaCmntlBody}>
+
+  
+{this.state.attachmentsSalesList.map((item, key) => (
+              (item.doc_type) ?
+              <View key={key}>
+                <Text style={styles.attachType}>{item.doc_type}</Text>
+                <Text style={styles.attachType}>{item.file_name}</Text>
+              
+                  <Text style={styles.atchFileName} numberOfLines = {1}>{item.file_name ? item.file_name: ''}</Text>
+                  
+                             
+                  <Button bordered small rounded primary title = "Download" style={[styles.actionBtn, styles.actionBtnPrimary, item.action == 'C'?{borderColor:'green'}:null]}
+                    onPress={() => {this.downloadImage(item.file_path);}}
+                    >
+                    <Icon name='md-download' style={[styles.actionBtnIco,styles.actionBtnIcoPrimary]} />
+                  </Button>
+                
+                
+                  
+
+               
+              </View>:null
+            ))}
+
+      {/* <ScrollView contentContainerStyle={styles.modaCmntlBody}>
         {this.state.downloadLoading ?
           <Loader/>
         :<View>
@@ -558,18 +583,18 @@ class PjpClaimAprvScreen extends Component {
         :<Icon name="ios-paper" style={styles.atchMdlImgIcon} />}
         <Text style={styles.atchMdlImgName}>{this.getFilename(this.state.attachData)}</Text>
         </View>}
-      </ScrollView>
+      </ScrollView> */}
       <View style={styles.modalCmntFooter}>
         <TouchableOpacity style={[styles.modaCmntlBtn, styles.btnDanger]}
           onPress={() => {this.attachModalVisible(null)}}>
           <Text style={styles.modaCmntlBtnText}>Cancel</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.modaCmntlBtn, styles.btnPrimary]}
+        {/* <TouchableOpacity style={[styles.modaCmntlBtn, styles.btnPrimary]}
           onPress={() => {this.downloadAttachment(this.state.attachData)}}>
           <Text style={styles.modaCmntlBtnText}>Download</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
-    </Modal>
+    </Modal> }
     
     <Modal
       animationType="fade"
@@ -757,8 +782,9 @@ class PjpClaimAprvScreen extends Component {
             .then(()=>{
               console.log('responding......');
               //console.log(this.props.attachmentSales.dataSource);
-              console.log(this.props.attachmentListSales.dataSource[0].file_path);
-              this.downloadAttachment(this.props.attachmentListSales.dataSource[0].file_path)
+              //alert(JSON.stringify(this.props.attachmentListSales.dataSource));
+              this.setState({attachmentsSalesList: this.props.attachmentListSales.dataSource});
+             // this.downloadAttachment(this.props.attachmentListSales.dataSource[0].file_path)
               //console.log(this.props);
               //console.log(this.state);
              // console.log(this.state.attachmentsSalesList);
@@ -804,7 +830,7 @@ class PjpClaimAprvScreen extends Component {
         </View>
       </View>
       :null*/}
-          {data.attachment ?
+          {/* {data.attachment ?
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Attachment:</Text>
         <View style={styles.cardValueCol}>
@@ -822,7 +848,7 @@ class PjpClaimAprvScreen extends Component {
           </TouchableOpacity>
         </View>
       </View>
-      :null}
+      :null} */}
       {data.mode == "3" &&
       <TouchableOpacity style={styles.cardFooter} 
         onPress={() => this.props.navigation.navigate('PjpReqDtl',{data,'claim':true})}>

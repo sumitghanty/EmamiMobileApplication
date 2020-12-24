@@ -155,6 +155,7 @@ class SalesClaimReqScreen extends Component {
      }
 
   componentDidMount() {
+    
     const {params} = this.props.navigation.state;
     var year = parseInt(params.params.year);
     var month = moment().month(params.params.month).format("M");
@@ -856,7 +857,7 @@ class SalesClaimReqScreen extends Component {
       undefined;
   }
 
-  async atchFiles() {
+  async atchFiles(newReqData) {
     const {params} = this.props.navigation.state;
     this.setState({
       uploading: true,
@@ -873,12 +874,16 @@ class SalesClaimReqScreen extends Component {
               fileBase64 = res;
             })
             .then(()=>{
+              let lineitem = "";
+              if(params.update) lineitem = params.update.lineitem;
+              else lineitem = newReqData.lineitem
+              //alert(JSON.stringify(lineitem));
               data = {
                 "repositoryId": global.USER.repositoryId,
                 "folderId": global.USER.folderId,
                 "mimeType": this.state.uploadData[i].file[f].type,
                 "tripNo": params.params.trip_no,
-                "lineItem": this.state.lineitem,
+                "lineItem":  lineitem,
                 "docType": this.state.uploadData[i].type,
                 "userId": params.params.userid,
                 "trip_hdr_id_fk": params.params.trip_hdr_id,
@@ -928,7 +933,10 @@ class SalesClaimReqScreen extends Component {
   }
 
   submitReq = () => {//souvik//
-
+    // if((params.item.category_id == "18" || params.item.category_id == "19") && this.state.fromItem != this.state.toItem ){
+       
+    //   alert("Source and Destination must be same for Holiday & Day off")
+    // }else{
 
     const {params} = this.props.navigation.state;
   
@@ -974,7 +982,8 @@ class SalesClaimReqScreen extends Component {
     } else {
       this.postData();
     }
-  }
+  // }
+}
 
   postData = () => {
     const {params} = this.props.navigation.state;
@@ -998,6 +1007,8 @@ class SalesClaimReqScreen extends Component {
       })
       .then(()=>{
         newReqData = this.props.ceateClaimState.dataSource[index]
+        
+        //alert(newReqData.lineitem);
       })
       .then(()=>{
         this.saveReq(newReqData)
@@ -1181,7 +1192,7 @@ class SalesClaimReqScreen extends Component {
             .then(()=>{
               this.props.postPjpClaimTot([newPJP])
               .then(()=>{
-                this.atchFiles()
+                this.atchFiles(newReq)
                 .then(()=>{
                   /*if(this.state.through == "Travel Agent"){
                     this.props.sendEmailSales({
@@ -1241,7 +1252,8 @@ class SalesClaimReqScreen extends Component {
           .then(()=>{
             this.props.postPjpClaimTot([newPJP])
             .then(()=>{
-              this.atchFiles()
+              
+              this.atchFiles(newReq)
               .then(()=>{
                 this.props.getReqSale(params.params.trip_hdr_id)
                 .then(()=>{
@@ -1660,6 +1672,7 @@ class SalesClaimReqScreen extends Component {
           <DateTimePicker value={new Date(moment(this.state.dateInv).format('YYYY-MM-DD'))}
             mode={this.state.modeDate}
             display="default"
+            minimumDate={new Date(moment(params.params.pjp_date).format('YYYY-MM-DD'))}
             onChange={this.setDateInv} />
           }
 
@@ -1733,6 +1746,7 @@ class SalesClaimReqScreen extends Component {
           <DateTimePicker value={new Date(moment(this.state.dateInv).format('YYYY-MM-DD'))}
             mode={this.state.modeDate}
             display="default"
+            minimumDate={new Date(moment(params.params.pjp_date).format('YYYY-MM-DD'))}
             onChange={this.setDateInv} />
           }
           <Item picker fixedLabel style={styles.formRow}>
@@ -2121,6 +2135,7 @@ class SalesClaimReqScreen extends Component {
             <DateTimePicker value={new Date(moment(this.state.dateInv).format('YYYY-MM-DD'))}
               mode={this.state.modeDate}
               display="default"
+              minimumDate={new Date(moment(params.params.pjp_date).format('YYYY-MM-DD'))}
               onChange={this.setDateInv} />
             }
 

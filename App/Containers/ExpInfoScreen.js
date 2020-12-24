@@ -853,7 +853,7 @@ class ExpInfoScreen extends Component {
               <Text>&nbsp;</Text>
             </TouchableOpacity>
             <View style={styles.modalBody}>
-              <Text style={styles.modalTitle}>Select Requisition Type:</Text>
+              <Text style={styles.modalTitle}>Select Expense Type:</Text>
               <ScrollView>
               {this.props.reqClaimType.dataSource.map((item, index) => {
               
@@ -872,11 +872,9 @@ class ExpInfoScreen extends Component {
                   : item.sub_category_id=='1BNM' ? 'HotelReq'
                   : item.sub_category_id=='4T' ? 'RailCommision'
                  // :item.sub_category_id=='32' ? 'RailCommision'
-                 
-                 : item.id==112 ? 'RailCommision'
+                  : item.id==112 ? 'RailCommision'
                  //:'RailCommision',
-                 
-                 : 'OtherRequisition',
+                  : 'OtherRequisition',
                   {item, params, 'update':false, 'actAmnt':this.state.actAmnt, 'claim':true}
                 )}
                 )}>

@@ -763,7 +763,7 @@ class SalesReqScreen extends Component {
       undefined;
   }
 
-  async atchFiles() {
+  async atchFiles(newReqData) {
     const {params} = this.props.navigation.state;
     this.setState({
       uploading: true,
@@ -780,12 +780,15 @@ class SalesReqScreen extends Component {
               fileBase64 = res;
             })
             .then(()=>{
+              let lineitem = "";
+              if(params.update) lineitem = params.update.lineitem;
+              else lineitem = newReqData.lineitem
               data = {
                 "repositoryId": global.USER.repositoryId,
                 "folderId": global.USER.folderId,
                 "mimeType": this.state.uploadData[i].file[f].type,
                 "tripNo": params.params.trip_no,
-                "lineItem": this.state.lineitem,
+                "lineItem": lineitem,
                 "docType": this.state.uploadData[i].type,
                 "userId": params.params.userid,
                 "trip_hdr_id_fk": params.params.trip_hdr_id,
@@ -808,6 +811,11 @@ class SalesReqScreen extends Component {
   }
 
   submitReq = () => {
+    //const {params} = this.props.navigation.state;
+    //  if((params.item.category_id == "18" || params.item.category_id == "19") && this.state.fromItem != this.state.toItem ){
+       
+    //    alert("Source and Destination must be same for Holiday & Day off");
+    //  }else{
     const {params} = this.props.navigation.state;
     if(params.item.category_id == '7') {
       let shouldSubmit = true;
@@ -836,9 +844,11 @@ class SalesReqScreen extends Component {
     } else {
       this.submitReqData()
     }
+ // }
+  
   }
 
-  submitReqData = () => {
+   submitReqData = () => {
     const {params} = this.props.navigation.state;
     if(!this.state.fromItem.Name || this.state.fromItem.Name == "Select From Location" ||
     !this.state.toItem.Name || this.state.toItem.Name == "Select To Location" ||
@@ -885,7 +895,9 @@ class SalesReqScreen extends Component {
     } else {
       this.postData();
     }
-  }
+   }
+  
+
 
   postData = () => {
     const {params} = this.props.navigation.state;
@@ -928,6 +940,7 @@ class SalesReqScreen extends Component {
    
     return new Date(mdy[0], mdy[1]-1, mdy[2]);
 }
+
 formatCurrntDate() {
   var d = new Date()
    var    month = '' + (d.getMonth() + 1);
@@ -1056,13 +1069,12 @@ var pjpDay = moment(this.state.dateStart).format("YYYY-MM-DD");
     // })
       this.props.generateExp([newReq])
       .then(()=>{
-
         afterSetDistance = this.props.generateExpState.dataSource[0];
+        
         if(afterSetDistance == null || newReq.tripNo != afterSetDistance.tripNo ){
           alert("please check if the User has been assigned the correct Headquater as per the city Master")
           afterSetDistance = newReq;
         }
-        
         //alert("2"+JSON.stringify(this.props.generateExpState.dataSource));
         this.setState({
           hottelGenrateData: this.props.generateExpState.dataSource[0],
@@ -1088,8 +1100,9 @@ var pjpDay = moment(this.state.dateStart).format("YYYY-MM-DD");
           });
         } else {
           //alert(JSON.stringify(afterSetDistance));
+          afterSetDistance.eligible_amount = this.state.maxAmount;
          this.props.updtReqSale([afterSetDistance])
-         // this.props.updtReqSale([])
+          //this.props.updtReqSale([])
           .then(()=>{
             newPJP.status_id = 7;
             newPJP.sub_status_id = "7.4";
@@ -1101,7 +1114,7 @@ var pjpDay = moment(this.state.dateStart).format("YYYY-MM-DD");
           .then(()=>{
             this.props.pjpTotal([newPJP])
             .then(()=>{
-              this.atchFiles()
+              this.atchFiles(newReq)
               .then(()=>{
                 if(this.state.through == "Travel Agent"){
                   this.props.sendEmailSales({
@@ -1221,7 +1234,7 @@ var pjpDay = moment(this.state.dateStart).format("YYYY-MM-DD");
           }
           
           <Item fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Form:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <Label style={styles.formLabel}>From:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
             <View style={styles.pickerWraper}>
               <PickerModal
                 renderSelectView={(disabled, selected, showModal) =>
@@ -1497,7 +1510,7 @@ var pjpDay = moment(this.state.dateStart).format("YYYY-MM-DD");
             <Text style={styles.errorText}>{this.state.flightToError}</Text>
           }          
           <Item fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Email:</Label>
+            <Label style={styles.formLabel}>Alternate Email:</Label>
             <TextInput 
               autoCompleteType="email" 
               type="email"

@@ -174,6 +174,14 @@ class SalesTaxiRequisitionScreen extends Component {
               :'expense_list'
     };
   }
+
+  formatDateForDisplay(date){
+    try{
+      return  date.split('/')[2] +"-"+date.split('/')[1] +"-"+date.split('/')[0];
+    }catch(error){
+    return "2020-05-01";
+    }
+    }  
   
   componentDidMount() {
     const {params} = this.props.navigation.state;
@@ -1039,7 +1047,7 @@ setDateInvnew = (event, date) => {
       undefined;
   }
 
-  async atchFiles() {
+  async atchFiles(newReqData) {
     const {params} = this.props.navigation.state;
     this.setState({
       uploading: true,
@@ -1056,12 +1064,15 @@ setDateInvnew = (event, date) => {
               fileBase64 = res;
             })
             .then(()=>{
+              let lineitem = "";
+              if(params.update) lineitem = params.update.lineitem;
+              else lineitem = newReqData.lineitem
               data = {
                 "repositoryId": global.USER.repositoryId,
                 "folderId": global.USER.folderId,
                 "mimeType": this.state.uploadData[i].file[f].type,
                 "tripNo": params.params.trip_no,
-                "lineItem": this.state.lineitem,
+                "lineItem": lineitem,
                 "docType": this.state.uploadData[i].type,
                 "userId": params.params.userid,
                 "trip_hdr_id_fk": params.params.trip_hdr_id,
@@ -1454,7 +1465,7 @@ else
             .then(()=>{
               this.props.postPjpClaimTot([newPJP])
               .then(()=>{
-                this.atchFiles()
+                this.atchFiles(newReq)
                 .then(()=>{
                   /*if(this.state.through == "Travel Agent"){
                     this.props.sendEmailSales({
@@ -1517,7 +1528,7 @@ else
           .then(()=>{
             this.props.postPjpClaimTot([newPJP])
             .then(()=>{
-              this.atchFiles()
+              this.atchFiles(newReq)
               .then(()=>{
                 this.props.getReqSale(params.params.trip_hdr_id)
                 .then(()=>{
@@ -2687,6 +2698,7 @@ else
             <DateTimePicker value={new Date(moment(this.state.dateInv).format('YYYY-MM-DD'))}
               mode={this.state.modeDate}
               display="default"
+              minimumDate={new Date(moment(params.params.pjp_date).format('YYYY-MM-DD'))}
               onChange={this.setDateInv} />
             }
 

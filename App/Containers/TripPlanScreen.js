@@ -680,7 +680,7 @@ if(msg == "emergency") msg ="One or more of Air Travel requests belong to Emerge
                 end={{ x: 1, y: 0 }}
                 >
                 <Icon name='ios-add-circle-outline' style={styles.addBtnIcon} />
-                <Text uppercase={false} style={styles.addBtnText}>Add Requisition</Text>
+                <Text uppercase={false} style={styles.addBtnText}>Add Line Item</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>

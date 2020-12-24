@@ -418,7 +418,7 @@ if(justNotEntered == true) {
     </View>}
     {data.email &&
     <View style={styles.row}>
-      <Text style={styles.label}>Personal Email:</Text>
+      <Text style={styles.label}>Alternate Email:</Text>
       <Text style={styles.value}>{data.email}</Text>
     </View>}
     </>
@@ -530,7 +530,7 @@ if(justNotEntered == true) {
 
     {data.email ?
     <View style={styles.row}>
-      <Text style={styles.label}>Email:</Text>
+      <Text style={styles.label}>Alternate Email:</Text>
       <Text style={styles.value}>{data.email}</Text>
     </View>:null}
     {(data.vendor_name && data.through == "Travel Agent") ?

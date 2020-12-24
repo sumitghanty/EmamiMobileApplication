@@ -100,6 +100,14 @@ class TrainReqScreen extends Component {
     };
   }
 
+  formatDateForDisplay(date){
+    try{
+      return  date.split('/')[2] +"-"+date.split('/')[1] +"-"+date.split('/')[0];
+    }catch(error){
+    return "2020-05-01";
+    }
+    } 
+
   componentDidMount() {
     const {params} = this.props.navigation.state;
 
@@ -295,11 +303,11 @@ class TrainReqScreen extends Component {
     })
   }
 
-  onValueChangeTime = (time) => {
-    this.setState({
-      time: time
-    });
-  }
+  // onValueChangeTime = (time) => {
+  //   this.setState({
+  //     time: time
+  //   });
+  // }
   onValueChangeClass = (tclass) => {
     this.setState({
       tclass: tclass
@@ -1050,7 +1058,7 @@ class TrainReqScreen extends Component {
                 })}
               </Picker>
             </Item>
-            <Item picker fixedLabel style={styles.formRow}>
+            {/* <Item picker fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Suitable Time:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <Picker
                 mode="dropdown"
@@ -1065,7 +1073,7 @@ class TrainReqScreen extends Component {
                 );
                 })}
               </Picker>
-            </Item>
+            </Item> */}
             <Item picker fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Station/Location From:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <View style={styles.pickerWraper}>
@@ -1126,7 +1134,7 @@ class TrainReqScreen extends Component {
               <Text style={styles.errorText}>{this.state.tripToError}</Text>
             }
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Personal Email:</Label>
+              <Label style={styles.formLabel}>Alternate Email:</Label>
               <TextInput 
                 autoCompleteType="email" 
                 type="email"
@@ -1337,6 +1345,7 @@ class TrainReqScreen extends Component {
             <DateTimePicker value={new Date(moment(this.state.dateInv).format('YYYY-MM-DD'))}
               mode={this.state.modeDate}
               display="default"
+              minimumDate={new Date(moment(this.formatDateForDisplay(params.params.creation_date)).format('YYYY-MM-DD'))}
               onChange={this.setDateInv} />
             }
 

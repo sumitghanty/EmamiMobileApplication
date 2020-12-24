@@ -50,7 +50,7 @@ class TripListScreen extends Component {
       const listData = this.props.trips.dataSource;
       const filteredData = listData?listData.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS)):[]
       var sortList = filteredData;
-      sortList.sort((a,b) => b.trip_hdr_id - a.trip_hdr_id);
+      //sortList.sort((a,b) => b.trip_hdr_id - a.trip_hdr_id);
     return (
       <Container style={styles.container}>
         <View style={styles.searchBar}>

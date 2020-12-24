@@ -70,10 +70,14 @@ class AirReqSalesClaimScreen extends Component {
 
     this.props.getTicketsSales(params.update.trip_no,params.update.lineitem,params.update.trip_hdr_id_fk)
     .then(()=>{
+    
       if(this.props.ticketsSalesList.dataSource.length>0){
         this.setState({
           ticketList: this.props.ticketsSalesList.dataSource
         })
+        //alert(JSON.stringify(this.state.ticketList));
+        //alert(params.update.flight);
+              
         for(var i=0; i<this.props.ticketsSalesList.dataSource.length; i++) {
           if(this.props.ticketsSalesList.dataSource[i].airline==params.update.flight) {
             this.setState({
@@ -83,7 +87,8 @@ class AirReqSalesClaimScreen extends Component {
         }
       }
     })
-
+              
+              
     this.props.getRefernce(this.state.trmName)
     .then(()=>{
       this.setState({
@@ -99,6 +104,8 @@ class AirReqSalesClaimScreen extends Component {
     .then(()=>{
       this.props.getAttachmentsSales(params.params.trip_hdr_id,params.update.trip_no,params.update.lineitem)
       .then(()=>{
+        //alert(JSON.stringify(this.props.attachmentSales.dataSource));
+        //alert(JSON.stringify(this.state.uploadData));
         for(var i=0; i<this.props.attachmentListSales.dataSource.length; i++) {
           for(var j=0; j<this.state.uploadData.length; j++) {
             if(this.props.attachmentListSales.dataSource[i].doc_type == this.state.uploadData[j].type) {
@@ -376,8 +383,11 @@ class AirReqSalesClaimScreen extends Component {
             }
           )          
         .then(()=>{
+          
           this.props.getAttachmentsSales(params.params.trip_hdr_id,this.state.tripNo,params.update.lineitem)
+          
           .then(()=>{
+            
             for(var i=0; i<this.props.attachmentListSales.dataSource.length; i++) {
               for(var j=0; j<this.state.uploadData.length; j++) {
                 if(this.props.attachmentListSales.dataSource[i].doc_type == this.state.uploadData[j].type) {
@@ -422,12 +432,13 @@ class AirReqSalesClaimScreen extends Component {
               fileBase64 = res;
             })
             .then(()=>{
+              //alert(JSON.stringify(params.params));
               data = {
                 "repositoryId": global.USER.repositoryId,
                 "folderId": global.USER.folderId,
                 "mimeType": this.state.uploadData[i].file[f].type,
                 "tripNo": params.params.trip_no,
-                "lineItem": this.state.lineitem,
+                "lineItem": params.update.lineitem,
                 "docType": this.state.uploadData[i].type,
                 "userId": params.params.userid,
                 "trip_hdr_id_fk": params.params.trip_hdr_id,
@@ -448,7 +459,45 @@ class AirReqSalesClaimScreen extends Component {
     }
   }
 
+  addInvoice(newReq){
+    let total = 0;
+        let processing = 0;
+        let cgst = 0;
+        let sgst = 0;
+        let igst = 0;
+       
+        try{
+                   processing = parseFloat(newReq.ta_booking_commission_amount);
+        }catch(error){
+          
+        }
+        try{
+          cgst = parseFloat(newReq.ta_booking_CGST);
+}catch(error){
+ 
+}
+try{
+  sgst = parseFloat(newReq.ta_booking_SGST);
+}catch(error){
+
+}
+try{
+  igst = parseFloat(newReq.ta_booking_IGST);
+}catch(error){
+
+}
+
+try{
+  total = parseFloat(newReq.amount_mode);
+}catch(error){
+
+}
+
+return total+processing+cgst+igst+sgst;
+  }
+
   submitReq = () => {
+    
     const {params} = this.props.navigation.state;
     if(params.item.category_id == '7') {
       let shouldSubmit = true;
@@ -471,6 +520,7 @@ class AirReqSalesClaimScreen extends Component {
       })
       .then(()=>{
         if(shouldSubmit) {
+          
           this.submitReqData()
         }
       })
@@ -478,27 +528,33 @@ class AirReqSalesClaimScreen extends Component {
   }
 
   submitReqData = () => { 
+  
     this.setState({
       isLoading: true
     });   
     const {params} = this.props.navigation.state;
-    if ( !this.state.tcktClass || !this.state.tcktStatus || !this.state.justification ){      
+    if ( !this.state.tcktClass || !this.state.tcktStatus || !this.state.justification ){ 
+         
       if(!this.state.tcktClass) {
         this.setState({
-          tcktClassError: 'Please enter Ticket class'
+          tcktClassError: 'Please enter Ticket class',
+          isLoading: false
         });
       }
       if(!this.state.tcktStatus) {
         this.setState({
           tcktStatusError: 'Please enter Ticket status.',
+          isLoading: false
         });
       }
       if(!this.state.justification) {
         this.setState({
           justificationError: 'Please enter proper justification.',
+          isLoading: false
         });
       }
-    } else {      
+    } else {   
+      
       this.reqUpdate();
     }
   }
@@ -515,6 +571,7 @@ class AirReqSalesClaimScreen extends Component {
       newReq.comment = this.state.msg;
       newReq.status_id = '20';
       newReq.status = this.state.statusName;
+      newReq.claimamount = this.addInvoice(newReq);
     })
     .then(()=>{
       newPJP.status_id = '20';
@@ -523,10 +580,13 @@ class AirReqSalesClaimScreen extends Component {
       newPJP.sub_status = this.state.subStatusName;
     })
     .then(()=>{
+      
         this.props.updtReqSale([newReq])
         .then(()=>{
+          
           this.props.postPjpClaimTot([newPJP])
           .then(()=>{
+            
             this.atchFiles()
             .then(()=>{
               this.props.getReqSale(params.params.trip_hdr_id)
@@ -576,6 +636,7 @@ class AirReqSalesClaimScreen extends Component {
       )
     } else {
       console.log(params);
+      //alert(JSON.stringify(params));
     return (
       <KeyboardAvoidingView style={styles.container} behavior="margin, height, padding">
         <ScrollView contentContainerStyle={styles.scrollView}>
@@ -617,7 +678,7 @@ class AirReqSalesClaimScreen extends Component {
             </Item>:null}
             {params.update.email?
             <Item fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>Email:</Label>
+              <Label style={styles.formLabel}>Alternate Email:</Label>
               <Text style={[styles.formInput,styles.readOnly]}>{params.update.email}</Text>
             </Item>:null}
             {params.update.through?
@@ -669,7 +730,7 @@ class AirReqSalesClaimScreen extends Component {
             </Item>
             <Item picker fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Processing Charges:</Label>
-              <Text style={[styles.formInput,styles.readOnly]}>&nbsp;</Text>
+              <Text style={[styles.formInput,styles.readOnly]}>{params.update.ta_booking_commission_amount}</Text>
             </Item>
           </Form>
           
