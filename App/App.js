@@ -125,7 +125,7 @@ const StackNavigator = createStackNavigator({
   TripUpdate: {
     screen: TripUpdateScreen,
     navigationOptions: {
-      headerTitle: 'Modified Trip',
+      headerTitle: 'Modify Trip',
     }
   },
   TripPlan: {
@@ -144,13 +144,13 @@ const StackNavigator = createStackNavigator({
   TaxiRequisition: {
     screen: TaxiRequisitionScreen,
     navigationOptions: {
-      headerTitle: 'AC Taxi Claim',
+      headerTitle: 'AC Taxi',
     },
   },  
   SalesTaxiRequisition: {
     screen: SalesTaxiRequisitionScreen,
     navigationOptions: {
-      headerTitle: 'Sales AC Taxi Claim',
+      headerTitle: 'Sales AC Taxi',
     },
   },  
   AirRequisition: {

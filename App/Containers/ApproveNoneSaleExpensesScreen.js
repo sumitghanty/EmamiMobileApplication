@@ -115,7 +115,7 @@ class ApproveNoneSaleExpensesScreen extends Component {
                   {item.actual_claim_amount ?
                   <View style={styles.itemRow}>
                     <Text style={styles.itemLabel}>Actual Amount:</Text>
-                    <Text style={styles.itemValue}>{item.actual_claim_currency} {this.formatAmountForDisplay(item.actual_claim_amount)}</Text>
+                    <Text style={styles.itemValue}> {this.formatAmountForDisplay(item.actual_claim_amount)} {item.actual_claim_currency} </Text>
                   </View>:null}
                   <View style={styles.itemRow}>
                     <Text style={styles.itemLabel}>Ageing:</Text>

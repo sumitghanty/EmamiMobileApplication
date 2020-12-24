@@ -556,7 +556,7 @@ if(msg == "emergency") msg ="One or more of Air Travel requests belong to Emerge
         <Content contentContainerStyle={styles.content}>
           <TouchableOpacity style={styles.accordionHeader}
             onPress={()=>{this.setAcrdVisible()}}>
-            <Text style={styles.acrdTitle}>Trip Info</Text>
+            <Text style={styles.acrdTitle}>Modify Trip Details</Text>
             <Icon style={styles.acrdIcon} name={this.state.acrdVisible==0?"add-circle":"remove-circle"} />
           </TouchableOpacity>
           <Form style={{display:this.state.acrdVisible==0?'none':'flex'}}>
