@@ -749,7 +749,7 @@ class ExpInfoScreen extends Component {
               <Text>&nbsp;</Text>
             </TouchableOpacity>
             <View style={styles.modalBody}>
-              <Text style={styles.modalTitle}>Select Requisition Type:</Text>
+              <Text style={styles.modalTitle}>Select Expense Type:</Text>
               <ScrollView>
               {this.props.reqClaimType.dataSource.map((item, index) => {
               return (

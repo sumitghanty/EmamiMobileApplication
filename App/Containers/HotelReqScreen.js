@@ -18,11 +18,26 @@ import styles from './Styles/HotelReqScreen.js'
 
 class HotelReqScreen extends Component {
   static navigationOptions = ({ navigation }) => {
+    
     const handleClearPress = navigation.getParam("handleBackPress", () => {});
-    return {
-      title: "Create Requisition",
-      headerLeft: <HeaderBackButton onPress={handleClearPress} />
-    };
+    const edit = navigation.getParam('claim', false);
+   
+    if(edit == true){
+      return {
+        headerTitle: 'Expense Details',
+        headerLeft: <HeaderBackButton onPress={handleClearPress} />
+      };
+    }else{
+      return {
+        headerTitle: 'Create Requisitions',
+        headerLeft: <HeaderBackButton onPress={handleClearPress} />
+      };
+    }
+
+    // return {
+    //   //ltitle: "Create Requisition",
+    //   headerLeft: <HeaderBackButton onPress={handleClearPress} />
+    // };
   };
 
   constructor(props) {

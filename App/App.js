@@ -156,32 +156,32 @@ const StackNavigator = createStackNavigator({
   AirRequisition: {
     screen: AirRequisitionScreen,
     navigationOptions: {
-      headerTitle: 'Create Requisition',
+     // headerTitle: 'Create Requisition',
     },
   },
   TrainReq: {
     screen: TrainReqScreen,
     navigationOptions: {
-      headerTitle: 'Create Requisition',
+     // headerTitle: 'Create Requisition',
     },
   },
   NonActaxiReq: {
     screen: NonActaxiReqScreen,
     navigationOptions: {
-      headerTitle: 'Create Requisition',
+     // headerTitle: 'Create Requisition',
     },
   },
 
   HotelReq: {
     screen: HotelReqScreen,
     navigationOptions: {
-      headerTitle: 'Create Requisition',
+     // headerTitle: 'Create Requisition',
     },
   },
   OtherRequisition: {
     screen: OtherRequisitionScreen,
     navigationOptions: {
-      headerTitle: 'Create Requisition',
+     // headerTitle: 'Create Requisition',
     },
   },
 	RailCommision: {

@@ -20,13 +20,27 @@ const SUIT_TIME = ['Morning', 'Afternoon', 'Evening', 'Night'];
 
 class TrainReqScreen extends Component {
   static navigationOptions = ({ navigation }) => {
+    
     const handleClearPress = navigation.getParam("handleBackPress", () => {});
-    return {
-      title: "Create Requisition",
-      headerLeft: <HeaderBackButton onPress={handleClearPress} />
-    };
-  };
+    const edit = navigation.getParam('claim', false);
+   
+    if(edit == true){
+      return {
+        headerTitle: 'Expense Details',
+        headerLeft: <HeaderBackButton onPress={handleClearPress} />
+      };
+    }else{
+      return {
+        headerTitle: 'Create Requisitions',
+        headerLeft: <HeaderBackButton onPress={handleClearPress} />
+      };
+    }
 
+    // return {
+    //   //ltitle: "Create Requisition",
+    //   headerLeft: <HeaderBackButton onPress={handleClearPress} />
+    // };
+  };
   constructor(props) {
     super(props);
     const {params} = this.props.navigation.state;

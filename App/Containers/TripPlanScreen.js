@@ -269,7 +269,7 @@ class TripPlanScreen extends Component {
     if(this.state.SelectedDataList.length<1) {
       Alert.alert(
         'Warning',
-        'Please select requisition(s)',
+        'Please select requisition',
         [
           {
             text: 'Ok',
@@ -671,7 +671,7 @@ if(msg == "emergency") msg ="One or more of Air Travel requests belong to Emerge
           </Modal>
           
           <View style={styles.titleBar}>
-            <Text style={styles.titleText}>Created Requisition(s)</Text>
+            <Text style={styles.titleText}>Created Requisitions</Text>
             <TouchableOpacity style={styles.addBtn} onPress={() => {this.setModalVisible(1);}}>
               <LinearGradient
                 style={styles.addBtnBg}
