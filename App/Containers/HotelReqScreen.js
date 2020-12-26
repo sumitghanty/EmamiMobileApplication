@@ -44,6 +44,7 @@ class HotelReqScreen extends Component {
     super(props);
     const {params} = this.props.navigation.state;
     this.state = {
+      showRejectionComment:false,
       curDate: new Date(),
       date: (params.update  && params.update.travel_date)?params.update.travel_date:params.params.start_date,
       dateCin: (params.update && params.update.check_in_date) ? params.update.check_in_date : params.params.start_date,
@@ -141,6 +142,11 @@ class HotelReqScreen extends Component {
 
   componentDidMount() {    
     const {params} = this.props.navigation.state;
+
+    if(params.update.sub_status_id == "10.1")
+     this.setState({ showRejectionComment: true })
+
+
     let cityType = params.item.sub_category_id == "1BM" ? "Metro"
                 :  params.item.sub_category_id == "1BH" ? "HillStation"
                 :  "NonMetro";
@@ -1183,6 +1189,19 @@ class HotelReqScreen extends Component {
     return (
       <KeyboardAvoidingView style={styles.container} behavior="margin, height, padding">
         <ScrollView contentContainerStyle={styles.scrollView}>
+
+        {this.state.showRejectionComment == true ?
+                  <View style={styles.modalBtnDngr}>
+                 <Text style={[styles.formLabel,styles.redText]}>Rejection Reason:</Text>
+               <TextInput 
+              multiline
+              numberOfLines={2}
+              style={styles.redText}
+              underlineColorAndroid="transparent"
+             value = {params.update.req_comment}
+              />
+                  </View>:null}
+
           <View style={styles.titleRow}>
             <Text style={styles.title}>{params.item.sub_category}</Text>
           </View>

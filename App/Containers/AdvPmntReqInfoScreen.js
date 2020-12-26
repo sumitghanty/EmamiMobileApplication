@@ -64,7 +64,9 @@ class AdvPmntReqInfoScreen extends Component {
       isLoading: true,
       modalVisible: false
     });
+  
     const {params} = this.props.navigation.state;
+    
     let newParams = params;
     newParams.advancePaymentStatusId = "16";
     newParams.advancePaymentStatus = "Advance Payment - Rejected by Approver";    
@@ -104,10 +106,11 @@ class AdvPmntReqInfoScreen extends Component {
   rejectTripNonReq() {
     this.changeRejStatus();
     if(this.state.changeStatusDone) {
+    
       this.props.postAprAdvPmnt(this.state.updateParams)
       .then(()=>{
         this.props.sendEmail({
-          "mailId": params.email,
+          "mailId": this.state.updateParams.email,
           "cc": 'chinmaymcc@gmail.co',
           "subject": 'trip #'+this.state.tripNo+' has been rejected.',
           "tripNonSales": this.state.updateParams,

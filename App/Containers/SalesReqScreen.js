@@ -811,11 +811,11 @@ class SalesReqScreen extends Component {
   }
 
   submitReq = () => {
-    //const {params} = this.props.navigation.state;
-    //  if((params.item.category_id == "18" || params.item.category_id == "19") && this.state.fromItem != this.state.toItem ){
+    const {params} = this.props.navigation.state;
+     if((params.item.category_id == "18" || params.item.category_id == "19") && this.state.fromItem != this.state.toItem ){
        
-    //    alert("Source and Destination must be same for Holiday & Day off");
-    //  }else{
+       alert("Source and Destination must be same for Holiday & Day off");
+     }else{
     const {params} = this.props.navigation.state;
     if(params.item.category_id == '7') {
       let shouldSubmit = true;
@@ -844,7 +844,7 @@ class SalesReqScreen extends Component {
     } else {
       this.submitReqData()
     }
- // }
+ }
   
   }
 

@@ -50,6 +50,13 @@ export default StyleSheet.create({
     fontSize: 20,
     marginRight: 12
   },
+  modalBtnDngr: {
+    borderColor: 'red',
+    borderWidth: 1
+  },
+  redText: {
+    color: 'red'
+  },
   mb: {
     marginBottom: 20
   },

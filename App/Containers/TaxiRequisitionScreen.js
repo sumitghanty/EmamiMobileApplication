@@ -31,6 +31,7 @@ class  TaxiRequisitionScreen extends Component {
     super(props);
     const {params} = this.props.navigation.state;
     this.state = {
+      showRejectionComment:false,
       curDate: params.creation_date,
       date: params.update?params.update.travel_date:params.params.start_date,
       through: (params.update && params.update.through) ? params.update.through : "Self",
@@ -121,6 +122,9 @@ class  TaxiRequisitionScreen extends Component {
   componentDidMount() {
     const {params} = this.props.navigation.state;
 
+    if(params.update.sub_status_id == "10.1")
+     this.setState({ showRejectionComment: true })
+    
     this.props.getReqLocations()
     .then(()=>{
       for(var i=0; i<this.props.locations.dataSource.length; i++) {
@@ -1122,7 +1126,18 @@ class  TaxiRequisitionScreen extends Component {
           <View style={styles.titleRow}>
             <Text style={styles.title}>Taxi Requisition {params.update?'Update':'Create'}</Text>
           </View>
-          <Form>            
+          <Form>  
+          {this.state.showRejectionComment == true ?
+                  <View style={styles.modalBtnDngr}>
+                 <Text style={[styles.formLabel,styles.redText]}>Rejection Reason:</Text>
+               <TextInput 
+              multiline
+              numberOfLines={2}
+              style={styles.redText}
+              underlineColorAndroid="transparent"
+             value = {params.update.req_comment}
+              />
+                  </View>:null}          
             <Item fixedLabel style={styles.formRow}>
               <Label style={[styles.formLabel,{flex:2}]}>Eligible Amount/Per Trip:</Label>
               <Text style={[styles.formInput,styles.readOnly,{textAlign:'right'}]}>{params.item.upper_limit}</Text>

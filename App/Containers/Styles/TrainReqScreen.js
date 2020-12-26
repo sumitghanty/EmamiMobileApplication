@@ -21,6 +21,13 @@ export default StyleSheet.create({
     marginTop: 16,
     marginBottom: 16
   },
+  modalBtnDngr: {
+    borderColor: 'red',
+    borderWidth: 1
+  },
+  redText: {
+    color: 'red'
+  },
   readOnly: {
     color: 'rgba(0,0,0,.5)'
   },

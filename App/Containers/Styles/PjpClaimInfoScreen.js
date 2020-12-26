@@ -7,11 +7,28 @@ export default StyleSheet.create({
     alignItems: "center",
     marginTop: 16
   },
+  bar: {
+		backgroundColor: '#f4f4f4',
+		paddingHorizontal: 16,
+		paddingVertical: 8,
+		flexDirection: 'row',
+		alignItems: 'center',
+		borderBottomWidth: 1,
+    borderBottomColor: 'red'
+   
+  },
+  modalBtnDngr: {
+    borderColor: 'red',
+    borderWidth: 1
+  },
   titleText: {
     color: '#fff',
     fontWeight: 'bold',
     margin: 16,
     flex: 1
+  },
+  redText: {
+    color: 'red'
   },
   acrdIcon: {
     fontSize: 24,

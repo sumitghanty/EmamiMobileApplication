@@ -12,7 +12,6 @@ import { connect } from 'react-redux'
 import Actions from '../redux/actions'
 import Toast from 'react-native-simple-toast'
 import RNFS from 'react-native-fs'
-
 import styles from './Styles/TrainReqScreen.js';
 
 const CLASS = ['Sleeper', 'AC-2tier', 'AC-3tier', 'General',];
@@ -46,6 +45,7 @@ class NonActaxiReqScreen extends Component {
     super(props);
     const {params} = this.props.navigation.state;
     this.state = {
+      showRejectionComment:false,
       curDate: params.creation_date,
       date: params.update?params.update.travel_date:params.params.start_date,
       through: (params.update && params.update.through) ? params.update.through : "Self",
@@ -127,6 +127,9 @@ class NonActaxiReqScreen extends Component {
 
   componentDidMount() {
     const {params} = this.props.navigation.state;
+
+    if(params.update.sub_status_id == "10.1")
+     this.setState({ showRejectionComment: true })
 
     this.props.getReqLocations()
     .then(()=>{
@@ -1128,6 +1131,19 @@ class NonActaxiReqScreen extends Component {
     return (
       <KeyboardAvoidingView style={styles.container} behavior="margin, height, padding">
         <ScrollView contentContainerStyle={styles.scrollView}>
+
+        {this.state.showRejectionComment == true ?
+                  <View style={styles.modalBtnDngr}>
+                 <Text style={[styles.formLabel,styles.redText]}>Rejection Reason:</Text>
+               <TextInput 
+              multiline
+              numberOfLines={2}
+              style={styles.redText}
+              underlineColorAndroid="transparent"
+             value = {params.update.req_comment}
+              />
+                  </View>:null}  
+
           <View style={styles.titleRow}>
             <Text style={styles.title}> Non AcTaxi Requisition {params.update?'Update':'Create'}</Text>
           </View>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { ScrollView, View,TouchableOpacity, Alert, Text, Modal, AsyncStorage} from 'react-native'
+import { ScrollView, View,TouchableOpacity, Alert, Text, Modal,TextInput, AsyncStorage} from 'react-native'
 import { Button, Icon} from 'native-base';
 import {Purpose, For} from '../Components/GetValue'
 import LinearGradient from 'react-native-linear-gradient'
@@ -15,6 +15,7 @@ class PjpInfoScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      showRejectionComment:false,
       acrdVisible: 0,
       modalVisible: 0,
       isLoading: false,
@@ -34,9 +35,12 @@ class PjpInfoScreen extends Component {
   }
 
   componentDidMount(props){
-    
     const {params} = this.props.navigation.state
-    //alert(JSON.stringify(params));
+
+    if(params.sub_status_id == "10.1")
+     this.setState({ showRejectionComment: true })
+    
+
     this.props.getReqSale(params.trip_hdr_id)
     .then(()=>{
       console.log('firsttime')
@@ -302,6 +306,18 @@ class PjpInfoScreen extends Component {
     return (
       <>
       <ScrollView contentContainerStyle={styles.scrollView}>
+
+      {this.state.showRejectionComment == true ?
+                  <View style={styles.modalBtnDngr}>
+                 <Text style={[styles.formLabel,styles.redText]}>Rejection Reason:</Text>
+               <TextInput 
+              multiline
+              numberOfLines={2}
+              style={styles.redText}
+              underlineColorAndroid="transparent"
+             value = {params.comment}
+              />
+                  </View>:null}
         <TouchableOpacity style={styles.title} onPress={()=>{this.setAcrdVisible()}}>
           <Text style={styles.titleText}>Tour Plan</Text>
           <Icon style={styles.acrdIcon} name={this.state.acrdVisible==0?"md-add-circle":"md-remove-circle"} />

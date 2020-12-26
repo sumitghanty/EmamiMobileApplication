@@ -19,6 +19,7 @@ class ExpInfoScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      showRejectionComment: false,
       advAcrd: 0,
       tripAcrd: 0,
       claimAcrd: 1,
@@ -47,6 +48,10 @@ class ExpInfoScreen extends Component {
   }
 
   componentDidMount(props){
+
+    
+if(this.props.navigation.state.params.status_id == "23" || this.props.navigation.state.params.status_id == "25")
+this.setState({ showRejectionComment: true })
     this.props.getPlans(this.props.navigation.state.params.trip_hdr_id)
     .then(()=>{
       console.log('firsttime')
@@ -513,6 +518,18 @@ class ExpInfoScreen extends Component {
   // alert("Hi"+ this.state.totalClaimAmount);
     return (
       <ScrollView contentContainerStyle={styles.scrollView}>
+
+{this.state.showRejectionComment == true ?
+                  <View style={styles.modalBtnDngr}>
+                 <Text style={[styles.formLabel,styles.redText]}>Rejection Reason:</Text>
+               <TextInput 
+              multiline
+              numberOfLines={2}
+              style={styles.redText}
+              underlineColorAndroid="transparent"
+             value = {params.comment}
+              />
+                  </View>:null}
         <TouchableOpacity style={styles.accordionHeader}
           onPress={()=>{this.setAdvAcrd()}}>
           <Text style={styles.acrdTitle}>View Advance Details</Text>

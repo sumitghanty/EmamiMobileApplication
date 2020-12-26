@@ -382,11 +382,9 @@ class PjpTripAprvScreen extends Component {
           console.log(value == "A"?'Approve Done':'Reject Done');
         });
       }else{
-        //alert("1x:"+ newParams[0].sub_status_id+ " "+ newParams[0].lineitem+" "+ newParams[0].approverLevel);
-        //alert("2x:"+ newParams[1].sub_status_id+ " "+ newParams[1].lineitem+" "+ newParams[1].approverLevel);
-        //alert("3x:"+ newParams[2].sub_status_id+ " "+ newParams[2].lineitem+" "+ newParams[2].approverLevel);
-        //this.props.postPjpAprv([])
-        this.props.postPjpAprv(newParams)
+       this.props.postPjpAprv(newParams)
+      // alert(JSON.stringify(newParams));
+      // this.props.postPjpAprv([])
       
       .then(()=>{
         this.props.getPjpAprvList(global.USER.personId,[2,3,4,8]);

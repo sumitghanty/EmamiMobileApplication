@@ -13,6 +13,13 @@ export default StyleSheet.create({
     margin: 16,
     flex: 1
   },
+  modalBtnDngr: {
+    borderColor: 'red',
+    borderWidth: 1
+  },
+  redText: {
+    color: 'red'
+  },
   acrdIcon: {
     fontSize: 24,
     marginRight: 16,

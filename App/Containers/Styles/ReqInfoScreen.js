@@ -12,6 +12,13 @@ export default StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(0,0,0,.1)'
     },
+    modalBtnDngr: {
+      borderColor: 'red',
+      borderWidth: 1
+    },
+    redText: {
+      color: 'red'
+    },
     typeIconHolder: {
         width: 54,
         height: 54,

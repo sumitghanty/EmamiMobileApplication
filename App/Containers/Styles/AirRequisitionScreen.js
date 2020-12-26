@@ -13,6 +13,14 @@ export default StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
+  
+modalBtnDngr: {
+  borderColor: 'red',
+  borderWidth: 1
+},
+redText: {
+  color: 'red'
+},
   redtext: {
     fontSize: 16,
     color: '#463f3c',

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity, Picker, Keyboard } from "react-native";
+import { View, TouchableOpacity, Picker, Keyboard, TextInput } from "react-native";
 import { Container, Content, Button, Icon, Text, Form, Item, Label, Input, } from 'native-base';
 import DocumentPicker from 'react-native-document-picker'
 import LinearGradient from 'react-native-linear-gradient'
@@ -17,7 +17,10 @@ class AdvPmntReqScreen extends Component {
   constructor(props) {
     super(props);
     const {params} = this.props.navigation.state;
+    //alert(JSON.stringify(params));
     this.state = {
+      showRejectionComment:(params.advancePaymentStatusId == "16" || params.advancePaymentStatusId == "18") ? true : false,
+      
       currency: 'INR',
       acrdVisible: 0,
       attachFiles: [],
@@ -60,6 +63,8 @@ class AdvPmntReqScreen extends Component {
       }
     }
   }
+
+
 
   onValueChangeCurrency = (value) => {
     this.setState({
@@ -212,6 +217,17 @@ class AdvPmntReqScreen extends Component {
               <Text style={styles.value}>{params.details}</Text>
             </Item>
           </Form>
+          {this.state.showRejectionComment == true ?
+                  <View style={styles.modalBtnDngr}>
+                 <Text style={[styles.formLabel,styles.redText]}>Rejection Reason:</Text>
+               <TextInput 
+              multiline
+              numberOfLines={2}
+              style={styles.redText}
+              underlineColorAndroid="transparent"
+             value = {params.comment}
+              />
+                  </View>:null}
           <Form style={styles.form}>
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Estimated Cost:</Label>

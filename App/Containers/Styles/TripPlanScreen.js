@@ -52,7 +52,7 @@ export default StyleSheet.create({
   modalItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 5,
   },
   modalItemActive: {
     backgroundColor: '#ff4813',

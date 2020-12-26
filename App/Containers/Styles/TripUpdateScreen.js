@@ -16,6 +16,13 @@ export default StyleSheet.create({
         fontWeight: 'bold',
         marginRight: 10
     },
+    modalBtnDngr: {
+        borderColor: 'red',
+        borderWidth: 1
+      },
+      redText: {
+        color: 'red'
+      },
     headerValue: {
         fontSize: 16,
         color: '#fff',

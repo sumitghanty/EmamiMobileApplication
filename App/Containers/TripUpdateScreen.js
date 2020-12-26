@@ -19,12 +19,14 @@ import Vicon from 'react-native-vector-icons/Ionicons'
 const KEYS_TO_FILTERS = ['trip_no', 'creation_date', 'start_date', 'end_date', 'trip_creator_name', 'status'];
 class TripUpdateScreen extends Component {
   constructor(props) {
+
     super(props);
     const {params} = this.props.navigation.state;
     var date = new Date().getDate();
     var month = new Date().getMonth() + 1;
     var year = new Date().getFullYear();
     this.state = {
+      showRejectionComment:false,
       searchTerm: '',
       retainerData:null,
       consultantData:null,
@@ -67,7 +69,8 @@ class TripUpdateScreen extends Component {
   componentDidMount() {
     const {params} = this.props.navigation.state;
      
-     
+     if(params.status_id == "5")
+     this.setState({ showRejectionComment: true })
 
 
     
@@ -285,7 +288,7 @@ class TripUpdateScreen extends Component {
             isLoading: false
           });
        
-       alert(JSON.stringify(this.state.userData.userInfo[0].userId));
+       //alert(JSON.stringify(this.state.userData.userInfo[0].userId));
         })
         .catch((Error) => {
           alert("error"+Error);
@@ -682,6 +685,17 @@ class TripUpdateScreen extends Component {
             <Text style={updateStyles.headerValue}>{params.trip_no}</Text>
           </View>
           <Form>
+          {this.state.showRejectionComment == true ?
+                  <View style={styles.modalBtnDngr}>
+                 <Text style={[styles.formLabel,styles.redText]}>Rejection Reason:</Text>
+               <TextInput 
+              multiline
+              numberOfLines={2}
+              style={styles.redText}
+              underlineColorAndroid="transparent"
+             value = {params.comment}
+              />
+                  </View>:null}
           <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Start Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <TouchableOpacity onPress={this.datepickerStart} style={styles.datePicker}>

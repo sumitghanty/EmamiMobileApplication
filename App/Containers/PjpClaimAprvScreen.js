@@ -363,8 +363,10 @@ class PjpClaimAprvScreen extends Component {
         tripParams.pending_with_email = tripParams.email;
         tripParams.pending_with_name = tripParams.name;
         tripParams.claim_justifiaction = this.state.justification;
+        tripParams.comment = this.state.rejComment;
       })
       .then(()=>{
+        //alert(JSON.stringify(tripParams));
         this.props.postPjpClaimTot([tripParams])
         .then(()=>{
           this.props.getPjpAprvList(global.USER.personId,["21"]);
@@ -526,7 +528,7 @@ class PjpClaimAprvScreen extends Component {
             <TouchableOpacity
               style={[styles.modalBtn,styles.modalBtnPrimary]}
               onPress={() => {this.cmntSubmit(); }}>
-              <Text style={[styles.mBtntxt,styles.mBtntxtPrimary]}>ubmit</Text>
+              <Text style={[styles.mBtntxt,styles.mBtntxtPrimary]}>Submit</Text>
             </TouchableOpacity>
           </View>
         </View>

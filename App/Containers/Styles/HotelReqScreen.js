@@ -13,6 +13,13 @@ export default StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
+  modalBtnDngr: {
+    borderColor: 'red',
+    borderWidth: 1
+  },
+  redText: {
+    color: 'red'
+  },
   formLabel: {
     flex: 2,
     paddingRight: 10,

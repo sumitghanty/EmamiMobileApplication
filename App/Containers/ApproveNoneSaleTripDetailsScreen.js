@@ -149,6 +149,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
           newParams.status_id = "10";
           newParams.sub_status_id = "10.1";
           newParams.status = "Requisition - Rejected by Supervisor";
+          newParams.req_comment = this.state.rejComment;
         }
       }    
       newParams.comment = this.state.rejComment;
@@ -510,6 +511,7 @@ class ApproveNoneSaleTripDetailsScreen extends Component {
             newSelectedDataList.pending_with_email=params.pending_with_email;
             newSelectedDataList.pending_with_name=params.pending_with_name;
             newSelectedDataList.pending_with=params.pending_with;
+            newSelectedDataList.req_comment = this.state.rejComment;
           } else {
             newSelectedDataList.status_id="11";
             newSelectedDataList.status="Plan Trip/PJP";

@@ -16,6 +16,7 @@ class PjpClaimInfoScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      showRejectionComment:false,
       acrdVisible: 0,
       claimAcrd: 1,
       modalVisible: 0,
@@ -39,6 +40,10 @@ class PjpClaimInfoScreen extends Component {
 
   componentDidMount(props){
     const {params} = this.props.navigation.state
+
+    if(params.status_id == "23" || params.status_id == "25")
+     this.setState({ showRejectionComment: true })
+
     this.props.getReqSale(params.trip_hdr_id)
     .then(()=>{
       console.log('firsttime')
@@ -269,6 +274,17 @@ class PjpClaimInfoScreen extends Component {
     return (
       <>
       <ScrollView contentContainerStyle={styles.scrollView}>
+      {this.state.showRejectionComment == true ?
+                  <View style={styles.modalBtnDngr} >
+                 <Text style={[styles.formLabel,styles.redText]}>Rejection Reason:</Text>
+               <TextInput 
+              multiline
+              numberOfLines={2}
+              style={styles.redText}
+              underlineColorAndroid="transparent"
+             value = {params.comment}
+              />
+                  </View>:null}
         <TouchableOpacity style={styles.title} onPress={()=>{this.setAcrdVisible()}}>
           <Text style={styles.titleText}>Create Expense Details</Text>
           <Icon style={styles.acrdIcon} name={this.state.acrdVisible==0?"md-add-circle":"md-remove-circle"} />

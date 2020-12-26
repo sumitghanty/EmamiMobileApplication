@@ -45,6 +45,7 @@ class TrainReqScreen extends Component {
     super(props);
     const {params} = this.props.navigation.state;
     this.state = {
+      showRejectionComment:false,
       curDate: new Date(),
       date: params.update?params.update.travel_date:params.params.start_date,
       through: (params.update && params.update.through) ? params.update.through : "Self",
@@ -124,6 +125,9 @@ class TrainReqScreen extends Component {
 
   componentDidMount() {
     const {params} = this.props.navigation.state;
+
+    if(params.update.sub_status_id == "10.1")
+     this.setState({ showRejectionComment: true })
 
     this.props.getReqLocations()
     .then(()=>{
@@ -1035,6 +1039,19 @@ class TrainReqScreen extends Component {
     return (
       <KeyboardAvoidingView style={styles.container} behavior="margin, height, padding">
         <ScrollView contentContainerStyle={styles.scrollView}>
+
+        {this.state.showRejectionComment == true ?
+                  <View style={styles.modalBtnDngr}>
+                 <Text style={[styles.formLabel,styles.redText]}>Rejection Reason:</Text>
+               <TextInput 
+              multiline
+              numberOfLines={2}
+              style={styles.redText}
+              underlineColorAndroid="transparent"
+             value = {params.update.req_comment}
+              />
+                  </View>:null} 
+
           <View style={styles.titleRow}>
             <Text style={styles.title}>Train Requisition {params.update?'Update':'Create'}</Text>
           </View>

@@ -19,6 +19,7 @@ class ReqInfoScreen extends Component {
     super(props);
     const {params} = this.props.navigation.state;
     this.state = {
+      showRejectionComment:false,
       reqName: '',
       elAmnt: 0,
       ticket: null,
@@ -37,6 +38,9 @@ class ReqInfoScreen extends Component {
 
   componentDidMount(props){
     const {params} = this.props.navigation.state
+
+    if(params.sub_status_id == "10.1")
+     this.setState({ showRejectionComment: true })
   
     this.props.getJustificationList()
     .then(()=>{
@@ -328,6 +332,17 @@ if(justNotEntered == true) {
 
   renderTaxi = (data) => {
     return <>
+    {this.state.showRejectionComment == true ?
+                  <View style={styles.modalBtnDngr}>
+                 <Text style={[styles.formLabel,styles.redText]}>Rejection Reason:</Text>
+               <TextInput 
+              multiline
+              numberOfLines={2}
+              style={styles.redText}
+              underlineColorAndroid="transparent"
+             value = {data.req_comment}
+              />
+                  </View>:null}
     {data.travel_from &&
     <View style={styles.row}>
       <Text style={styles.label}>Destination From:</Text>
@@ -343,6 +358,17 @@ if(justNotEntered == true) {
 
   renderHotel = (data) => {
     return <>
+    {this.state.showRejectionComment == true ?
+                  <View style={styles.modalBtnDngr}>
+                 <Text style={[styles.formLabel,styles.redText]}>Rejection Reason:</Text>
+               <TextInput 
+              multiline
+              numberOfLines={2}
+              style={styles.redText}
+              underlineColorAndroid="transparent"
+              value = {data.req_comment}
+              />
+                  </View>:null}
     {data.state &&
     <View style={styles.row}>
       <Text style={styles.label}>State:</Text>
@@ -392,6 +418,17 @@ if(justNotEntered == true) {
 
   renderTrain = (data) => {
     return <>
+    {this.state.showRejectionComment == true ?
+                  <View style={styles.modalBtnDngr}>
+                 <Text style={[styles.formLabel,styles.redText]}>Rejection Reason:</Text>
+               <TextInput 
+              multiline
+              numberOfLines={2}
+              style={styles.redText}
+              underlineColorAndroid="transparent"
+              value = {data.req_comment}
+              />
+                  </View>:null}
     <View style={styles.row}>
       <Text style={styles.label}>Eligible Amount/Per Trip:</Text>
       <Text style={styles.value}>{this.formatAmountForDisplay(this.state.elAmnt)}</Text>
@@ -437,7 +474,21 @@ if(justNotEntered == true) {
     // }
     return <>
 
-    <Text style={styles.title}>Trip Details</Text>
+<Text style={styles.title}>Trip Details</Text>
+
+{this.state.showRejectionComment == true ?
+                  <View style={styles.modalBtnDngr}>
+                 <Text style={[styles.formLabel,styles.redText]}>Rejection Reason:</Text>
+               <TextInput 
+              multiline
+              numberOfLines={2}
+              style={styles.redText}
+              underlineColorAndroid="transparent"
+              value = {data.req_comment}
+              />
+                  </View>:null}
+
+    
 
     {this.state.showEmergencyJustification ?
     <Item picker style={styles.row}>

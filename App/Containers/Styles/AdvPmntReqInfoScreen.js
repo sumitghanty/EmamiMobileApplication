@@ -60,6 +60,13 @@ export default StyleSheet.create({
     fontSize: 13,
     marginBottom: 6
   },
+  modalBtnDngr: {
+    borderColor: 'red',
+    borderWidth: 1
+  },
+  redText: {
+    color: 'red'
+  },
   downloadBtnGrd: {
     margin: 16,
     borderRadius: 32,
