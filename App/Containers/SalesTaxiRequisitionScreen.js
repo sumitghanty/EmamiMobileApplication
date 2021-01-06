@@ -890,7 +890,21 @@ setDateInvnew = (event, date) => {
         ],
         { cancelable: true }
       );
-    } else {
+    }
+    else if( this.state.curUploadType == "Please select attachment type") {
+      Alert.alert(
+        "",
+        "You have not selected document type. Please choose document type.",
+        [
+          {
+            text: "cancel",
+            style: 'cancel',
+          },
+        ],
+        { cancelable: true }
+      );
+    } 
+    else {
       this.setState({modalAttchVisible: false});
     }
   }

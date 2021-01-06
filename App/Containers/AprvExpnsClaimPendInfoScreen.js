@@ -213,7 +213,7 @@ class AprvExpnsClaimPendInfoScreen extends Component {
     } else {
       Alert.alert(
         'Reject',
-        'Are you sure to Reject this Advance Payment?',
+        'Are you sure to Reject this Expense Claim?',
         [
           {
             text: 'Cancel',

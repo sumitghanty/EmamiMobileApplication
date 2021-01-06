@@ -656,7 +656,9 @@ class HotelReqScreen extends Component {
   }
 
   uploadRequest = ()=> {
-    if(this.state.attachFiles.length<=0) {
+   
+    if(this.state.attachFiles.length<=0 
+     ) {
       Alert.alert(
         "",
         "You have not selected any file. Please choose your file.",
@@ -668,7 +670,21 @@ class HotelReqScreen extends Component {
         ],
         { cancelable: true }
       );
-    } else {
+    }
+    else if( this.state.curUploadType == "Please select attachment type") {
+      Alert.alert(
+        "",
+        "You have not selected document type. Please choose document type.",
+        [
+          {
+            text: "cancel",
+            style: 'cancel',
+          },
+        ],
+        { cancelable: true }
+      );
+    }  
+    else {
       this.setState({modalVisible: false});
     }
   }
@@ -1148,6 +1164,14 @@ class HotelReqScreen extends Component {
     }
   }
 
+  formatDate(date){
+    try{
+ return date.split('-')[2]+"/"+date.split('-')[1]+"/"+date.split('-')[0];
+    }catch(error){
+      return date;
+    }
+  }
+
   render() {
     //alert("check"+this.state.dateCin+ " "+this.state.date)
 
@@ -1272,7 +1296,20 @@ class HotelReqScreen extends Component {
             {this.state.cityError &&
               <Text style={styles.errorText}>{this.state.cityError}</Text>
             }
-            <Item fixedLabel style={styles.formRow}>
+
+<Item fixedLabel style={styles.formRow}>
+              <Label style={styles.formLabel}>Travel Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <TextInput
+                placeholder='0.00' 
+                editable={false} selectTextOnFocus={false}
+                style={styles.formInput}
+                underlineColorAndroid= "rgba(0,0,0,0)"
+                value = {this.formatDate(this.state.date)}
+                keyboardType="decimal-pad"
+                autoCapitalize="words"
+               />
+            </Item>
+            {/* <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Travel Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <TouchableOpacity onPress={this.datepicker} style={styles.datePicker}>
                 <Text style={styles.datePickerLabel}>{moment(this.state.date).format(global.DATEFORMAT)}</Text>
@@ -1282,11 +1319,12 @@ class HotelReqScreen extends Component {
             { this.state.show && 
             <DateTimePicker value={new Date(moment(this.state.date).format('YYYY-MM-DD'))}
               mode="date"
+              enabled={false}
               minimumDate={new Date(moment(params.params.start_date).format('YYYY-MM-DD'))}
               maximumDate={new Date(moment(params.params.end_date).format('YYYY-MM-DD'))}
               display="default"
               onChange={this.setDate} />
-            }
+            } */}
             <Item fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Travel Type:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <Picker

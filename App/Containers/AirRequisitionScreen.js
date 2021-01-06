@@ -118,7 +118,7 @@ class AirRequisitionScreen extends Component {
       igstError:null,
       hsncode: (params.update && params.update.v_hsn_code) ? params.update.v_hsn_code :null,
       hsncodeError:null,
-      tic: (params.update && params.update.ticket_class) ? params.update.ticket_class :null,
+      tic: (params.update && params.update.ticket_class) ? params.update.ticket_class :"Economy",
       ticError: null,
       ticketstatuserror: '',
       showInv: false,
@@ -727,7 +727,21 @@ setColor(item){
         ],
         { cancelable: true }
       );
-    } else {
+    } 
+    else if( this.state.curUploadType == "Please select attachment type") {
+      Alert.alert(
+        "",
+        "You have not selected document type. Please choose document type.",
+        [
+          {
+            text: "cancel",
+            style: 'cancel',
+          },
+        ],
+        { cancelable: true }
+      );
+    } 
+    else {
       this.setState({modalVisible: false});
     }
   }

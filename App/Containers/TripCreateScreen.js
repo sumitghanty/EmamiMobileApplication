@@ -296,7 +296,7 @@ for(i=0;i<startdatearray.length;i++)
        flag:'1'
      });
      //this.state.flag="1"
-     alert("contained")
+     //alert("contained")
      // alert("error"+this.state.error)
      return;
      }
@@ -308,7 +308,7 @@ for(i=0;i<startdatearray.length;i++)
        error: true,
      });
      //this.state.flag="1"
-     alert("contained");
+     //alert("contained");
      return;
      }
      else if(from >= checks && from < checke) {
@@ -329,7 +329,7 @@ for(i=0;i<startdatearray.length;i++)
        flag:"1"
      });
      //this.state.flag="1"
-     alert("contained")
+     //alert("contained")
      return;
      }
      else if(checks == from && checke == from) {
@@ -339,7 +339,7 @@ for(i=0;i<startdatearray.length;i++)
          flag:"1"
        }); 
        //this.state.flag="1"         
-     alert("contained")
+     //alert("contained")
      return;
      }
 

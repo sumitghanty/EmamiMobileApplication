@@ -39,7 +39,7 @@ class AirReqSalesClaimScreen extends Component {
       acrdTwoVisible: 0,
       statusName: '',
       subStatusName: '',
-      tcktClass: (params.update && params.update.ticket_class)?params.update.ticket_class:null,
+      tcktClass: (params.update && params.update.ticket_class)?params.update.ticket_class:"Economy",
       tcktClassError: null,
       tcktStatus: (params.update && params.update.ticket_status)?params.update.ticket_status:null,
       tcktStatusError: null,
@@ -255,7 +255,21 @@ class AirReqSalesClaimScreen extends Component {
         ],
         { cancelable: true }
       );
-    } else {
+    } 
+    else if( this.state.curUploadType == "Please select attachment type") {
+      Alert.alert(
+        "",
+        "You have not selected document type. Please choose document type.",
+        [
+          {
+            text: "cancel",
+            style: 'cancel',
+          },
+        ],
+        { cancelable: true }
+      );
+    }  
+    else {
       this.setState({modalAttchVisible: false});
     }
   }

@@ -377,7 +377,7 @@ class TripUpdateScreen extends Component {
           flag:'1'
         });
         //this.state.flag="1"
-        alert("contained")
+        //alert("contained")
         // alert("error"+this.state.error)
         return;
         }
@@ -389,7 +389,7 @@ class TripUpdateScreen extends Component {
           error: true,
         });
         //this.state.flag="1"
-        alert("contained")
+        //alert("contained")
         return;
         }
         else if(from >= checks && from < checke) {
@@ -399,7 +399,7 @@ class TripUpdateScreen extends Component {
             flag:"1"
           });
           //this.state.flag="1"
-          alert("contained")
+          //alert("contained")
         return;
         }
         
@@ -410,7 +410,7 @@ class TripUpdateScreen extends Component {
           flag:"1"
         });
         //this.state.flag="1"
-        alert("contained")
+        //alert("contained")
         return;
         }
         else if(checks == from && checke == from) {
@@ -420,7 +420,7 @@ class TripUpdateScreen extends Component {
             flag:"1"
           }); 
           //this.state.flag="1"         
-        alert("contained")
+        //alert("contained")
         return;
         }
 
@@ -828,6 +828,7 @@ class TripUpdateScreen extends Component {
             <Item picker fixedLabel style={styles.formRow}>
               <Label style={styles.formLabel}>Trip for:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <Picker
+               enabled={false}
                 mode="dropdown"
                 iosIcon={<Icon name="arrow-down" />}
                 style={[styles.formInput, styles.select]}

@@ -18,7 +18,17 @@ export default StyleSheet.create({
     width: 32,
     height: 32,
     marginLeft: 10,
+    marginBottom:10,
+    marginRight:10,
     borderColor: '#d9534f'
+  },
+  ftrBtnBg: {
+    borderRadius: 24,
+    paddingHorizontal: 8,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   actionBtnIco: {
     marginLeft: 0,
@@ -37,7 +47,7 @@ export default StyleSheet.create({
   attachRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: 16,
+    marginHorizontal: 10,
     marginTop: 16
   },
   atchFileRow: {
@@ -51,9 +61,15 @@ export default StyleSheet.create({
     flex: 3
   },
   attachType: {
-    marginHorizontal: 16,
-    fontSize: 12,
+    marginHorizontal:1,
+    fontSize: 14,
     fontWeight: 'bold',
+    color: '#111',
+    marginBottom: 6
+  },
+  attachType1: {
+    marginHorizontal:0,
+    fontSize: 14,
     color: '#111',
     marginBottom: 6
   },

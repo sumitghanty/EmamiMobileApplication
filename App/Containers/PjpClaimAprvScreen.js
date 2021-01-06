@@ -7,7 +7,8 @@ import moment from 'moment'
 import { connect } from 'react-redux'
 import Actions from '../redux/actions'
 import Toast from 'react-native-simple-toast'
-import { StyleSheet, Button, Linking} from 'react-native';
+import { StyleSheet, Linking} from 'react-native';
+import { Button, Form, Item, Label } from 'native-base';
 import Loader from '../Components/Loader'
 import {Purpose, For} from '../Components/GetValue'
 import styles from './Styles/PjpClaimAprvScreen'
@@ -548,23 +549,20 @@ class PjpClaimAprvScreen extends Component {
   
 {this.state.attachmentsSalesList.map((item, key) => (
               (item.doc_type) ?
-              <View key={key}>
+              <View key={key} style={styles.attachRow}>
                 <Text style={styles.attachType}>{item.doc_type}</Text>
-                <Text style={styles.attachType}>{item.file_name}</Text>
+                <Text style={styles.attachType1}>{item.file_name}</Text>
               
                   <Text style={styles.atchFileName} numberOfLines = {1}>{item.file_name ? item.file_name: ''}</Text>
-                  
-                             
-                  <Button bordered small rounded primary title = "Download" style={[styles.actionBtn, styles.actionBtnPrimary, item.action == 'C'?{borderColor:'green'}:null]}
+                  <Button  bordered small rounded primary style={[styles.actionBtn, styles.actionBtnPrimary, item.action == 'C'?{borderColor:'green'}:null]}
                     onPress={() => {this.downloadImage(item.file_path);}}
                     >
-                    <Icon name='md-download' style={[styles.actionBtnIco,styles.actionBtnIcoPrimary]} />
+                    <Icon name='md-download' 
+                    /* style={{fontSize:16, marginRight:0}} */
+                     style={[styles.actionBtnIco,styles.actionBtnIcoPrimary]}  />
                   </Button>
-                
-                
+                             
                   
-
-               
               </View>:null
             ))}
 
@@ -779,6 +777,7 @@ class PjpClaimAprvScreen extends Component {
         <View style={styles.cardValueCol}>
           <TouchableOpacity style={styles.atchLink}
             onPress={() => {console.log(data);
+              alert(JSON.stringify(data));
              // const {params} = this.props.navigation.state;
             this.props.getAttachmentsSales(data.trip_hdr_id_fk,data.trip_no,data.lineitem)
             .then(()=>{
@@ -786,6 +785,7 @@ class PjpClaimAprvScreen extends Component {
               //console.log(this.props.attachmentSales.dataSource);
               //alert(JSON.stringify(this.props.attachmentListSales.dataSource));
               this.setState({attachmentsSalesList: this.props.attachmentListSales.dataSource});
+              alert(JSON.stringify(this.props.attachmentListSales.dataSource));
              // this.downloadAttachment(this.props.attachmentListSales.dataSource[0].file_path)
               //console.log(this.props);
               //console.log(this.state);
