@@ -1171,7 +1171,7 @@ class  TaxiRequisitionScreen extends Component {
               onChange={this.setDate} />
             }
              <Item picker fixedLabel style={styles.formRow}>
-              <Label style={styles.formLabel}>DestinationFrom:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+              <Label style={styles.formLabel}>Destination From:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
               <TextInput 
                 ref='cgst'
                 onSubmitEditing={() => this.refs.sgst.focus()}

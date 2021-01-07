@@ -545,15 +545,14 @@ class PjpClaimAprvScreen extends Component {
       <View style={styles.modalHeader}>
         <Text style={styles.modalTitle}>Attachment</Text>
       </View>
-
   
-{this.state.attachmentsSalesList.map((item, key) => (
+      {this.state.attachmentsSalesList.map((item, key) => (
               (item.doc_type) ?
               <View key={key} style={styles.attachRow}>
                 <Text style={styles.attachType}>{item.doc_type}</Text>
                 <Text style={styles.attachType1}>{item.file_name}</Text>
               
-                  <Text style={styles.atchFileName} numberOfLines = {1}>{item.file_name ? item.file_name: ''}</Text>
+                  {/* <Text style={styles.atchFileName} numberOfLines = {0}>{item.file_name ? item.file_name:''}</Text> */}
                   <Button  bordered small rounded primary style={[styles.actionBtn, styles.actionBtnPrimary, item.action == 'C'?{borderColor:'green'}:null]}
                     onPress={() => {this.downloadImage(item.file_path);}}
                     >
@@ -772,12 +771,14 @@ class PjpClaimAprvScreen extends Component {
           }
         </Text>
       </View>
+
+      
       <View style={styles.cardRow}>
         <Text style={styles.cardLabel}>Attachment:</Text>
         <View style={styles.cardValueCol}>
           <TouchableOpacity style={styles.atchLink}
             onPress={() => {console.log(data);
-              alert(JSON.stringify(data));
+              //alert(JSON.stringify(data));
              // const {params} = this.props.navigation.state;
             this.props.getAttachmentsSales(data.trip_hdr_id_fk,data.trip_no,data.lineitem)
             .then(()=>{
@@ -785,7 +786,7 @@ class PjpClaimAprvScreen extends Component {
               //console.log(this.props.attachmentSales.dataSource);
               //alert(JSON.stringify(this.props.attachmentListSales.dataSource));
               this.setState({attachmentsSalesList: this.props.attachmentListSales.dataSource});
-              alert(JSON.stringify(this.props.attachmentListSales.dataSource));
+              //alert(JSON.stringify(this.props.attachmentListSales.dataSource));
              // this.downloadAttachment(this.props.attachmentListSales.dataSource[0].file_path)
               //console.log(this.props);
               //console.log(this.state);
@@ -803,10 +804,10 @@ class PjpClaimAprvScreen extends Component {
             this.attachModalVisible(data.attachment);}}>
             {(this.getExtention(data.attachment) == 'webp' ||
               this.getExtention(data.attachment) == 'png' ||
-              this.getExtention(data.attachData) == 'jpg' ||
-              this.getExtention(data.attachData) == 'jpeg' ||
-              this.getExtention(data.attachData) == 'bmp' ||
-              this.getExtention(data.attachData) == 'gif'
+              this.getExtention(data.attachment) == 'jpg' ||
+              this.getExtention(data.attachment) == 'jpeg' ||
+              this.getExtention(data.attachment) == 'bmp' ||
+              this.getExtention(data.attachment) == 'gif'
             ) ?
             <Image source={{uri:data.attachment}} style={styles.atchImg} resizeMode='contain' />
             :<Icon name="ios-paper" style={styles.atchImgIcon} />}            

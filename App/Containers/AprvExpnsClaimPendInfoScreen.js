@@ -7,8 +7,10 @@ import { connect } from 'react-redux'
 import Actions from '../redux/actions'
 import Toast from 'react-native-simple-toast'
 import moment from 'moment'
+import { Button, Form, Item, Label } from 'native-base';
 import RNFetchBlob from 'rn-fetch-blob'
-import { StyleSheet, Button, Linking} from 'react-native';
+import { StyleSheet, Linking} from 'react-native';
+
 import {Purpose, For, ReqType} from '../Components/GetValue'
 import Loader from '../Components/Loader'
 import styles from './Styles/AprvExpnsClaimPendInfoScreen'
@@ -19,6 +21,7 @@ class AprvExpnsClaimPendInfoScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      attachmentsNonSalesList:[],
       modalVisible: false,
       claimAcrd: 0,
       advAcrd: 0,
@@ -292,21 +295,71 @@ class AprvExpnsClaimPendInfoScreen extends Component {
     }
   }
 
+  findAmount(data){
+    if(data.planData.invoice_total_amount != null) return data.planData.invoice_total_amount;
+    else{
+      if(data.planData.invoice_amount != null) return data.planData.invoice_amount;
+      else return data.amount;
+    } 
+  }
+
   render() {
     if(this.state.isLoading 
       || this.props.plans.isLoading 
       || this.props.reqName.isLoading
+      || this.props.reqClaimType.isLoading
       || this.props.attachmentList.isLoading){
       return(
           <Loader/>
       )
-    } else if (this.props.plans.errorStatus || this.props.reqName.errorStatus || this.props.attachmentList.errorStatus) {
+    } else if (this.props.plans.errorStatus || this.props.reqName.errorStatus || this.props.attachmentList.errorStatus || this.props.reqClaimType.errorStatus) {
       return (
         <Text>URL Error</Text>
       )
-    } else {
+    } else if(!this.state.isLoading 
+      || !this.props.plans.isLoading 
+      || !this.props.reqName.isLoading
+      || !this.props.reqClaimType.isLoading
+      || !this.props.attachmentList.isLoading) {
     const {params} = this.props.navigation.state;
     //console.log(this.state.planList.length);
+    var sortList = this.props.plans.dataSource;
+    sortList.sort((a,b) => b.trip_hdr_id - a.trip_hdr_id);
+    console.log(sortList)
+    var totalClaimAmountTemp = 0;
+
+    for (i = 0; i < sortList.length; i++){
+      if(sortList[i].req_type == "1"){
+        if(sortList[i].invoice_total_amount != null && sortList[i].invoice_total_amount != ""){
+          totalClaimAmountTemp = totalClaimAmountTemp+parseInt(sortList[i].invoice_total_amount);
+        }
+       else if(sortList[i].invoice_amount != null && sortList[i].invoice_amount != ""){
+        totalClaimAmountTemp = totalClaimAmountTemp+parseInt(sortList[i].invoice_amount);
+       }
+      }
+       else if(sortList[i].req_type == "4T"){
+        if(sortList[i].invoice_total_amount != null && sortList[i].invoice_total_amount != "")
+        totalClaimAmountTemp = totalClaimAmountTemp+parseInt(sortList[i].invoice_total_amount);
+       }
+       else{
+      for (j = 0; j < this.props.reqClaimType.dataSource.length; j++){
+       
+        if( sortList[i].req_type == this.props.reqClaimType.dataSource[j].sub_category_id){
+          if(this.props.reqClaimType.dataSource[j].bill_required =="Y"){
+            if(sortList[i].invoice_amount != null && sortList[i].invoice_amount != "")
+            totalClaimAmountTemp = totalClaimAmountTemp+parseInt(sortList[i].invoice_amount);
+            
+          }else{
+            if(sortList[i].amount != null && sortList[i].amount != "")
+            totalClaimAmountTemp = totalClaimAmountTemp+parseInt(sortList[i].amount);
+          
+          }
+        }
+      }
+    }
+     }
+     params.actual_claim_amount = totalClaimAmountTemp;
+
     return (
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollView}>
@@ -486,7 +539,28 @@ class AprvExpnsClaimPendInfoScreen extends Component {
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Attachment</Text>
           </View>
-          <ScrollView contentContainerStyle={styles.modaCmntlBody}>
+
+          {this.state.attachmentsNonSalesList.map((item, key) => (
+              (item.doc_type) ?
+              <View key={key} style={styles.attachRow}>
+                <Text style={styles.attachType}>{item.doc_type}</Text>
+                <Text style={styles.attachType1}>{item.file_name}</Text>
+              
+                   <Text style={styles.atchFileName} numberOfLines = {0}>    </Text> 
+                  <Button  bordered small rounded primary style={[styles.actionBtn, styles.actionBtnPrimary, item.action == 'C'?{borderColor:'green'}:null]}
+                    onPress={() => {this.downloadImage(item.file_path);}}
+                    >
+                    <Icon name='md-download' 
+                    /* style={{fontSize:16, marginRight:0}} */
+                     style={[styles.actionBtnIco,styles.actionBtnIcoPrimary]}  />
+                  </Button>
+                             
+                  
+              </View>:null
+            ))}
+
+
+          {/* <ScrollView contentContainerStyle={styles.modaCmntlBody}>
             <View>
             {(this.getExtention(this.state.attachData) == 'webp' ||
               this.getExtention(this.state.attachData) == 'png' ||
@@ -501,16 +575,16 @@ class AprvExpnsClaimPendInfoScreen extends Component {
             :<Icon name="ios-paper" style={styles.atchMdlImgIcon} />}
             <Text style={styles.atchMdlImgName}>{this.getFilename(this.state.attachData)}</Text>
             </View>
-          </ScrollView>
+          </ScrollView> */}
           <View style={styles.modalCmntFooter}>
             <TouchableOpacity style={[styles.modaCmntlBtn, styles.btnDanger]}
               onPress={() => {this.attachModalVisible(null)}}>
               <Text style={styles.modaCmntlBtnText}>Cancel</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.modaCmntlBtn, styles.btnPrimary]}
+            {/* <TouchableOpacity style={[styles.modaCmntlBtn, styles.btnPrimary]}
               onPress={() => {this.downloadAttachment(this.state.attachData)}}>
               <Text style={styles.modaCmntlBtnText}>Download</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </Modal>
 
@@ -566,7 +640,7 @@ class AprvExpnsClaimPendInfoScreen extends Component {
         </View>
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>Amount:</Text>
-          <Text style={styles.cardValue}>{this.formatAmountForDisplay(data.planData.amount?data.planData.amount:'0')}</Text>
+          <Text style={styles.cardValue}>{this.formatAmountForDisplay(this.findAmount(data))}</Text>
         </View>
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>Extra Amount:</Text>
@@ -580,11 +654,12 @@ class AprvExpnsClaimPendInfoScreen extends Component {
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>Attachment:</Text>
           <View style={styles.cardValueCol}>
-            <FlatList
-              data={data.attachment}
-              keyExtractor={(item, index) => index.toString() }
-              horizontal= {true}
-              renderItem={({ item }) => <TouchableOpacity style={styles.atchLink} key={index}
+            
+              {/* data={data.attachment}
+              //keyExtractor={(item, index) => index.toString() }
+              //horizontal= {true}
+              renderItem={({ item }) =>  */}
+              <TouchableOpacity style={styles.atchLink} /* key={index} */
                  // onPress={() => {this.attachModalVisible(item.file_path);}}>
                  // {
                  /* (this.getExtention(item.file_name) == 'webp' ||
@@ -597,34 +672,37 @@ class AprvExpnsClaimPendInfoScreen extends Component {
                   <Image source={{uri:item.file_path}} style={styles.atchImg} resizeMode='contain' />
                   :<Icon name="ios-paper" style={styles.atchImgIcon} />*/
                  // }   
-                 onPress={() => {console.log(data);console.log('aaa'+data.planData);
+                 onPress={() => {/* console.log(data); */console.log('aaa'+data.planData);
+                 //alert(JSON.stringify(data));
+                 //alert(JSON.stringify(data.planData));
                   // const {params} = this.props.navigation.state;
                  this.props.getAttachments(data.planData.trip_hdr_id_fk,data.planData.trip_no,data.planData.lineitem)
                  .then(()=>{
-                   console.log(data.planData.trip_hdr_id_fk);
+                  /*  console.log(data.planData.trip_hdr_id_fk);
                    console.log(data.planData.trip_no);
-                   console.log(data.planData.lineitem);
+                   console.log(data.planData.lineitem); */
                    console.log('responding......');
-                   console.log(this.props.attachmentList);
+                   this.setState({attachmentsNonSalesList: this.props.attachmentList.dataSource});
+                   /* console.log(this.props.attachmentList);
                    console.log('jgadgas');
                    console.log(this.props.attachmentList.dataSource[0]);
                    console.log(this.props.attachmentList.dataSource[0].file_path);
-                   this.downloadAttachment(this.props.attachmentList.dataSource[0].file_path)            
+                   this.downloadAttachment(this.props.attachmentList.dataSource[0].file_path)        */     
                  });
                  this.attachModalVisible(data.attachment);}}>
                     {
-                  (this.getExtention(item.file_name) == 'webp' ||
-                    this.getExtention(item.file_name) == 'png' ||
-                    this.getExtention(item.file_name) == 'jpg' ||
-                    this.getExtention(item.file_name) == 'jpeg' ||
-                    this.getExtention(item.file_name) == 'bmp' ||
-                    this.getExtention(item.file_name) == 'gif'
+                  (this.getExtention(data.attachment) == 'webp' ||
+                    this.getExtention(data.attachment) == 'png' ||
+                    this.getExtention(data.attachment) == 'jpg' ||
+                    this.getExtention(data.attachment) == 'jpeg' ||
+                    this.getExtention(data.attachment) == 'bmp' ||
+                    this.getExtention(data.attachment) == 'gif'
                   ) ?
-                  <Image source={{uri:item.file_path}} style={styles.atchImg} resizeMode='contain' />
+                  <Image source={{uri:data.attachment}} style={styles.atchImg} resizeMode='contain' />
                   :<Icon name="ios-paper" style={styles.atchImgIcon} />
                   }  
-                </TouchableOpacity>}
-            />
+                </TouchableOpacity>
+            
           </View>
         </View>
       </View>    
@@ -642,6 +720,7 @@ const mapStateToProps = state => {
     expAprv: state.expAprv,
     plans: state.plans,
     costCentre: state.costCentre,
+    reqClaimType: state.reqClaimType,
     aprExpPend: state.aprExpPend,
     attachmentList: state.attachmentList,
     statusResult: state.statusResult,
@@ -655,6 +734,7 @@ const mapDispatchToProps = {
   getExpPendApr : Actions.getExpPendApr,
   getCostCentre : Actions.getCostCentre,
   getPlans : Actions.getPlans,
+  getReqClaimType : Actions.getReqClaimType,
   getAttachments: Actions.getAttachments,
   getStatus: Actions.getStatus,
   sendEmail: Actions.sendEmail,

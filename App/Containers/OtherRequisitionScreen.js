@@ -527,12 +527,12 @@ class OtherRequisitionScreen extends Component {
           <Item fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>End Date:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
             <TouchableOpacity onPress={this.datepickerEnd} style={styles.datePicker}>
-              <Text style={styles.datePickerLabel}>{moment(this.state.dateEnd).format("DD-MM-YYYY")}</Text>
+              <Text style={styles.datePickerLabel}>{moment(params.params.end_date).format("DD-MM-YYYY")}</Text>
               <Icon name="calendar" style={styles.datePickerIcon} />
             </TouchableOpacity>
           </Item>
           { this.state.showEnd && 
-          <DateTimePicker value={new Date(moment(this.state.dateStart).format('YYYY-MM-DD'))}
+          <DateTimePicker value={new Date(moment(this.state.end_date).format('YYYY-MM-DD'))}
             mode="date"
             minimumDate={new Date(moment(params.params.start_date).format('YYYY-MM-DD'))}
             maximumDate={new Date(moment(params.params.end_date).format('YYYY-MM-DD'))}

@@ -27,6 +27,51 @@ export default StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,.1)'
   },
+  actionBtn: {
+    width: 32,
+    height: 32,
+    marginBottom:10,
+    marginRight:10,
+    borderColor: '#d9534f'
+  },
+  actionBtnIco: {
+    marginLeft: 0,
+    marginRight: 0,
+    textAlign: 'center',
+    width: 32,
+    color: '#d9534f',
+    fontSize: 16
+  },
+  actionBtnPrimary: {
+    borderColor: '#0066b3'
+  },
+  actionBtnIcoPrimary: {
+    color: '#0066b3'
+  },
+  atchFileName: {
+    fontSize: 12,
+    flex: 3
+  },
+  attachRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    marginTop: 16
+  },
+  attachType: {
+    marginHorizontal:1,
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#111',
+    marginBottom: 6
+  },
+  attachType1: {
+    marginStart:25,
+    fontSize: 14,
+    color: '#111',
+    marginBottom: 6
+  
+  },
   subTitle: {
     marginHorizontal: 16,
     marginTop: 16,

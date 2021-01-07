@@ -425,12 +425,31 @@ class TripUpdateScreen extends Component {
         }
 
  }
-    
+
+ var today = new Date();
+var year = 0;
+var month  = today.getMonth();
+if(month  == 0 || month  == 1 || month  == 2 ){
+  year = today.getFullYear();
+}else{
+  year = today.getFullYear()+1;
+}
+   var yearLastDate =   new Date(year+'-03-31');
    var date1 = new Date(moment(this.state.dateStart).format("MM/DD/YYYY")); 
    var date2 = new Date(moment(this.state.dateEnd).format("MM/DD/YYYY")); 
    
    // To calculate the time difference of two dates 
     var Difference_In_Time = date2.getTime() - date1.getTime(); 
+    var Difference_In_Time_till_last_date = yearLastDate.getTime() - date1.getTime();
+
+    if(Difference_In_Time_till_last_date < 0){
+      this.setState({
+        error: true,
+        dateErrorh: 'Please select correct date'
+      });
+      alert("Trip can Start only in the Current Financial Year(31st of March)");
+     return;
+    }
    
    
      

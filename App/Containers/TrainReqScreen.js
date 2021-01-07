@@ -1067,7 +1067,7 @@ class TrainReqScreen extends Component {
                   </View>:null} 
 
           <View style={styles.titleRow}>
-            <Text style={styles.title}>Train Requisition {params.update?'Update':'Create'}</Text>
+            <Text style={styles.title}> {params.update?'Train':'Train Requisition Create'}</Text>
           </View>
           <Form>            
             <Item fixedLabel style={styles.formRow}>
