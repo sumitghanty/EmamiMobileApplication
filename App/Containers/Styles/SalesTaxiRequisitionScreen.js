@@ -41,7 +41,7 @@ export default StyleSheet.create({
   },
 
   formInputShot: {
-    flex: 2
+    flex: 5
   },
   attachType: {
     marginHorizontal: 16,

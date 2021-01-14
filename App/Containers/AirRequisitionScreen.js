@@ -2231,7 +2231,7 @@ return total+processing+cgst+igst+sgst;
       amount: data.price,
       OOP: data.type == 'YES'?'Y':'N'
     })
-    alert(this.state.amount);
+    //alert(this.state.amount);
   }
   selectTicket=(data)=>{
    // alert(JSON.stringify(data.price));

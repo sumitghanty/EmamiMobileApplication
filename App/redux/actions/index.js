@@ -63,6 +63,7 @@ import {pjpUpdate} from './PJPUpdate'
 import {pjpTotal} from './PJPTotal'
 import {pjpDelete} from './PJPDelete'
 import {getMaxAmnt} from './GetMaxAmnt'
+import {getMaxAmntSales} from './GetMaxAmntSales'
 import {getYear} from './GetYear'
 import {getPjpByMonth} from './GetPjpByMonth'
 import {pdf} from './Pdf'
@@ -145,6 +146,7 @@ export default {
 	pjpDelete:pjpDelete,
 	pjpUpdate:pjpUpdate,
 	getMaxAmnt:getMaxAmnt,
+	getMaxAmntSales:getMaxAmntSales,
 	getYear:getYear,
 	getPjpByMonth:getPjpByMonth,
 	pdf:pdf,

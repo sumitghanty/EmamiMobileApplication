@@ -41,6 +41,8 @@ class PjpClaimInfoScreen extends Component {
   componentDidMount(props){
     const {params} = this.props.navigation.state
 
+    //alert(JSON.stringify(this.props.reqListSales.dataSource));
+
     if(params.status_id == "23" || params.status_id == "25")
      this.setState({ showRejectionComment: true })
 
@@ -59,6 +61,9 @@ class PjpClaimInfoScreen extends Component {
     });
 
     this.props.getReqTypeSale(global.USER.grade)  
+
+   //alert(JSON.stringify(this.props.reqTypeSale.dataSource));
+    //alert(JSON.stringify(getTravelModeList));
     
     this.props.navigation.addListener(
       'didFocus',
@@ -177,6 +182,58 @@ class PjpClaimInfoScreen extends Component {
       });
     })
   }
+
+
+
+  tripSubmitConfirmation() {
+    if(this.props.reqListSales.dataSource.length>0){
+      //alert(JSON.stringify(this.props.reqListSales.dataSource));
+      for(var i=0; i< this.props.reqListSales.dataSource.length; i++) {
+        if(this.props.reqListSales.dataSource[i].status_id == '9' && this.props.reqListSales.dataSource[i].delete_status == 'false') {
+          Alert.alert(
+            'Warning',
+            'One or more Requisition is not complete. Please complete unsaved requisition',
+            [
+              {
+                text: 'Ok',
+                style: 'cancel',
+              },
+            ],
+            {cancelable: true},
+          )
+          break;
+        }
+      }
+      Alert.alert(
+        'Submit',
+        'Do you want to Submit?',
+        [
+          {
+            text: 'No',
+            style: 'cancel',
+          },
+          {
+            text: 'Yes', 
+            onPress: () => this. submitData()
+          },
+        ],
+        {cancelable: true},
+      )
+    } else {
+      Alert.alert(
+        'Warning',
+        'There is no requisition in the list to save',
+        [
+          {
+            text: 'Ok',
+            style: 'cancel',
+          },
+        ],
+        {cancelable: true},
+      ) 
+    }
+  }
+
 
   submitData() {
     const {params} = this.props.navigation.state;
@@ -384,7 +441,7 @@ class PjpClaimInfoScreen extends Component {
         </Modal>     
       </ScrollView>
       
-      <TouchableOpacity style={styles.ftrBtn} onPress={() => {this.submitData();}}>
+      <TouchableOpacity style={styles.ftrBtn} onPress={() => {this. tripSubmitConfirmation()}}>
         <LinearGradient
           style={styles.ftrBtnBg}
           colors={["#0066b3", "#740bff"]}

@@ -125,8 +125,8 @@ class SalesTaxiRequisitionScreen extends Component {
       Tonew: (params.update && params.update.travel_to) ? params.update.travel_to :null,
       Fromnew: (params.update && params.update.travel_from) ? params.update.travel_from :null,
       //souvik
-      claimingnew: (params.update && params.update.invoice_amount) ? params.update.invoice_amount :null,
-      //claimingnew: (params.update && params.update.claimamount) ? params.update.claimamount :null,
+      //claimingnew: (params.update && params.update.invoice_amount) ? params.update.invoice_amount :null,
+      claimingnew: (params.update && params.update.claimamount) ? params.update.claimamount :null,
       sgst: (params.update && params.update.vendor_SGST) ? params.update.vendor_SGST :null,
       igst: (params.update && params.update.vendor_IGST) ? params.update.vendor_IGST :null,
       hsncode: (params.update && params.update.v_hsn_code) ? params.update.v_hsn_code :null,
@@ -163,9 +163,10 @@ class SalesTaxiRequisitionScreen extends Component {
       curUploadType: 'Approve Email',
       attachFiles: [],
       flieSizeIssue: false,
+      
       trmName: params.item.category_id == '7'?'claim_airTravel_list'
               : params.item.category_id == '22'?'claim_hotel_list'
-              : params.item.category_id == '23'?'claim_acTaxi_list'
+              :( params.item.category_id == '23' ||  params.item.category_id == '32')?'claim_acTaxi_list'
               : params.item.category_id == '24'?'claim_nonAcTaxi_list'
               : params.item.category_id == '3'?'claim_train_list'
               : params.item.category_id == '4'?'claim_DA_list'
@@ -173,6 +174,8 @@ class SalesTaxiRequisitionScreen extends Component {
               :params.item.category_id=='10'?'claim_S_P-S_list'
               :'expense_list'
     };
+
+   // alert(params.item.category_id)
   }
 
   formatDateForDisplay(date){
@@ -1108,6 +1111,7 @@ setDateInvnew = (event, date) => {
   }
 
   formSubmit = () => {
+    
     let shouldSubmit = true;
     AsyncStorage.getItem("ASYNC_STORAGE_SUBMIT_KEY")
     /*.then(()=>{
@@ -1457,8 +1461,9 @@ else
             afterSetDistance.gstin=this.state.vendorGSTIN;
             afterSetDistance.travel_to=this.state.Tonew;;
             afterSetDistance.travel_from=this.state.Fromnew;
-            //afterSetDistance.claimamount=this.state.claimingnew;
-            afterSetDistance.invoice_amount=this.state.claimingnew; 
+            afterSetDistance.claimamount=this.state.claimingnew;
+            afterSetDistance.amount_mode="0.00";
+            //afterSetDistance.invoice_amount=this.state.claimingnew; 
           
           
 
@@ -1835,7 +1840,7 @@ else
             <Text style={[styles.value,styles.readOnly]}>{parseFloat(this.state.rqAmnt)}</Text>
           </Item> */}
           <Item fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Amount:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <Label style={styles.formLabel}>Claim Amount:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
             <TextInput 
               placeholder='0.00' 
               style={styles.formInput}

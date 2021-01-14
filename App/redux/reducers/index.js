@@ -63,6 +63,7 @@ import PJPCreateReducer from './PJPCreate'
 import PJPUpdateReducer from './PJPUpdate'
 import PJPDeleteReducer from './PJPDelete'
 import GetMaxAmntReducer from './GetMaxAmnt'
+import GetMaxAmntSalesReducer from './GetMaxAmntSales'
 import GetYearReducer from './GetYear'
 import GetPjpByMonthReducer from './GetPjpByMonth'
 import PdfReducer from './Pdf'
@@ -145,6 +146,7 @@ export default {
 	pjpUpdateState:PJPUpdateReducer,
 	pjpDeleteState:PJPDeleteReducer,
 	maxAmntState:GetMaxAmntReducer,
+	maxAmntSalesState:GetMaxAmntSalesReducer,
 	yearList:GetYearReducer,
 	getPjpByMonthState:GetPjpByMonthReducer,
 	pdfState:PdfReducer,

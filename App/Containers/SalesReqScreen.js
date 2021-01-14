@@ -915,14 +915,17 @@ class SalesReqScreen extends Component {
 
   postData = () => {
     const {params} = this.props.navigation.state;
+    //alert("update:"+params.update);
+    //alert("hottelGenrateData:"+this.state.hottelGenrateData);
     this.setState({
       isLoading: true,
     });
 
   
     if(params.update){
-      //alert("1:"+params.update);
+      
       this.saveReq(params.update)
+      
     }
     else if(this.state.hottelGenrateData) {
       this.setState({
@@ -1107,7 +1110,8 @@ var pjpDay = moment(this.state.dateStart).format("YYYY-MM-DD");
       })
       .then(()=>{
         if((afterSetDistance.mode == "14" || afterSetDistance.mode == "22") 
-            && afterSetDistance.place_of_work == 'UC' && this.state.uc == 'NA') {
+           && afterSetDistance.place_of_work == 'UC' && this.state.uc == 'NA')//might need to change as per requirement
+             {
           this.setState({
             modalFormVisible: 1,
             isLoading: false,

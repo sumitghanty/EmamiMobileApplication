@@ -35,6 +35,8 @@ class SalesClaimReqScreen extends Component {
     super(props);    
     const {params} = this.props.navigation.state;
     this.state = {
+     dest_city_class :"",
+     dest_city_type : "",
       locationList: [],
       fromItem: {"Name": (params.update && params.update.source_city_name) ? params.update.source_city_name : "Select From Location", 
                   "Value": "", "Code": "", 
@@ -136,6 +138,7 @@ class SalesClaimReqScreen extends Component {
       curUploadType: 'Approve Email',
       attachFiles: [],
       flieSizeIssue: false,
+      categoryType:params.item.category_id,
       trmName: params.item.category_id == '7'?'claim_airTravel_list'
               : params.item.category_id == '22'?'claim_hotel_list'
               : params.item.category_id == '23'?'claim_acTaxi_list'
@@ -155,8 +158,9 @@ class SalesClaimReqScreen extends Component {
      }
 
   componentDidMount() {
-    
     const {params} = this.props.navigation.state;
+    
+    //alert(JSON.stringify(params));
     var year = parseInt(params.params.year);
     var month = moment().month(params.params.month).format("M");
     this.setState({
@@ -167,21 +171,69 @@ class SalesClaimReqScreen extends Component {
       dateCout: (params.update && params.update.check_out_date) ? new Date(params.update.check_out_date) : new Date(this.formatYear(year,params.params.month), month - 1, 1),
       cMinDate: (params.update && params.update.pjp_date) ? new Date(params.update.pjp_date) : new Date(this.formatYear(year,params.params.month), month - 1, 1),
     });
+    
+   
 
     if(this.state.showField){
       this.props.getReqLocations()
       .then(()=>{
+
+        
+           
         for(var i=0; i<this.props.locations.dataSource.length; i++) {
+
+          if(params.update.dest_city == this.props.locations.dataSource[i].id){
+        
+            this.setState({
+              dest_city_class: this.props.locations.dataSource[i].city_class,
+              dest_city_type: this.props.locations.dataSource[i].type_id
+                 });
+
+          
+          }
           this.state.locationList.push({
             "Name": this.props.locations.dataSource[i].city,
             "Value": this.props.locations.dataSource[i].city,
             "Code": this.props.locations.dataSource[i].type,
+            "type_id": this.props.locations.dataSource[i].type_id,
+            "city_class": this.props.locations.dataSource[i].city_class,
             "Id": this.props.locations.dataSource[i].id,
           },)
         }
+        var newDays= moment(this.state.dateCout, "YYYY-MM-DD").diff(moment(this.state.dateCin, "YYYY-MM-DD"), 'days')
+        this.setState({
+          days: newDays == 0? 1: newDays
+        });
+     
+        if(params.update.mode == "22" || params.update.mode == "14"){
+          // alert(this.state.dest_city_class)
+  
+          this.props.getMaxAmntSales(global.USER.grade,params.update.mode,this.state.dest_city_type,this.state.dest_city_class,"Full Day")
+    
+          .then(()=>{
+              
+            let upperLimit = 0;
+           if(this.props.maxAmntSalesState.dataSource.length >0){
+          try{
+
+            
+            upperLimit = parseFloat(this.props.maxAmntSalesState.dataSource[0].upper_limit);
+          }catch(error){
+          }
+          
+         
+           }
+            this.setState({
+             
+              rqAmnt:upperLimit,
+              maxAmount: this.props.maxAmntSalesState.dataSource[0].upper_limit
+            })
+          });
+    
+        }
       });
     }
-
+ 
     this.props.getStatus("20","NA")
     .then(()=>{
       this.setState({
@@ -190,13 +242,17 @@ class SalesClaimReqScreen extends Component {
       });
     });
 
+
+   
+
+    if(params.item.category_id != "22" && params.item.category_id != "14"){
     this.props.getMaxAmnt(global.USER.grade,params.item.category_id)
     .then(()=>{
       this.setState({
         maxAmount: this.props.maxAmntState.dataSource[0].upper_limit,
       });
     })
-
+  }
     if(params.item.category_id == '3'){
       this.props.getVendor('Train')
       .then(()=>{
@@ -348,13 +404,33 @@ class SalesClaimReqScreen extends Component {
   }
 
   toSelected(value){
+   
     AsyncStorage.getItem("ASYNC_STORAGE_TO_KEY")
     .then(() => {
-      this.setState({
-        toItem: value,
-        tripToError: ''
-      })
+      this.props.getMaxAmntSales(global.USER.grade,this.state.categoryType,value.type_id,value.city_class,"Full Day")
+
+.then(()=>{
+  let upperLimit = 0;
+ if(this.props.maxAmntSalesState.dataSource.length >0){
+try{
+  upperLimit = parseFloat(this.props.maxAmntSalesState.dataSource[0].upper_limit);
+}catch(error){
+
+}
+
+ }
+  this.setState({
+    toItem: value,
+    tripToError: '',
+    rqAmnt:upperLimit
+  })
+});
+     
     })
+  
+
+
+
   }
 
   setColor(item){
@@ -919,6 +995,9 @@ class SalesClaimReqScreen extends Component {
   }
 
   formSubmit = () => {
+
+    //alert(this.state.dest_city_class)
+  
     let shouldSubmit = true;
     AsyncStorage.getItem("ASYNC_STORAGE_SUBMIT_KEY")
     .then(()=>{
@@ -1162,7 +1241,8 @@ class SalesClaimReqScreen extends Component {
         })
         .then(()=>{
           if((afterSetDistance.mode == "14" || afterSetDistance.mode == "22") 
-              && afterSetDistance.place_of_work == 'UC' && this.state.uc == 'NA') {
+               && afterSetDistance.place_of_work == 'UC' && this.state.uc == 'NA') // might need change as per requirement
+               {
             this.props.getHotels('Boarding and Lodging')
             .then(()=>{
               if(this.props.hotelList.isLoading) {
@@ -1365,7 +1445,7 @@ class SalesClaimReqScreen extends Component {
           
           {showField ?<>
           <Item fixedLabel style={styles.formRow}>
-            <Label style={styles.formLabel}>Form:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
+            <Label style={styles.formLabel}>From:<Text style={{color:'red',fontSize:13}}>*</Text></Label>
             <View style={styles.pickerWraper}>
               <PickerModal
                 renderSelectView={(disabled, selected, showModal) =>
@@ -1517,7 +1597,7 @@ class SalesClaimReqScreen extends Component {
           <Item fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Out of Policy:</Label>
             <Text style={[styles.value,styles.readOnly]}>{
-              parseFloat(this.state.cAmount) > parseFloat(this.state.rqAmnt) ? 'Yes' : 'No'
+              parseFloat(this.state.cAmount) > ( parseFloat(this.state.rqAmnt) *  parseFloat(this.state.newDays)) ? 'Yes' : 'No'
             }</Text>
           </Item>
           
@@ -2306,6 +2386,7 @@ const mapStateToProps = state => {
     reqListSales: state.reqListSales,
     generateExpState: state.generateExpState,
     maxAmntState: state.maxAmntState,
+    maxAmntSalesState: state.maxAmntSalesState,
     vendorList: state.vendorList,
     hotelList: state.hotelList,
     pjpClaimTot: state.pjpClaimTot,
@@ -2328,6 +2409,7 @@ const mapDispatchToProps = {
   getReqSale : Actions.getReqSale,
   generateExp: Actions.generateExp,
   getMaxAmnt: Actions.getMaxAmnt,
+  getMaxAmntSales: Actions.getMaxAmntSales,
   getVendor: Actions.getVendor,  
   getHotels: Actions.getHotels,
   postPjpClaimTot: Actions.postPjpClaimTot,
