@@ -1663,7 +1663,23 @@ try{
           </Item>
           <Item fixedLabel style={styles.formRow}>
               <Label style={[styles.formLabel]}> Invoice Currency:</Label>
-              <Text style={[styles.formInput,styles.readOnly,{textAlign:'left'}]}>{this.state.currency}</Text>
+              {
+              // <Text style={[styles.formInput,styles.readOnly,{textAlign:'left'}]}>{this.state.currency}</Text>
+
+              
+              <Picker
+                mode="dropdown"
+                iosIcon={<Icon name="arrow-down" />}
+                style={[styles.formInput, styles.select]}
+                placeholder="Select Currency"
+                placeholderStyle={{ color: "#bfc6ea" }}
+                placeholderIconColor="#007aff"
+                selectedValue={this.state.currency}
+                onValueChange={this.onValueChangecurrency}
+                >
+                <Picker.Item label="INR" value="INR" />
+              </Picker>
+    }
             </Item>
 
           <Item picker fixedLabel style={styles.formRow}>
@@ -1758,15 +1774,17 @@ try{
           <Item fixedLabel style={styles.formRow}>
             <Label style={styles.formLabel}>Invoice Date:</Label>
             <TouchableOpacity onPress={this.datepickerInv} style={styles.datePicker}>
-              <Text style={styles.datePickerLabel}>{moment(this.state.dateInv).format(global.DATEFORMAT)}</Text>
+              <Text style={styles.datePickerLabel}>{moment(this.state.dateStart).format(global.DATEFORMAT)}</Text>
               <Icon name="calendar" style={styles.datePickerIcon} />
             </TouchableOpacity>
           </Item>
           { this.state.showInv && 
-          <DateTimePicker value={new Date(moment(this.state.dateInv).format('YYYY-MM-DD'))}
+          <DateTimePicker value={new Date(moment(this.state.dateStart).format('YYYY-MM-DD'))}
             mode={this.state.modeDate}
             display="default"
-            minimumDate={new Date(moment(params.params.pjp_date).format('YYYY-MM-DD'))}
+            // minimumDate={new Date(moment(params.params.pjp_date).format('YYYY-MM-DD'))}
+            minimumDate={this.state.firstDay}
+            maximumDate={this.state.lastDay}
             onChange={this.setDateInv} />
           }
 
@@ -1841,6 +1859,7 @@ try{
             mode={this.state.modeDate}
             display="default"
             minimumDate={new Date(moment(params.params.pjp_date).format('YYYY-MM-DD'))}
+
             onChange={this.setDateInv} />
           }
           <Item picker fixedLabel style={styles.formRow}>
