@@ -44,6 +44,7 @@ class PjpCreateScreen extends Component {
       tripNo: '',
       details: null,
       status: '',
+      tourList:[]
     };
   } 
 
@@ -52,6 +53,20 @@ class PjpCreateScreen extends Component {
     this.props.getPurpose('B');
     this.props.getRetainer();
     this.props.getYear()
+
+
+    this.props.getPjpByMonth(global.USER.userId,"","")
+    .then(()=>{
+      if(this.props.getPjpByMonthState.dataSource.length>0) {
+        this.setState({
+          tourList: this.props.getPjpByMonthState.dataSource
+          
+        });
+       
+      } 
+    })
+
+
 
     .then(()=>{
       this.setState({
@@ -127,27 +142,64 @@ class PjpCreateScreen extends Component {
     this.setState({
       isLoading: true
     });
-    this.props.getPjpByMonth(global.USER.userId,this.state.selectedMonth,this.state.selectedYear)
-    .then(()=>{
-      if(this.props.getPjpByMonthState.dataSource.length>0) {
-        Alert.alert(
-          'Duplicate entry',
-          'Tour for '+this.state.selectedMonth+'-'+this.state.selectedYear+' already exists. Please choose another month',
-          [
-            {
-              text: 'Ok',
-              style: 'cancel',
-            },
-          ],
-          {cancelable: true},
-        )    
-        this.setState({
-          isLoading: false
-        });
-      } else {  
-        this.saveData();
-      }
-    })
+
+    for(var i=0;i<this.state.tourList.length;i++)
+   {
+var statusId = parseInt(this.state.tourList[i].status_id);
+  if(statusId >= 1 && statusId <= 23)
+ //if(statusId == 89)
+  {
+
+    this.setState({
+   
+      isError: true,
+      isLoading: false
+    });
+   
+    alert("Unprocessed trip(s) already exist. "+this.state.tourList[i].trip_no);
+    return;
+  }else if(this.state.tourList[i].year == this.state.selectedYear && this.state.tourList[i].month == this.state.selectedMonth ){
+    Alert.alert(
+      'Duplicate entry',
+      'Tour for '+this.state.selectedMonth+'-'+this.state.selectedYear+' already exists. Please choose another month',
+      [
+        {
+          text: 'Ok',
+          style: 'cancel',
+        },
+      ],
+      {cancelable: true},
+    )    
+    this.setState({
+      isLoading: false
+    });
+    return;
+  }
+}
+
+
+this.saveData();
+    // this.props.getPjpByMonth(global.USER.userId,this.state.selectedMonth,this.state.selectedYear)
+    // .then(()=>{
+    //   if(this.props.getPjpByMonthState.dataSource.length>0) {
+    //     Alert.alert(
+    //       'Duplicate entry',
+    //       'Tour for '+this.state.selectedMonth+'-'+this.state.selectedYear+' already exists. Please choose another month',
+    //       [
+    //         {
+    //           text: 'Ok',
+    //           style: 'cancel',
+    //         },
+    //       ],
+    //       {cancelable: true},
+    //     )    
+    //     this.setState({
+    //       isLoading: false
+    //     });
+    //   } else {  
+    //     this.saveData();
+    //   }
+    // })
   }
 
   saveData = () => {

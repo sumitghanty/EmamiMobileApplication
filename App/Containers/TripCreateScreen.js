@@ -226,7 +226,7 @@ class TripCreateScreen extends Component {
   confirmation = (statusId) => {
    // alert( moment(this.state.dateStart).format("MM-DD-YYYY"))
    // alert( moment(this.state.dateEnd).format("MM-DD-YYYY"))
-
+//alert("hi")
 //to check if the trip is for more than 90  days
 
 if(this.props.trips.isLoading){
@@ -249,10 +249,22 @@ var count=0;
 var startdatearray=[];
 var enddatearray=[];
 var j=0;
-for(i=0;i<sortList.length;i++)
+for(var i=0;i<sortList.length;i++)
 {
+var statusId = parseInt(sortList[i].status_id);
+  if(statusId >= 1 && statusId <= 23){
+
+    this.setState({
+   
+      error: true,
+    });
+   
+    alert("Unprocessed trip(s) already exist. "+sortList[i].trip_no);
+    return;
+  }
+
 if((sortList[i].status_id !="0") && (sortList[i].status_id != "1") && (sortList[i].status_id !="2")&&(sortList[i].status_id !="5"))
-//if(sortList[i].status_id=="3")
+if(sortList[i].status_id=="3")
 {
      startdatearray[j]=sortList[i].start_date;
      enddatearray[j]=sortList[i].end_date;
@@ -263,7 +275,7 @@ if((sortList[i].status_id !="0") && (sortList[i].status_id != "1") && (sortList[
 }
 
 
-for(i=0;i<startdatearray.length;i++)
+for(var i=0;i<startdatearray.length;i++)
 {
 startdatearray[i]= new Date(moment(startdatearray[i]).format("MM/DD/YYYY"));
 enddatearray[i]= new Date(moment(enddatearray[i]).format("MM/DD/YYYY"));      

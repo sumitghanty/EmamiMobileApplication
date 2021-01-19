@@ -38,12 +38,12 @@ class SalesClaimReqScreen extends Component {
      dest_city_class :"",
      dest_city_type : "",
       locationList: [],
-      fromItem: {"Name": (params.update && params.update.source_city_name) ? params.update.source_city_name : "Select From Location", 
+      fromItem: {"Name": (params.update && this.resolveData(params.update.claim_source_city_name,params.update.source_city_name,"Select To Location")), 
                   "Value": "", "Code": "", 
-                "Id": (params.update && params.update.source_city) ? params.update.source_city : 0},
-      toItem: {"Name": (params.update && params.update.dest_city_name) ? params.update.dest_city_name : "Select To Location", 
+                "Id": (params.update && this.resolveData(params.update.claim_source_city,params.update.source_city,0))},
+      toItem: {"Name": (params.update && this.resolveData(params.update.claim_dest_city_name,params.update.dest_city_name,"Select To Location")), 
                 "Value": "", "Code": "", 
-                "Id": (params.update && params.update.dest_city) ? params.update.dest_city : 0},
+                "Id": (params.update && this.resolveData(params.update.claim_dest_city,params.update.dest_city,0))},
       tripFromError: '',
       tripToError: '',
       curDate: new Date,
@@ -56,7 +56,7 @@ class SalesClaimReqScreen extends Component {
       statusName: '',
       subStatusName: '',
       lineitem: (params.update && params.update.lineitem)?params.update.lineitem:1,
-      distance: (params.update && params.update.distance)?params.update.distance:'NA',
+      distance: (params.update && this.resolveData(params.update.claim_distance,params.update.distance,0)),
       rqAmnt: 0,
       commentsFk: (params.update && params.update.claimEmpcomment) ? params.update.claimEmpcomment :null,
       comments: (params.update && params.update.claimEmpcomment) ? params.update.claimEmpcomment :null,
@@ -66,7 +66,7 @@ class SalesClaimReqScreen extends Component {
               :(params.update && params.update.ticket_class && (params.update.ticket_class == 'AC-3')) ? 'AC-3 tier' 
               :(params.update && params.update.ticket_class) ? params.update.ticket_class 
               : CLASS[0],
-      amount: (params.update && params.update.amount_mode) ? params.update.amount_mode :null,
+      amount: (params.update && this.resolveData(params.update.claim_amount_mode,params.update.amount_mode,0)),
       tStatus: (params.update && params.update.ticket_status) ? params.update.ticket_status : 'Availed',
       msg: (params.update && params.update.justification) ? params.update.justification :null,
       msgError: null,
@@ -182,7 +182,7 @@ class SalesClaimReqScreen extends Component {
            
         for(var i=0; i<this.props.locations.dataSource.length; i++) {
 
-          if(params.update.dest_city == this.props.locations.dataSource[i].id){
+          if(this.resolveData(params.update.claim_dest_city,params.update.dest_city,0) == this.props.locations.dataSource[i].id){
         
             this.setState({
               dest_city_class: this.props.locations.dataSource[i].city_class,
@@ -205,7 +205,7 @@ class SalesClaimReqScreen extends Component {
           days: newDays == 0? 1: newDays
         });
      
-        if(params.update.mode == "22" || params.update.mode == "14"){
+        if(this.resolveData(params.update.claim_travel_mode ,params.update.mode ,0) == "22" || this.resolveData(params.update.claim_travel_mode ,params.update.mode ,0) == "14"){
           // alert(this.state.dest_city_class)
   
           this.props.getMaxAmntSales(global.USER.grade,params.update.mode,this.state.dest_city_type,this.state.dest_city_class,"Full Day")
@@ -252,7 +252,7 @@ class SalesClaimReqScreen extends Component {
         maxAmount: this.props.maxAmntState.dataSource[0].upper_limit,
       });
     })
-  }
+   }
     if(params.item.category_id == '3'){
       this.props.getVendor('Train')
       .then(()=>{
@@ -431,6 +431,19 @@ try{
 
 
 
+  }
+
+  resolveData(claim_value,plan_value,defaultValue){
+
+    if(claim_value != null){
+     return   claim_value;
+    }
+    else if (plan_value != null){
+      return plan_value;
+    }
+    else {
+     return defaultValue;
+    }
   }
 
   setColor(item){
@@ -1111,6 +1124,7 @@ try{
   }
 
   saveReq = (data) => {
+  
     const {params} = this.props.navigation.state;
     let newReq = data;
     let newPJP = params.params;
@@ -1128,19 +1142,60 @@ try{
       newReq.designation = params.params.designation;
       newReq.cost_center = global.USER.costCentre;
       newReq.pjp_date = moment(this.state.dateStart).format("YYYY-MM-DD");
+    
+   
       if(this.state.showField){
-        newReq.source_city = this.state.fromItem.Id;
-        newReq.dest_city = this.state.toItem.Id;
-        newReq.source_city_name = this.state.fromItem.Name;
-        newReq.dest_city_name = this.state.toItem.Name;
+      
+        if (data.isNew == "new") {
+          newReq.claim_source_city = this.state.fromItem.Id;
+          newReq.claim_dest_city = this.state.toItem.Id;
+          newReq.claim_source_city_name = this.state.fromItem.Name;
+          newReq.claim_dest_city_name = this.state.toItem.Name
+
+        } else {
+          if (data.source_city != this.state.fromItem.Id) {
+            newReq.claim_source_city_name = this.state.fromItem.Name;
+            newReq.claim_dest_city_name = this.state.toItem.Name;
+            newReq.lineitemFlowType = "EC";
+
+          } else {
+            newReq.source_city = this.state.fromItem.Id;
+
+            newReq.source_city_name = this.state.fromItem.Name;
+         
+          }
+
+          if (data.dest_city != this.state.toItem.Id) {
+
+            newReq.claim_dest_city = this.state.toItem.Id;
+
+            newReq.claim_dest_city_name = this.state.toItem.Name;
+            newReq.lineitemFlowType = "EC";
+
+          } else {
+            newReq.dest_city = this.state.toItem.Id;
+
+            newReq.dest_city_name = this.state.toItem.Name
+
+          }
+
+        }
         newReq.claimrturetime = this.state.timeCin;
         newReq.claimarrivaltime = this.state.timeCout;
         newReq.claimactualdistance = this.state.aDistance;
         newReq.claimtotaltime = this.state.timeTotal;
       }
-      newReq.mode = params.item.category_id;
-      newReq.mode_name = params.item.category;
-      newReq.status_id = 20;
+
+
+        if(data.isNew == "new"){
+          newReq.claim_travel_mode = params.item.category_id;
+          newReq.claim_mode_name = params.item.category;
+          }
+      else{ 
+        newReq.mode = params.item.category_id;
+        newReq.mode_name = params.item.category; 
+        }
+       newReq.status_id = 20;
       newReq.sub_status_id = "NA";
       newReq.status = this.state.statusName;
       newReq.sub_status = this.state.subStatusName;
@@ -1236,11 +1291,11 @@ try{
           params.item.category_id == '26' ||
           params.item.category_id == '27') && this.state.twoWay){
             afterSetDistance.distance = parseFloat(this.props.generateExpState.dataSource[0].distance)*2;
-            afterSetDistance.amount_mode = parseFloat(this.props.generateExpState.dataSource[0].amount_mode)*2;
+            afterSetDistance.amount_mode = parseFloat(this.resolveData(this.props.generateExpState.dataSource[0].claim_amount_mode,this.props.generateExpState.dataSource[0].amount_mode,0))*2;
           }
         })
         .then(()=>{
-          if((afterSetDistance.mode == "14" || afterSetDistance.mode == "22") 
+          if((this.resolveData(afterSetDistance.claim_travel_mode,afterSetDistance.mode,0) == "14" || this.resolveData(afterSetDistance.claim_travel_mode,afterSetDistance.mode,0) == "22") 
                && afterSetDistance.place_of_work == 'UC' && this.state.uc == 'NA') // might need change as per requirement
                {
             this.props.getHotels('Boarding and Lodging')

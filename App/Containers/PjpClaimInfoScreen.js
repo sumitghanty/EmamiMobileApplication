@@ -37,7 +37,18 @@ class PjpClaimInfoScreen extends Component {
     num = parseFloat(value);
     return num.toFixed(2);
   }
-
+  resolveData(claim_value,plan_value,defaultValue, flag){
+if(flag != "new") return plan_value;
+    if(claim_value != null){
+     return   claim_value;
+    }
+    else if (plan_value != null){
+      return plan_value;
+    }
+    else {
+     return defaultValue;
+    }
+  }
   componentDidMount(props){
     const {params} = this.props.navigation.state
 
@@ -471,11 +482,14 @@ class PjpClaimInfoScreen extends Component {
   }
 
   renderItem = (data,index,params) => {
-    let item = this.getItem(data.mode)
-    let mode = parseInt(data.mode)
+  //  let item = this.getItem(data.mode)
+//  let mode = parseInt(data.mode)
+//alert(data.claim_amount_mode+" "+data.amount_mode);
+let mode = parseInt(data.claim_travel_mode == null?data.mode:data.claim_travel_mode)
+let item = this.getItem(data.claim_travel_mode == null?data.mode:data.claim_travel_mode)
     //alert(JSON.stringify(data));
     let showField = (mode == 1 || mode == 2 || mode == 8 || mode == 9 || mode == 10 || mode == 11 || mode == 12 || mode == 18 || mode == 19)?false:true;
-    if(data.status_id == 0 || data.status_id == 19 || data.sub_status_id == '6.1' || data.mode == '-1') {
+    if(data.status_id == 0 || data.status_id == 19 || data.sub_status_id == '6.1' || (data.claim_travel_mode == null?data.mode:data.claim_travel_mode) == '-1') {
       return <TouchableOpacity 
         key={index} 
         style={[styles.cardItem,styles.cardItemIntd]}
@@ -497,7 +511,10 @@ class PjpClaimInfoScreen extends Component {
       key={index} 
       style={styles.cardItem}
       onPress={()=>{
-       if(data.mode == "32"){
+     //  if(data.mode == "32"){
+     
+      if((data.claim_travel_mode == null?data.mode:data.claim_travel_mode) == "32"){
+      
         this.props.navigation.navigate('SalesTaxiRequisition',{item, params, 'update':data,'estCost':this.state.estimatedCost,'actAmnt':this.state.actAmnt});
        }else{
          if(data.flight_selected == 'Y'){
@@ -518,7 +535,8 @@ class PjpClaimInfoScreen extends Component {
           >
           <Icon name='trash' style={styles.actionBtnIco} />
         </TouchableOpacity>
-        <Text style={styles.cardTile}>{data.mode_name?data.mode_name:''}</Text>
+        <Text style={styles.cardTile}>{data.claim_mode_name == null?data.mode_name:data.claim_mode_name}</Text>
+        {/* <Text style={styles.cardTile}>{data.mode_name?data.mode_name:''}</Text> */}
         <Icon name="md-arrow-round-forward" style={styles.arrowbtn}/>
       </View>
       <View style={styles.cardBody}>
@@ -527,15 +545,15 @@ class PjpClaimInfoScreen extends Component {
           <Text style={styles.cardLabel}>Date:</Text>
           <Text style={styles.cardValue}>{moment(data.pjp_date).format(global.DATEFORMAT)}</Text>
         </View>:null}
-        {(data.source_city_name && showField) ?
+        {((data.claim_source_city_name == null?data.source_city_name:data.claim_source_city_name) && showField) ?
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>From:</Text>
-          <Text style={styles.cardValue}>{data.source_city_name}</Text>
+          <Text style={styles.cardValue}>{data.claim_source_city_name == null?data.source_city_name:data.claim_source_city_name}</Text>
         </View> : null }
-        {(data.dest_city_name && showField) ?
+        {((data.claim_dest_city_name == null?data.dest_city_name:data.claim_dest_city_name) && showField) ?
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>To:</Text>
-          <Text style={styles.cardValue}>{ data.dest_city_name }</Text>
+          <Text style={styles.cardValue}>{ data.claim_dest_city_name == null?data.dest_city_name:data.claim_dest_city_name }</Text>
         </View>:null}
         {(data.distance && showField)?
         <View style={styles.cardRow}>
@@ -567,10 +585,10 @@ class PjpClaimInfoScreen extends Component {
           <Text style={styles.cardLabel}>Day:</Text>
           <Text style={styles.cardValue}>{ data.dayCalculation }</Text>
         </View>: null}
-        {data.amount_mode ?
+        {data.claim_amount_mode ?
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>Requisition Amount:</Text>
-          <Text style={styles.cardValue}>{ data.amount_mode }</Text>
+          <Text style={styles.cardValue}>{ this.resolveData(data.claim_amount_mode ,data.amount_mode,0,data.isNew)}</Text>
         </View>: null}
         { data.claimamount ?
         <View style={styles.cardRow}>

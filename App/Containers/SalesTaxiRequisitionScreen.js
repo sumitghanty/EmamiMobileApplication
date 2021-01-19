@@ -38,12 +38,12 @@ class SalesTaxiRequisitionScreen extends Component {
     this.state = {
       locationList: [],
       //souvik
-      fromItem: {"Name": (params.update && params.update.source_city_name) ? params.update.source_city_name : "Select From Location", 
+      fromItem: {"Name": (params.update && this.resolveData(params.update.claim_source_city_name,params.update.source_city_name,"Select To Location")), 
                   "Value": "", "Code": "", 
-                "Id": (params.update && params.update.source_city) ? params.update.source_city : 0},
-      toItem: {"Name": (params.update && params.update.dest_city_name) ? params.update.dest_city_name : "Select To Location", 
+                "Id": (params.update &&  this.resolveData(params.update.claim_source_city,params.update.source_city,0))},
+      toItem: {"Name": (params.update && this.resolveData(params.update.claim_dest_city_name,params.update.dest_city_name,"Select To Location")), 
                 "Value": "", "Code": "", 
-                "Id": (params.update && params.update.dest_city) ? params.update.dest_city : 0},
+                "Id": (params.update && this.resolveData(params.update.claim_dest_city,params.update.dest_city,0))},
       tripFromError: '',
       fromNewError:'',
       amountNewError:'',
@@ -75,7 +75,7 @@ class SalesTaxiRequisitionScreen extends Component {
               :(params.update && params.update.ticket_class && (params.update.ticket_class == 'AC-3')) ? 'AC-3 tier' 
               :(params.update && params.update.ticket_class) ? params.update.ticket_class 
               : CLASS[0],
-      amount: (params.update && params.update.amount_mode) ? params.update.amount_mode :null,
+      amount: (params.update && this.resolveData(params.update.claim_amount_mode,params.update.amount_mode,0)),
       
       newto: (params.update && params.update.travel_to) ? params.update.travel_to :null,
       newto: (params.update && params.update.travel_from) ? params.update.travel_from :null,
@@ -118,8 +118,8 @@ class SalesTaxiRequisitionScreen extends Component {
       currency: (params.update && params.update.invoice_currency) ? params.update.invoice_currency :'INR',
       cgst: (params.update && params.update.vendor_CGST) ? params.update.vendor_CGST :null,
       
-      destFrom: (params.update && params.update.source_city_name) ? params.update.source_city_name :null,
-      destTo: (params.update && params.update.dest_city_name) ? params.update.dest_city_name :null,
+      destFrom: (params.update && this.resolveData(params.update.claim_source_city_name,params.update.source_city_name,0)),
+      destTo: (params.update && this.resolveData(params.update.claim_dest_city_name,params.update.dest_city_name,0)),
       
       
       Tonew: (params.update && params.update.travel_to) ? params.update.travel_to :null,
@@ -400,6 +400,21 @@ class SalesTaxiRequisitionScreen extends Component {
       show: Platform.OS === 'ios' ? true : false,
     });
   }
+
+  resolveData(claim_value,plan_value,defaultValue){
+
+    if(claim_value != null){
+     return   claim_value;
+    }
+    else if (plan_value != null){
+      return plan_value;
+    }
+    else {
+     return defaultValue;
+    }
+  }
+
+
 
   
 
@@ -1286,17 +1301,53 @@ else
       newReq.cost_center = global.USER.costCentre;
       newReq.pjp_date = moment(this.state.dateStart).format("YYYY-MM-DD");
       if(this.state.showField){
-        newReq.source_city = this.state.fromItem.Id;
-        newReq.dest_city = this.state.toItem.Id;
-        newReq.source_city_name = this.state.fromItem.Name;
-        newReq.dest_city_name = this.state.toItem.Name;
+        if (data.isNew == "new") {
+          newReq.claim_source_city = this.state.fromItem.Id;
+          newReq.claim_dest_city = this.state.toItem.Id;
+          newReq.claim_source_city_name = this.state.fromItem.Name;
+          newReq.claim_dest_city_name = this.state.toItem.Name
+
+        } else {
+          if (data.source_city != this.state.fromItem.Id) {
+            newReq.claim_source_city_name = this.state.fromItem.Name;
+            newReq.claim_dest_city_name = this.state.toItem.Name;
+            newReq.lineitemFlowType = "EC";
+
+          } else {
+            newReq.source_city = this.state.fromItem.Id;
+
+            newReq.source_city_name = this.state.fromItem.Name;
+         
+          }
+
+          if (data.dest_city != this.state.toItem.Id) {
+
+            newReq.claim_dest_city = this.state.toItem.Id;
+
+            newReq.claim_dest_city_name = this.state.toItem.Name;
+            newReq.lineitemFlowType = "EC";
+
+          } else {
+            newReq.dest_city = this.state.toItem.Id;
+
+            newReq.dest_city_name = this.state.toItem.Name
+
+          }
+
+        }
         newReq.claimrturetime = this.state.timeCin;
         newReq.claimarrivaltime = this.state.timeCout;
         newReq.claimactualdistance = this.state.aDistance;
         newReq.claimtotaltime = this.state.timeTotal;
       }
+      if(data.isNew == "new"){
+        newReq.claim_travel_mode = params.item.category_id;
+        newReq.claim_mode_name = params.item.category;
+        }
+    else{ 
       newReq.mode = params.item.category_id;
-      newReq.mode_name = params.item.category;
+      newReq.mode_name = params.item.category; 
+      }
       newReq.status_id = 20;
       newReq.sub_status_id = "NA";
       newReq.status = this.state.statusName;
@@ -1397,12 +1448,12 @@ else
           params.item.category_id == '26' ||
           params.item.category_id == '27') && this.state.twoWay){
             afterSetDistance.distance = parseFloat(this.props.generateExpState.dataSource[0].distance)*2;
-            afterSetDistance.amount_mode = parseFloat(this.props.generateExpState.dataSource[0].amount_mode)*2;
+            afterSetDistance.amount_mode = parseFloat(this.resolveData(this.props.generateExpState.dataSource[0].claim_amount_mode,this.props.generateExpState.dataSource[0].amount_mode,0))*2;
           }
      
         })
         .then(()=>{
-          if((afterSetDistance.mode == "14" || afterSetDistance.mode == "22") 
+          if((this.resolveData(afterSetDistance.claim_travel_mode,afterSetDistance.mode,0) == "14" || this.resolveData(afterSetDistance.claim_travel_mode,afterSetDistance.mode,0) == "22") 
               && afterSetDistance.place_of_work == 'UC' && this.state.uc == 'NA') {
             this.props.getHotels('Boarding and Lodging')
             .then(()=>{
